@@ -11,6 +11,8 @@ export const HIDE_SITE_CHROME_CSS = [
   'header.site-header', '.site-header', '.site-nav', '.oni-app-nav', 'footer.site-footer', '.site-footer',
   '.cmplz-cookiebanner', '#cmplz-manage-consent', '.cmplz-manage-consent', '.c127-app', '.c127-install',
   '[class*="install-banner"]', '.breadcrumbs', '.breadcrumb',
+  // Bloc « L'application Le Cercle 127 » et liens de téléchargement : inutiles dans l'application.
+  '.c127-appcard', '[data-c127-applink]', 'a[href*="testflight.apple.com"]', 'a[href*="apps.apple.com"]', 'a[href$=".apk"]',
   'a[href*="/lecture-de-reve"]', 'a[href*="buy.stripe.com"]', 'a[href*="checkout.stripe.com"]', '.simpay-form-wrap',
 ].join(',') + '{display:none!important}body{padding-bottom:24px!important;margin-top:0!important}';
 
@@ -48,6 +50,8 @@ export type NavDecision = 'allow' | 'external' | 'block' | 'native';
  * créé depuis l'app est ainsi relié au Grimoire de l'utilisateur connecté.
  */
 const NATIVE_ROUTES: [RegExp, string][] = [
+  [/^\/?$/, '/'],
+  [/^\/application(\/|$)/, '/'],
   [/^\/(parcours-reve-127|interpreter-mon-reve|raconter-un-reve)(\/|$)/, '/reve'],
   [/^\/(grimoire|mon-espace)(\/|$)/, '/grimoire'],
   [/^\/creer-un-compte(\/|$)/, '/connexion'],

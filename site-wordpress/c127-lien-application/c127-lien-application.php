@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cercle 127 - Lien vers l'application
  * Description: Ajoute un bloc « L'application Le Cercle 127 » sur l'accueil (Android + iPhone) et un lien « Application » dans le pied de page de toutes les pages. Présentation seule : aucune donnée, URL ou page modifiée. Désactiver l'extension annule tout.
- * Version: 1.3.0
+ * Version: 1.3.1
  * Author: Le Cercle 127
  * License: GPL-2.0-or-later
  */
@@ -59,6 +59,8 @@ function c127_lien_application_render() {
 	var cfg = <?php echo wp_json_encode( $config ); ?>;
 	var ua = navigator.userAgent || '';
 	var isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+	// Dans l'application elle-même, ni bloc ni lien de téléchargement.
+	if (window.ReactNativeWebView || /Cercle127App/.test(ua)) return;
 
 	function footerLink() {
 		var nav = document.querySelector('.foot-trust');
