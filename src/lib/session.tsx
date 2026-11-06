@@ -13,7 +13,7 @@ type SessionState = {
   lastError: string | null;
   oniEnabled: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (pseudonym: string, email: string, password: string) => Promise<'signed-in' | 'created'>;
+  signUp: (pseudonym: string, email: string, password: string, ageConfirmed: boolean) => Promise<'signed-in' | 'created'>;
   signOut: () => Promise<void>;
   deleteAccount: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -122,8 +122,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         const s = await api.login(email, password);
         await startSession(s.token, s.user);
       },
-      async signUp(pseudonym, email, password) {
-        const s = await api.register({ pseudonym, email, password });
+      async signUp(pseudonym, email, password, ageConfirmed) {
+        const s = await api.register({ pseudonym, email, password, ageConfirmed });
         if (!s) return 'created';
         await startSession(s.token, s.user);
         return 'signed-in';

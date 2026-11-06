@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { AppHeader, Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Title } from '../../components/ui';
-import { EMOTIONS } from '../../lib/model';
+import { EMOTIONS, recurringSymbols } from '../../lib/model';
 import { useSession } from '../../lib/session';
 import { colors, fonts, radius, space } from '../../lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,6 +25,7 @@ export default function Grimoire() {
     for (const d of dreams) if (d.emotion) counts.set(d.emotion, (counts.get(d.emotion) ?? 0) + 1);
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
   }, [dreams]);
+  const symbols = useMemo(() => recurringSymbols(dreams), [dreams]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={['top']}>
@@ -56,9 +57,20 @@ export default function Grimoire() {
 
         {lastError && <Notice tone="error" text={lastError} />}
 
-        {recurring.length > 0 && (
+        {(recurring.length > 0 || symbols.length > 0) && (
           <Card>
             <Eyebrow>Ce qui revient</Eyebrow>
+            {symbols.length > 0 && (
+              <View style={st.recurring}>
+                {symbols.map(([sym, n]) => (
+                  <View key={sym} style={st.badge}>
+                    <Text style={st.badgeText}>
+                      {sym} · {n} nuits
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
             <View style={st.recurring}>
               {recurring.map(([emo, n]) => (
                 <View key={emo} style={st.badge}>

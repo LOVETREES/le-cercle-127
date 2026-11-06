@@ -37,6 +37,7 @@ export type DreamInput = {
 export type Dream = DreamInput & {
   id: string; // identifiant serveur, ou « draft-… » pour un brouillon local
   createdAt: string;
+  symbols?: string[]; // symboles repérés par le site (« La forêt, La lumière… »)
   oniReading?: string;
   pending?: boolean; // vrai tant que le rêve n'est pas synchronisé
 };
@@ -91,7 +92,7 @@ export function extractToken(body: unknown): string | undefined {
 export function normalizeUser(body: unknown): User | undefined {
   const u = pick(body, ['user', 'data.user', 'me']) ?? body;
   const id = str(pick(u, ['id', 'ID', 'user_id']));
-  const name = str(pick(u, ['pseudonym', 'pseudo', 'display_name', 'name', 'username', 'user_login']));
+  const name = str(pick(u, ['display_name', 'pseudonym', 'pseudo', 'name', 'username', 'user_login']));
   if (!id && !name) return undefined;
   return { id: id ?? '', name: name ?? 'Rêveur', email: str(pick(u, ['email', 'user_email'])) };
 }
@@ -103,11 +104,16 @@ export function normalizeDream(raw: unknown): Dream | undefined {
   const id = str(pick(raw, ['id', 'ID', 'dream_id']));
   if (!id) return undefined;
   const story = plainText(str(pick(raw, ['story', 'recit', 'content', 'text', 'description', 'body'])));
-  const title = plainText(str(pick(raw, ['title', 'titre', 'name']))) || 'Rêve sans titre';
+  // WordPress préfixe les contenus privés par « Privé : ».
+  const title = plainText(str(pick(raw, ['title', 'titre', 'name']))).replace(/^Privé\s*:\s*/u, '') || 'Rêve sans titre';
   const created = str(pick(raw, ['created_at', 'date', 'createdAt', 'created'])) ?? new Date().toISOString();
   const dreamDate = (str(pick(raw, ['dream_date', 'night', 'dreamDate', 'date'])) ?? created).slice(0, 10);
   const intensityRaw = Number(pick(raw, ['intensity', 'intensite', 'emotion_intensity']));
-  const reading = str(pick(raw, ['oni_reading', 'oni.reading', 'oni.text', 'reading', 'interpretation', 'oni_response']));
+  const reading = str(pick(raw, ['interpretation', 'oni_reading', 'oni.reading', 'oni.text', 'reading', 'oni_response']));
+  const symbolsRaw = pick(raw, ['symbols', 'symboles']);
+  const symbols = (Array.isArray(symbolsRaw) ? symbolsRaw.map(String) : String(symbolsRaw ?? '').split(','))
+    .map((x) => plainText(x).trim())
+    .filter(Boolean);
   return {
     id,
     title,
@@ -116,6 +122,7 @@ export function normalizeDream(raw: unknown): Dream | undefined {
     emotion: str(pick(raw, ['emotion', 'emotion_dominante'])) as Emotion | undefined,
     intensity: Number.isFinite(intensityRaw) && intensityRaw > 0 ? intensityRaw : undefined,
     createdAt: created,
+    symbols: symbols.length ? symbols : undefined,
     oniReading: reading ? plainText(reading) : undefined,
   };
 }
@@ -161,6 +168,13 @@ export function mergeDreams(server: Dream[], drafts: Dream[]): Dream[] {
   return [...drafts, ...server].sort((a, b) =>
     b.dreamDate === a.dreamDate ? b.createdAt.localeCompare(a.createdAt) : b.dreamDate.localeCompare(a.dreamDate),
   );
+}
+
+/** Symboles les plus fréquents dans le Grimoire (« Ce qui revient »). */
+export function recurringSymbols(dreams: Dream[], limit = 6): [string, number][] {
+  const counts = new Map<string, number>();
+  for (const d of dreams) for (const sym of new Set(d.symbols ?? [])) counts.set(sym, (counts.get(sym) ?? 0) + 1);
+  return [...counts.entries()].filter(([, n]) => n > 1).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, limit);
 }
 
 export function validateEmail(email: string): boolean {

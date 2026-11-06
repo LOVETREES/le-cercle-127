@@ -9,6 +9,7 @@ import {
   normalizeDream,
   normalizeDreamList,
   normalizeUser,
+  recurringSymbols,
   plainText,
   validateDream,
   validateEmail,
@@ -38,6 +39,37 @@ describe('normalisation des réponses WordPress', () => {
       oni_reading: '<p>Une piste…</p>',
     });
     expect(d).toMatchObject({ id: '7', title: 'La maison qui respire', story: 'J’étais dans une maison.', dreamDate: '2026-11-01', emotion: 'peur', intensity: 4, oniReading: 'Une piste…' });
+  });
+
+  it('lit le format réel de /cercle127/v1/dreams', () => {
+    const d = normalizeDream({
+      id: 18322,
+      title: 'Privé\u00a0: L&rsquo;eau claire',
+      story: 'Je nageais dans un lac.',
+      dream_date: '2026-11-01',
+      emotion: 'serenite',
+      symbols: 'La clé, Le lac',
+      interpretation: '',
+      created_at: '2026-11-06T12:50:05',
+    });
+    expect(d).toMatchObject({ id: '18322', title: 'L’eau claire', dreamDate: '2026-11-01', symbols: ['La clé', 'Le lac'] });
+    expect(d?.oniReading).toBeUndefined();
+  });
+
+  it('repère les symboles qui reviennent', () => {
+    const base = { title: 't', story: 's', dreamDate: '2026-11-01', createdAt: 'x' };
+    const r = recurringSymbols([
+      { ...base, id: '1', symbols: ['La forêt', 'La clé'] },
+      { ...base, id: '2', symbols: ['La forêt'] },
+      { ...base, id: '3', symbols: ['Le lac'] },
+    ]);
+    expect(r).toEqual([['La forêt', 2]]);
+  });
+
+  it('lit la réponse réelle de connexion', () => {
+    const body = { token: 'abc', token_type: 'Bearer', user: { id: 5, email: 'a@b.fr', display_name: 'Revue Apple' } };
+    expect(extractToken(body)).toBe('abc');
+    expect(normalizeUser(body)).toEqual({ id: '5', name: 'Revue Apple', email: 'a@b.fr' });
   });
 
   it('ignore les éléments sans identifiant et accepte une liste enveloppée', () => {

@@ -33,10 +33,7 @@ async function request(url: string, { method = 'GET', body, token, timeoutMs = 2
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   const headers: Record<string, string> = { Accept: 'application/json' };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-    headers['X-C127-Token'] = token;
-  }
+  if (token) headers.Authorization = `Bearer ${token}`;
   let res: Response;
   try {
     res = await fetch(url, {
@@ -74,19 +71,17 @@ export const api = {
     return { token, user: normalizeUser(body) ?? { id: '', name: email.split('@')[0] } };
   },
 
-  async register(input: { pseudonym: string; email: string; password: string }): Promise<Session | null> {
+  // Champs attendus par /auth/register (vérifiés sur le site, novembre 2026).
+  async register(input: { pseudonym: string; email: string; password: string; ageConfirmed: boolean }): Promise<Session | null> {
     const body = await request(`${NS}/auth/register`, {
       method: 'POST',
       body: {
-        pseudonym: input.pseudonym.trim(),
-        pseudo: input.pseudonym.trim(),
         display_name: input.pseudonym.trim(),
-        username: input.pseudonym.trim(),
         email: input.email.trim(),
-        login: input.email.trim(),
         password: input.password,
-        consent: true,
+        password_confirmation: input.password,
         privacy_consent: true,
+        age_confirmation: input.ageConfirmed,
       },
     });
     const token = extractToken(body);

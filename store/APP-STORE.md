@@ -107,9 +107,9 @@ Résultat attendu : **12+** (ou 9+). Âge minimum de l'achat sur le site : majeu
 
 ## 10. Informations pour la relecture Apple (obligatoire)
 
-**Compte de démonstration** : créer sur lecercle127.com un compte dédié, par exemple
-`revue.apple@lecercle127.com`, avec 2 ou 3 rêves déjà enregistrés. Indiquer l'identifiant et le mot de passe dans
-App Store Connect → Informations pour la relecture.
+**Compte de démonstration** (créé le 6 novembre 2026, 3 rêves enregistrés) : identifiant
+`revue.apple@lecercle127.com`. Le mot de passe a été transmis à part : il ne doit pas figurer dans ce dépôt.
+À saisir dans App Store Connect → Informations pour la relecture (« Sign-in required »).
 
 **Notes pour le relecteur** (à coller, en anglais) :
 

@@ -17,7 +17,9 @@ export default function Connexion() {
   const [pseudonym, setPseudonym] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
   const [consent, setConsent] = useState(false);
+  const [adult, setAdult] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -50,9 +52,11 @@ export default function Connexion() {
       }
       if (pseudonym.trim().length < 2) throw new Error('Choisissez un pseudonyme (2 caractères au moins).');
       if (!validateEmail(email)) throw new Error('Indiquez une adresse e-mail valide.');
-      if (password.length < 8) throw new Error('Le mot de passe doit contenir au moins 8 caractères.');
+      if (password.length < 10) throw new Error('Le mot de passe doit contenir au moins 10 caractères.');
+      if (password !== password2) throw new Error('Les deux mots de passe ne sont pas identiques.');
       if (!consent) throw new Error('Merci d’accepter la politique de confidentialité pour créer votre compte.');
-      const r = await signUp(pseudonym, email, password);
+      if (!adult) throw new Error('Le Grimoire est réservé aux personnes de 15 ans et plus.');
+      const r = await signUp(pseudonym, email, password, adult);
       if (r === 'signed-in') {
         router.back();
       } else {
@@ -99,6 +103,29 @@ export default function Connexion() {
         )}
 
         {mode === 'register' && (
+          <Field
+            label="Confirmer le mot de passe"
+            value={password2}
+            onChangeText={setPassword2}
+            secureTextEntry
+            autoComplete="new-password"
+            textContentType="newPassword"
+          />
+        )}
+
+        {mode === 'register' && (
+          <Pressable
+            style={st.consent}
+            onPress={() => setAdult(!adult)}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: adult }}
+          >
+            <View style={[st.box, adult && st.boxOn]}>{adult && <Text style={st.check}>✓</Text>}</View>
+            <Text style={st.consentText}>Je confirme avoir au moins 15 ans.</Text>
+          </Pressable>
+        )}
+
+        {mode === 'register' && (
           <Pressable
             style={st.consent}
             onPress={() => setConsent(!consent)}
@@ -116,7 +143,7 @@ export default function Connexion() {
               >
                 politique de confidentialité
               </Text>{' '}
-              et j’accepte que mes rêves soient conservés dans mon Grimoire.
+              et je demande la création de mon espace privé. L’usage d’Oni fera l’objet d’un accord séparé.
             </Text>
           </Pressable>
         )}

@@ -69,6 +69,13 @@ export default function DreamDetail() {
         {dream.story}
       </Text>
 
+      {dream.symbols && dream.symbols.length > 0 && (
+        <Card>
+          <Eyebrow>Symboles repérés</Eyebrow>
+          <Text style={st.symbols}>{dream.symbols.join(' · ')}</Text>
+        </Card>
+      )}
+
       {dream.oniReading ? (
         <Card>
           <Eyebrow>Ce qu’Oni y voit</Eyebrow>
@@ -112,5 +119,6 @@ const st = StyleSheet.create({
   content: { padding: space.md, gap: space.lg, paddingBottom: 60 },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.night, padding: space.lg },
   story: { fontFamily: fonts.body, fontSize: 16, lineHeight: 26, color: colors.text },
+  symbols: { fontFamily: fonts.title, fontSize: 18, lineHeight: 26, color: colors.gold },
   reading: { fontFamily: fonts.titleItalic, fontSize: 19, lineHeight: 27, color: colors.text },
 });
