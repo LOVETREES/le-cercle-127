@@ -14,7 +14,9 @@
       "bundleIdentifier": "com.lecercle127.app",
       "buildNumber": "1",
       "supportsTablet": false,
-      "config": { "usesNonExemptEncryption": false },
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "CFBundleDevelopmentRegion": "fr"
       }
@@ -28,8 +30,13 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "permissions": ["android.permission.POST_NOTIFICATIONS"],
-      "blockedPermissions": ["android.permission.RECORD_AUDIO", "android.permission.CAMERA"],
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -61,7 +68,10 @@
       "typedRoutes": true
     },
     "extra": {
-      "apiBaseUrl": "https://lecercle127.com/wp-json"
+      "apiBaseUrl": "https://lecercle127.com/wp-json",
+      "eas": {
+        "projectId": "05046b88-2152-4a0a-9857-b16979a81911"
+      }
     }
   }
 }
