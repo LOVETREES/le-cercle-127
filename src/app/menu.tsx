@@ -24,12 +24,23 @@ export default function Menu() {
       <View style={st.group}>
         <LinkRow icon="❖" title="Mon Grimoire" onPress={() => tab('/grimoire')} />
         <LinkRow icon="☾" title="Raconter un rêve" onPress={() => tab('/reve')} />
+        {!user && (
+          <LinkRow
+            icon="◐"
+            title="Se connecter"
+            onPress={() => {
+              router.back();
+              router.push('/connexion');
+            }}
+          />
+        )}
         <LinkRow
-          icon="◐"
-          title={user ? `Mon compte · ${user.name}` : 'Se connecter'}
+          icon="⚙"
+          title={user ? `Mon compte · ${user.name}` : 'Réglages'}
+          subtitle="Rappel du matin, données, diagnostic"
           onPress={() => {
             router.back();
-            router.push(user ? '/compte' : '/connexion');
+            router.push('/compte');
           }}
         />
       </View>

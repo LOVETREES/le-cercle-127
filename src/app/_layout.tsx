@@ -2,17 +2,39 @@ import { CormorantGaramond_500Medium, CormorantGaramond_500Medium_Italic } from 
 import { Manrope_400Regular, Manrope_500Medium, Manrope_600SemiBold } from '@expo-google-fonts/manrope';
 import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
-import { router, Stack } from 'expo-router';
+import { router, Stack, type ErrorBoundaryProps } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Platform } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { installCrashGuard } from '../lib/crash';
 import { SessionProvider, useSession } from '../lib/session';
 import { colors, fonts } from '../lib/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
+installCrashGuard();
+
+// Une erreur d'affichage montre cet écran au lieu de fermer l'application.
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.night, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 }}>
+      <Text style={{ color: colors.gold, fontSize: 40 }}>☾</Text>
+      <Text style={{ color: colors.text, fontSize: 18, textAlign: 'center' }}>Une erreur est survenue.</Text>
+      <Text selectable style={{ color: colors.muted, fontSize: 13, textAlign: 'center' }}>
+        {error.message}
+      </Text>
+      <Pressable
+        onPress={retry}
+        accessibilityRole="button"
+        style={{ backgroundColor: '#e8cf8f', borderRadius: 999, paddingHorizontal: 28, paddingVertical: 14 }}
+      >
+        <Text style={{ color: '#1b1730', fontSize: 16 }}>Réessayer</Text>
+      </Pressable>
+    </View>
+  );
+}
 
 function Root() {
   const { ready } = useSession();

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Body, Card, Eyebrow, Notice, OutlineButton, SiteFooter, Title } from '../components/ui';
+import { clearLastError, readLastError, type LastError } from '../lib/crash';
 import { DEFAULT_REMINDER, loadReminder, saveReminder, type Reminder } from '../lib/reminders';
 import { useSession } from '../lib/session';
 import { colors, fonts, radius, space } from '../lib/theme';
@@ -24,9 +25,11 @@ export default function Compte() {
   const { user, signOut, deleteAccount } = useSession();
   const [reminder, setReminder] = useState<Reminder>(DEFAULT_REMINDER);
   const [notice, setNotice] = useState<{ text: string; tone: 'error' | 'success' } | null>(null);
+  const [lastError, setLastError] = useState<LastError | null>(null);
 
   useEffect(() => {
     loadReminder().then(setReminder);
+    readLastError().then(setLastError);
   }, []);
 
   const updateReminder = async (next: Reminder) => {
@@ -119,6 +122,26 @@ export default function Compte() {
         </Card>
       )}
 
+      {lastError && (
+        <Card>
+          <Eyebrow>Dernière erreur (diagnostic)</Eyebrow>
+          <Text selectable style={st.diag}>
+            {lastError.at} · {lastError.fatal ? 'fatale' : 'non fatale'}
+            {'\n'}
+            {lastError.message}
+            {'\n'}
+            {lastError.stack.split('\n').slice(0, 6).join('\n')}
+          </Text>
+          <OutlineButton
+            label="Effacer"
+            onPress={async () => {
+              await clearLastError();
+              setLastError(null);
+            }}
+          />
+        </Card>
+      )}
+
       <Text style={st.version}>Le Cercle 127 · version {Constants.expoConfig?.version ?? '1.0.0'}</Text>
       <SiteFooter />
     </ScrollView>
@@ -132,5 +155,6 @@ const st = StyleSheet.create({
   hour: { borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 14, paddingVertical: 8 },
   hourOn: { backgroundColor: colors.gold, borderColor: colors.gold },
   hourText: { fontFamily: fonts.bodyMedium, color: colors.text },
+  diag: { fontFamily: fonts.body, fontSize: 11, lineHeight: 16, color: colors.muted },
   version: { fontFamily: fonts.body, color: colors.muted, textAlign: 'center', fontSize: 12 },
 });
