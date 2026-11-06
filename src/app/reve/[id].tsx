@@ -19,7 +19,7 @@ function ask(title: string, message: string, action: string): Promise<boolean> {
 
 export default function DreamDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { dreams, removeDream, exploreWithOni, oniEnabled, user } = useSession();
+  const { dreams, removeDream, exploreWithOni, oniEnabled, oniRequested, user } = useSession();
   const dream = dreams.find((d) => d.id === id);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,8 +37,8 @@ export default function DreamDetail() {
   const explore = async () => {
     // Consentement explicite à chaque envoi au service d'IA (politique de confidentialité).
     const ok = await ask(
-      'Demander une exploration à Oni ?',
-      'Le récit de ce rêve, son titre et son émotion seront transmis à notre prestataire d’intelligence artificielle (OpenAI) pour proposer des hypothèses et des questions. Ils ne servent pas à entraîner ses modèles.',
+      'Demander une lecture à Oni ?',
+      'Le récit de ce rêve, son titre et son émotion seront transmis à notre prestataire d’intelligence artificielle (OpenAI) pour proposer des hypothèses et des questions. Ils ne servent pas à entraîner ses modèles. La lecture est relue par une personne du Cercle avant de vous parvenir.',
       'Envoyer à Oni',
     );
     if (!ok) return;
@@ -100,10 +100,21 @@ export default function DreamDetail() {
             artificielle.
           </Body>
         </Card>
+      ) : user && !dream.pending && oniRequested.includes(dream.id) ? (
+        <Card>
+          <Eyebrow>Lecture en préparation</Eyebrow>
+          <Body muted>
+            Oni lit votre rêve. Sa lecture est relue par une personne du Cercle avant d’arriver ici et dans l’onglet Lectures,
+            en général sous 48 heures. Tirez l’écran du Grimoire vers le bas pour actualiser.
+          </Body>
+        </Card>
       ) : oniEnabled && user && !dream.pending ? (
         <Card>
           <Eyebrow>Oni</Eyebrow>
-          <Body muted>Oni peut proposer des hypothèses et des questions à partir de ce rêve, sans vous dire quoi penser.</Body>
+          <Body muted>
+            Oni peut proposer des hypothèses et des questions à partir de ce rêve, sans vous dire quoi penser. Chaque lecture
+            est relue par une personne avant de vous parvenir.
+          </Body>
           <GoldButton label="Demander une lecture à Oni" onPress={explore} loading={busy} />
         </Card>
       ) : !dream.pending ? (

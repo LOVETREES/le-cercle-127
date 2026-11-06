@@ -13,6 +13,9 @@ import {
   type User,
 } from './model';
 
+// Scénario Make « Cercle 127 — App : demande de lecture d'Oni (relue) ».
+export const ONI_REQUEST_URL = 'https://hook.eu2.make.com/494v4gvalix9usill8zoynzh2mtyt13w';
+
 const BASE: string =
   (Constants.expoConfig?.extra as { apiBaseUrl?: string } | undefined)?.apiBaseUrl ?? 'https://lecercle127.com/wp-json';
 const NS = `${BASE}/cercle127/v1`;
@@ -122,15 +125,16 @@ export const api = {
     await request(`${NS}/dreams/${encodeURIComponent(id)}`, { method: 'DELETE', token });
   },
 
-  async exploreWithOni(token: string, id: string): Promise<string> {
-    const body = await request(`${NS}/dreams/${encodeURIComponent(id)}/oni`, {
+  // Demande de lecture d'Oni : Make vérifie que le rêve appartient à la personne, Oni le lit,
+  // puis la lecture est relue par une personne avant d'apparaître dans le Grimoire.
+  async requestOniReading(token: string, id: string): Promise<'en_attente' | 'deja_demandee'> {
+    const body = (await request(ONI_REQUEST_URL, {
       method: 'POST',
-      token,
-      body: { consent: true },
-      timeoutMs: 90000,
-    });
-    const reading = normalizeDream((body as { dream?: unknown })?.dream ?? body)?.oniReading;
-    return reading ?? plainText(apiErrorMessage(body, ''));
+      body: { dream_id: Number(id), token, consent: true },
+      timeoutMs: 30000,
+    })) as { ok?: boolean; status?: string } | undefined;
+    if (body?.ok && (body.status === 'en_attente' || body.status === 'deja_demandee')) return body.status;
+    throw new ApiError('Ce rêve n’a pas pu être confié à Oni. Actualisez votre Grimoire et réessayez.', 400);
   },
 
   async privacy(): Promise<{ url: string; oniEnabled: boolean }> {

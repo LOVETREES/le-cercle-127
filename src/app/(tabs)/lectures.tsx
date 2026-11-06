@@ -16,7 +16,7 @@ function formatDate(iso: string) {
 
 // Toutes les lectures d'Oni au même endroit, et où elles arrivent.
 export default function Lectures() {
-  const { user, dreams, oniEnabled, syncing, refresh } = useSession();
+  const { user, dreams, oniEnabled, oniRequested, syncing, refresh } = useSession();
   const read = useMemo(() => dreams.filter((d) => d.oniReading), [dreams]);
   const waiting = useMemo(() => dreams.filter((d) => !d.oniReading && !d.pending), [dreams]);
 
@@ -51,6 +51,8 @@ export default function Lectures() {
             <Text style={st.step}>
               3. {oniEnabled ? 'Ouvrez-le et touchez « Demander une lecture à Oni ».' : 'Quand Oni l’aura lu, sa lecture apparaîtra ici.'}
             </Text>
+            <Text style={st.step}>4. La lecture est relue par une personne du Cercle, puis elle arrive ici.
+            </Text>
             {!oniEnabled && (
               <Notice text="Les lectures d’Oni dans l’application ouvrent très bientôt. Vos rêves sont déjà gardés : ils seront prêts à être lus." />
             )}
@@ -84,7 +86,10 @@ export default function Lectures() {
                 onPress={() => router.push({ pathname: '/reve/[id]', params: { id: d.id } })}
                 accessibilityRole="link"
               >
-                <Text style={st.waiting}>☾ {d.title}</Text>
+                <Text style={st.waiting}>
+                  ☾ {d.title}
+                  {oniRequested.includes(d.id) ? <Text style={st.preparing}>  · lecture en préparation</Text> : null}
+                </Text>
               </Pressable>
             ))}
           </Card>
@@ -103,4 +108,5 @@ const st = StyleSheet.create({
   reading: { fontFamily: fonts.titleItalic, fontSize: 17, lineHeight: 24, color: colors.text },
   more: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold, marginTop: 4 },
   waiting: { fontFamily: fonts.body, fontSize: 15, color: colors.muted, paddingVertical: 4 },
+  preparing: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.gold },
 });

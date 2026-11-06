@@ -19,7 +19,8 @@ type SessionState = {
   refresh: () => Promise<void>;
   addDream: (input: DreamInput) => Promise<Dream>;
   removeDream: (id: string) => Promise<void>;
-  exploreWithOni: (id: string) => Promise<string>;
+  exploreWithOni: (id: string) => Promise<'en_attente' | 'deja_demandee'>;
+  oniRequested: string[];
 };
 
 const Ctx = createContext<SessionState | null>(null);
@@ -32,23 +33,26 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [drafts, setDrafts] = useState<Dream[]>([]);
   const [syncing, setSyncing] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
-  const [oniEnabled, setOniEnabled] = useState(false);
+  // Les lectures passent par Make (relues avant publication) : la demande est toujours possible.
+  const [oniEnabled] = useState(true);
+  const [oniRequested, setOniRequested] = useState<string[]>([]);
 
   // Restauration au démarrage : jeton, profil, brouillons et dernier Grimoire connu (hors ligne).
   useEffect(() => {
     (async () => {
-      const [t, u, d, c] = await Promise.all([
+      const [t, u, d, c, r] = await Promise.all([
         secure.get(KEYS.token),
         local.getJson<User | null>(KEYS.user, null),
         local.getJson<Dream[]>(KEYS.drafts, []),
         local.getJson<Dream[]>(KEYS.cache, []),
+        local.getJson<string[]>(KEYS.oniRequested, []),
       ]);
       setToken(t);
       setUser(t ? u : null);
       setDrafts(d);
       setServer(t ? c : []);
+      setOniRequested(r);
       setReady(true);
-      api.privacy().then((p) => setOniEnabled(p.oniEnabled), () => undefined);
     })();
   }, []);
 
@@ -59,10 +63,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const clearSession = useCallback(async () => {
     await secure.remove(KEYS.token);
-    await local.remove([KEYS.user, KEYS.cache]);
+    await local.remove([KEYS.user, KEYS.cache, KEYS.oniRequested]);
     setToken(null);
     setUser(null);
     setServer([]);
+    setOniRequested([]);
   }, []);
 
   const handleAuthError = useCallback(
@@ -160,15 +165,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await local.setJson(KEYS.cache, list);
       },
       async exploreWithOni(id) {
-        if (!token) throw new ApiError('Connectez-vous pour demander une exploration à Oni.', 401);
-        const reading = await api.exploreWithOni(token, id).catch(handleAuthError);
-        const list = server.map((d) => (d.id === id ? { ...d, oniReading: reading } : d));
-        setServer(list);
-        await local.setJson(KEYS.cache, list);
-        return reading;
+        if (!token) throw new ApiError('Connectez-vous pour demander une lecture à Oni.', 401);
+        const status = await api.requestOniReading(token, id);
+        const next = oniRequested.includes(id) ? oniRequested : [...oniRequested, id];
+        setOniRequested(next);
+        await local.setJson(KEYS.oniRequested, next);
+        return status;
       },
+      oniRequested,
     }),
-    [ready, user, token, server, drafts, syncing, lastError, oniEnabled, startSession, clearSession, handleAuthError, persistDrafts, sync],
+    [ready, user, token, server, drafts, syncing, lastError, oniEnabled, oniRequested, startSession, clearSession, handleAuthError, persistDrafts, sync],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

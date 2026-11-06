@@ -120,7 +120,7 @@ Le Cercle 127 is a private dream journal and symbol dictionary (French language)
 - Account deletion: Grimoire tab > "Mon compte" > "Supprimer mon compte".
 - Some content pages (Oracle, the Seven Sisters) are displayed from our website lecercle127.com, without any payment link.
 - The app contains no in-app purchase and no link to external purchases.
-- The optional "Oni" AI exploration asks for explicit consent before each request and discloses that an AI provider (OpenAI) is used.
+- The optional "Oni" AI reading asks for explicit consent before each request and discloses that an AI provider (OpenAI) is used. Every reading is reviewed by a person before it is shown to the user (usually within 48 hours). The demo account already contains one reviewed reading ("La forêt qui chante", Lectures tab).
 - The app does not provide medical advice, diagnosis or predictions.
 Contact: contact@lecercle127.com
 ```

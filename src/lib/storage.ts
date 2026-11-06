@@ -43,4 +43,5 @@ export const KEYS = {
   drafts: 'c127.drafts',
   cache: 'c127.dreams-cache',
   reminder: 'c127.reminder',
+  oniRequested: 'c127.oni-requested',
 } as const;
