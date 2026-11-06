@@ -84,6 +84,8 @@ au moins 12 personnes pendant 14 jours** avant de pouvoir publier en production.
 
 ### 3. App Store
 
+Fiche complète (textes, confidentialité, âge, notes de relecture) : [`store/APP-STORE.md`](store/APP-STORE.md). Captures 6,9 pouces : `store/ios-6.9/`.
+
 Nécessite un compte Apple Developer (99 $/an).
 
 ```bash
