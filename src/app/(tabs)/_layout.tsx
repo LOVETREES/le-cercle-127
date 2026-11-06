@@ -1,4 +1,4 @@
-import { Tabs } from 'expo-router';
+import { router, Tabs } from 'expo-router';
 import { Image, Pressable, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -16,10 +16,17 @@ const TABS: Record<string, { label: string; icon: ImageSourcePropType }> = {
 
 type BarProps = {
   state: { index: number; routes: { key: string; name: string }[] };
-  navigation: { navigate: (name: string) => void };
 };
 
-function TabBar({ state, navigation }: BarProps) {
+const PATHS: Record<string, '/' | '/oracle' | '/reve' | '/grimoire' | '/symboles'> = {
+  index: '/',
+  oracle: '/oracle',
+  reve: '/reve',
+  grimoire: '/grimoire',
+  symboles: '/symboles',
+};
+
+function TabBar({ state }: BarProps) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[st.bar, { paddingBottom: Math.max(insets.bottom, 8) }]} accessibilityRole="tablist">
@@ -34,7 +41,7 @@ function TabBar({ state, navigation }: BarProps) {
             accessibilityRole="tab"
             accessibilityLabel={tab.label}
             accessibilityState={{ selected: focused }}
-            onPress={() => navigation.navigate(route.name)}
+            onPress={() => router.navigate(PATHS[route.name] ?? '/')}
             style={st.item}
           >
             {center ? (
