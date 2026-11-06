@@ -206,3 +206,62 @@ export function apiErrorMessage(body: unknown, fallback: string): string {
   const m = str(pick(body, ['message', 'error', 'data.message']));
   return m ? plainText(m) : fallback;
 }
+
+export type ReadingSection = { heading?: string; lines: string[] };
+
+// Titres de la lecture d'Oni (schéma dream.reading.v1). Le site les renvoie collés au texte, sans retour à la ligne.
+const READING_HEADINGS = [
+  'Le rêve',
+  'Le climat',
+  'Les symboles centraux',
+  'Ce qui se joue',
+  'La lecture d’Oni',
+  'Ce que le rêve laisse ouvert',
+];
+
+// Découpe une lecture d'Oni en sections lisibles. Un texte libre (sans les titres) reste une seule section.
+export function readingSections(reading: string | undefined, title?: string): ReadingSection[] {
+  let text = plainText(reading).replace(/^✦\s*Lecture d[’']Oni\s*/u, '');
+  if (title && text.startsWith(title)) text = text.slice(title.length);
+  // Un titre collé au mot précédent (aucune espace avant) marque le début d'une section, dans l'ordre du schéma.
+  const marks: { heading: string; index: number }[] = [];
+  let from = 0;
+  for (const heading of READING_HEADINGS) {
+    let i = text.indexOf(heading, from);
+    while (i > 0 && /\s/u.test(text[i - 1])) i = text.indexOf(heading, i + 1);
+    if (i < 0) continue;
+    marks.push({ heading, index: i });
+    from = i + heading.length;
+  }
+  if (marks.length < 2) {
+    const lines = splitLines(text);
+    return lines.length ? [{ lines }] : [];
+  }
+  const out: ReadingSection[] = [];
+  const intro = text.slice(0, marks[0].index).trim();
+  if (intro) out.push({ lines: splitLines(intro) });
+  marks.forEach((mk, i) => {
+    const body = text.slice(mk.index + mk.heading.length, i + 1 < marks.length ? marks[i + 1].index : undefined).trim();
+    out.push({ heading: mk.heading, lines: splitLines(body) });
+  });
+  return out.filter((s) => s.lines.length || s.heading);
+}
+
+function splitLines(body: string): string[] {
+  return body
+    .replace(/\s*(Émotions|Atmosphère|Mouvement)\s*:/gu, '\n$1 :')
+    .replace(/\s*Dans le récit\s*:/gu, '\nDans le récit :')
+    .replace(/»(?=\s*\p{L})/gu, '»\n')
+    .replace(/\)(?=\p{L})/gu, ')\n')
+    .replace(/([?.!])(?=\p{Lu})/gu, '$1\n')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+}
+
+// Le cœur de la lecture, pour un aperçu court.
+export function readingSummary(reading: string | undefined, title?: string): string {
+  const sections = readingSections(reading, title);
+  const core = sections.find((s) => s.heading === 'La lecture d’Oni') ?? sections[sections.length - 1];
+  return core ? core.lines.join(' ') : '';
+}

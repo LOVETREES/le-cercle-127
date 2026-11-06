@@ -4,6 +4,7 @@ import { Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppHeader, Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Title } from '../../components/ui';
+import { readingSummary } from '../../lib/model';
 import { useSession } from '../../lib/session';
 import { colors, fonts, radius, space } from '../../lib/theme';
 
@@ -68,7 +69,7 @@ export default function Lectures() {
             <Text style={st.date}>{formatDate(d.dreamDate)}</Text>
             <Text style={st.title}>{d.title}</Text>
             <Text style={st.reading} numberOfLines={4}>
-              {d.oniReading}
+              {readingSummary(d.oniReading, d.title)}
             </Text>
             <Text style={st.more}>Lire la lecture complète ›</Text>
           </Pressable>

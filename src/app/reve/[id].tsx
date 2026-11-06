@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Title } from '../../components/ui';
-import { EMOTIONS } from '../../lib/model';
+import { EMOTIONS, readingSections } from '../../lib/model';
 import { useSession } from '../../lib/session';
 import { colors, fonts, space } from '../../lib/theme';
 
@@ -79,9 +79,22 @@ export default function DreamDetail() {
       {dream.oniReading ? (
         <Card>
           <Eyebrow>Ce qu’Oni y voit</Eyebrow>
-          <Text style={st.reading} selectable>
-            {dream.oniReading}
-          </Text>
+          {readingSections(dream.oniReading, dream.title).map((sec, i) => (
+            <View key={i} style={{ gap: 6 }}>
+              {sec.heading && sec.heading !== 'Le rêve' ? <Text style={st.readingHeading}>{sec.heading}</Text> : null}
+              {sec.heading === 'Le rêve'
+                ? null
+                : sec.lines.map((line, j) => (
+                    <Text
+                      key={j}
+                      style={sec.heading === 'La lecture d’Oni' ? st.reading : st.readingLine}
+                      selectable
+                    >
+                      {sec.heading === 'Ce qui se joue' || sec.heading === 'Ce que le rêve laisse ouvert' ? `· ${line}` : line}
+                    </Text>
+                  ))}
+            </View>
+          ))}
           <Body muted style={{ fontSize: 12 }}>
             Des pistes, pas des vérités : vous gardez la main sur le sens. Réponse préparée avec l’aide d’une intelligence
             artificielle.
@@ -130,4 +143,6 @@ const st = StyleSheet.create({
   story: { fontFamily: fonts.body, fontSize: 16, lineHeight: 26, color: colors.text },
   symbols: { fontFamily: fonts.title, fontSize: 18, lineHeight: 26, color: colors.gold },
   reading: { fontFamily: fonts.titleItalic, fontSize: 19, lineHeight: 27, color: colors.text },
+  readingHeading: { fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: colors.gold, marginTop: 8 },
+  readingLine: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.text },
 });
