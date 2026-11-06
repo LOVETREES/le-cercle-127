@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Body, Card, Eyebrow, Field, GoldButton, Notice, Screen, Title } from '../../components/ui';
+import { Body, Card, Eyebrow, Field, GoldButton, Notice, OutlineButton, Screen, Title } from '../../components/ui';
 import { EMOTIONS, validateDream, type Emotion } from '../../lib/model';
 import { useSession } from '../../lib/session';
 import { colors, fonts, radius, space } from '../../lib/theme';
@@ -11,7 +11,7 @@ import { colors, fonts, radius, space } from '../../lib/theme';
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function Reve() {
-  const { addDream, user } = useSession();
+  const { addDream, user, oniEnabled } = useSession();
   const [title, setTitle] = useState('');
   const [story, setStory] = useState('');
   const [dreamDate, setDreamDate] = useState(today());
@@ -63,8 +63,10 @@ export default function Reve() {
             tone="success"
             text={
               user
-                ? 'Votre rêve est gardé dans votre Grimoire.'
-                : 'Votre rêve est gardé sur cet appareil. Connectez-vous pour le retrouver aussi sur le site.'
+                ? oniEnabled
+                  ? 'Votre rêve est dans votre Grimoire. Pour qu’Oni le lise, ouvrez-le et touchez « Demander une lecture à Oni » : la lecture apparaîtra dans l’onglet Lectures.'
+                  : 'Votre rêve est dans votre Grimoire. Quand Oni l’aura lu, sa lecture apparaîtra dans l’onglet Lectures.'
+                : 'Votre rêve est gardé sur cet appareil. Connectez-vous pour qu’il rejoigne votre Grimoire et puisse être lu par Oni.'
             }
           />
         )}
@@ -148,7 +150,12 @@ export default function Reve() {
           </Body>
         </Card>
 
-        {saved && <GoldButton label="Voir mon Grimoire" onPress={() => router.navigate('/grimoire')} />}
+        {saved && (
+          <View style={{ gap: space.sm }}>
+            <GoldButton label="Voir mon Grimoire" onPress={() => router.navigate('/grimoire')} />
+            <OutlineButton label="Lectures d’Oni" onPress={() => router.navigate('/lectures')} />
+          </View>
+        )}
 
         <View style={st.frame}>
           <Text style={st.frameTitle}>Un espace symbolique et réflexif</Text>

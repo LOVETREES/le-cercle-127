@@ -4,13 +4,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, fonts } from '../../lib/theme';
 
-// Barre du bas identique au site mobile : Accueil · Oracle · Rêve (au centre) · Grimoire · Symboles.
+// Barre du bas : Accueil · Grimoire · Rêve (au centre) · Lectures d'Oni · Symboles. L'Oracle reste sur l'accueil et dans le menu.
 // Icônes illustrées reprises de la barre de navigation du site.
 const TABS: Record<string, { label: string; icon: ImageSourcePropType }> = {
   index: { label: 'Accueil', icon: require('../../../assets/images/nav-accueil.png') },
-  oracle: { label: 'Oracle', icon: require('../../../assets/images/nav-oracle.png') },
-  reve: { label: 'Rêve', icon: require('../../../assets/images/nav-reve.png') },
   grimoire: { label: 'Grimoire', icon: require('../../../assets/images/nav-grimoire.png') },
+  reve: { label: 'Rêve', icon: require('../../../assets/images/nav-reve.png') },
+  lectures: { label: 'Lectures', icon: require('../../../assets/images/oni.webp') },
   symboles: { label: 'Symboles', icon: require('../../../assets/images/nav-symboles.png') },
 };
 
@@ -18,9 +18,9 @@ type BarProps = {
   state: { index: number; routes: { key: string; name: string }[] };
 };
 
-const PATHS: Record<string, '/' | '/oracle' | '/reve' | '/grimoire' | '/symboles'> = {
+const PATHS: Record<string, '/' | '/lectures' | '/reve' | '/grimoire' | '/symboles'> = {
   index: '/',
-  oracle: '/oracle',
+  lectures: '/lectures',
   reve: '/reve',
   grimoire: '/grimoire',
   symboles: '/symboles',
@@ -51,7 +51,11 @@ function TabBar({ state }: BarProps) {
             ) : (
               <>
                 {focused && <View style={st.indicator} />}
-                <Image source={tab.icon} style={[st.icon, !focused && { opacity: 0.8 }]} accessibilityIgnoresInvertColors />
+                <Image
+                  source={tab.icon}
+                  style={[st.icon, route.name === 'lectures' && st.round, !focused && { opacity: 0.8 }]}
+                  accessibilityIgnoresInvertColors
+                />
               </>
             )}
             <Text style={[st.label, focused && { color: colors.gold }]}>{tab.label}</Text>
@@ -69,9 +73,9 @@ export default function TabLayout() {
       tabBar={(props) => <TabBar {...(props as unknown as BarProps)} />}
     >
       <Tabs.Screen name="index" />
-      <Tabs.Screen name="oracle" />
-      <Tabs.Screen name="reve" />
       <Tabs.Screen name="grimoire" />
+      <Tabs.Screen name="reve" />
+      <Tabs.Screen name="lectures" />
       <Tabs.Screen name="symboles" />
     </Tabs>
   );
@@ -88,6 +92,7 @@ const st = StyleSheet.create({
   item: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 2, minHeight: 52 },
   indicator: { position: 'absolute', top: -8, width: 22, height: 2, backgroundColor: colors.gold, borderRadius: 1 },
   icon: { width: 30, height: 31 },
+  round: { width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: colors.gold, marginBottom: 3 },
   label: { fontFamily: fonts.bodyMedium, fontSize: 11, color: '#c9c3e8' },
   centerWrap: {
     marginTop: -30,

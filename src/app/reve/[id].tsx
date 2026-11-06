@@ -91,7 +91,16 @@ export default function DreamDetail() {
         <Card>
           <Eyebrow>Oni</Eyebrow>
           <Body muted>Oni peut proposer des hypothèses et des questions à partir de ce rêve, sans vous dire quoi penser.</Body>
-          <GoldButton label="Demander une exploration à Oni" onPress={explore} loading={busy} />
+          <GoldButton label="Demander une lecture à Oni" onPress={explore} loading={busy} />
+        </Card>
+      ) : !dream.pending ? (
+        <Card>
+          <Eyebrow>Lecture d’Oni</Eyebrow>
+          <Body muted>
+            {user
+              ? 'Oni n’a pas encore lu ce rêve. Sa lecture apparaîtra ici et dans l’onglet Lectures.'
+              : 'Connectez-vous pour qu’Oni puisse lire ce rêve.'}
+          </Body>
         </Card>
       ) : null}
 
