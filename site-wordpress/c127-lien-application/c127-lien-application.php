@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cercle 127 - Lien vers l'application
  * Description: Ajoute un bloc « L'application Le Cercle 127 » sur l'accueil (Android + iPhone) et un lien « Application » dans le pied de page de toutes les pages. Présentation seule : aucune donnée, URL ou page modifiée. Désactiver l'extension annule tout.
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: Le Cercle 127
  * License: GPL-2.0-or-later
  */
@@ -17,7 +17,7 @@ if ( ! defined( 'C127_IOS_LIVE' ) ) {
 }
 // Lien public TestFlight (version de test iPhone), à remplir en attendant l'App Store.
 if ( ! defined( 'C127_IOS_TESTFLIGHT_URL' ) ) {
-	define( 'C127_IOS_TESTFLIGHT_URL', '' );
+	define( 'C127_IOS_TESTFLIGHT_URL', 'https://testflight.apple.com/join/zcq2k2ke' );
 }
 if ( ! defined( 'C127_IOS_APP_URL' ) ) {
 	define( 'C127_IOS_APP_URL', 'https://apps.apple.com/fr/app/le-cercle-127/id6831616780' );
