@@ -12,7 +12,6 @@
     "description": "Confiez vos rêves, gardez-les dans votre Grimoire et explorez les symboles avec les Sept Sœurs du Cercle 127.",
     "ios": {
       "bundleIdentifier": "com.lecercle127.app",
-      "buildNumber": "1",
       "supportsTablet": false,
       "config": {
         "usesNonExemptEncryption": false
@@ -85,7 +84,6 @@
     },
     "android": {
       "package": "com.lecercle127.app",
-      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#080b17",
         "foregroundImage": "./assets/android-icon-foreground.png",
