@@ -14,11 +14,50 @@ export const HIDE_SITE_CHROME_CSS = [
   'a[href*="/lecture-de-reve"]', 'a[href*="buy.stripe.com"]', 'a[href*="checkout.stripe.com"]', '.simpay-form-wrap',
 ].join(',') + '{display:none!important}body{padding-bottom:24px!important;margin-top:0!important}';
 
+const GRIMOIRE_HINT_CSS =
+  '.c127-app-hint{margin:0 0 16px;padding:14px 16px;border:1px solid rgba(223,194,125,.5);border-radius:14px;background:#11172b;color:#f2eadc;font:400 15px/1.45 Manrope,system-ui,sans-serif}' +
+  '.c127-app-hint a{display:inline-block;margin-top:10px;padding:10px 16px;border-radius:999px;background:#e8cf8f;color:#1b1730!important;font-weight:600;text-decoration:none}';
+
+/**
+ * Au-dessus des formulaires « confier un rêve » du site, propose l'écran Rêve de l'application,
+ * le seul qui enregistre le rêve dans le Grimoire du compte connecté dans l'app.
+ */
+const GRIMOIRE_HINT_JS =
+  "function c127hint(){document.querySelectorAll('form.wpcf7-form').forEach(function(f){" +
+  "if(f.dataset.c127hint||!f.querySelector('textarea'))return;f.dataset.c127hint='1';" +
+  "var d=document.createElement('div');d.className='c127-app-hint';" +
+  "d.innerHTML='Pour qu’il rejoigne votre Grimoire, confiez ce rêve depuis l’écran Rêve de l’application.<br><a href=\"cercle127://reve\">Confier mon rêve dans l’app</a>';" +
+  "f.parentNode.insertBefore(d,f);});}" +
+  "if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',c127hint);else c127hint();setTimeout(c127hint,1500);";
+
 export function injectedScript(): string {
-  return `(function(){var s=document.createElement('style');s.innerHTML=${JSON.stringify(HIDE_SITE_CHROME_CSS)};document.documentElement.appendChild(s);})();true;`;
+  const css = HIDE_SITE_CHROME_CSS + GRIMOIRE_HINT_CSS;
+  return `(function(){var s=document.createElement('style');s.innerHTML=${JSON.stringify(css)};document.documentElement.appendChild(s);${GRIMOIRE_HINT_JS}})();true;`;
 }
 
-export type NavDecision = 'allow' | 'external' | 'block';
+export type NavDecision = 'allow' | 'external' | 'block' | 'native';
+
+/**
+ * Pages du site remplacées par un écran de l'application : un rêve confié ou un compte
+ * créé depuis l'app est ainsi relié au Grimoire de l'utilisateur connecté.
+ */
+const NATIVE_ROUTES: [RegExp, string][] = [
+  [/^\/(parcours-reve-127|interpreter-mon-reve|raconter-un-reve)(\/|$)/, '/reve'],
+  [/^\/(grimoire|mon-espace)(\/|$)/, '/grimoire'],
+  [/^\/creer-un-compte(\/|$)/, '/connexion'],
+  [/^\/oracle-127(\/|$)/, '/oracle'],
+];
+
+/** Écran de l'application à ouvrir à la place d'une page du site, ou undefined. */
+export function nativeRouteFor(url: string): string | undefined {
+  const m = url.match(/^cercle127:\/\/(.+)$/);
+  if (m) return '/' + m[1].replace(/^\/+/, '');
+  const u = url.match(/^https?:\/\/(?:www\.)?lecercle127\.com(\/[^?#]*)?/);
+  if (!u) return undefined;
+  const path = u[1] ?? '/';
+  for (const [re, route] of NATIVE_ROUTES) if (re.test(path)) return route;
+  return undefined;
+}
 
 export type NavRequest = { url: string; isTopFrame?: boolean; navigationType?: string };
 
@@ -29,6 +68,8 @@ export type NavRequest = { url: string; isTopFrame?: boolean; navigationType?: s
  */
 export function decideRequest(req: NavRequest): NavDecision {
   if (req.isTopFrame === false) return 'allow';
+  const userAction = req.navigationType === undefined || req.navigationType === 'click' || req.navigationType === 'formsubmit';
+  if (userAction && nativeRouteFor(req.url)) return 'native';
   const d = decideNavigation(req.url);
   if (d === 'external' && req.navigationType !== undefined && req.navigationType !== 'click') return 'block';
   return d;

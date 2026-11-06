@@ -1,9 +1,10 @@
+import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { createElement, useRef, useState, type ComponentType, type Ref } from 'react';
 import { ActivityIndicator, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import { WebView as RNWebView } from 'react-native-webview';
 
-import { decideRequest, injectedScript, siteUrl } from '../lib/webpage';
+import { decideRequest, injectedScript, nativeRouteFor, siteUrl } from '../lib/webpage';
 import { colors, fonts, space } from '../lib/theme';
 import { OutlineButton } from './ui';
 
@@ -28,6 +29,10 @@ type WebViewProps = {
   setSupportMultipleWindows?: boolean;
   applicationNameForUserAgent?: string;
   pullToRefreshEnabled?: boolean;
+  mediaCapturePermissionGrantType?: 'prompt' | 'grant' | 'deny' | 'grantIfSameHostElsePrompt' | 'grantIfSameHostElseDeny';
+  allowsInlineMediaPlayback?: boolean;
+  allowFileAccess?: boolean;
+  javaScriptCanOpenWindowsAutomatically?: boolean;
 };
 const WebView = RNWebView as unknown as ComponentType<WebViewProps>;
 
@@ -52,6 +57,11 @@ export function SitePage({ path }: { path: string }) {
   const onShouldStart = (req: WebViewNavigation) => {
     const d = decideRequest(req);
     if (d === 'allow') return true;
+    if (d === 'native') {
+      const route = nativeRouteFor(req.url);
+      if (route) router.navigate(route as never);
+      return false;
+    }
     if (d === 'external' && !browserOpen.current) {
       if (req.url.startsWith('mailto:') || req.url.startsWith('tel:')) {
         Linking.openURL(req.url).catch(() => undefined);
@@ -102,6 +112,11 @@ export function SitePage({ path }: { path: string }) {
         setSupportMultipleWindows={false}
         applicationNameForUserAgent="Cercle127App/1.0"
         pullToRefreshEnabled
+        // Micro (carnet vocal) et appareil photo (lignes de la main) pour les pages du site.
+        mediaCapturePermissionGrantType="grantIfSameHostElsePrompt"
+        allowsInlineMediaPlayback
+        allowFileAccess
+        javaScriptCanOpenWindowsAutomatically={false}
       />
       {loading && (
         <View style={st.loader} pointerEvents="none">

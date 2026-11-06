@@ -15,7 +15,7 @@ import {
   validateDream,
   validateEmail,
 } from '../lib/model';
-import { decideNavigation, decideRequest, HIDE_SITE_CHROME_CSS, siteUrl } from '../lib/webpage';
+import { decideNavigation, decideRequest, HIDE_SITE_CHROME_CSS, injectedScript, nativeRouteFor, siteUrl } from '../lib/webpage';
 
 describe('normalisation des réponses WordPress', () => {
   it('lit le jeton quel que soit son nom', () => {
@@ -157,6 +157,16 @@ describe('pages du site dans l’application', () => {
     expect(decideRequest({ url: 'https://lecercle127.com/oracle-127/', isTopFrame: true, navigationType: 'other' })).toBe('allow');
   });
 
+  it('ouvre les écrans de l’application à la place des parcours du site', () => {
+    expect(nativeRouteFor('https://lecercle127.com/parcours-reve-127/')).toBe('/reve');
+    expect(nativeRouteFor('https://www.lecercle127.com/grimoire/?x=1')).toBe('/grimoire');
+    expect(nativeRouteFor('https://lecercle127.com/creer-un-compte/')).toBe('/connexion');
+    expect(nativeRouteFor('cercle127://reve')).toBe('/reve');
+    expect(nativeRouteFor('https://lecercle127.com/carnet-vocal/')).toBeUndefined();
+    expect(decideRequest({ url: 'https://lecercle127.com/grimoire/', isTopFrame: true, navigationType: 'click' })).toBe('native');
+    expect(decideRequest({ url: 'https://lecercle127.com/grimoire/', isTopFrame: true, navigationType: 'other' })).toBe('allow');
+  });
+
   it('ouvre les liens externes hors de l’application', () => {
     expect(decideNavigation('https://www.instagram.com/lecercle127/')).toBe('external');
     expect(decideNavigation('mailto:contact@lecercle127.com')).toBe('external');
@@ -167,6 +177,12 @@ describe('pages du site dans l’application', () => {
     for (const sel of ['.oni-app-nav', '.site-footer', '.cmplz-cookiebanner', 'a[href*="/lecture-de-reve"]']) {
       expect(HIDE_SITE_CHROME_CSS).toContain(sel);
     }
+  });
+
+  it('produit un script injecté valide qui propose l’écran Rêve', () => {
+    const js = injectedScript();
+    expect(() => new Function(js)).not.toThrow();
+    expect(js).toContain('cercle127://reve');
   });
 
   it('construit des URL absolues', () => {

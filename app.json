@@ -20,7 +20,10 @@
         "CFBundleDevelopmentRegion": "fr",
         "CFBundleLocalizations": [
           "fr"
-        ]
+        ],
+        "NSMicrophoneUsageDescription": "Le Cercle 127 utilise le micro pour enregistrer votre rêve à voix haute dans le carnet vocal.",
+        "NSCameraUsageDescription": "Le Cercle 127 utilise l'appareil photo pour photographier votre main dans l'atelier de Terra.",
+        "NSPhotoLibraryUsageDescription": "Le Cercle 127 vous permet de choisir une photo de votre main dans l'atelier de Terra."
       },
       "privacyManifests": {
         "NSPrivacyTracking": false,
@@ -91,10 +94,9 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "permissions": [
-        "android.permission.POST_NOTIFICATIONS"
-      ],
-      "blockedPermissions": [
+        "android.permission.POST_NOTIFICATIONS",
         "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
         "android.permission.CAMERA"
       ],
       "predictiveBackGestureEnabled": false

@@ -94,7 +94,7 @@ export default function Reve() {
           />
           <Body muted style={{ fontSize: 13 }}>
             Racontez sans chercher à comprendre. Qui était là ? Où étiez-vous ? Que voyiez-vous, entendiez-vous ou
-            ressentiez-vous ? Vous pouvez écrire dans le désordre.
+            ressentiez-vous ? Vous pouvez écrire dans le désordre. Pour dicter, touchez le micro 🎙 du clavier.
           </Body>
 
           <View style={{ gap: space.sm }}>
