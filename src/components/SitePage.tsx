@@ -4,6 +4,7 @@ import { createElement, useRef, useState, type ComponentType, type Ref } from 'r
 import { ActivityIndicator, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import { WebView as RNWebView } from 'react-native-webview';
 
+import { saveWebError } from '../lib/crash';
 import { decideRequest, injectedScript, nativeRouteFor, siteUrl } from '../lib/webpage';
 import { colors, fonts, space } from '../lib/theme';
 import { OutlineButton } from './ui';
@@ -24,6 +25,7 @@ type WebViewProps = {
   onHttpError?: (e: { nativeEvent: { statusCode: number } }) => void;
   onContentProcessDidTerminate?: () => void;
   onRenderProcessGone?: () => void;
+  onMessage?: (e: { nativeEvent: { data: string } }) => void;
   allowsBackForwardNavigationGestures?: boolean;
   sharedCookiesEnabled?: boolean;
   setSupportMultipleWindows?: boolean;
@@ -107,6 +109,7 @@ export function SitePage({ path }: { path: string }) {
         // Si le moteur web s'arrête (page trop lourde), on recharge au lieu de fermer l'app.
         onContentProcessDidTerminate={() => ref.current?.reload()}
         onRenderProcessGone={() => setFailed(true)}
+        onMessage={(e) => saveWebError(e.nativeEvent.data)}
         allowsBackForwardNavigationGestures
         sharedCookiesEnabled
         setSupportMultipleWindows={false}

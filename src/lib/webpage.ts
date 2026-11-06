@@ -30,10 +30,15 @@ const GRIMOIRE_HINT_JS =
   "f.parentNode.insertBefore(d,f);});}" +
   "if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',c127hint);else c127hint();setTimeout(c127hint,1500);";
 
+/** Remonte à l'application les erreurs JavaScript des pages du site (diagnostic). */
+const ERROR_BRIDGE_JS =
+  "window.addEventListener('error',function(e){try{window.ReactNativeWebView&&window.ReactNativeWebView.postMessage(JSON.stringify({type:'c127-web-error',message:String(e.message||e),source:String(e.filename||''),line:e.lineno||0,page:location.pathname}))}catch(x){}});" +
+  "window.addEventListener('unhandledrejection',function(e){try{window.ReactNativeWebView&&window.ReactNativeWebView.postMessage(JSON.stringify({type:'c127-web-error',message:'Promesse rejetée : '+String(e.reason&&e.reason.message||e.reason),source:'',line:0,page:location.pathname}))}catch(x){}});";
+
 export function injectedScript(): string {
   const css = HIDE_SITE_CHROME_CSS + GRIMOIRE_HINT_CSS;
   // Le style est ajouté dès que la page existe (le script peut s'exécuter avant elle).
-  return `(function(){if(window.__c127)return;window.__c127=1;function st(){var r=document.head||document.documentElement;if(!r)return setTimeout(st,30);var s=document.createElement('style');s.innerHTML=${JSON.stringify(css)};r.appendChild(s);}st();${GRIMOIRE_HINT_JS}})();true;`;
+  return `(function(){if(window.__c127)return;window.__c127=1;${ERROR_BRIDGE_JS}function st(){var r=document.head||document.documentElement;if(!r)return setTimeout(st,30);var s=document.createElement('style');s.innerHTML=${JSON.stringify(css)};r.appendChild(s);}st();${GRIMOIRE_HINT_JS}})();true;`;
 }
 
 export type NavDecision = 'allow' | 'external' | 'block' | 'native';

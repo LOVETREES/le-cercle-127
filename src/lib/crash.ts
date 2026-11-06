@@ -38,3 +38,37 @@ export async function readLastError(): Promise<LastError | null> {
 export async function clearLastError(): Promise<void> {
   await AsyncStorage.removeItem(KEY).catch(() => undefined);
 }
+
+const WEB_KEY = 'c127.last-web-error';
+export type WebError = { at: string; message: string; source: string; line: number; page: string };
+
+/** Enregistre la dernière erreur survenue dans une page du site affichée dans l'app. */
+export async function saveWebError(raw: string): Promise<void> {
+  try {
+    const d = JSON.parse(raw) as Partial<WebError> & { type?: string };
+    if (d.type !== 'c127-web-error') return;
+    const entry: WebError = {
+      at: new Date().toISOString(),
+      message: String(d.message ?? '').slice(0, 500),
+      source: String(d.source ?? '').slice(0, 300),
+      line: Number(d.line ?? 0),
+      page: String(d.page ?? ''),
+    };
+    await AsyncStorage.setItem(WEB_KEY, JSON.stringify(entry));
+  } catch {
+    // message non reconnu : ignoré
+  }
+}
+
+export async function readWebError(): Promise<WebError | null> {
+  try {
+    const raw = await AsyncStorage.getItem(WEB_KEY);
+    return raw ? (JSON.parse(raw) as WebError) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function clearWebError(): Promise<void> {
+  await AsyncStorage.removeItem(WEB_KEY).catch(() => undefined);
+}

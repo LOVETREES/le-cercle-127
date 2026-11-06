@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Body, Card, Eyebrow, Notice, OutlineButton, SiteFooter, Title } from '../components/ui';
-import { clearLastError, readLastError, type LastError } from '../lib/crash';
+import { clearLastError, clearWebError, readLastError, readWebError, type LastError, type WebError } from '../lib/crash';
 import { DEFAULT_REMINDER, loadReminder, saveReminder, type Reminder } from '../lib/reminders';
 import { useSession } from '../lib/session';
 import { colors, fonts, radius, space } from '../lib/theme';
@@ -26,10 +26,12 @@ export default function Compte() {
   const [reminder, setReminder] = useState<Reminder>(DEFAULT_REMINDER);
   const [notice, setNotice] = useState<{ text: string; tone: 'error' | 'success' } | null>(null);
   const [lastError, setLastError] = useState<LastError | null>(null);
+  const [webError, setWebError] = useState<WebError | null>(null);
 
   useEffect(() => {
     loadReminder().then(setReminder);
     readLastError().then(setLastError);
+    readWebError().then(setWebError);
   }, []);
 
   const updateReminder = async (next: Reminder) => {
@@ -137,6 +139,27 @@ export default function Compte() {
             onPress={async () => {
               await clearLastError();
               setLastError(null);
+            }}
+          />
+        </Card>
+      )}
+
+      {webError && (
+        <Card>
+          <Eyebrow>Dernière erreur d’une page du site</Eyebrow>
+          <Text selectable style={st.diag}>
+            {webError.at} · {webError.page}
+            {'\n'}
+            {webError.message}
+            {'\n'}
+            {webError.source}
+            {webError.line ? `:${webError.line}` : ''}
+          </Text>
+          <OutlineButton
+            label="Effacer"
+            onPress={async () => {
+              await clearWebError();
+              setWebError(null);
             }}
           />
         </Card>
