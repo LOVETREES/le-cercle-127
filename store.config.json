@@ -1,0 +1,64 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "copyright": "2026 Safia METTRI",
+    "categories": [
+      "LIFESTYLE",
+      "REFERENCE"
+    ],
+    "advisory": {
+      "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+      "contests": "NONE",
+      "gamblingSimulated": "NONE",
+      "horrorOrFearThemes": "INFREQUENT_OR_MILD",
+      "matureOrSuggestiveThemes": "NONE",
+      "medicalOrTreatmentInformation": "NONE",
+      "profanityOrCrudeHumor": "NONE",
+      "sexualContentGraphicAndNudity": "NONE",
+      "sexualContentOrNudity": "NONE",
+      "violenceCartoonOrFantasy": "NONE",
+      "violenceRealistic": "NONE",
+      "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+      "gambling": false,
+      "unrestrictedWebAccess": false,
+      "kidsAgeBand": null,
+      "ageRatingOverride": "NONE",
+      "koreaAgeRatingOverride": "NONE"
+    },
+    "info": {
+      "fr-FR": {
+        "title": "Le Cercle 127",
+        "subtitle": "Journal de rêves et symboles",
+        "description": "Chaque rêve est un message qu'on ne sait pas lire seul. Le Cercle 127 vous aide à le garder, à le comprendre et à avancer.\n\nNOTEZ VOS RÊVES AU RÉVEIL\nRacontez votre rêve tel qu'il vient, même en fragments. Il est gardé sur votre téléphone, même sans réseau, puis rejoint votre Grimoire dès que vous êtes connecté·e. Un rappel du matin, si vous le souhaitez, vous aide à ne plus les laisser s'effacer.\n\nVOTRE GRIMOIRE PRIVÉ\nRetrouvez toutes vos nuits au même endroit et voyez ce qui revient : émotions, lieux, symboles. Votre Grimoire est le même que sur lecercle127.com. Il n'appartient qu'à vous.\n\n3 900 SYMBOLES ONIRIQUES\nUn serpent, une maison, de l'eau, une chute ? Cherchez un symbole et découvrez ses sens possibles. Des pistes, jamais des verdicts : vous gardez la main sur le sens de vos rêves.\n\nLES SEPT SŒURS DU CERCLE\nOni lit les rêves. Alka relie les motifs, Naïa apaise les émotions, Terra ramène au corps, Ignis passe à l'action, Astria oriente vers vos envies, Irma aide à choisir. Explorez aussi l'Oracle 127, le Grand Labyrinthe et le rêve lucide.\n\nONI, AVEC VOTRE ACCORD\nLorsque cette fonction est proposée, vous pouvez demander à Oni des hypothèses et des questions sur un rêve. Elle s'appuie sur un outil d'intelligence artificielle : votre accord vous est demandé à chaque envoi.\n\nRESPECT DE VOS DONNÉES\nPas de publicité, pas de revente de données. Vous pouvez supprimer votre compte et vos rêves directement depuis l'application.\n\nLe Cercle 127 est un compagnon de réflexion. Il ne prédit pas l'avenir et ne remplace pas un accompagnement médical ou thérapeutique.",
+        "keywords": [
+          "rêve",
+          "journal de rêves",
+          "symboles",
+          "interprétation",
+          "onirique",
+          "songe",
+          "cauchemar",
+          "rêve lucide",
+          "grimoire",
+          "oracle"
+        ],
+        "releaseNotes": "Première version de l'application Le Cercle 127 : journal de rêves hors connexion, Grimoire, dictionnaire des symboles, Oracle 127 et Sept Sœurs.",
+        "promoText": "Notez vos rêves au réveil, même hors connexion. Retrouvez ce qui revient, explorez 3 900 symboles et laissez les Sept Sœurs du Cercle éclairer vos nuits.",
+        "marketingUrl": "https://lecercle127.com/",
+        "supportUrl": "https://lecercle127.com/application/",
+        "privacyPolicyUrl": "https://lecercle127.com/confidentialite-le-cercle-127/"
+      }
+    },
+    "release": {
+      "automaticRelease": false
+    },
+    "review": {
+      "firstName": "Safia",
+      "lastName": "Mettri",
+      "email": "contact@lecercle127.com",
+      "demoUsername": "revue.apple@lecercle127.com",
+      "demoRequired": true,
+      "notes": "Le Cercle 127 is a private dream journal and symbol dictionary (French language).\n\n- Dreams can be written without an account and are stored on the device; with the demo account they sync to the user's private Grimoire.\n- Account deletion: Grimoire tab > \"Mon compte\" > \"Supprimer mon compte\".\n- Some content pages (Oracle, the Seven Sisters) are displayed from our website lecercle127.com, without any payment link.\n- The app contains no in-app purchase and no link to external purchases.\n- The optional \"Oni\" AI exploration asks for explicit consent before each request and discloses that an AI provider (OpenAI) is used.\n- The app does not provide medical advice, diagnosis or predictions.\nContact: contact@lecercle127.com"
+    }
+  }
+}
