@@ -26,15 +26,11 @@ Make « Cercle 127 — Oni : envoi des lectures validées »   (toutes les 15 mi
 La lecture apparaît dans le rêve (Grimoire) et dans l'onglet Lectures de l'app.
 ```
 
-## Mise en service (une seule fois)
+## Mise en service
 
-Le scénario d'envoi est créé **inactif** : il lui manque le jeton du site, qui ne doit pas transiter ailleurs que
-dans Make.
-
-1. Ouvrir le scénario « Onirologue — Intake … V3.7 », module HTTP, et copier la valeur `f127_token`.
-2. Ouvrir « Cercle 127 — Oni : envoi des lectures validées », module HTTP → en-tête `X-F127-Token` :
-   remplacer `COLLER_ICI_LE_JETON_F127` par ce jeton, enregistrer.
-3. Activer le scénario (interrupteur en bas à gauche).
+Fait le 6 novembre 2026 : jeton du site copié dans le scénario d'envoi, scénario activé, test validé de bout en
+bout (rêve 18323 du compte de démo : « à valider » → « validée » → « envoyée », réponse du site 200).
+Si le jeton du site change, le remplacer aussi dans ce scénario (en-tête `X-F127-Token`).
 
 ## Limites connues
 
