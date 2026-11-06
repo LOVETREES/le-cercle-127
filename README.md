@@ -1,5 +1,7 @@
 # Le Cercle 127 : application mobile
 
+> Dépôt de l'application. Elle a été créée dans `LOVETREES/sept-soeurs` (dossier `mobile/`) et déplacée ici avec son historique.
+
 Application iPhone et Android de **lecercle127.com**, construite avec Expo (SDK 58, Expo Router).
 Elle reprend la version mobile actuelle du site : même en-tête « Onirologue », même barre du bas
 (Accueil · Oracle · Rêve · Grimoire · Symboles), mêmes couleurs, mêmes visuels et mêmes textes.
@@ -36,7 +38,6 @@ et de Google sur la vente de contenus numériques.
 ## Développer
 
 ```bash
-cd mobile
 npm install
 npx expo start          # puis scanner le QR code (build de développement) ou appuyer sur « w » pour le web
 ```
