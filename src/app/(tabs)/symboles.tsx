@@ -58,6 +58,8 @@ export default function Symboles() {
         style={st.search}
         accessibilityLabel="Rechercher un symbole"
         autoCorrect={false}
+        autoCapitalize="none"
+        clearButtonMode="while-editing"
         returnKeyType="search"
       />
 

@@ -170,6 +170,27 @@ export function mergeDreams(server: Dream[], drafts: Dream[]): Dream[] {
   );
 }
 
+/** Normalise un texte pour la recherche : minuscules, sans accents ni ponctuation. */
+export function fold(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[’']/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Filtre les rêves : chaque mot cherché doit apparaître dans le titre, le récit, les symboles ou l'émotion. */
+export function searchDreams(dreams: Dream[], query: string): Dream[] {
+  const words = fold(query).split(' ').filter(Boolean);
+  if (words.length === 0) return dreams;
+  return dreams.filter((d) => {
+    const hay = fold([d.title, d.story, (d.symbols ?? []).join(' '), d.emotion ?? '', d.dreamDate].join(' '));
+    return words.every((w) => hay.includes(w));
+  });
+}
+
 /** Symboles les plus fréquents dans le Grimoire (« Ce qui revient »). */
 export function recurringSymbols(dreams: Dream[], limit = 6): [string, number][] {
   const counts = new Map<string, number>();

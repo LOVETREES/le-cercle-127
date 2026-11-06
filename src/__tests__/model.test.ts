@@ -10,11 +10,12 @@ import {
   normalizeDreamList,
   normalizeUser,
   recurringSymbols,
+  searchDreams,
   plainText,
   validateDream,
   validateEmail,
 } from '../lib/model';
-import { decideNavigation, HIDE_SITE_CHROME_CSS, siteUrl } from '../lib/webpage';
+import { decideNavigation, decideRequest, HIDE_SITE_CHROME_CSS, siteUrl } from '../lib/webpage';
 
 describe('normalisation des réponses WordPress', () => {
   it('lit le jeton quel que soit son nom', () => {
@@ -64,6 +65,19 @@ describe('normalisation des réponses WordPress', () => {
       { ...base, id: '3', symbols: ['Le lac'] },
     ]);
     expect(r).toEqual([['La forêt', 2]]);
+  });
+
+  it('cherche dans les rêves sans tenir compte des accents ni des majuscules', () => {
+    const base = { story: '', dreamDate: '2026-11-01', createdAt: 'x' };
+    const dreams = [
+      { ...base, id: '1', title: 'La forêt qui chante', symbols: ['La lumière'] },
+      { ...base, id: '2', title: 'L’eau claire', story: 'Un lac et une clé', emotion: 'serenite' as const },
+    ];
+    expect(searchDreams(dreams, 'FORET').map((d) => d.id)).toEqual(['1']);
+    expect(searchDreams(dreams, 'lumiere').map((d) => d.id)).toEqual(['1']);
+    expect(searchDreams(dreams, 'eau lac').map((d) => d.id)).toEqual(['2']);
+    expect(searchDreams(dreams, 'sérénité').map((d) => d.id)).toEqual(['2']);
+    expect(searchDreams(dreams, '  ')).toHaveLength(2);
   });
 
   it('lit la réponse réelle de connexion', () => {
@@ -129,6 +143,18 @@ describe('pages du site dans l’application', () => {
     expect(decideNavigation('https://lecercle127.com/lecture-de-reve/')).toBe('block');
     expect(decideNavigation('https://checkout.stripe.com/pay/x')).toBe('block');
     expect(decideNavigation('https://lecercle127.com/wp-admin/')).toBe('block');
+  });
+
+  it('laisse les cadres intégrés se charger dans la page (reCAPTCHA, widgets)', () => {
+    expect(decideRequest({ url: 'https://www.google.com/recaptcha/api2/anchor', isTopFrame: false, navigationType: 'other' })).toBe('allow');
+    expect(decideRequest({ url: 'https://widgets.wp.com/x', isTopFrame: false })).toBe('allow');
+  });
+
+  it('n’ouvre le navigateur que sur un vrai clic vers un autre site', () => {
+    expect(decideRequest({ url: 'https://www.instagram.com/lecercle127/', isTopFrame: true, navigationType: 'click' })).toBe('external');
+    expect(decideRequest({ url: 'https://tracker.example.com/', isTopFrame: true, navigationType: 'other' })).toBe('block');
+    expect(decideRequest({ url: 'https://www.instagram.com/lecercle127/' })).toBe('external'); // Android
+    expect(decideRequest({ url: 'https://lecercle127.com/oracle-127/', isTopFrame: true, navigationType: 'other' })).toBe('allow');
   });
 
   it('ouvre les liens externes hors de l’application', () => {

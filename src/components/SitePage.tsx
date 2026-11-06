@@ -3,13 +3,13 @@ import { createElement, useRef, useState, type ComponentType, type Ref } from 'r
 import { ActivityIndicator, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import { WebView as RNWebView } from 'react-native-webview';
 
-import { decideNavigation, injectedScript, siteUrl } from '../lib/webpage';
+import { decideRequest, injectedScript, siteUrl } from '../lib/webpage';
 import { colors, fonts, space } from '../lib/theme';
 import { OutlineButton } from './ui';
 
 // Les types de react-native-webview 14 se réduisent à `never` avec React 19.3 :
 // on décrit ici les seules propriétés utilisées.
-type WebViewNavigation = { url: string };
+type WebViewNavigation = { url: string; isTopFrame?: boolean; navigationType?: string };
 type WebViewHandle = { reload: () => void };
 type WebViewProps = {
   ref?: Ref<WebViewHandle>;
@@ -21,6 +21,8 @@ type WebViewProps = {
   onLoadEnd?: () => void;
   onError?: () => void;
   onHttpError?: (e: { nativeEvent: { statusCode: number } }) => void;
+  onContentProcessDidTerminate?: () => void;
+  onRenderProcessGone?: () => void;
   allowsBackForwardNavigationGestures?: boolean;
   sharedCookiesEnabled?: boolean;
   setSupportMultipleWindows?: boolean;
@@ -33,6 +35,7 @@ const WebView = RNWebView as unknown as ComponentType<WebViewProps>;
 /** Affiche une page de la version mobile du site, sans son en-tête ni sa barre de navigation. */
 export function SitePage({ path }: { path: string }) {
   const ref = useRef<WebViewHandle>(null);
+  const browserOpen = useRef(false);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
   const url = siteUrl(path);
@@ -47,11 +50,19 @@ export function SitePage({ path }: { path: string }) {
   }
 
   const onShouldStart = (req: WebViewNavigation) => {
-    const d = decideNavigation(req.url);
+    const d = decideRequest(req);
     if (d === 'allow') return true;
-    if (d === 'external') {
-      if (req.url.startsWith('mailto:') || req.url.startsWith('tel:')) Linking.openURL(req.url);
-      else WebBrowser.openBrowserAsync(req.url);
+    if (d === 'external' && !browserOpen.current) {
+      if (req.url.startsWith('mailto:') || req.url.startsWith('tel:')) {
+        Linking.openURL(req.url).catch(() => undefined);
+      } else {
+        browserOpen.current = true;
+        WebBrowser.openBrowserAsync(req.url)
+          .catch(() => undefined)
+          .finally(() => {
+            browserOpen.current = false;
+          });
+      }
     }
     return false;
   };
@@ -83,6 +94,9 @@ export function SitePage({ path }: { path: string }) {
         onLoadEnd={() => setLoading(false)}
         onError={() => setFailed(true)}
         onHttpError={(e) => e.nativeEvent.statusCode >= 500 && setFailed(true)}
+        // Si le moteur web s'arrête (page trop lourde), on recharge au lieu de fermer l'app.
+        onContentProcessDidTerminate={() => ref.current?.reload()}
+        onRenderProcessGone={() => setFailed(true)}
         allowsBackForwardNavigationGestures
         sharedCookiesEnabled
         setSupportMultipleWindows={false}

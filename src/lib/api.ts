@@ -142,12 +142,9 @@ export const api = {
   },
 
   async searchSymbols(query: string): Promise<Symbol127[]> {
-    const params = new URLSearchParams({
-      search: query.trim(),
-      per_page: '30',
-      _fields: 'id,title,excerpt,link',
-    });
-    const body = await request(`${BASE}/wp/v2/symbole_onirique?${params.toString()}`);
+    // Chaîne de requête construite à la main (plus fiable sur iOS et Android).
+    const qs = `search=${encodeURIComponent(query.trim())}&per_page=30&_fields=id,title,excerpt,link`;
+    const body = await request(`${BASE}/wp/v2/symbole_onirique?${qs}`);
     if (!Array.isArray(body)) return [];
     return body.map((s: { id: number; title?: { rendered?: string }; excerpt?: { rendered?: string }; link: string }) => ({
       id: String(s.id),

@@ -20,6 +20,20 @@ export function injectedScript(): string {
 
 export type NavDecision = 'allow' | 'external' | 'block';
 
+export type NavRequest = { url: string; isTopFrame?: boolean; navigationType?: string };
+
+/**
+ * Où ouvrir un chargement demandé par une page du site.
+ * Les cadres intégrés (reCAPTCHA, widgets, vidéos…) se chargent dans la page :
+ * seuls les vrais clics de l'utilisateur vers un autre site ouvrent le navigateur.
+ */
+export function decideRequest(req: NavRequest): NavDecision {
+  if (req.isTopFrame === false) return 'allow';
+  const d = decideNavigation(req.url);
+  if (d === 'external' && req.navigationType !== undefined && req.navigationType !== 'click') return 'block';
+  return d;
+}
+
 /** Où ouvrir un lien cliqué dans une page du site. */
 export function decideNavigation(url: string): NavDecision {
   if (url.startsWith('about:') || url.startsWith('data:') || url.startsWith('blob:')) return 'allow';

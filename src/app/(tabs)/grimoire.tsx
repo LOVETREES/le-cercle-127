@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
-import { useMemo } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { AppHeader, Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Title } from '../../components/ui';
-import { EMOTIONS, recurringSymbols } from '../../lib/model';
+import { EMOTIONS, recurringSymbols, searchDreams } from '../../lib/model';
 import { useSession } from '../../lib/session';
 import { colors, fonts, radius, space } from '../../lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,6 +26,8 @@ export default function Grimoire() {
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
   }, [dreams]);
   const symbols = useMemo(() => recurringSymbols(dreams), [dreams]);
+  const [query, setQuery] = useState('');
+  const shown = useMemo(() => searchDreams(dreams, query), [dreams, query]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={['top']}>
@@ -83,6 +85,24 @@ export default function Grimoire() {
           </Card>
         )}
 
+        {dreams.length > 1 && (
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Chercher dans mes rêves : forêt, eau, peur…"
+            placeholderTextColor="#6f7090"
+            style={st.search}
+            accessibilityLabel="Chercher dans mes rêves"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+            returnKeyType="search"
+          />
+        )}
+
+        {dreams.length > 0 && query.trim() !== '' && shown.length === 0 && (
+          <Body muted style={{ textAlign: 'center' }}>Aucun rêve ne contient « {query.trim()} ».</Body>
+        )}
+
         {dreams.length === 0 ? (
           <Card style={{ alignItems: 'center' }}>
             <Text style={{ fontSize: 34, color: colors.gold }}>☾</Text>
@@ -93,7 +113,7 @@ export default function Grimoire() {
           </Card>
         ) : (
           <View style={{ gap: space.sm }}>
-            {dreams.map((d) => (
+            {shown.map((d) => (
               <Pressable
                 key={d.id}
                 style={({ pressed }) => [st.dream, pressed && { opacity: 0.7 }]}
@@ -128,6 +148,17 @@ export default function Grimoire() {
 }
 
 const st = StyleSheet.create({
+  search: {
+    minHeight: 50,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: '#0d1124',
+    color: colors.text,
+    fontFamily: fonts.body,
+    fontSize: 16,
+    paddingHorizontal: 20,
+  },
   recurring: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   badge: { borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 12, paddingVertical: 6 },
   badgeText: { fontFamily: fonts.bodyMedium, color: colors.gold, fontSize: 13 },
