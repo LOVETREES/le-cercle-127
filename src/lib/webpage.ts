@@ -32,7 +32,8 @@ const GRIMOIRE_HINT_JS =
 
 export function injectedScript(): string {
   const css = HIDE_SITE_CHROME_CSS + GRIMOIRE_HINT_CSS;
-  return `(function(){var s=document.createElement('style');s.innerHTML=${JSON.stringify(css)};document.documentElement.appendChild(s);${GRIMOIRE_HINT_JS}})();true;`;
+  // Le style est ajouté dès que la page existe (le script peut s'exécuter avant elle).
+  return `(function(){if(window.__c127)return;window.__c127=1;function st(){var r=document.head||document.documentElement;if(!r)return setTimeout(st,30);var s=document.createElement('style');s.innerHTML=${JSON.stringify(css)};r.appendChild(s);}st();${GRIMOIRE_HINT_JS}})();true;`;
 }
 
 export type NavDecision = 'allow' | 'external' | 'block' | 'native';
