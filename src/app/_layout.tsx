@@ -78,6 +78,7 @@ function Root() {
         <Stack.Screen name="connexion" options={{ title: 'Mon Grimoire', presentation: 'modal' }} />
         <Stack.Screen name="compte" options={{ title: 'Mon compte' }} />
         <Stack.Screen name="carnet-vocal" options={{ title: 'Carnet vocal', headerShown: false }} />
+        <Stack.Screen name="parcours" options={{ title: 'Mon parcours onirique', headerShown: false }} />
         <Stack.Screen name="soeurs" options={{ title: 'Le Cercle des 7 Sœurs', headerShown: false }} />
         <Stack.Screen name="journal" options={{ title: 'Mon journal', headerShown: false }} />
         <Stack.Screen name="confidentialite" options={{ title: 'Confidentialité', headerShown: false }} />

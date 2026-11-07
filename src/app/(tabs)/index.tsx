@@ -1,13 +1,37 @@
 import { router } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
 import { Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Card, Eyebrow, GoldButton, LinkRow, Screen, SiteFooter, Title } from '../../components/ui';
 import { EXPLORE, IMAGES, LEARN, SISTERS } from '../../lib/content';
+import { addPresence, dailyThought, recurringMotifs } from '../../lib/insights';
+import { useSession } from '../../lib/session';
+import { KEYS, local } from '../../lib/storage';
 import { colors, fonts, radius, space } from '../../lib/theme';
+
+// Couleurs des Sœurs, reprises du site (--sister-accent).
+const SISTER_COLORS = ['#d9cdfb', '#a9c2f7', '#8fdad3', '#a9c98a', '#eb9a68', '#f2dea8', '#f3f1fb'];
 
 const openPage = (path: string, title: string) => router.push({ pathname: '/page', params: { path, title } });
 
 export default function Home() {
+  const { dreams } = useSession();
+  const [presence, setPresence] = useState(1);
+  const motifs = useMemo(() => recurringMotifs(dreams, 99).length, [dreams]);
+  const thought = useMemo(() => dailyThought(), []);
+
+  useEffect(() => {
+    let active = true;
+    local.getJson<string[]>(KEYS.presenceDays, []).then((days) => {
+      const next = addPresence(days);
+      if (active) setPresence(next.length);
+      if (next.length !== days.length) local.setJson(KEYS.presenceDays, next).catch(() => undefined);
+    }, () => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <Screen>
       {/* Bandeau « Le Cercle 127 · Rêver · Comprendre · Avancer » */}
@@ -18,6 +42,42 @@ export default function Home() {
           <Text style={st.kickerText}>RÊVER · COMPRENDRE · AVANCER</Text>
         </View>
       </View>
+
+      {/* Pensée du jour */}
+      <View style={st.thought} accessibilityLabel={`Pensée du jour : ${thought}`}>
+        <Text style={st.thoughtKicker}>✦ PENSÉE DU JOUR</Text>
+        <Text style={st.thoughtText}>« {thought} »</Text>
+      </View>
+
+      {/* Mesures */}
+      <View style={st.stats}>
+        {[
+          { icon: '📖', value: dreams.length, label: 'Rêves dans\nmon Grimoire', go: () => router.navigate('/grimoire') },
+          { icon: '∞', value: motifs, label: 'Motifs\nrécurrents', go: () => router.push('/parcours') },
+          { icon: '☾', value: presence, label: 'Jours\nde présence', go: () => router.push('/parcours') },
+        ].map((x) => (
+          <Pressable key={x.label} style={st.stat} onPress={x.go} accessibilityRole="button" accessibilityLabel={`${x.value} ${x.label.replace('\n', ' ')}`}>
+            <View style={st.statTop}>
+              <Text style={st.statIcon}>{x.icon}</Text>
+              <Text style={st.statValue}>{x.value}</Text>
+            </View>
+            <Text style={st.statLabel}>{x.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {/* Mon parcours onirique */}
+      <Pressable style={st.journey} onPress={() => router.push('/parcours')} accessibilityRole="link" accessibilityLabel="Mon parcours onirique : ce qui se dessine">
+        <Text style={st.journeyMoon}>◐</Text>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={st.journeyKicker}>MON PARCOURS ONIRIQUE</Text>
+          <Text style={st.journeyTitle}>Ce qui se dessine…</Text>
+          <Text style={st.journeySub}>Évolutions · Récurrences · Transformations</Text>
+        </View>
+        <View style={st.circleArrow}>
+          <Text style={{ color: colors.gold, fontSize: 18 }}>›</Text>
+        </View>
+      </Pressable>
 
       {/* Hero */}
       <ImageBackground source={IMAGES.hero} style={st.hero} imageStyle={st.heroImg} accessibilityRole="header">
@@ -31,19 +91,38 @@ export default function Home() {
       {/* Trois raccourcis illustrés */}
       <View style={st.tiles}>
         {[
-          { label: 'Mon Grimoire', img: IMAGES.grimoire, go: () => router.navigate('/grimoire') },
-          { label: 'Oracle 127', img: IMAGES.oracle, go: () => router.navigate('/oracle') },
-          { label: 'Symboles', img: IMAGES.symboles, go: () => router.navigate('/symboles') },
+          { label: 'Mon Grimoire', sub: 'Mes rêves conservés et reliés', img: IMAGES.grimoire, go: () => router.navigate('/grimoire') },
+          { label: 'Oracle 127', sub: 'Une carte, un éclairage', img: IMAGES.oracle, go: () => router.navigate('/oracle') },
+          { label: 'Symboles', sub: 'Le dictionnaire des rêves', img: IMAGES.symboles, go: () => router.navigate('/symboles') },
         ].map((t) => (
           <Pressable key={t.label} style={st.tile} onPress={t.go} accessibilityRole="link" accessibilityLabel={t.label}>
             <Image source={t.img} style={st.tileImg} resizeMode="cover" />
             <View style={st.tileFoot}>
               <Text style={st.tileLabel}>{t.label}</Text>
-              <Text style={st.tileChevron}>›</Text>
+              <Text style={st.tileSub}>{t.sub}</Text>
             </View>
           </Pressable>
         ))}
       </View>
+
+      {/* Les Sept Sœurs */}
+      <Pressable style={st.sistersBanner} onPress={() => router.push('/soeurs')} accessibilityRole="link" accessibilityLabel="Les Sept Sœurs : sept regards pour éclairer ton chemin">
+        <View style={{ flex: 1, gap: 4 }}>
+          <Text style={st.sistersTitle}>Les Sept Sœurs</Text>
+          <Text style={st.journeySub}>Sept regards pour éclairer ton chemin.</Text>
+          <View style={st.dots}>
+            {SISTERS.map((sis, i) => (
+              <View key={sis.slug} style={st.dotItem}>
+                <View style={[st.dot, { backgroundColor: SISTER_COLORS[i] }]} />
+                <Text style={[st.dotName, { color: SISTER_COLORS[i] }]}>{sis.name}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+        <View style={st.circleArrow}>
+          <Text style={{ color: colors.gold, fontSize: 18 }}>›</Text>
+        </View>
+      </Pressable>
 
       {/* Carte Oni */}
       <Pressable onPress={() => openPage('/oni-gardienne-des-reves/', 'Oni')} accessibilityRole="link" accessibilityLabel="Oni, votre guide onirique">
@@ -130,9 +209,30 @@ const st = StyleSheet.create({
   tiles: { flexDirection: 'row', gap: space.sm },
   tile: { flex: 1, borderRadius: radius.md, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: colors.surface },
   tileImg: { width: '100%', height: 88 },
-  tileFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 10 },
+  tileFoot: { padding: 10, gap: 2 },
+  tileSub: { fontFamily: fonts.body, fontSize: 11, lineHeight: 15, color: colors.muted },
+  thought: { padding: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: 'rgba(216,182,107,0.06)', gap: 6 },
+  thoughtKicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 2, color: colors.gold },
+  thoughtText: { fontFamily: fonts.titleItalic, fontSize: 19, lineHeight: 26, color: colors.text },
+  stats: { flexDirection: 'row', gap: space.sm },
+  stat: { flex: 1, gap: 4, padding: 12, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: colors.surface },
+  statTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  statIcon: { fontSize: 20, color: colors.gold },
+  statValue: { fontFamily: fonts.title, fontSize: 26, lineHeight: 30, color: colors.gold },
+  statLabel: { fontFamily: fonts.body, fontSize: 11, lineHeight: 14, color: colors.text },
+  journey: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: colors.surface },
+  journeyMoon: { fontSize: 40, color: colors.gold },
+  journeyKicker: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 2, color: colors.muted },
+  journeyTitle: { fontFamily: fonts.title, fontSize: 22, color: colors.text },
+  journeySub: { fontFamily: fonts.body, fontSize: 13, color: colors.muted },
+  circleArrow: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
+  sistersBanner: { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.lg, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: colors.surface },
+  sistersTitle: { fontFamily: fonts.title, fontSize: 28, color: colors.text },
+  dots: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 6 },
+  dotItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  dot: { width: 9, height: 9, borderRadius: 5 },
+  dotName: { fontFamily: fonts.bodyMedium, fontSize: 12 },
   tileLabel: { fontFamily: fonts.title, fontSize: 15, color: colors.text, flexShrink: 1 },
-  tileChevron: { color: colors.text },
   oni: { aspectRatio: 720 / 446, borderRadius: radius.md, overflow: 'hidden', padding: space.md, justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)' },
   oniImg: { borderRadius: radius.md, width: '100%', height: '100%' },
   oniText: { maxWidth: '62%', gap: 2 },
