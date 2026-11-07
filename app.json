@@ -3,9 +3,9 @@
     "name": "Le Cercle 127",
     "slug": "le-cercle-127",
     "scheme": "cercle127",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/brand/icon.png",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#080b17",
     "primaryColor": "#d8b66b",
@@ -89,9 +89,9 @@
       "package": "com.lecercle127.app",
       "adaptiveIcon": {
         "backgroundColor": "#080b17",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "foregroundImage": "./assets/brand/android-foreground.png",
+        "backgroundImage": "./assets/brand/android-background.png",
+        "monochromeImage": "./assets/brand/android-monochrome.png"
       },
       "permissions": [
         "android.permission.POST_NOTIFICATIONS",
@@ -102,7 +102,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/brand/icon.png",
       "output": "single"
     },
     "plugins": [
@@ -113,7 +113,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash-icon.png",
+          "image": "./assets/brand/icon.png",
           "imageWidth": 220,
           "resizeMode": "contain",
           "backgroundColor": "#080b17"
@@ -123,6 +123,15 @@
         "expo-notifications",
         {
           "color": "#d8b66b"
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Autoriser Le Cercle 127 à enregistrer votre voix dans votre carnet local. Aucun audio n’est envoyé à l’IA.",
+          "recordAudioAndroid": true,
+          "enableBackgroundRecording": false,
+          "enableBackgroundPlayback": false
         }
       ]
     ],

@@ -1,145 +1,120 @@
-# Fiche App Store : Le Cercle 127
+# Soumission App Store — version 1.0.1
 
-Tout ce qu'il faut copier-coller dans **App Store Connect** (appstoreconnect.apple.com).
-Les limites de caractères d'Apple sont respectées.
+Ce dossier prépare une soumission. Il ne confirme ni un nouveau build installé sur iPhone ni une validation Apple.
 
-## 1. Informations de l'app
+## Informations
 
-| Champ | Valeur |
-|---|---|
-| Nom (30 max) | `Le Cercle 127` |
-| Sous-titre (30 max) | `Journal de rêves et symboles` |
-| Identifiant de lot (Bundle ID) | `com.lecercle127.app` |
-| SKU | `lecercle127-ios` |
-| Langue principale | Français (France) |
-| Catégorie principale | **Style de vie** (Lifestyle) |
-| Catégorie secondaire | Références (Reference) |
-| Prix | Gratuit |
-| Disponibilité | Tous les pays, ou France, Belgique, Suisse et Canada pour commencer |
-| URL de confidentialité | https://lecercle127.com/confidentialite-le-cercle-127/ |
-| URL d'assistance | https://lecercle127.com/application/ |
-| URL marketing | https://lecercle127.com/ |
-| Copyright | `2026 Safia METTRI` |
+- Nom : Le Cercle 127
+- Sous-titre : Journal de rêves et symboles
+- Bundle ID : com.lecercle127.app
+- Catégorie : Style de vie, Références
+- Prix : gratuit, sans parcours d’achat dans l’application
+- Assistance : https://lecercle127.com/application/
+- Politique publique : https://lecercle127.com/confidentialite-le-cercle-127/
+- Contact : contact@lecercle127.com
 
-> Éviter la catégorie « Santé et forme » : l'application ne fait ni diagnostic ni soin, et cette catégorie
-> déclenche une relecture plus stricte.
+La description ci-dessous correspond aux fonctions du code 1.0.1. Les nouvelles demandes d’IA sont fermées tant que le serveur renvoie `oni_enabled: false` ; elles ne doivent pas être présentées comme disponibles.
 
-## 2. Texte promotionnel (170 max, modifiable sans nouvelle version)
+## Description
 
-```
-Notez vos rêves au réveil, même hors connexion. Retrouvez ce qui revient, explorez 3 900 symboles et laissez les Sept Sœurs du Cercle éclairer vos nuits.
-```
+Le Cercle 127 est un journal de rêves privé : gardez un récit, retrouvez les symboles qui reviennent et explorez vos nuits à votre rythme.
 
-## 3. Mots-clés (100 max, séparés par des virgules, sans espace)
+VOTRE GRIMOIRE, MÊME HORS CONNEXION
+Écrivez un rêve sans créer de compte. Le brouillon reste sur votre appareil ; avec un compte, le Grimoire écrit peut être synchronisé avec lecercle127.com.
 
-```
-rêve,journal de rêves,symboles,interprétation,onirique,songe,cauchemar,rêve lucide,grimoire,oracle
-```
+UN CARNET VOCAL LOCAL
+Enregistrez votre voix, réécoutez-la et supprimez vos audios depuis l’application. Les fichiers restent sur cet appareil et ne sont pas envoyés à une IA ni synchronisés avec votre compte. Le carnet enregistre du son ; il ne réalise pas de transcription automatique.
 
-## 4. Description (4 000 max)
+SYMBOLES ET REPÈRES
+Cherchez un symbole dans le dictionnaire du site et relisez vos propres récits. Le Grimoire permet de rechercher des mots et d’observer les émotions et symboles que vous avez notés. Des pistes de réflexion, sans diagnostic ni prédiction.
 
-```
-Chaque rêve est un message qu'on ne sait pas lire seul. Le Cercle 127 vous aide à le garder, à le comprendre et à avancer.
+ESSAYEZ SANS IDENTIFIANTS
+La démonstration locale contient des rêves fictifs et une lecture d’exemple. Ses données sont séparées de votre carnet personnel et peuvent être effacées. Elle ne crée aucun compte serveur et ne simule pas une nouvelle lecture par l’IA.
 
-NOTEZ VOS RÊVES AU RÉVEIL
-Racontez votre rêve tel qu'il vient, même en fragments. Il est gardé sur votre téléphone, même sans réseau, puis rejoint votre Grimoire dès que vous êtes connecté·e. Un rappel du matin, si vous le souhaitez, vous aide à ne plus les laisser s'effacer.
+VOS CHOIX ET VOS DONNÉES
+Le micro et le rappel du matin sont facultatifs. La confidentialité est accessible dans l’app. Vous pouvez supprimer vos enregistrements, effacer les données de cet appareil et demander la suppression de votre compte depuis les réglages.
 
-VOTRE GRIMOIRE PRIVÉ
-Retrouvez toutes vos nuits au même endroit et voyez ce qui revient : émotions, lieux, symboles. Votre Grimoire est le même que sur lecercle127.com. Il n'appartient qu'à vous.
+Certaines ressources sont affichées depuis lecercle127.com et nécessitent Internet. Cette version ne propose aucun achat. Les nouvelles demandes de lecture par Oni dépendent de l’activation du service ; elles ne sont jamais envoyées sans un accord explicite pour chaque rêve.
 
-3 900 SYMBOLES ONIRIQUES
-Un serpent, une maison, de l'eau, une chute ? Cherchez un symbole et découvrez ses sens possibles. Des pistes, jamais des verdicts : vous gardez la main sur le sens de vos rêves.
+Le Cercle 127 accompagne la réflexion personnelle et ne remplace pas un professionnel de santé.
 
-LES SEPT SŒURS DU CERCLE
-Oni lit les rêves. Alka relie les motifs, Naïa apaise les émotions, Terra ramène au corps, Ignis passe à l'action, Astria oriente vers vos envies, Irma aide à choisir. Explorez aussi l'Oracle 127, le Grand Labyrinthe et le rêve lucide.
+## Texte promotionnel
 
-ONI, AVEC VOTRE ACCORD
-Lorsque cette fonction est proposée, vous pouvez demander à Oni des hypothèses et des questions sur un rêve. Elle s'appuie sur un outil d'intelligence artificielle : votre accord vous est demandé à chaque envoi.
+Gardez vos rêves, enregistrez votre voix localement et explorez les symboles. Essayez le Grimoire avec des exemples de démonstration.
 
-RESPECT DE VOS DONNÉES
-Pas de publicité, pas de revente de données. Vous pouvez supprimer votre compte et vos rêves directement depuis l'application.
+## Nouveautés
 
-Le Cercle 127 est un compagnon de réflexion. Il ne prédit pas l'avenir et ne remplace pas un accompagnement médical ou thérapeutique.
-```
+Carnet vocal local avec écoute et suppression, démonstration isolée, confidentialité détaillée, consentement explicite, suppression du compte renforcée et retrait des offres payantes et liens Facebook dans l’app mobile.
 
-## 5. Nouveautés de cette version
+## Accès pour App Review
 
-```
-Première version de l'application Le Cercle 127 : journal de rêves hors connexion, Grimoire, dictionnaire des symboles, Oracle 127 et Sept Sœurs.
-```
+Un mode local de démonstration est accessible depuis **Menu → Se connecter → Explorer la démonstration locale**. Il contient trois rêves fictifs et une lecture d’exemple. Il permet d’essayer l’ajout et la suppression d’un rêve, la recherche et les lectures. Il ne vérifie pas l’authentification réelle du serveur.
 
-## 6. Captures d'écran
+Le compte de test serveur documenté auparavant est `revue.apple@lecercle127.com`. Son accès n’est pas confirmé par cette révision. Avant la soumission, vérifier qu’il fonctionne et saisir le mot de passe uniquement dans les informations de relecture sécurisées d’App Store Connect. Ne pas mettre de mot de passe dans le dépôt ni dans le chat. Employer un compte jetable distinct pour tester la suppression : ne pas supprimer le compte destiné à Apple pendant ces essais.
 
-Dossier `store/ios-6.9/`, au format iPhone **6,9 pouces (1320 × 2868)**. Apple les réutilise pour les tailles plus petites.
+### Notes pour le relecteur
 
-1. `1-accueil.png` : Comprendre vos rêves. Avancer concrètement.
-2. `2-reve.png` : Notez-le au réveil, même hors connexion.
-3. `3-grimoire.png` : Retrouvez vos nuits et ce qui revient.
-4. `4-symboles.png` : Le sens des symboles, en un instant.
+```text
+Le Cercle 127 is a French private dream journal.
 
-## 7. Confidentialité de l'app (« App Privacy »)
+The local demonstration is available from Menu > Se connecter > Explorer la démonstration locale. It contains fictional dreams and a sample reading, keeps personal drafts separate, and sends no dream to an AI service. It does not test real backend authentication. The real demo account credentials must be supplied separately in App Store Connect for reviewing account-based features.
 
-**Suivi (tracking)** : **Non**. Aucune donnée n'est utilisée pour suivre l'utilisateur entre apps ou sites.
+The native Voice notebook requests microphone permission only when recording starts. Audio can be recorded, played, deleted, and retained locally. It is not automatically transcribed or uploaded.
 
-| Type de donnée Apple | Collectée | Liée à l'identité | Suivi | Finalité |
-|---|---|---|---|---|
-| Coordonnées : **Adresse e-mail** | Oui | Oui | Non | Fonctionnalité de l'app |
-| Identifiants : **Identifiant d'utilisateur** | Oui | Oui | Non | Fonctionnalité de l'app |
-| Contenu de l'utilisateur : **Autre contenu** (récits de rêves) | Oui | Oui | Non | Fonctionnalité de l'app |
+Account deletion is in Menu > Mon compte > Supprimer mon compte. Local-only data can also be erased without an account. During local demonstration, the equivalent action deletes only demo data.
 
-À ne **pas** cocher : localisation, contacts, santé, données financières, historique de navigation, identifiants publicitaires, diagnostics.
+The server currently reports oni_enabled=false. New AI requests are therefore unavailable. Existing readings remain readable; the demonstration reading is explicitly fictional. When enabled, each new request requires explicit consent disclosing Make and OpenAI.
 
-Le manifeste de confidentialité (`PrivacyInfo.xcprivacy`) est généré à la construction à partir de `app.json` (`ios.privacyManifests`).
+Some resource pages come from lecercle127.com. Known analytics scripts are removed before mobile rendering; payment offers and Facebook controls are filtered and those destinations are blocked. The app provides no purchase flow.
 
-## 8. Classification par âge (questionnaire)
-
-Répondre **« Aucun »** partout, sauf :
-- **Thèmes matures ou suggestifs / horreur** : « Peu fréquent ou léger », parce que certaines pages parlent de cauchemars.
-- **Contenu généré par les utilisateurs partagé** : **Non**. Les rêves restent privés et ne sont jamais visibles par d'autres.
-- **Conseils médicaux** : **Non**.
-
-Résultat attendu : **12+** (ou 9+). Âge minimum de l'achat sur le site : majeur (voir CGV).
-
-## 9. Chiffrement (export)
-
-« Votre app utilise-t-elle du chiffrement ? » → **Non** (uniquement HTTPS standard). C'est déjà déclaré dans
-`app.json` (`usesNonExemptEncryption: false`), donc la question ne sera plus posée.
-
-## 10. Informations pour la relecture Apple (obligatoire)
-
-**Compte de démonstration** (créé le 6 novembre 2026, 3 rêves enregistrés) : identifiant
-`revue.apple@lecercle127.com`. Le mot de passe a été transmis à part : il ne doit pas figurer dans ce dépôt.
-À saisir dans App Store Connect → Informations pour la relecture (« Sign-in required »).
-
-**Notes pour le relecteur** (à coller, en anglais) :
-
-```
-Le Cercle 127 is a private dream journal and symbol dictionary (French language).
-
-- Dreams can be written without an account and are stored on the device; with the demo account they sync to the user's private Grimoire.
-- Account deletion: Grimoire tab > "Mon compte" > "Supprimer mon compte".
-- Some content pages (Oracle, the Seven Sisters) are displayed from our website lecercle127.com, without any payment link.
-- The app contains no in-app purchase and no link to external purchases.
-- The optional "Oni" AI reading asks for explicit consent before each request and discloses that an AI provider (OpenAI) is used. Every reading is reviewed by a person before it is shown to the user (usually within 48 hours). The demo account already contains one reviewed reading ("La forêt qui chante", Lectures tab).
-- The app does not provide medical advice, diagnosis or predictions.
-Contact: contact@lecercle127.com
+The app offers reflection tools, not medical advice, diagnosis or predictions. Contact: contact@lecercle127.com
 ```
 
-## 11. Informations de commerçant (Union européenne, DSA)
+## Confidentialité à déclarer
 
-Apple demande et **affiche publiquement** sur l'App Store de l'UE : nom, adresse, e-mail et **téléphone**.
-Les mêmes informations que dans les mentions légales : Safia METTRI EI, 13 place Alsace-Lorraine, 34700 Lodève,
-contact@lecercle127.com, et le téléphone (encore à compléter).
+À vérifier selon le fonctionnement réellement déployé et les réglages des prestataires :
 
-## 12. Commandes (depuis le Mac, dans le dossier du projet)
+| Donnée | Fonction dans l’app | Déclaration à préparer |
+|---|---|---|
+| E-mail et identifiant | Création de compte et synchronisation | Collectés pour la fonctionnalité du compte, liés à son identité |
+| Récits et contexte | Grimoire écrit ; IA uniquement avec accord lorsque le service est activé | Contenu utilisateur lié au compte, destinataires clairement indiqués |
+| Audio du carnet | Enregistrement et écoute sur l’appareil | Pas collecté par le serveur dans cette version ; expliquer l’autorisation du micro |
+| Images éventuelles dans les pages du site | Fonctions externes du site, distinctes du carnet | Contrôler leurs destinataires et leur consentement avant de déclarer leur absence |
+| Mesures d’usage, journaux et ressources du site | Le chargement mobile retire les scripts de suivi connus | Vérifier la configuration effective du serveur et des prestataires ; ne pas choisir « aucune collecte » par défaut |
 
-```bash
-npx --yes eas-cli@latest build --platform ios --profile production
+Le manifeste `app.json` ne remplace pas les réponses App Privacy. La politique publique doit mentionner Make, OpenAI, les audios locaux, la suppression et les durées réelles de conservation. Voir `store/CONFIDENTIALITE-APP.md` pour le complément à relire avant publication. Le serveur et les paramètres de conservation n’ont pas été modifiés ici.
+
+## Classement par âge
+
+Compléter le questionnaire actuellement proposé dans App Store Connect selon les contenus réels, notamment les cauchemars et toute fonction de conversation. Ne pas reprendre automatiquement les anciennes recommandations « 12+ ou 9+ ». La création de compte demande actuellement une confirmation d’au moins 15 ans ; ce seuil applicatif et le classement de la boutique sont deux choses distinctes.
+
+## Captures
+
+Les anciennes captures restent archivées dans `store/ios-6.9`. Les captures de validation web 1.0.1 sont séparées et ne doivent pas être présentées comme des captures d’iPhone. Les captures destinées à la boutique doivent montrer le build final réellement utilisé sur iPhone, avec le même logo, les bons onglets et sans achat ni bouton Facebook.
+
+## Validation avant envoi
+
+1. Installer le nouveau build sur un iPhone et relever son numéro dans Réglages de l’app.
+2. Tester le micro autorisé puis refusé, l’écoute, la suppression et la persistance de l’audio après relancement.
+3. Tester hors connexion le récit écrit et la recherche locale du Grimoire.
+4. Tester la connexion et la synchronisation avec un compte jetable ; demander sa suppression et confirmer le résultat sur le serveur.
+5. Parcourir les sept Sœurs, les ressources et la confidentialité : aucune offre d’achat ni ouverture de Facebook dans l’app mobile.
+6. Vérifier les captures, les URL d’assistance/confidentialité, les coordonnées de relecture et le compte destiné à Apple.
+
+## Construire et transmettre
+
+```sh
+npm ci
+npm run typecheck
+npm run lint
+npm test
+npx eas-cli@latest build --platform ios --profile production --clear-cache
 ```
 
-```bash
-npx --yes eas-cli@latest submit --platform ios --latest
+Relever l’identifiant EAS du build 1.0.1 obtenu. Pour transmettre ce build précis :
+
+```sh
+npx eas-cli@latest submit --platform ios --id ID_DU_BUILD_EAS
 ```
 
-La première construction demande les identifiants Apple et propose de créer certificats et profils : répondre **Y**.
-`submit` crée l'app dans App Store Connect si besoin et envoie la construction dans **TestFlight**.
+Compléter les informations de relecture et le statut de commerçant UE si nécessaire. La transmission EAS ne remplit pas automatiquement ces rubriques et ne déclenche pas une publication garantie.

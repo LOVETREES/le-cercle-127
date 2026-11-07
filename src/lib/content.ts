@@ -28,7 +28,7 @@ export type LinkItem = { title: string; subtitle: string; path: string; icon: st
 export const LEARN: LinkItem[] = [
   { title: 'Rêve lucide', subtitle: 'Savoir qu’on rêve, pour agir dans ses rêves.', path: '/reve-lucide/', icon: '☾' },
   { title: 'Laboratoire', subtitle: 'Des exercices simples chaque semaine.', path: '/laboratoire-des-reveurs/', icon: '⚗' },
-  { title: 'Carnet vocal', subtitle: 'Racontez votre rêve à voix haute, au réveil.', path: '/carnet-vocal/', icon: '🎙' },
+  { title: 'Carnet vocal', subtitle: 'Enregistrez et réécoutez votre rêve sur cet appareil.', path: '/carnet-vocal/', icon: '🎙' },
   { title: 'Suis-je en train de rêver ?', subtitle: 'Quelques gestes simples pour le savoir.', path: '/verification-des-reves/', icon: '◉' },
 ];
 
@@ -42,8 +42,7 @@ export const EXPLORE: LinkItem[] = [
 
 export const LEGAL: { title: string; path: string }[] = [
   { title: 'Mentions légales', path: '/mentions-legales/' },
-  { title: 'Conditions de vente', path: '/conditions-generales-de-vente/' },
-  { title: 'Confidentialité', path: '/confidentialite-le-cercle-127/' },
+  { title: 'Confidentialité', path: '/confidentialite/' },
 ];
 
 export const DISCLAIMER = 'Onirologue est un compagnon de réflexion, pas un substitut à un accompagnement thérapeutique.';
@@ -54,5 +53,5 @@ export const IMAGES = {
   oracle: require('../../assets/images/home-oracle.webp'),
   symboles: require('../../assets/images/home-symboles.webp'),
   oni: require('../../assets/images/home-oni.webp'),
-  logo: require('../../assets/images/header-logo.png'),
+  logo: require('../../assets/brand/icon.png'),
 };

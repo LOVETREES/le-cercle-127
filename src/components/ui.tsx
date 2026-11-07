@@ -17,9 +17,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DISCLAIMER, IMAGES, LEGAL } from '../lib/content';
 import { colors, fonts, radius, space } from '../lib/theme';
+import { useSession } from '../lib/session';
 
 /** En-tête repris du site mobile : logo, « Onirologue », bouton menu. */
 export function AppHeader() {
+  const { isDemo } = useSession();
   return (
     <View style={s.header}>
       <Pressable
@@ -29,7 +31,10 @@ export function AppHeader() {
         onPress={() => router.navigate('/')}
       >
         <Image source={IMAGES.logo} style={s.logo} />
-        <Text style={s.brandText}>Onirologue</Text>
+        <View>
+          <Text style={s.brandText}>Onirologue</Text>
+          {isDemo && <Text style={{ fontFamily: fonts.body, fontSize: 11, color: colors.gold }}>Démonstration locale</Text>}
+        </View>
       </Pressable>
       <Pressable
         style={s.menuBtn}
@@ -96,13 +101,15 @@ export function GoldButton({ label, onPress, loading, disabled }: { label: strin
   );
 }
 
-export function OutlineButton({ label, onPress, danger }: { label: string; onPress: () => void; danger?: boolean }) {
+export function OutlineButton({ label, onPress, danger, disabled }: { label: string; onPress: () => void; danger?: boolean; disabled?: boolean }) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [s.outline, danger && { borderColor: colors.danger }, pressed && { opacity: 0.7 }]}
+      style={({ pressed }) => [s.outline, danger && { borderColor: colors.danger }, (pressed || disabled) && { opacity: 0.7 }]}
     >
       <Text style={[s.outlineText, danger && { color: colors.danger }]}>{label}</Text>
     </Pressable>

@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Body, Field, GoldButton, Notice, Title } from '../components/ui';
+import { Body, Field, GoldButton, Notice, OutlineButton, Title } from '../components/ui';
 import { api } from '../lib/api';
 import { validateEmail } from '../lib/model';
 import { useSession } from '../lib/session';
@@ -12,7 +12,7 @@ type Mode = 'login' | 'register' | 'forgot';
 
 export default function Connexion() {
   const params = useLocalSearchParams<{ mode?: Mode }>();
-  const { signIn, signUp } = useSession();
+  const { signIn, signUp, startDemo, user } = useSession();
   const [mode, setMode] = useState<Mode>(params.mode === 'register' ? 'register' : 'login');
   const [pseudonym, setPseudonym] = useState('');
   const [email, setEmail] = useState('');
@@ -73,7 +73,7 @@ export default function Connexion() {
         </Title>
         <Body muted>
           {mode === 'register'
-            ? 'Gratuit. Vos rêves restent liés à votre compte et ne sont jamais partagés.'
+            ? 'Gratuit. Vos rêves sont privés. Une lecture par l’IA nécessite un accord séparé.'
             : mode === 'forgot'
               ? 'Indiquez votre adresse : vous recevrez un lien pour choisir un nouveau mot de passe.'
               : 'Le même compte que sur lecercle127.com.'}
@@ -138,7 +138,7 @@ export default function Connexion() {
               <Text
                 style={st.link}
                 onPress={() =>
-                  router.push({ pathname: '/page', params: { path: '/confidentialite-le-cercle-127/', title: 'Confidentialité' } })
+                  router.push('/confidentialite')
                 }
               >
                 politique de confidentialité
@@ -156,6 +156,15 @@ export default function Connexion() {
           onPress={submit}
           loading={busy}
         />
+        {mode === 'login' && !user && (
+          <View style={{ gap: space.sm }}>
+            <OutlineButton label="Explorer la démonstration locale" disabled={busy} onPress={() => run(async () => {
+              await startDemo();
+              router.replace('/grimoire');
+            })} />
+            <Body muted>Des rêves et une lecture fictifs pour essayer le Grimoire. Aucun compte créé et aucun envoi à l’IA.</Body>
+          </View>
+        )}
 
         <View style={st.switches}>
           {mode !== 'login' && (

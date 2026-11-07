@@ -11,7 +11,7 @@ import { colors, fonts, radius, space } from '../../lib/theme';
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function Reve() {
-  const { addDream, user, oniEnabled } = useSession();
+  const { addDream, user, oniEnabled, isDemo } = useSession();
   const [title, setTitle] = useState('');
   const [story, setStory] = useState('');
   const [dreamDate, setDreamDate] = useState(today());
@@ -62,17 +62,18 @@ export default function Reve() {
           <Notice
             tone="success"
             text={
-              user
+              isDemo ? 'Rêve gardé dans la démonstration locale, séparément de vos données personnelles.' : user
                 ? oniEnabled
-                  ? 'Votre rêve est dans votre Grimoire. Pour qu’Oni le lise, ouvrez-le et touchez « Demander une lecture à Oni » : la lecture apparaîtra dans l’onglet Lectures.'
-                  : 'Votre rêve est dans votre Grimoire. Quand Oni l’aura lu, sa lecture apparaîtra dans l’onglet Lectures.'
-                : 'Votre rêve est gardé sur cet appareil. Connectez-vous pour qu’il rejoigne votre Grimoire et puisse être lu par Oni.'
+                  ? 'Votre rêve est dans votre Grimoire. Pour demander une lecture à Oni, ouvrez-le : votre accord sera demandé avant l’envoi. La lecture sera accessible dans l’écran Lectures.'
+                  : 'Votre rêve est dans votre Grimoire. Les nouvelles demandes de lecture à Oni sont actuellement indisponibles.'
+                : 'Votre rêve est gardé sur cet appareil. Connectez-vous pour le synchroniser avec votre Grimoire.'
             }
           />
         )}
 
         <Card style={{ gap: space.lg }}>
           <Text style={st.oniListens}>Oni vous écoute.</Text>
+          <OutlineButton label="Ouvrir mon carnet vocal" onPress={() => router.push('/carnet-vocal')} />
           <Field label="Si votre rêve avait un nom…" placeholder="Un titre, même provisoire" value={title} onChangeText={setTitle} maxLength={140} />
           <Field
             label="Vous souvenez-vous de la nuit où il est venu ?"

@@ -75,9 +75,10 @@ function Root() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="menu" options={{ title: 'Menu', presentation: 'modal' }} />
         <Stack.Screen name="page" options={{ title: '' }} />
-        <Stack.Screen name="oracle" options={{ title: 'Oracle 127' }} />
         <Stack.Screen name="connexion" options={{ title: 'Mon Grimoire', presentation: 'modal' }} />
         <Stack.Screen name="compte" options={{ title: 'Mon compte' }} />
+        <Stack.Screen name="carnet-vocal" options={{ title: 'Carnet vocal', headerShown: false }} />
+        <Stack.Screen name="confidentialite" options={{ title: 'Confidentialité', headerShown: false }} />
         <Stack.Screen name="reve/[id]" options={{ title: 'Mon rêve' }} />
       </Stack>
     </>

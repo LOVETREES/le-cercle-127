@@ -44,4 +44,8 @@ export const KEYS = {
   cache: 'c127.dreams-cache',
   reminder: 'c127.reminder',
   oniRequested: 'c127.oni-requested',
+  demoActive: 'c127.demo-active',
+  demoDreams: 'c127.demo-dreams',
+  voiceNotes: 'c127.voice-notes',
+  demoVoiceNotes: 'c127.demo-voice-notes',
 } as const;

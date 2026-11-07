@@ -16,7 +16,7 @@ function formatDate(iso: string) {
 
 // Toutes les lectures d'Oni au même endroit, et où elles arrivent.
 export default function Lectures() {
-  const { user, dreams, oniEnabled, oniRequested, syncing, refresh } = useSession();
+  const { user, dreams, oniEnabled, oniRequested, syncing, refresh, isDemo } = useSession();
   const read = useMemo(() => dreams.filter((d) => d.oniReading), [dreams]);
   const waiting = useMemo(() => dreams.filter((d) => !d.oniReading && !d.pending), [dreams]);
 
@@ -36,6 +36,7 @@ export default function Lectures() {
           </Body>
         </View>
 
+        {isDemo && <Notice text="Lecture fictive de démonstration. Aucun envoi à l’IA ni relecture réelle n’a lieu dans ce mode." />}
         {!user && (
           <Card>
             <Body>Connectez-vous pour retrouver les lectures liées à vos rêves.</Body>
@@ -54,7 +55,7 @@ export default function Lectures() {
             <Text style={st.step}>4. La lecture est relue par une personne du Cercle, puis elle arrive ici.
             </Text>
             {!oniEnabled && (
-              <Notice text="Les lectures d’Oni dans l’application ouvrent très bientôt. Vos rêves sont déjà gardés : ils seront prêts à être lus." />
+              <Notice text={isDemo ? 'La démonstration utilise une lecture déjà préparée dans un rêve d’exemple.' : 'Les nouvelles demandes de lecture sont actuellement indisponibles. Votre Grimoire reste accessible.'} />
             )}
             <OutlineButton label="Confier un rêve" onPress={() => router.navigate('/reve')} />
           </Card>

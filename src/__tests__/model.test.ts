@@ -171,7 +171,7 @@ describe('pages du site dans l’application', () => {
     expect(decideNavigation('https://onirologue.shop/produit/livre')).toBe('block');
     expect(decideNavigation('https://netmedia.best/produit/livre-reves-recurrents/')).toBe('block');
     expect(HIDE_SITE_CHROME_CSS).toContain('.os-book-wrap');
-    expect(nativeRouteFor('https://lecercle127.com/carnet-vocal/')).toBeUndefined();
+    expect(nativeRouteFor('https://lecercle127.com/carnet-vocal/')).toBe('/carnet-vocal');
     expect(decideRequest({ url: 'https://lecercle127.com/grimoire/', isTopFrame: true, navigationType: 'click' })).toBe('native');
     expect(decideRequest({ url: 'https://lecercle127.com/grimoire/', isTopFrame: true, navigationType: 'other' })).toBe('allow');
   });
@@ -183,9 +183,10 @@ describe('pages du site dans l’application', () => {
   });
 
   it('masque l’en-tête, la barre du bas et les liens vers la lecture payante', () => {
-    for (const sel of ['.oni-app-nav', '.site-footer', '.cmplz-cookiebanner', 'a[href*="/lecture-de-reve"]']) {
+    for (const sel of ['.oni-app-nav', '.site-footer', 'a[href*="/lecture-de-reve"]']) {
       expect(HIDE_SITE_CHROME_CSS).toContain(sel);
     }
+    expect(HIDE_SITE_CHROME_CSS).not.toContain('.cmplz-cookiebanner');
   });
 
   it('produit un script injecté valide qui propose l’écran Rêve', () => {

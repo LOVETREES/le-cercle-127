@@ -22,14 +22,15 @@ function confirm(title: string, message: string, action: string): Promise<boolea
 }
 
 export default function Compte() {
-  const { user, signOut, deleteAccount } = useSession();
+  const { user, signOut, deleteAccount, isDemo, clearLocalData } = useSession();
+  const [busy, setBusy] = useState(false);
   const [reminder, setReminder] = useState<Reminder>(DEFAULT_REMINDER);
   const [notice, setNotice] = useState<{ text: string; tone: 'error' | 'success' } | null>(null);
   const [lastError, setLastError] = useState<LastError | null>(null);
   const [webError, setWebError] = useState<WebError | null>(null);
 
   useEffect(() => {
-    loadReminder().then(setReminder);
+    loadReminder().then((value) => setReminder(Platform.OS === 'web' ? { ...value, enabled: false } : value));
     readLastError().then(setLastError);
     readWebError().then(setWebError);
   }, []);
@@ -41,6 +42,15 @@ export default function Compte() {
       setReminder({ ...next, enabled: false });
       setNotice({ tone: 'error', text: 'Les notifications sont refusées. Autorisez-les dans les réglages du téléphone.' });
     } else setNotice(null);
+  };
+
+  const runAccountAction = async (action: () => Promise<void>, message: string) => {
+    if (busy) return;
+    setBusy(true);
+    setNotice(null);
+    try { await action(); setNotice({ tone: 'success', text: message }); }
+    catch (e) { setNotice({ tone: 'error', text: e instanceof Error ? e.message : 'L’opération a échoué. Réessayez.' }); }
+    finally { setBusy(false); }
   };
 
   return (
@@ -60,6 +70,7 @@ export default function Compte() {
         <View style={st.switchRow}>
           <Body style={{ flex: 1 }}>Me rappeler de noter mes rêves au réveil</Body>
           <Switch
+            disabled={Platform.OS === 'web'}
             value={reminder.enabled}
             onValueChange={(v) => updateReminder({ ...reminder, enabled: v })}
             trackColor={{ true: colors.goldDeep, false: '#333652' }}
@@ -85,37 +96,34 @@ export default function Compte() {
             })}
           </View>
         )}
-        <Body muted style={{ fontSize: 13 }}>Le rappel est programmé sur votre téléphone : aucune donnée n’est envoyée.</Body>
+        <Body muted style={{ fontSize: 13 }}>{Platform.OS === 'web' ? 'Le rappel est disponible dans l’application iPhone et Android.' : 'Le rappel est programmé sur votre téléphone : aucune donnée n’est envoyée.'}</Body>
       </Card>
 
       {notice && <Notice tone={notice.tone} text={notice.text} />}
+      {isDemo && <Notice text="Démonstration locale : exemples fictifs et données séparées. Aucun compte serveur ni envoi à l’IA." />}
 
       {user && (
         <Card>
           <Eyebrow>Mes données</Eyebrow>
           <OutlineButton
-            label="Me déconnecter"
+            label={isDemo ? 'Quitter et effacer la démo' : 'Me déconnecter'}
+            disabled={busy}
             onPress={async () => {
-              await signOut();
-              router.back();
+              await runAccountAction(signOut, isDemo ? 'Démonstration effacée. Vos données personnelles sont conservées.' : 'Vous êtes déconnecté·e.');
             }}
           />
           <OutlineButton
             danger
-            label="Supprimer mon compte"
+            label={isDemo ? 'Effacer la démonstration' : 'Supprimer mon compte'}
+            disabled={busy}
             onPress={async () => {
               const ok = await confirm(
-                'Supprimer mon compte ?',
-                'Votre compte, vos rêves et les réponses d’Oni seront effacés définitivement, ici et sur lecercle127.com.',
+                isDemo ? 'Effacer la démonstration ?' : 'Supprimer mon compte ?',
+                isDemo ? 'Les exemples de démonstration seront effacés. Vos données personnelles ne seront pas modifiées.' : 'Cette demande supprime votre compte et vos rêves sur le serveur, puis efface les données locales et les audios de cet appareil. Les sauvegardes techniques peuvent suivre les délais de la politique de confidentialité.',
                 'Supprimer',
               );
               if (!ok) return;
-              try {
-                await deleteAccount();
-                router.back();
-              } catch (e) {
-                setNotice({ tone: 'error', text: e instanceof Error ? e.message : 'Suppression impossible.' });
-              }
+              await runAccountAction(deleteAccount, isDemo ? 'Démonstration effacée.' : 'Votre compte a été supprimé.');
             }}
           />
           <Body muted style={{ fontSize: 13 }}>
@@ -123,6 +131,17 @@ export default function Compte() {
           </Body>
         </Card>
       )}
+
+      <Card>
+        <Eyebrow>Sur cet appareil</Eyebrow>
+        <Body muted>Efface les brouillons, le cache et les enregistrements locaux. Les rêves déjà synchronisés restent sur le serveur jusqu’à leur suppression depuis le Grimoire ou le compte.</Body>
+        <OutlineButton danger disabled={busy} label="Effacer les données de cet appareil" onPress={async () => {
+          if (await confirm('Effacer les données locales ?', isDemo ? 'Seules les données de démonstration seront effacées.' : 'Les brouillons non synchronisés et les enregistrements vocaux seront perdus. Les rêves du serveur sont conservés.', 'Effacer')) {
+            await runAccountAction(clearLocalData, 'Données locales effacées.');
+          }
+        }} />
+        <OutlineButton label="Confidentialité et services utilisés" onPress={() => router.push('/confidentialite')} />
+      </Card>
 
       {lastError && (
         <Card>
@@ -165,7 +184,7 @@ export default function Compte() {
         </Card>
       )}
 
-      <Text style={st.version}>Le Cercle 127 · version {Constants.expoConfig?.version ?? '1.0.0'}</Text>
+      <Text style={st.version}>Le Cercle 127 · version {Constants.expoConfig?.version ?? '1.0.1'} · build {Constants.platform?.ios?.buildNumber ?? Constants.expoConfig?.ios?.buildNumber ?? Constants.expoConfig?.android?.versionCode ?? 'développement'}</Text>
       <SiteFooter />
     </ScrollView>
   );

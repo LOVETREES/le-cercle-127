@@ -1,0 +1,30 @@
+services:
+  expo:
+    image: le-cercle-127:expo-dev
+    build:
+      context: .
+      target: development
+    ports:
+      - "${C127_BIND_HOST:-127.0.0.1}:8081:8081"
+    environment:
+      REACT_NATIVE_PACKAGER_HOSTNAME: ${C127_LAN_HOST:-127.0.0.1}
+      EXPO_OFFLINE: ${C127_EXPO_OFFLINE:-0}
+    volumes:
+      - .:/app
+      - expo_node_modules:/app/node_modules
+      - expo_project_cache:/app/.expo
+      - expo_user_cache:/root/.expo
+      - npm_cache:/root/.npm
+    stdin_open: true
+    tty: true
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8081/status').then(async r=>{if(!r.ok || !(await r.text()).includes('packager-status:running'))process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 6
+volumes:
+  expo_node_modules:
+  expo_project_cache:
+  expo_user_cache:
+  npm_cache:

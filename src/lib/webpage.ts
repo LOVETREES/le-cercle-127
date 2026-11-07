@@ -1,19 +1,25 @@
 // Règles d'affichage des pages du site dans l'application (fonctions pures, testées).
+import { isPaidOfferUrl, paidOfferFilterScript } from './paid-offers';
+import { facebookFilterScript, isFacebookUrl } from './facebook-links';
+
 export const SITE = 'https://lecercle127.com';
 
 /**
  * CSS injecté dans les pages du site : on retire l'en-tête, la barre du bas,
- * le pied de page et le bandeau cookies du site (l'application a les siens),
+ * le pied de page du site (l'application a les siens),
  * ainsi que les liens vers l'offre payante, vendue uniquement sur le site
  * (règles des boutiques sur les achats de contenus numériques).
  */
 export const HIDE_SITE_CHROME_CSS = [
   'header.site-header', '.site-header', '.site-nav', '.oni-app-nav', 'footer.site-footer', '.site-footer',
-  '.cmplz-cookiebanner', '#cmplz-manage-consent', '.cmplz-manage-consent', '.c127-app', '.c127-install',
+  '.c127-app', '.c127-install',
   '[class*="install-banner"]', '.breadcrumbs', '.breadcrumb',
   // Bloc « L'application Le Cercle 127 » et liens de téléchargement : inutiles dans l'application.
   '.c127-appcard', '[data-c127-applink]', 'a[href*="testflight.apple.com"]', 'a[href*="apps.apple.com"]', 'a[href$=".apk"]',
   'a[href*="/lecture-de-reve"]', 'a[href*="/interpreter-mes-reves-recurrents"]', 'a[href*="onirologue.shop"]', 'a[href*="netmedia.best"]', '.os-book-wrap', 'a[href*="buy.stripe.com"]', 'a[href*="checkout.stripe.com"]', '.simpay-form-wrap',
+  '[data-c127-paid-hidden]',
+  // Encarts réellement présents sur la page « Le Cercle des 7 Sœurs ».
+  '.c127-offer',
 ].join(',') + '{display:none!important}body{padding-bottom:24px!important;margin-top:0!important}';
 
 const GRIMOIRE_HINT_CSS =
@@ -40,7 +46,7 @@ const ERROR_BRIDGE_JS =
 export function injectedScript(): string {
   const css = HIDE_SITE_CHROME_CSS + GRIMOIRE_HINT_CSS;
   // Le style est ajouté dès que la page existe (le script peut s'exécuter avant elle).
-  return `(function(){if(window.__c127)return;window.__c127=1;${ERROR_BRIDGE_JS}function st(){var r=document.head||document.documentElement;if(!r)return setTimeout(st,30);var s=document.createElement('style');s.innerHTML=${JSON.stringify(css)};r.appendChild(s);}st();${GRIMOIRE_HINT_JS}})();true;`;
+  return `(function(){if(window.__c127)return;window.__c127=1;${ERROR_BRIDGE_JS}function st(){var r=document.head||document.documentElement;if(!r)return setTimeout(st,30);var s=document.createElement('style');s.innerHTML=${JSON.stringify(css)};r.appendChild(s);}st();${paidOfferFilterScript()}${facebookFilterScript()}${GRIMOIRE_HINT_JS}})();true;`;
 }
 
 export type NavDecision = 'allow' | 'external' | 'block' | 'native';
@@ -56,6 +62,8 @@ const NATIVE_ROUTES: [RegExp, string][] = [
   [/^\/(grimoire|mon-espace)(\/|$)/, '/grimoire'],
   [/^\/creer-un-compte(\/|$)/, '/connexion'],
   [/^\/oracle-127(\/|$)/, '/oracle'],
+  [/^\/carnet-vocal(\/|$)/, '/carnet-vocal'],
+  [/^\/confidentialite(\/|$)/, '/confidentialite'],
 ];
 
 /** Écran de l'application à ouvrir à la place d'une page du site, ou undefined. */
@@ -77,6 +85,8 @@ export type NavRequest = { url: string; isTopFrame?: boolean; navigationType?: s
  * seuls les vrais clics de l'utilisateur vers un autre site ouvrent le navigateur.
  */
 export function decideRequest(req: NavRequest): NavDecision {
+  // Un paiement ne doit pas se charger non plus dans un cadre intégré.
+  if (isPaidOfferUrl(req.url) || isFacebookUrl(req.url)) return 'block';
   if (req.isTopFrame === false) return 'allow';
   const userAction = req.navigationType === undefined || req.navigationType === 'click' || req.navigationType === 'formsubmit';
   if (userAction && nativeRouteFor(req.url)) return 'native';
@@ -87,6 +97,7 @@ export function decideRequest(req: NavRequest): NavDecision {
 
 /** Où ouvrir un lien cliqué dans une page du site. */
 export function decideNavigation(url: string): NavDecision {
+  if (isPaidOfferUrl(url) || isFacebookUrl(url)) return 'block';
   if (url.startsWith('about:') || url.startsWith('data:') || url.startsWith('blob:')) return 'allow';
   let u: URL;
   try {
@@ -96,11 +107,9 @@ export function decideNavigation(url: string): NavDecision {
   }
   const host = u.hostname.replace(/^www\./, '');
   if (host === 'lecercle127.com') {
-    // Pages payantes (règles des stores) : elles redirigent vers la lecture payante et la boutique.
-    if (/^\/(lecture-de-reve|interpreter-mes-reves-recurrents|wp-admin|wp-login)/.test(u.pathname)) return 'block';
+    if (/^\/(wp-admin|wp-login)/.test(u.pathname)) return 'block';
     return 'allow';
   }
-  if (host.endsWith('stripe.com') || host === 'onirologue.shop' || host === 'netmedia.best') return 'block';
   if (u.protocol === 'mailto:' || u.protocol === 'tel:' || u.protocol === 'https:' || u.protocol === 'http:') return 'external';
   return 'block';
 }

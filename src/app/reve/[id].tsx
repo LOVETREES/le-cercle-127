@@ -19,7 +19,7 @@ function ask(title: string, message: string, action: string): Promise<boolean> {
 
 export default function DreamDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { dreams, removeDream, exploreWithOni, oniEnabled, oniRequested, user } = useSession();
+  const { dreams, removeDream, exploreWithOni, oniEnabled, oniRequested, user, isDemo } = useSession();
   const dream = dreams.find((d) => d.id === id);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,14 +38,14 @@ export default function DreamDetail() {
     // Consentement explicite à chaque envoi au service d'IA (politique de confidentialité).
     const ok = await ask(
       'Demander une lecture à Oni ?',
-      'Le récit de ce rêve, son titre et son émotion seront transmis à notre prestataire d’intelligence artificielle (OpenAI) pour proposer des hypothèses et des questions. Ils ne servent pas à entraîner ses modèles. La lecture est relue par une personne du Cercle avant de vous parvenir.',
+      'La demande passe par Make, qui reçoit votre identifiant de rêve et votre jeton de session pour retrouver le récit. Le titre, le récit et son contexte sont ensuite traités par OpenAI pour préparer une lecture, relue par une personne du Cercle. Les données de l’API OpenAI ne servent pas à entraîner les modèles par défaut ; des journaux techniques peuvent être conservés selon les réglages du prestataire. Aucun enregistrement audio n’est envoyé. Acceptez-vous cet envoi pour ce rêve ?',
       'Envoyer à Oni',
     );
     if (!ok) return;
     setBusy(true);
     setError(null);
     try {
-      await exploreWithOni(dream.id);
+      await exploreWithOni(dream.id, ok);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Oni n’a pas pu répondre pour le moment.');
     } finally {
@@ -56,6 +56,7 @@ export default function DreamDetail() {
   return (
     <ScrollView style={{ backgroundColor: colors.night }} contentContainerStyle={st.content}>
       <View style={{ gap: space.sm }}>
+        {isDemo && <Notice text="Démonstration locale : les rêves et lectures présentés sont des exemples fictifs. Aucun envoi à l’IA." />}
         <Eyebrow>
           {dream.dreamDate}
           {emotion ? ` · ${emotion}` : ''}
@@ -122,7 +123,7 @@ export default function DreamDetail() {
           <Eyebrow>Lecture d’Oni</Eyebrow>
           <Body muted>
             {user
-              ? 'Oni n’a pas encore lu ce rêve. Sa lecture apparaîtra ici et dans l’onglet Lectures.'
+              ? isDemo ? 'La démonstration présente une lecture d’exemple dans le premier rêve.' : 'Les nouvelles demandes de lecture sont actuellement indisponibles. Vos rêves restent consultables.'
               : 'Connectez-vous pour qu’Oni puisse lire ce rêve.'}
           </Body>
         </Card>

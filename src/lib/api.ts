@@ -38,6 +38,7 @@ async function request(url: string, { method = 'GET', body, token, timeoutMs = 2
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   if (token) headers.Authorization = `Bearer ${token}`;
   let res: Response;
+  let text: string;
   try {
     res = await fetch(url, {
       method,
@@ -45,12 +46,12 @@ async function request(url: string, { method = 'GET', body, token, timeoutMs = 2
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: controller.signal,
     });
+    text = await res.text();
   } catch {
     throw new ApiError('Connexion impossible. Vérifiez votre réseau et réessayez.', 0);
   } finally {
     clearTimeout(timer);
   }
-  const text = await res.text();
   let json: unknown = undefined;
   try {
     json = text ? JSON.parse(text) : undefined;
@@ -127,10 +128,11 @@ export const api = {
 
   // Demande de lecture d'Oni : Make vérifie que le rêve appartient à la personne, Oni le lit,
   // puis la lecture est relue par une personne avant d'apparaître dans le Grimoire.
-  async requestOniReading(token: string, id: string): Promise<'en_attente' | 'deja_demandee'> {
+  async requestOniReading(token: string, id: string, consent: boolean): Promise<'en_attente' | 'deja_demandee'> {
+    if (consent !== true) throw new ApiError('Votre accord est nécessaire avant l’envoi à Oni.', 400);
     const body = (await request(ONI_REQUEST_URL, {
       method: 'POST',
-      body: { dream_id: Number(id), token, consent: true },
+      body: { dream_id: Number(id), token, consent },
       timeoutMs: 30000,
     })) as { ok?: boolean; status?: string } | undefined;
     if (body?.ok && (body.status === 'en_attente' || body.status === 'deja_demandee')) return body.status;
@@ -141,7 +143,7 @@ export const api = {
     const body = (await request(`${NS}/privacy`)) as { privacy_url?: string; oni_enabled?: boolean } | undefined;
     return {
       url: body?.privacy_url ?? 'https://lecercle127.com/confidentialite-le-cercle-127/',
-      oniEnabled: Boolean(body?.oni_enabled),
+      oniEnabled: body?.oni_enabled === true,
     };
   },
 
