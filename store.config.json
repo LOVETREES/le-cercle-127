@@ -29,7 +29,7 @@
       "fr-FR": {
         "title": "Le Cercle 127",
         "subtitle": "Journal de rêves et symboles",
-        "description": "Chaque rêve est un message qu'on oublie vite. Le Cercle 127 est un journal de rêves privé pour les garder, voir ce qui revient au fil des nuits et y réfléchir à votre rythme.\n\nNOTEZ VOS RÊVES AU RÉVEIL\nÉcrivez votre rêve tel qu'il vient, même en fragments, sans compte et même hors connexion. Un rappel du matin, si vous le souhaitez, vous aide à ne plus les laisser s'effacer.\n\nDICTEZ PLUTÔT QU'ÉCRIRE\nRacontez votre rêve à voix haute : le texte s'écrit en français, vous le relisez puis le gardez. Sur iPhone, vous pouvez aussi transcrire les audios de votre carnet vocal. La reconnaissance sur l'appareil est privilégiée ; sinon, votre accord est demandé avant le recours au service vocal du système. Les audios restent sur votre téléphone.\n\nVOTRE GRIMOIRE\nAvec un compte, vos rêves rejoignent votre Grimoire, le même que sur lecercle127.com. Cherchez un rêve par un mot et voyez ce qui revient : symboles, émotions, lieux.\n\n3 900 SYMBOLES ONIRIQUES\nUn serpent, une maison, de l'eau, une chute ? Cherchez un symbole et découvrez ses sens possibles. Des pistes pour réfléchir, jamais des verdicts : vous gardez la main sur le sens de vos rêves.\n\nUN JOURNAL DE VÉRIFICATION\nNotez un contexte et une observation, sans inscription, pour vous entraîner au rêve lucide.\n\nLES SEPT SŒURS DU CERCLE\nSept regards pour relier vos motifs, apaiser vos émotions, revenir au corps et passer à l'action. Certaines ressources nécessitent Internet.\n\nVOS DONNÉES ET VOS CHOIX\nPas de publicité, pas de revente de données, aucun achat. Micro et reconnaissance vocale sont facultatifs. Vous pouvez supprimer vos notes, vos audios et votre compte depuis l'application.\n\nLe Cercle 127 accompagne la réflexion personnelle. Il ne prédit pas l'avenir et ne remplace pas un professionnel de santé.",
+        "description": "Chaque rêve est un message qu'on oublie vite. Le Cercle 127 est un journal de rêves privé pour les garder, voir ce qui revient au fil des nuits et y réfléchir à votre rythme.\n\nNOTEZ VOS RÊVES AU RÉVEIL\nÉcrivez votre rêve tel qu'il vient, même en fragments, sans compte et même hors connexion. Un rappel du matin, si vous le souhaitez, vous aide à ne plus les laisser s'effacer.\n\nDICTEZ PLUTÔT QU'ÉCRIRE\nRacontez votre rêve à voix haute : le texte s'écrit en français, vous le relisez puis le gardez. Sur iPhone, vous pouvez aussi transcrire les audios de votre carnet vocal. La reconnaissance sur l'appareil est privilégiée ; sinon, votre accord est demandé avant le recours au service vocal du système. Les audios restent sur votre téléphone.\n\nVOTRE GRIMOIRE\nAvec un compte, vos rêves rejoignent votre Grimoire, le même que sur lecercle127.com. Cherchez un rêve par un mot et voyez ce qui revient : symboles, émotions, lieux.\n\n3 900 SYMBOLES ONIRIQUES\nUn serpent, une maison, de l'eau, une chute ? Cherchez un symbole et découvrez ses sens possibles. Des pistes pour réfléchir, jamais des verdicts : vous gardez la main sur le sens de vos rêves.\n\nVOTRE PARCOURS ONIRIQUE\nUne pensée du jour de bien-être et d'amour, vos rêves notés, vos jours de présence, ce qui revient et ce qui se transforme : des mesures simples pour voir votre évolution, calculées sur votre téléphone.\n\nMES LECTURES, RÊVE ET MAIN\nRetrouvez au même endroit les lectures de vos rêves et la lecture de votre main avec Terra : deux miroirs au service de votre individuation.\n\nUN JOURNAL DE VÉRIFICATION\nNotez un contexte et une observation, sans inscription, pour vous entraîner au rêve lucide.\n\nLES SEPT SŒURS DU CERCLE\nSept regards pour relier vos motifs, apaiser vos émotions, revenir au corps et passer à l'action. Certaines ressources nécessitent Internet.\n\nVOS DONNÉES ET VOS CHOIX\nPas de publicité, pas de revente de données, aucun achat. Micro et reconnaissance vocale sont facultatifs. Vous pouvez supprimer vos notes, vos audios et votre compte depuis l'application.\n\nLe Cercle 127 accompagne la réflexion personnelle. Il ne prédit pas l'avenir et ne remplace pas un professionnel de santé.",
         "keywords": [
           "rêve",
           "journal de rêves",
@@ -42,16 +42,101 @@
           "grimoire",
           "carnet"
         ],
-        "releaseNotes": "Dictée de vos rêves en texte, transcription des audios du carnet vocal sur iPhone, journal de vérification sans inscription, nouvel annuaire des Sept Sœurs et nouveau logo.",
+        "releaseNotes": "Nouvel accueil centré sur vous : pensée du jour, compteurs et phrase d'évolution. « Mon parcours onirique » pour voir ce qui évolue au fil des nuits. « Mes lectures » réunit vos rêves et la lecture de votre main avec Terra. Nouvelle page Paramètres et application disponible en anglais, espagnol, italien et allemand.",
         "promoText": "Notez ou dictez vos rêves au réveil, même hors connexion. Retrouvez ce qui revient dans votre Grimoire et explorez 3 900 symboles oniriques.",
         "marketingUrl": "https://lecercle127.com/",
         "supportUrl": "https://lecercle127.com/application/",
         "privacyPolicyUrl": "https://lecercle127.com/confidentialite-le-cercle-127/"
+      },
+      "en-US": {
+        "title": "Le Cercle 127",
+        "marketingUrl": "https://lecercle127.com/",
+        "supportUrl": "https://lecercle127.com/application/",
+        "privacyPolicyUrl": "https://lecercle127.com/confidentialite-le-cercle-127/",
+        "subtitle": "Dream journal & symbols",
+        "keywords": [
+          "dream journal",
+          "dreams",
+          "lucid dream",
+          "symbols",
+          "dream meaning",
+          "nightmare",
+          "sleep diary",
+          "grimoire",
+          "journal",
+          "self"
+        ],
+        "promoText": "Note or dictate your dreams on waking, even offline. See what recurs night after night and follow your journey with a daily thought of love and well-being.",
+        "releaseNotes": "A new home centred on you: thought of the day, counters and your progress. « My dream journey » shows what changes night after night. « My readings » brings together your dreams and your palm reading with Terra. New Settings page, and the app is now available in English, Spanish, Italian and German.",
+        "description": "Every dream is a message we forget too quickly. Le Cercle 127 is a private dream journal to keep them, see what recurs night after night and reflect at your own pace: a companion for your individuation.\n\nNOTE YOUR DREAMS ON WAKING\nWrite your dream as it comes, even in fragments, with no account and even offline. Prefer speaking? Dictate it and the text appears. An optional morning reminder helps you stop letting them fade.\n\nYOUR GRIMOIRE\nWith an account, your dreams join your Grimoire. Search a dream by a word and see what recurs: symbols, emotions, places.\n\nYOUR DREAM JOURNEY\nA daily thought of well-being and love, your dreams noted, your days of presence, what recurs and what transforms: simple measures to see your progress, calculated on your phone.\n\nMY READINGS, DREAM AND PALM\nFind in one place the readings of your dreams and your palm reading with Terra: two mirrors on the path to yourself.\n\nLUCID DREAMING\nA reality-check journal, usable without signing up, to train your awareness in dreams.\n\nTHE SEVEN SISTERS\nSeven views to link your patterns, soothe your emotions, come back to your body and move into action.\n\nAVAILABLE IN 5 LANGUAGES\nThe app is in English, French, Spanish, Italian and German. Some content from our website — the dictionary of 3,900 symbols, the Sisters' pages and Terra — is currently in French.\n\nYOUR DATA, YOUR CHOICES\nNo ads, no data resale, no purchases. Microphone and speech recognition are optional. You can delete your notes, recordings and account from the app.\n\nLe Cercle 127 supports personal reflection. It does not predict the future and does not replace a health professional."
+      },
+      "es-ES": {
+        "title": "Le Cercle 127",
+        "marketingUrl": "https://lecercle127.com/",
+        "supportUrl": "https://lecercle127.com/application/",
+        "privacyPolicyUrl": "https://lecercle127.com/confidentialite-le-cercle-127/",
+        "subtitle": "Diario de sueños y símbolos",
+        "keywords": [
+          "diario de sueños",
+          "sueños",
+          "sueño lúcido",
+          "símbolos",
+          "significado",
+          "pesadilla",
+          "grimorio",
+          "diario",
+          "onírico"
+        ],
+        "promoText": "Anota o dicta tus sueños al despertar, incluso sin conexión. Mira lo que vuelve noche tras noche y sigue tu camino con un pensamiento diario de amor y bienestar.",
+        "releaseNotes": "Un nuevo inicio centrado en ti: pensamiento del día, contadores y tu evolución. « Mi recorrido onírico » muestra lo que cambia noche tras noche. « Mis lecturas » reúne tus sueños y la lectura de tu mano con Terra. Nueva página de Ajustes y la app ya está en inglés, español, italiano y alemán.",
+        "description": "Cada sueño es un mensaje que olvidamos demasiado rápido. Le Cercle 127 es un diario de sueños privado para guardarlos, ver lo que vuelve noche tras noche y reflexionar a tu ritmo: un compañero para tu individuación.\n\nANOTA TUS SUEÑOS AL DESPERTAR\nEscribe tu sueño tal como llega, incluso en fragmentos, sin cuenta e incluso sin conexión. ¿Prefieres hablar? Díctalo y aparece el texto. Un recordatorio matinal opcional te ayuda a que no se borren.\n\nTU GRIMORIO\nCon una cuenta, tus sueños se unen a tu Grimorio. Busca un sueño por una palabra y descubre lo que vuelve: símbolos, emociones, lugares.\n\nTU RECORRIDO ONÍRICO\nUn pensamiento diario de bienestar y amor, tus sueños anotados, tus días de presencia, lo que vuelve y lo que se transforma: medidas sencillas para ver tu evolución, calculadas en tu teléfono.\n\nMIS LECTURAS, SUEÑO Y MANO\nEncuentra en un solo lugar las lecturas de tus sueños y la lectura de tu mano con Terra: dos espejos en el camino hacia ti.\n\nSUEÑO LÚCIDO\nUn diario de verificación, sin registro, para entrenar tu consciencia en los sueños.\n\nLAS SIETE HERMANAS\nSiete miradas para unir tus motivos, calmar tus emociones, volver al cuerpo y pasar a la acción.\n\nDISPONIBLE EN 5 IDIOMAS\nLa app está en español, francés, inglés, italiano y alemán. Algunos contenidos de nuestro sitio — el diccionario de 3.900 símbolos, las páginas de las Hermanas y Terra — están por ahora en francés.\n\nTUS DATOS, TUS DECISIONES\nSin anuncios, sin reventa de datos, sin compras. El micrófono y el reconocimiento de voz son opcionales. Puedes borrar tus notas, grabaciones y tu cuenta desde la app.\n\nLe Cercle 127 acompaña la reflexión personal. No predice el futuro ni sustituye a un profesional de la salud."
+      },
+      "it": {
+        "title": "Le Cercle 127",
+        "marketingUrl": "https://lecercle127.com/",
+        "supportUrl": "https://lecercle127.com/application/",
+        "privacyPolicyUrl": "https://lecercle127.com/confidentialite-le-cercle-127/",
+        "subtitle": "Diario dei sogni e simboli",
+        "keywords": [
+          "diario dei sogni",
+          "sogni",
+          "sogno lucido",
+          "simboli",
+          "significato",
+          "incubo",
+          "grimorio",
+          "diario",
+          "onirico"
+        ],
+        "promoText": "Annota o detta i tuoi sogni al risveglio, anche offline. Scopri ciò che ritorna notte dopo notte e segui il tuo percorso con un pensiero quotidiano di amore e benessere.",
+        "releaseNotes": "Una nuova home centrata su di te: pensiero del giorno, contatori e la tua evoluzione. « Il mio percorso onirico » mostra ciò che cambia notte dopo notte. « Le mie letture » riunisce i tuoi sogni e la lettura della tua mano con Terra. Nuova pagina Impostazioni e l’app è ora in inglese, spagnolo, italiano e tedesco.",
+        "description": "Ogni sogno è un messaggio che dimentichiamo troppo in fretta. Le Cercle 127 è un diario dei sogni privato per conservarli, vedere ciò che ritorna notte dopo notte e riflettere al tuo ritmo: un compagno per la tua individuazione.\n\nANNOTA I SOGNI AL RISVEGLIO\nScrivi il tuo sogno come viene, anche a frammenti, senza account e anche offline. Preferisci parlare? Dettalo e il testo appare. Un promemoria del mattino facoltativo ti aiuta a non lasciarli svanire.\n\nIL TUO GRIMORIO\nCon un account, i tuoi sogni entrano nel tuo Grimorio. Cerca un sogno con una parola e scopri ciò che ritorna: simboli, emozioni, luoghi.\n\nIL TUO PERCORSO ONIRICO\nUn pensiero quotidiano di benessere e amore, i sogni annotati, i giorni di presenza, ciò che ritorna e ciò che si trasforma: misure semplici per vedere la tua evoluzione, calcolate sul tuo telefono.\n\nLE MIE LETTURE, SOGNO E MANO\nRitrova in un solo luogo le letture dei tuoi sogni e la lettura della tua mano con Terra: due specchi sul cammino verso te stesso.\n\nSOGNO LUCIDO\nUn diario di verifica, senza registrazione, per allenare la consapevolezza nei sogni.\n\nLE SETTE SORELLE\nSette sguardi per collegare i tuoi motivi, placare le emozioni, tornare al corpo e passare all’azione.\n\nDISPONIBILE IN 5 LINGUE\nL’app è in italiano, francese, inglese, spagnolo e tedesco. Alcuni contenuti del nostro sito — il dizionario di 3.900 simboli, le pagine delle Sorelle e Terra — sono per ora in francese.\n\nI TUOI DATI, LE TUE SCELTE\nNiente pubblicità, nessuna rivendita di dati, nessun acquisto. Microfono e riconoscimento vocale sono facoltativi. Puoi eliminare note, registrazioni e account dall’app.\n\nLe Cercle 127 accompagna la riflessione personale. Non predice il futuro e non sostituisce un professionista della salute."
+      },
+      "de-DE": {
+        "title": "Le Cercle 127",
+        "marketingUrl": "https://lecercle127.com/",
+        "supportUrl": "https://lecercle127.com/application/",
+        "privacyPolicyUrl": "https://lecercle127.com/confidentialite-le-cercle-127/",
+        "subtitle": "Traumtagebuch und Symbole",
+        "keywords": [
+          "traumtagebuch",
+          "träume",
+          "klartraum",
+          "traumdeutung",
+          "symbole",
+          "albtraum",
+          "grimoire",
+          "tagebuch",
+          "traum"
+        ],
+        "promoText": "Notiere oder diktiere deine Träume beim Aufwachen, auch offline. Sieh, was Nacht für Nacht wiederkehrt, und folge deinem Weg mit einem täglichen Gedanken voller Liebe.",
+        "releaseNotes": "Ein neuer Startbildschirm, der dich in den Mittelpunkt stellt: Gedanke des Tages, Zähler und deine Entwicklung. „Mein Traumweg“ zeigt, was sich Nacht für Nacht verändert. „Meine Deutungen“ vereint deine Träume und die Deutung deiner Hand mit Terra. Neue Einstellungsseite, und die App gibt es jetzt auf Englisch, Spanisch, Italienisch und Deutsch.",
+        "description": "Jeder Traum ist eine Botschaft, die wir zu schnell vergessen. Le Cercle 127 ist ein privates Traumtagebuch, um sie zu bewahren, zu sehen, was Nacht für Nacht wiederkehrt, und in deinem Tempo nachzudenken: ein Begleiter auf dem Weg deiner Individuation.\n\nNOTIERE DEINE TRÄUME BEIM AUFWACHEN\nSchreib deinen Traum, wie er kommt, auch in Bruchstücken, ohne Konto und sogar offline. Lieber sprechen? Diktiere ihn, und der Text erscheint. Eine optionale Morgenerinnerung hilft, dass sie nicht verblassen.\n\nDEIN GRIMOIRE\nMit einem Konto kommen deine Träume in dein Grimoire. Such einen Traum über ein Wort und sieh, was wiederkehrt: Symbole, Gefühle, Orte.\n\nDEIN TRAUMWEG\nEin täglicher Gedanke voller Wohlbefinden und Liebe, deine notierten Träume, deine Tage der Präsenz, was wiederkehrt und was sich wandelt: einfache Werte, um deine Entwicklung zu sehen, berechnet auf deinem Telefon.\n\nMEINE DEUTUNGEN, TRAUM UND HAND\nFinde an einem Ort die Deutungen deiner Träume und die Deutung deiner Hand mit Terra: zwei Spiegel auf dem Weg zu dir selbst.\n\nKLARTRAUM\nEin Prüftagebuch ohne Anmeldung, um deine Bewusstheit im Traum zu üben.\n\nDIE SIEBEN SCHWESTERN\nSieben Blicke, um deine Muster zu verbinden, deine Gefühle zu beruhigen, in den Körper zurückzukehren und ins Handeln zu kommen.\n\nIN 5 SPRACHEN\nDie App gibt es auf Deutsch, Französisch, Englisch, Spanisch und Italienisch. Einige Inhalte unserer Website — das Wörterbuch mit 3.900 Symbolen, die Seiten der Schwestern und Terra — sind derzeit auf Französisch.\n\nDEINE DATEN, DEINE ENTSCHEIDUNGEN\nKeine Werbung, kein Datenverkauf, keine Käufe. Mikrofon und Spracherkennung sind optional. Du kannst Notizen, Aufnahmen und dein Konto in der App löschen.\n\nLe Cercle 127 begleitet persönliches Nachdenken. Es sagt nicht die Zukunft voraus und ersetzt keine medizinische Fachperson."
       }
     },
     "release": {
       "automaticRelease": false
     },
-    "version": "1.0.2"
+    "version": "1.0.3"
   }
 }
