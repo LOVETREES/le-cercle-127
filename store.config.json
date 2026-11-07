@@ -52,13 +52,6 @@
     "release": {
       "automaticRelease": false
     },
-    "review": {
-      "firstName": "Safia",
-      "lastName": "Mettri",
-      "email": "contact@lecercle127.com",
-      "demoUsername": "revue.apple@lecercle127.com",
-      "demoRequired": true,
-      "notes": "Le Cercle 127 is a private dream journal (French language). Its core is native:\n- \"Rêve\": write or dictate a dream; it is saved on the device, even offline, and synced to the user's private Grimoire when signed in.\n- \"Grimoire\": the user's dreams, search and recurring symbols.\n- \"Symboles\": a dictionary of 3,900 dream symbols.\n- A local reality-check journal and a Seven Sisters directory, usable without an account.\n- Optional morning reminder (local notification).\n\nDemo: sign in with the account above, or use Menu > Se connecter > Explorer la démonstration locale (fictional local examples).\n\nVoice: dictation writes French text into the dream form; on iPhone, saved recordings can be transcribed. On-device recognition is preferred; if a network speech service is needed, the app asks for consent first. Audio is not sent to our servers.\n\nSome secondary resource pages are displayed from our website lecercle127.com, with tracking scripts, the cookie banner, purchase offers and Facebook controls removed in the app.\nThe symbolic content is a tool for personal reflection, never prediction, diagnosis or fortune-telling.\n\nAI dream readings are disabled in this version. No in-app purchase, no external purchase link, no ads, no tracking.\nAccount deletion: Menu > Mon compte > Supprimer mon compte.\nContact: contact@lecercle127.com"
-    }
+    "version": "1.0.2"
   }
 }
