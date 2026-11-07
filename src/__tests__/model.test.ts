@@ -167,6 +167,8 @@ describe('pages du site dans l’application', () => {
     expect(nativeRouteFor('https://lecercle127.com/application/')).toBe('/');
     expect(nativeRouteFor('https://lecercle127.com/ignis-flamme-de-la-transformation/')).toBeUndefined();
     expect(HIDE_SITE_CHROME_CSS).toContain('.c127-appcard');
+    expect(decideNavigation('https://lecercle127.com/interpreter-mes-reves-recurrents/')).toBe('block');
+    expect(decideNavigation('https://onirologue.shop/produit/livre')).toBe('block');
     expect(nativeRouteFor('https://lecercle127.com/carnet-vocal/')).toBeUndefined();
     expect(decideRequest({ url: 'https://lecercle127.com/grimoire/', isTopFrame: true, navigationType: 'click' })).toBe('native');
     expect(decideRequest({ url: 'https://lecercle127.com/grimoire/', isTopFrame: true, navigationType: 'other' })).toBe('allow');
