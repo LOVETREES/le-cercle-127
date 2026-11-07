@@ -19,6 +19,7 @@ export const ONI_REQUEST_URL = 'https://hook.eu2.make.com/494v4gvalix9usill8zoyn
 const BASE: string =
   (Constants.expoConfig?.extra as { apiBaseUrl?: string } | undefined)?.apiBaseUrl ?? 'https://lecercle127.com/wp-json';
 const NS = `${BASE}/cercle127/v1`;
+const PALM = `${BASE}/c127-palm/v1/readings`;
 
 export class ApiError extends Error {
   constructor(
@@ -68,6 +69,18 @@ async function request(url: string, { method = 'GET', body, token, timeoutMs = 2
 export type Session = { token: string; user: User };
 
 export const api = {
+  // Lectures de la main gardées dans le compte (extension « Cercle 127 - Lectures de la main »).
+  async palmList(token: string): Promise<Record<string, unknown>[]> {
+    const body = (await request(PALM, { token })) as { items?: unknown } | undefined;
+    return Array.isArray(body?.items) ? (body!.items as Record<string, unknown>[]) : [];
+  },
+  async palmAdd(token: string, reading: object): Promise<void> {
+    await request(PALM, { method: 'POST', token, body: reading });
+  },
+  async palmDelete(token: string, id: string): Promise<void> {
+    await request(`${PALM}/${encodeURIComponent(id)}`, { method: 'DELETE', token });
+  },
+
   async login(email: string, password: string): Promise<Session> {
     const body = await request(`${NS}/auth/login`, { method: 'POST', body: { login: email.trim(), password } });
     const token = extractToken(body);

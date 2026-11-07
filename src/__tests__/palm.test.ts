@@ -4,6 +4,7 @@ import { addPalmReading, parsePalmMessage } from '../lib/palm';
 import { PALM_BRIDGE_JS } from '../lib/palm-bridge';
 import { injectedScript } from '../lib/webpage';
 
+vi.mock('../lib/api', () => ({ api: {} }));
 vi.mock('../lib/storage', () => ({ KEYS: { palmReadings: 'k' }, local: { getJson: vi.fn(), setJson: vi.fn() } }));
 
 describe('lecture de la main (Terra)', () => {
@@ -30,5 +31,15 @@ describe('lecture de la main (Terra)', () => {
   it('est injecté dans les pages du site', () => {
     expect(injectedScript()).toContain(PALM_BRIDGE_JS);
     expect(injectedScript()).toContain('c127palm()');
+  });
+});
+
+describe('synchronisation des lectures de la main', () => {
+  it('réunit téléphone et compte sans doublon, plus récentes d’abord', async () => {
+    const { mergePalmReadings } = await import('../lib/palm');
+    const a = { id: 'palm-1', at: '2026-11-01T10:00:00Z', word: 'Un', mantra: 'm' };
+    const b = { id: 'palm-2', at: '2026-11-05T10:00:00Z', word: 'Deux' };
+    const dupe = { id: 'palm-9', at: '2026-11-02T10:00:00Z', word: 'Un', mantra: 'm' };
+    expect(mergePalmReadings([a], [b, dupe]).map((r) => r.id)).toEqual(['palm-2', 'palm-1']);
   });
 });

@@ -4,7 +4,7 @@ import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 
 import { Body, Card, Eyebrow, GoldButton, OutlineButton, Screen, Title } from '../components/ui';
 import { readingSummary } from '../lib/model';
-import { listPalmReadings, removePalmReading, type PalmReading } from '../lib/palm';
+import { deletePalmEverywhere, listPalmReadings, syncPalmReadings, type PalmReading } from '../lib/palm';
 import { useSession } from '../lib/session';
 import { colors, fonts, radius, space } from '../lib/theme';
 
@@ -17,7 +17,8 @@ function longDate(iso: string) {
 
 // « Mes lectures » : la lecture de ses rêves (Oni) et de sa main (Terra), au même endroit.
 export default function MesLectures() {
-  const { dreams } = useSession();
+  const { dreams, token } = useSession();
+  const [synced, setSynced] = useState<'ok' | 'local' | 'error'>('local');
   const [tab, setTab] = useState<'reves' | 'main'>('reves');
   const [palms, setPalms] = useState<PalmReading[]>([]);
   const [open, setOpen] = useState<string | null>(null);
@@ -26,13 +27,22 @@ export default function MesLectures() {
   useFocusEffect(
     useCallback(() => {
       listPalmReadings().then(setPalms, () => undefined);
-    }, []),
+      if (token) {
+        syncPalmReadings(token).then(
+          (list) => {
+            setPalms(list);
+            setSynced('ok');
+          },
+          () => setSynced('error'),
+        );
+      }
+    }, [token]),
   );
 
   const remove = (p: PalmReading) => {
-    const go = () => removePalmReading(p.id).then(setPalms, () => undefined);
+    const go = () => deletePalmEverywhere(p.id, token).then(setPalms, () => undefined);
     if (Platform.OS === 'web') go();
-    else Alert.alert('Retirer cette lecture ?', 'Elle sera supprimée de ce téléphone.', [{ text: 'Annuler', style: 'cancel' }, { text: 'Retirer', style: 'destructive', onPress: go }]);
+    else Alert.alert('Retirer cette lecture ?', 'Elle sera supprimée de ce téléphone et de votre compte.', [{ text: 'Annuler', style: 'cancel' }, { text: 'Retirer', style: 'destructive', onPress: go }]);
   };
 
   return (
@@ -80,10 +90,17 @@ export default function MesLectures() {
       ) : (
         <>
           <GoldButton label="Lire ma main avec Terra" onPress={() => router.push({ pathname: '/page', params: TERRA })} />
+          <Body muted style={{ fontSize: 12, textAlign: 'center' }}>
+            {synced === 'ok'
+              ? 'Gardées dans votre compte : vous les retrouvez sur tous vos téléphones.'
+              : synced === 'error'
+                ? 'Gardées sur ce téléphone. La sauvegarde dans votre compte reprendra plus tard.'
+                : 'Gardées sur ce téléphone. Connectez-vous pour les retrouver partout.'}
+          </Body>
           {palms.length === 0 ? (
             <Card>
               <Eyebrow>Terra</Eyebrow>
-              <Body>Photographiez votre paume avec Terra. Quand elle vous donne sa parole, la lecture de votre main est gardée ici, sur ce téléphone.</Body>
+              <Body>Photographiez votre paume avec Terra. Quand elle vous donne sa parole, la lecture de votre main est gardée ici.</Body>
             </Card>
           ) : (
             palms.map((p) => {
@@ -121,7 +138,7 @@ export default function MesLectures() {
                   ) : null}
                   {expanded && p.summary ? <Text style={st.lineText}>{p.summary}</Text> : null}
                   <Pressable onPress={() => remove(p)} accessibilityRole="button">
-                    <Text style={st.remove}>Retirer de ce téléphone</Text>
+                    <Text style={st.remove}>Retirer cette lecture</Text>
                   </Pressable>
                 </Card>
               );

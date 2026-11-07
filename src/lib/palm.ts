@@ -1,5 +1,6 @@
 // Lectures de la main (parcours de Terra) : le site les calcule dans la page sans les exposer par l'API.
 // L'app les recueille quand Terra affiche sa parole et les garde sur l'appareil.
+import { api } from './api';
 import { KEYS, local } from './storage';
 
 export type PalmReading = {
@@ -68,6 +69,37 @@ export async function removePalmReading(id: string): Promise<PalmReading[]> {
   const next = (await listPalmReadings()).filter((x) => x.id !== id);
   await local.setJson(KEYS.palmReadings, next);
   return next;
+}
+
+/** Réunit les lectures du téléphone et celles du compte (sans doublon, les plus récentes d'abord). */
+export function mergePalmReadings(localList: PalmReading[], server: PalmReading[]): PalmReading[] {
+  let out: PalmReading[] = [];
+  for (const r of [...localList, ...server]) if (!out.some((x) => x.id === r.id || sameReading(x, r))) out.push(r);
+  out = out.sort((a, b) => b.at.localeCompare(a.at)).slice(0, 50);
+  return out;
+}
+
+function fromServer(raw: Record<string, unknown>): PalmReading | undefined {
+  const word = clean(raw.word);
+  const id = clean(raw.id, 64);
+  if (!word || !id) return undefined;
+  const opt = (k: string, max?: number) => clean(raw[k], max) || undefined;
+  return { id, at: clean(raw.at, 40) || new Date().toISOString(), word, title: opt('title', 200), mudra: opt('mudra', 120), mudraCopy: opt('mudraCopy'), breath: opt('breath'), mantra: opt('mantra', 500), question: opt('question', 500), summary: opt('summary', 3000) };
+}
+
+/** Synchronise avec le compte : envoie les lectures du téléphone absentes du compte, puis réunit les deux. */
+export async function syncPalmReadings(token: string): Promise<PalmReading[]> {
+  const mine = await listPalmReadings();
+  const server = (await api.palmList(token)).map(fromServer).filter((r): r is PalmReading => !!r);
+  for (const r of mine) if (!server.some((x) => x.id === r.id || sameReading(x, r))) await api.palmAdd(token, r);
+  const merged = mergePalmReadings(mine, server);
+  await local.setJson(KEYS.palmReadings, merged);
+  return merged;
+}
+
+export async function deletePalmEverywhere(id: string, token?: string | null): Promise<PalmReading[]> {
+  if (token) await api.palmDelete(token, id).catch(() => undefined);
+  return removePalmReading(id);
 }
 
 export { PALM_BRIDGE_JS } from './palm-bridge';
