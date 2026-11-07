@@ -10,8 +10,10 @@ import { Platform, Pressable, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { installCrashGuard } from '../lib/crash';
+import { I18nProvider } from '../i18n/provider';
 import { SessionProvider, useSession } from '../lib/session';
 import { colors, fonts } from '../lib/theme';
+import { t } from '../i18n';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 installCrashGuard();
@@ -21,7 +23,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   return (
     <View style={{ flex: 1, backgroundColor: colors.night, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 }}>
       <Text style={{ color: colors.gold, fontSize: 40 }}>☾</Text>
-      <Text style={{ color: colors.text, fontSize: 18, textAlign: 'center' }}>Une erreur est survenue.</Text>
+      <Text style={{ color: colors.text, fontSize: 18, textAlign: 'center' }}>{t('Une erreur est survenue.')}</Text>
       <Text selectable style={{ color: colors.muted, fontSize: 13, textAlign: 'center' }}>
         {error.message}
       </Text>
@@ -30,7 +32,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
         accessibilityRole="button"
         style={{ backgroundColor: '#e8cf8f', borderRadius: 999, paddingHorizontal: 28, paddingVertical: 14 }}
       >
-        <Text style={{ color: '#1b1730', fontSize: 16 }}>Réessayer</Text>
+        <Text style={{ color: '#1b1730', fontSize: 16 }}>{t('Réessayer')}</Text>
       </Pressable>
     </View>
   );
@@ -80,6 +82,7 @@ function Root() {
         <Stack.Screen name="carnet-vocal" options={{ title: 'Carnet vocal', headerShown: false }} />
         <Stack.Screen name="explorer" options={{ title: 'Apprendre et explorer', headerShown: false }} />
         <Stack.Screen name="mes-lectures" options={{ title: 'Mes lectures', headerShown: false }} />
+        <Stack.Screen name="parametres" options={{ title: 'Paramètres', headerShown: false }} />
         <Stack.Screen name="parcours" options={{ title: 'Mon parcours onirique', headerShown: false }} />
         <Stack.Screen name="soeurs" options={{ title: 'Le Cercle des 7 Sœurs', headerShown: false }} />
         <Stack.Screen name="journal" options={{ title: 'Mon journal', headerShown: false }} />
@@ -93,9 +96,11 @@ function Root() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <SessionProvider>
-        <Root />
-      </SessionProvider>
+      <I18nProvider>
+        <SessionProvider>
+          <Root />
+        </SessionProvider>
+      </I18nProvider>
     </SafeAreaProvider>
   );
 }

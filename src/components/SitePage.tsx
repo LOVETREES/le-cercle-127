@@ -11,6 +11,7 @@ import { colors, fonts, space } from '../lib/theme';
 import { OutlineButton } from './ui';
 import { prepareAppHtml } from '../lib/app-html';
 import { useSession } from '../lib/session';
+import { t } from '../i18n';
 
 // Les types de react-native-webview 14 se réduisent à `never` avec React 19.3 :
 // on décrit ici les seules propriétés utilisées.
@@ -72,7 +73,7 @@ function SitePageContent({ path }: { path: string }) {
     let active = true;
     const timeout = setTimeout(() => controller.abort(), 20000);
     fetch(url, { signal: controller.signal, credentials: 'omit' }).then(async (response) => {
-      if (!response.ok) throw new Error('Page indisponible.');
+      if (!response.ok) throw new Error(t('Page indisponible.'));
       const content = await response.text();
       if (active) setHtml({ content: prepareAppHtml(content, response.url || url), baseUrl: response.url || url });
     }).catch(() => { if (active) { setFailed(true); setLoading(false); } })
@@ -89,8 +90,8 @@ function SitePageContent({ path }: { path: string }) {
   if (decideNavigation(url) === 'block') {
     return (
       <View style={st.center}>
-        <Text style={st.msg}>Cette page n’est pas disponible dans l’application.</Text>
-        <OutlineButton label="Raconter un rêve" onPress={() => router.navigate('/reve')} />
+        <Text style={st.msg}>{t('Cette page n’est pas disponible dans l’application.')}</Text>
+        <OutlineButton label={t('Raconter un rêve')} onPress={() => router.navigate('/reve')} />
       </View>
     );
   }
@@ -134,9 +135,9 @@ function SitePageContent({ path }: { path: string }) {
   if (failed) {
     return (
       <View style={st.center}>
-        <Text style={st.msg}>Cette page n’a pas pu être chargée. Vérifiez votre connexion.</Text>
+        <Text style={st.msg}>{t('Cette page n’a pas pu être chargée. Vérifiez votre connexion.')}</Text>
         <OutlineButton
-          label="Réessayer"
+          label={t('Réessayer')}
           onPress={retryLoad}
         />
       </View>

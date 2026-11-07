@@ -8,21 +8,22 @@ import { addPresence, dailyThought, journey } from '../../lib/insights';
 import { useSession } from '../../lib/session';
 import { KEYS, local } from '../../lib/storage';
 import { colors, fonts, radius, space } from '../../lib/theme';
+import { locale, quote, t } from '../../i18n';
 
 // Couleurs des Sœurs, reprises du site (--sister-accent).
 const SISTER_COLORS = ['#d9cdfb', '#a9c2f7', '#8fdad3', '#a9c98a', '#eb9a68', '#f2dea8', '#f3f1fb'];
 
 function greeting(now: Date): string {
   const h = now.getHours();
-  if (h < 5 || h >= 21) return 'Bonne nuit';
-  if (h < 12) return 'Bonjour';
-  if (h < 18) return 'Bon après-midi';
-  return 'Bonsoir';
+  if (h < 5 || h >= 21) return t('Bonne nuit');
+  if (h < 12) return t('Bonjour');
+  if (h < 18) return t('Bon après-midi');
+  return t('Bonsoir');
 }
 
 function formatDate(iso: string) {
   const [y, m, d] = iso.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  return new Date(y, m - 1, d).toLocaleDateString(locale(), { day: 'numeric', month: 'long' });
 }
 
 // Accueil centré sur la personne : où elle en est, ce qui évolue, et l'essentiel en un geste.
@@ -30,7 +31,7 @@ export default function Home() {
   const { dreams, user } = useSession();
   const [presence, setPresence] = useState(1);
   const now = useMemo(() => new Date(), []);
-  const thought = useMemo(() => dailyThought(now), [now]);
+  const thought = useMemo(() => t(dailyThought(now)), [now]);
   const j = useMemo(() => journey(dreams, now), [dreams, now]);
   const last = useMemo(() => [...dreams].sort((a, b) => b.dreamDate.localeCompare(a.dreamDate))[0], [dreams]);
   const firstName = user?.name?.split(/\s+/)[0];
@@ -52,20 +53,20 @@ export default function Home() {
   // Une phrase d'évolution simple et encourageante.
   const progress =
     j.total === 0
-      ? 'Votre premier rêve ouvrira votre parcours.'
+      ? t('Votre premier rêve ouvrira votre parcours.')
       : j.currentStreak >= 2
-        ? `${j.currentStreak} jours d’affilée : votre mémoire des rêves se muscle.`
+        ? t('{n} jours d’affilée : votre mémoire des rêves se muscle.', { n: j.currentStreak })
         : thisMonth > lastMonth
-          ? `${thisMonth} rêve${thisMonth > 1 ? 's' : ''} ce mois-ci, plus que le mois dernier.`
+          ? t(thisMonth > 1 ? '{n} rêves ce mois-ci, plus que le mois dernier.' : '{n} rêve ce mois-ci, plus que le mois dernier.', { n: thisMonth })
           : j.recurring[0]
-            ? `« ${j.recurring[0][0]} » revient ${j.recurring[0][1]} fois dans vos nuits.`
-            : `${j.total} rêve${j.total > 1 ? 's' : ''} gardé${j.total > 1 ? 's' : ''} dans votre Grimoire.`;
+            ? t('« {s} » revient {n} fois dans vos nuits.', { s: j.recurring[0][0], n: j.recurring[0][1] })
+            : t(j.total > 1 ? '{n} rêves gardés dans votre Grimoire.' : '{n} rêve gardé dans votre Grimoire.', { n: j.total });
 
   return (
     <Screen>
       {/* Salut personnel */}
       <View style={{ gap: 4 }}>
-        <Text style={st.date}>{now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}</Text>
+        <Text style={st.date}>{now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}</Text>
         <Text style={st.hello}>
           {greeting(now)}
           {firstName ? `, ${firstName}` : ''}
@@ -74,9 +75,9 @@ export default function Home() {
       </View>
 
       {/* Pensée du jour */}
-      <View style={st.thought} accessibilityLabel={`Pensée du jour : ${thought}`}>
-        <Text style={st.kicker}>✦ PENSÉE DU JOUR</Text>
-        <Text style={st.thoughtText}>« {thought} »</Text>
+      <View style={st.thought} accessibilityLabel={t('Pensée du jour : {v0}', { v0: thought })}>
+        <Text style={st.kicker}>{t('✦ PENSÉE DU JOUR')}</Text>
+        <Text style={st.thoughtText}>{t('«')} {thought} {t('»')}</Text>
       </View>
 
       {/* Mesures */}
@@ -86,22 +87,22 @@ export default function Home() {
           { icon: '∞', value: j.recurring.length, label: 'Motifs\nrécurrents', go: () => router.push('/parcours') },
           { icon: '☾', value: presence, label: 'Jours\nde présence', go: () => router.push('/parcours') },
         ].map((x) => (
-          <Pressable key={x.label} style={st.stat} onPress={x.go} accessibilityRole="button" accessibilityLabel={`${x.value} ${x.label.replace('\n', ' ')}`}>
+          <Pressable key={x.label} style={st.stat} onPress={x.go} accessibilityRole="button" accessibilityLabel={`${x.value} ${t(x.label).replace('\n', ' ')}`}>
             <View style={st.statTop}>
               <Text style={st.statIcon}>{x.icon}</Text>
               <Text style={st.statValue}>{x.value}</Text>
             </View>
-            <Text style={st.statLabel}>{x.label}</Text>
+            <Text style={st.statLabel}>{t(x.label)}</Text>
           </Pressable>
         ))}
       </View>
 
       {/* Mon parcours onirique, avec un mini-graphique des 6 derniers mois */}
-      <Pressable style={st.card} onPress={() => router.push('/parcours')} accessibilityRole="link" accessibilityLabel="Mon parcours onirique : ce qui se dessine">
+      <Pressable style={st.card} onPress={() => router.push('/parcours')} accessibilityRole="link" accessibilityLabel={t('Mon parcours onirique : ce qui se dessine')}>
         <View style={{ flex: 1, gap: 2 }}>
-          <Text style={st.kickerMuted}>MON PARCOURS ONIRIQUE</Text>
-          <Text style={st.cardTitle}>Ce qui se dessine…</Text>
-          <Text style={st.cardSub}>Évolutions · Récurrences · Transformations</Text>
+          <Text style={st.kickerMuted}>{t('MON PARCOURS ONIRIQUE')}</Text>
+          <Text style={st.cardTitle}>{t('Ce qui se dessine…')}</Text>
+          <Text style={st.cardSub}>{t('Évolutions · Récurrences · Transformations')}</Text>
         </View>
         <View style={st.spark} accessibilityElementsHidden>
           {j.months.map((m) => (
@@ -112,28 +113,28 @@ export default function Home() {
       </Pressable>
 
       {/* Mes lectures : rêve et main */}
-      <Pressable style={st.card} onPress={() => router.push('/mes-lectures')} accessibilityRole="link" accessibilityLabel="Mes lectures : mes rêves et ma main">
+      <Pressable style={st.card} onPress={() => router.push('/mes-lectures')} accessibilityRole="link" accessibilityLabel={t('Mes lectures : mes rêves et ma main')}>
         <View style={{ flex: 1, gap: 2 }}>
-          <Text style={st.kickerMuted}>MA PROMESSE D’INDIVIDUATION</Text>
-          <Text style={st.cardTitle}>Mes lectures</Text>
-          <Text style={st.cardSub}>Mes rêves avec Oni · Ma main avec Terra</Text>
+          <Text style={st.kickerMuted}>{t('MA PROMESSE D’INDIVIDUATION')}</Text>
+          <Text style={st.cardTitle}>{t('Mes lectures')}</Text>
+          <Text style={st.cardSub}>{t('Mes rêves avec Oni · Ma main avec Terra')}</Text>
         </View>
         <Text style={st.chevron}>›</Text>
       </Pressable>
 
       {/* Action principale */}
-      <GoldButton label="Raconter un rêve  ›" onPress={() => router.navigate('/reve')} />
+      <GoldButton label={t('Raconter un rêve  ›')} onPress={() => router.navigate('/reve')} />
 
       {/* Dernier rêve */}
       {last && (
-        <Pressable style={st.card} onPress={() => router.push({ pathname: '/reve/[id]', params: { id: last.id } })} accessibilityRole="link" accessibilityLabel={`Dernier rêve : ${last.title}`}>
+        <Pressable style={st.card} onPress={() => router.push({ pathname: '/reve/[id]', params: { id: last.id } })} accessibilityRole="link" accessibilityLabel={t('Dernier rêve : {v0}', { v0: last.title })}>
           <View style={{ flex: 1, gap: 2 }}>
-            <Text style={st.kickerMuted}>DERNIER RÊVE · {formatDate(last.dreamDate).toUpperCase()}</Text>
+            <Text style={st.kickerMuted}>{t('DERNIER RÊVE ·')} {formatDate(last.dreamDate).toUpperCase()}</Text>
             <Text style={st.cardTitle} numberOfLines={1}>
               {last.title}
             </Text>
             <Text style={st.cardSub} numberOfLines={1}>
-              {last.oniReading ? 'Lecture d’Oni disponible' : 'Relire et voir ce qui revient'}
+              {last.oniReading ? t('Lecture d’Oni disponible') : t('Relire et voir ce qui revient')}
             </Text>
           </View>
           <Text style={st.chevron}>›</Text>
@@ -146,22 +147,22 @@ export default function Home() {
           { label: 'Mon Grimoire', sub: 'Mes rêves conservés et reliés', img: IMAGES.grimoire, go: () => router.navigate('/grimoire') },
           { label: 'Oracle 127', sub: 'Une carte, un éclairage', img: IMAGES.oracle, go: () => router.navigate('/oracle') },
           { label: 'Symboles', sub: 'Le dictionnaire des rêves', img: IMAGES.symboles, go: () => router.navigate('/symboles') },
-        ].map((t) => (
-          <Pressable key={t.label} style={st.tile} onPress={t.go} accessibilityRole="link" accessibilityLabel={t.label}>
-            <Image source={t.img} style={st.tileImg} resizeMode="cover" />
+        ].map((tile) => (
+          <Pressable key={tile.label} style={st.tile} onPress={tile.go} accessibilityRole="link" accessibilityLabel={t(tile.label)}>
+            <Image source={tile.img} style={st.tileImg} resizeMode="cover" />
             <View style={st.tileFoot}>
-              <Text style={st.tileLabel}>{t.label}</Text>
-              <Text style={st.tileSub}>{t.sub}</Text>
+              <Text style={st.tileLabel}>{t(tile.label)}</Text>
+              <Text style={st.tileSub}>{t(tile.sub)}</Text>
             </View>
           </Pressable>
         ))}
       </View>
 
       {/* Les Sept Sœurs */}
-      <Pressable style={st.card} onPress={() => router.push('/soeurs')} accessibilityRole="link" accessibilityLabel="Les Sept Sœurs : sept regards pour éclairer ton chemin">
+      <Pressable style={st.card} onPress={() => router.push('/soeurs')} accessibilityRole="link" accessibilityLabel={t('Les Sept Sœurs : sept regards pour éclairer ton chemin')}>
         <View style={{ flex: 1, gap: 4 }}>
-          <Text style={st.sistersTitle}>Les Sept Sœurs</Text>
-          <Text style={st.cardSub}>Sept regards pour éclairer ton chemin.</Text>
+          <Text style={st.sistersTitle}>{t('Les Sept Sœurs')}</Text>
+          <Text style={st.cardSub}>{t('Sept regards pour éclairer ton chemin.')}</Text>
           <View style={st.dots}>
             {SISTERS.map((sis, i) => (
               <View key={sis.slug} style={st.dotItem}>
@@ -175,10 +176,10 @@ export default function Home() {
       </Pressable>
 
       {/* Le reste, rangé sur une page dédiée */}
-      <Pressable style={st.card} onPress={() => router.push('/explorer')} accessibilityRole="link" accessibilityLabel="Apprendre et explorer">
+      <Pressable style={st.card} onPress={() => router.push('/explorer')} accessibilityRole="link" accessibilityLabel={t('Apprendre et explorer')}>
         <View style={{ flex: 1, gap: 2 }}>
-          <Text style={st.cardTitle}>Apprendre et explorer</Text>
-          <Text style={st.cardSub}>Rêve lucide · Laboratoire · Carnet vocal · Labyrinthe · 127 portes</Text>
+          <Text style={st.cardTitle}>{t('Apprendre et explorer')}</Text>
+          <Text style={st.cardSub}>{t('Rêve lucide · Laboratoire · Carnet vocal · Labyrinthe · 127 portes')}</Text>
         </View>
         <Text style={st.chevron}>›</Text>
       </Pressable>

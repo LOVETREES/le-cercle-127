@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { DISCLAIMER, IMAGES, LEGAL } from '../lib/content';
 import { colors, fonts, radius, space } from '../lib/theme';
 import { useSession } from '../lib/session';
+import { t } from '../i18n';
 
 /** En-tête repris du site mobile : logo, « Onirologue », bouton menu. */
 export function AppHeader() {
@@ -33,13 +34,13 @@ export function AppHeader() {
         <Image source={IMAGES.logo} style={s.logo} />
         <View>
           <Text style={s.brandText}>Onirologue</Text>
-          {isDemo && <Text style={{ fontFamily: fonts.body, fontSize: 11, color: colors.gold }}>Démonstration locale</Text>}
+          {isDemo && <Text style={{ fontFamily: fonts.body, fontSize: 11, color: colors.gold }}>{t('Démonstration locale')}</Text>}
         </View>
       </Pressable>
       <Pressable
         style={s.menuBtn}
         accessibilityRole="button"
-        accessibilityLabel="Ouvrir le menu"
+        accessibilityLabel={t('Ouvrir le menu')}
         onPress={() => router.push('/menu')}
         hitSlop={8}
       >
@@ -178,14 +179,14 @@ export function SiteFooter() {
           <Pressable
             key={l.path}
             accessibilityRole="link"
-            onPress={() => router.push({ pathname: '/page', params: { path: l.path, title: l.title } })}
+            onPress={() => router.push({ pathname: '/page', params: { path: l.path, title: t(l.title) } })}
           >
-            <Text style={s.footerLink}>{l.title}</Text>
+            <Text style={s.footerLink}>{t(l.title)}</Text>
           </Pressable>
         ))}
       </View>
-      <Text style={s.footerNote}>{DISCLAIMER}</Text>
-      <Text style={s.footerCopy}>© 2026 L’Onirologue — Le Cercle des 7 Sœurs</Text>
+      <Text style={s.footerNote}>{t(DISCLAIMER)}</Text>
+      <Text style={s.footerCopy}>{t('© 2026 L’Onirologue — Le Cercle des 7 Sœurs')}</Text>
     </View>
   );
 }

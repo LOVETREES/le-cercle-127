@@ -10,6 +10,7 @@ import { colors, fonts, radius, space } from '../../lib/theme';
 import { useDictation } from '../../lib/use-dictation';
 import { appendTranscript } from '../../lib/dictation';
 import { KEYS, local } from '../../lib/storage';
+import { t } from '../../i18n';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -57,7 +58,7 @@ export default function Reve() {
       setIntensity(undefined);
       setDreamDate(today());
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Enregistrement impossible.');
+      setError(e instanceof Error ? e.message : t('Enregistrement impossible.'));
     } finally {
       setBusy(false);
     }
@@ -67,11 +68,10 @@ export default function Reve() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen>
         <View style={{ gap: space.sm }}>
-          <Eyebrow>Le Cercle des 7 Sœurs</Eyebrow>
-          <Title>Confiez-lui votre rêve</Title>
+          <Eyebrow>{t('Le Cercle des 7 Sœurs')}</Eyebrow>
+          <Title>{t('Confiez-lui votre rêve')}</Title>
           <Body muted>
-            Posez votre rêve ici comme il vient. Il n’a pas besoin d’être clair, complet ou bien raconté. Les fragments,
-            les sensations et les étrangetés ont aussi leur place.
+            {t('Posez votre rêve ici comme il vient. Il n’a pas besoin d’être clair, complet ou bien raconté. Les fragments, les sensations et les étrangetés ont aussi leur place.')}
           </Body>
         </View>
 
@@ -79,21 +79,21 @@ export default function Reve() {
           <Notice
             tone="success"
             text={
-              isDemo ? 'Rêve gardé dans la démonstration locale, séparément de vos données personnelles.' : user
+              isDemo ? t('Rêve gardé dans la démonstration locale, séparément de vos données personnelles.') : user
                 ? oniEnabled
-                  ? 'Votre rêve est dans votre Grimoire. Pour demander une lecture à Oni, ouvrez-le : votre accord sera demandé avant l’envoi. La lecture sera accessible dans l’écran Lectures.'
-                  : 'Votre rêve est dans votre Grimoire. Les nouvelles demandes de lecture à Oni sont actuellement indisponibles.'
-                : 'Votre rêve est gardé sur cet appareil. Connectez-vous pour le synchroniser avec votre Grimoire.'
+                  ? t('Votre rêve est dans votre Grimoire. Pour demander une lecture à Oni, ouvrez-le : votre accord sera demandé avant l’envoi. La lecture sera accessible dans l’écran Lectures.')
+                  : t('Votre rêve est dans votre Grimoire. Les nouvelles demandes de lecture à Oni sont actuellement indisponibles.')
+                : t('Votre rêve est gardé sur cet appareil. Connectez-vous pour le synchroniser avec votre Grimoire.')
             }
           />
         )}
 
         <Card style={{ gap: space.lg }}>
-          <Text style={st.oniListens}>Oni vous écoute.</Text>
-          <OutlineButton label="Ouvrir mon carnet vocal" onPress={() => router.push('/carnet-vocal')} />
-          <Field label="Si votre rêve avait un nom…" placeholder="Un titre, même provisoire" value={title} onChangeText={setTitle} maxLength={140} />
+          <Text style={st.oniListens}>{t('Oni vous écoute.')}</Text>
+          <OutlineButton label={t('Ouvrir mon carnet vocal')} onPress={() => router.push('/carnet-vocal')} />
+          <Field label={t('Si votre rêve avait un nom…')} placeholder={t('Un titre, même provisoire')} value={title} onChangeText={setTitle} maxLength={140} />
           <Field
-            label="Vous souvenez-vous de la nuit où il est venu ?"
+            label={t('Vous souvenez-vous de la nuit où il est venu ?')}
             placeholder="AAAA-MM-JJ"
             value={dreamDate}
             onChangeText={setDreamDate}
@@ -101,31 +101,30 @@ export default function Reve() {
             maxLength={10}
           />
           <Field
-            label="Que s’est-il passé ?"
+            label={t('Que s’est-il passé ?')}
             editable={!speech.active}
             required
-            placeholder="Je me souviens que…"
+            placeholder={t('Je me souviens que…')}
             value={story}
-            onChangeText={(t) => {
-              setStory(t);
+            onChangeText={(value) => {
+              setStory(value);
               setSaved(false);
             }}
             multiline
             maxLength={20000}
           />
-          <OutlineButton label={speech.active ? 'Arrêter la dictée' : 'Dicter mon rêve en texte'} disabled={speech.phase === 'starting' || speech.phase === 'stopping'} onPress={() => {
+          <OutlineButton label={speech.active ? t('Arrêter la dictée') : t('Dicter mon rêve en texte')} disabled={speech.phase === 'starting' || speech.phase === 'stopping'} onPress={() => {
             if (speech.active) speech.stop();
             else { dictationBase.current = story; void speech.start(); }
           }} />
-          {speech.active && <Notice text="Dictée en cours : le texte reconnu apparaît dans votre récit." />}
+          {speech.active && <Notice text={t('Dictée en cours : le texte reconnu apparaît dans votre récit.')} />}
           {speech.error && <Notice tone="error" text={speech.error} />}
           <Body muted style={{ fontSize: 13 }}>
-            Racontez sans chercher à comprendre. Qui était là ? Où étiez-vous ? Que voyiez-vous, entendiez-vous ou
-            ressentiez-vous ? Vous pouvez écrire dans le désordre, utiliser la dictée ci-dessus ou celle du clavier.
+            {t('Racontez sans chercher à comprendre. Qui était là ? Où étiez-vous ? Que voyiez-vous, entendiez-vous ou ressentiez-vous ? Vous pouvez écrire dans le désordre, utiliser la dictée ci-dessus ou celle du clavier.')}
           </Body>
 
           <View style={{ gap: space.sm }}>
-            <Text style={st.label}>Quelle émotion est restée la plus présente ?</Text>
+            <Text style={st.label}>{t('Quelle émotion est restée la plus présente ?')}</Text>
             <View style={st.chips}>
               {EMOTIONS.map((e) => {
                 const on = emotion === e.value;
@@ -136,9 +135,9 @@ export default function Reve() {
                     style={[st.chip, on && st.chipOn]}
                     accessibilityRole="radio"
                     accessibilityState={{ checked: on }}
-                    accessibilityLabel={e.label}
+                    accessibilityLabel={t(e.label)}
                   >
-                    <Text style={[st.chipText, on && st.chipTextOn]}>{e.label}</Text>
+                    <Text style={[st.chipText, on && st.chipTextOn]}>{t(e.label)}</Text>
                   </Pressable>
                 );
               })}
@@ -146,7 +145,7 @@ export default function Reve() {
           </View>
 
           <View style={{ gap: space.sm }}>
-            <Text style={st.label}>À quel point était-elle forte ?</Text>
+            <Text style={st.label}>{t('À quel point était-elle forte ?')}</Text>
             <View style={st.chips}>
               {['À peine', 'Légère', 'Présente', 'Forte', 'Très forte'].map((l, i) => {
                 const v = i + 1;
@@ -168,23 +167,22 @@ export default function Reve() {
           </View>
 
           {error && <Notice tone="error" text={error} />}
-          <GoldButton label="Garder dans mon Grimoire" onPress={submit} loading={busy} disabled={speech.active} />
+          <GoldButton label={t('Garder dans mon Grimoire')} onPress={submit} loading={busy} disabled={speech.active} />
           <Body muted style={{ fontSize: 13 }}>
-            Votre récit reste sur cet appareil tant que vous n’êtes pas connecté·e. Il n’est jamais envoyé à Oni sans
-            votre accord.
+            {t('Votre récit reste sur cet appareil tant que vous n’êtes pas connecté·e. Il n’est jamais envoyé à Oni sans votre accord.')}
           </Body>
         </Card>
 
         {saved && (
           <View style={{ gap: space.sm }}>
-            <GoldButton label="Voir mon Grimoire" onPress={() => router.navigate('/grimoire')} />
-            <OutlineButton label="Lectures d’Oni" onPress={() => router.navigate('/lectures')} />
+            <GoldButton label={t('Voir mon Grimoire')} onPress={() => router.navigate('/grimoire')} />
+            <OutlineButton label={t('Lectures d’Oni')} onPress={() => router.navigate('/lectures')} />
           </View>
         )}
 
         <View style={st.frame}>
-          <Text style={st.frameTitle}>Un espace symbolique et réflexif</Text>
-          <Body muted>Oni ne prédit pas l’avenir et ne remplace pas un accompagnement médical ou thérapeutique.</Body>
+          <Text style={st.frameTitle}>{t('Un espace symbolique et réflexif')}</Text>
+          <Body muted>{t('Oni ne prédit pas l’avenir et ne remplace pas un accompagnement médical ou thérapeutique.')}</Body>
         </View>
       </Screen>
     </KeyboardAvoidingView>

@@ -7,6 +7,7 @@ import { DEMO_USER, demoDreams } from './demo';
 import { clearVoiceNotes } from './voice-notes';
 import { DEFAULT_REMINDER, saveReminder } from './reminders';
 import { clearLastError, clearWebError } from './crash';
+import { t } from '../i18n';
 
 type SessionState = {
   ready: boolean;
@@ -135,7 +136,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           if (epoch !== sessionEpoch.current) return;
           const saved = await api.createDream(tk, d);
           if (epoch !== sessionEpoch.current) return;
-          if (!saved?.id) throw new Error('Le serveur n’a pas confirmé l’enregistrement. Votre brouillon est conservé sur cet appareil.');
+          if (!saved?.id) throw new Error(t('Le serveur n’a pas confirmé l’enregistrement. Votre brouillon est conservé sur cet appareil.'));
           await persistDrafts(draftsRef.current.filter((x) => x.id !== d.id));
         }
         const list = await api.listDreams(tk);
@@ -176,7 +177,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       ready,
       isDemo,
       async startDemo() {
-        if (token) throw new Error('Déconnectez-vous avant d’ouvrir la démonstration.');
+        if (token) throw new Error(t('Déconnectez-vous avant d’ouvrir la démonstration.'));
         const examples = demoDreams();
         await persistDemo(examples);
         await local.setJson(KEYS.demoActive, true);
@@ -225,7 +226,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           await saveReminder(DEFAULT_REMINDER);
           await Promise.all([clearLastError(), clearWebError()]);
         } catch {
-          throw new Error('Le compte a été supprimé sur le serveur. Réessayez « Effacer les données de cet appareil » pour terminer le nettoyage local.');
+          throw new Error(t('Le compte a été supprimé sur le serveur. Réessayez « Effacer les données de cet appareil » pour terminer le nettoyage local.'));
         }
       },
       async refresh() {
@@ -256,10 +257,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await local.setJson(KEYS.cache, list);
       },
       async exploreWithOni(id, consent) {
-        if (isDemo) throw new Error('La démonstration utilise uniquement des exemples locaux.');
-        if (!consent) throw new Error('Votre accord est nécessaire avant chaque envoi à Oni.');
-        if (!oniEnabled) throw new Error('Les nouvelles demandes de lecture sont actuellement indisponibles.');
-        if (!token) throw new ApiError('Connectez-vous pour demander une lecture à Oni.', 401);
+        if (isDemo) throw new Error(t('La démonstration utilise uniquement des exemples locaux.'));
+        if (!consent) throw new Error(t('Votre accord est nécessaire avant chaque envoi à Oni.'));
+        if (!oniEnabled) throw new Error(t('Les nouvelles demandes de lecture sont actuellement indisponibles.'));
+        if (!token) throw new ApiError(t('Connectez-vous pour demander une lecture à Oni.'), 401);
         const status = await api.requestOniReading(token, id, consent);
         const next = oniRequested.includes(id) ? oniRequested : [...oniRequested, id];
         setOniRequested(next);
@@ -276,6 +277,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
 export function useSession(): SessionState {
   const v = useContext(Ctx);
-  if (!v) throw new Error('useSession doit être utilisé dans <SessionProvider>.');
+  if (!v) throw new Error(t('useSession doit être utilisé dans <SessionProvider>.'));
   return v;
 }

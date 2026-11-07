@@ -7,13 +7,17 @@ import { EMOTIONS, recurringSymbols, searchDreams } from '../../lib/model';
 import { useSession } from '../../lib/session';
 import { colors, fonts, radius, space } from '../../lib/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { locale, t } from '../../i18n';
 
-const emotionLabel = (v?: string) => EMOTIONS.find((e) => e.value === v)?.label;
+const emotionLabel = (v?: string) => {
+  const l = EMOTIONS.find((e) => e.value === v)?.label;
+  return l ? t(l) : undefined;
+};
 
 function formatDate(iso: string) {
   const [y, m, d] = iso.split('-').map(Number);
   if (!y || !m || !d) return iso;
-  return new Date(y, m - 1, d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  return new Date(y, m - 1, d).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 export default function Grimoire() {
@@ -37,23 +41,22 @@ export default function Grimoire() {
         refreshControl={<RefreshControl refreshing={syncing} onRefresh={refresh} tintColor={colors.gold} />}
       >
         <View style={{ gap: space.sm, alignItems: 'center' }}>
-          <Eyebrow>Votre espace privé</Eyebrow>
-          <Title size={40}>Mon Grimoire</Title>
+          <Eyebrow>{t('Votre espace privé')}</Eyebrow>
+          <Title size={40}>{t('Mon Grimoire')}</Title>
           <Body muted style={{ textAlign: 'center' }}>
-            Vos rêves, même fragmentaires, dans un espace qui n’appartient qu’à vous.
+            {t('Vos rêves, même fragmentaires, dans un espace qui n’appartient qu’à vous.')}
           </Body>
         </View>
 
         {!user && (
           <Card>
-            <Eyebrow>Un espace privé</Eyebrow>
-            <Title size={28}>Votre Grimoire vous attend</Title>
+            <Eyebrow>{t('Un espace privé')}</Eyebrow>
+            <Title size={28}>{t('Votre Grimoire vous attend')}</Title>
             <Body muted>
-              Connectez-vous pour conserver vos rêves, observer les symboles qui reviennent et les retrouver aussi sur
-              lecercle127.com.
+              {t('Connectez-vous pour conserver vos rêves, observer les symboles qui reviennent et les retrouver aussi sur lecercle127.com.')}
             </Body>
-            <GoldButton label="Entrer dans mon Grimoire" onPress={() => router.push('/connexion')} />
-            <OutlineButton label="Créer mon compte gratuit" onPress={() => router.push({ pathname: '/connexion', params: { mode: 'register' } })} />
+            <GoldButton label={t('Entrer dans mon Grimoire')} onPress={() => router.push('/connexion')} />
+            <OutlineButton label={t('Créer mon compte gratuit')} onPress={() => router.push({ pathname: '/connexion', params: { mode: 'register' } })} />
           </Card>
         )}
 
@@ -61,7 +64,7 @@ export default function Grimoire() {
 
         {(recurring.length > 0 || symbols.length > 0) && (
           <Card>
-            <Eyebrow>Ce qui revient</Eyebrow>
+            <Eyebrow>{t('Ce qui revient')}</Eyebrow>
             {symbols.length > 0 && (
               <View style={st.recurring}>
                 {symbols.map(([sym, n]) => (
@@ -89,10 +92,10 @@ export default function Grimoire() {
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder="Chercher dans mes rêves : forêt, eau, peur…"
+            placeholder={t('Chercher dans mes rêves : forêt, eau, peur…')}
             placeholderTextColor="#6f7090"
             style={st.search}
-            accessibilityLabel="Chercher dans mes rêves"
+            accessibilityLabel={t('Chercher dans mes rêves')}
             autoCorrect={false}
             clearButtonMode="while-editing"
             returnKeyType="search"
@@ -100,16 +103,16 @@ export default function Grimoire() {
         )}
 
         {dreams.length > 0 && query.trim() !== '' && shown.length === 0 && (
-          <Body muted style={{ textAlign: 'center' }}>Aucun rêve ne contient « {query.trim()} ».</Body>
+          <Body muted style={{ textAlign: 'center' }}>{t('Aucun rêve ne contient «')} {query.trim()} {t('».')}</Body>
         )}
 
         {dreams.length === 0 ? (
           <Card style={{ alignItems: 'center' }}>
             <Text style={{ fontSize: 34, color: colors.gold }}>☾</Text>
             <Body muted style={{ textAlign: 'center' }}>
-              Aucun rêve pour l’instant. Le prochain réveil est une porte.
+              {t('Aucun rêve pour l’instant. Le prochain réveil est une porte.')}
             </Body>
-            <GoldButton label="Raconter un rêve" onPress={() => router.navigate('/reve')} />
+            <GoldButton label={t('Raconter un rêve')} onPress={() => router.navigate('/reve')} />
           </Card>
         ) : (
           <View style={{ gap: space.sm }}>
@@ -124,7 +127,7 @@ export default function Grimoire() {
                 <View style={{ flex: 1, gap: 4 }}>
                   <Text style={st.dreamDate}>
                     {formatDate(d.dreamDate)}
-                    {d.pending ? ' · sur cet appareil' : ''}
+                    {d.pending ? t(' · sur cet appareil') : ''}
                   </Text>
                   <Text style={st.dreamTitle} numberOfLines={1}>
                     {d.title}
@@ -140,7 +143,7 @@ export default function Grimoire() {
         )}
 
         {user && (
-          <OutlineButton label={`Mon compte · ${user.name}`} onPress={() => router.push('/compte')} />
+          <OutlineButton label={t('Mon compte · {v0}', { v0: user.name })} onPress={() => router.push('/compte')} />
         )}
       </ScrollView>
     </SafeAreaView>

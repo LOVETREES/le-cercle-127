@@ -5,6 +5,7 @@ import { Eyebrow, LinkRow, SiteFooter } from '../components/ui';
 import { EXPLORE, LEARN, SISTERS } from '../lib/content';
 import { useSession } from '../lib/session';
 import { colors, space } from '../lib/theme';
+import { t } from '../i18n';
 
 // Reprend le menu du site mobile (Mon Grimoire, Rêve lucide, Le Cercle des 7 Sœurs, Ressources).
 export default function Menu() {
@@ -20,15 +21,15 @@ export default function Menu() {
 
   return (
     <ScrollView style={{ backgroundColor: colors.night }} contentContainerStyle={st.content}>
-      <Eyebrow>Mon Grimoire</Eyebrow>
+      <Eyebrow>{t('Mon Grimoire')}</Eyebrow>
       <View style={st.group}>
-        <LinkRow icon="❖" title="Mon Grimoire" onPress={() => tab('/grimoire')} />
-        <LinkRow icon="☾" title="Raconter un rêve" onPress={() => tab('/reve')} />
-        <LinkRow icon="✧" title="Lectures d’Oni" onPress={() => tab('/lectures')} />
+        <LinkRow icon="❖" title={t('Mon Grimoire')} onPress={() => tab('/grimoire')} />
+        <LinkRow icon="☾" title={t('Raconter un rêve')} onPress={() => tab('/reve')} />
+        <LinkRow icon="✧" title={t('Lectures d’Oni')} onPress={() => tab('/lectures')} />
         {!user && (
           <LinkRow
             icon="◐"
-            title="Se connecter"
+            title={t('Se connecter')}
             onPress={() => {
               router.back();
               router.push('/connexion');
@@ -37,8 +38,17 @@ export default function Menu() {
         )}
         <LinkRow
           icon="⚙"
-          title={user ? `Mon compte · ${user.name}` : 'Réglages'}
-          subtitle="Rappel du matin, données, diagnostic"
+          title={t('Paramètres')}
+          subtitle={t('Langue, compte, aide')}
+          onPress={() => {
+            router.back();
+            router.push('/parametres');
+          }}
+        />
+        <LinkRow
+          icon="⚙"
+          title={user ? t('Mon compte · {v0}', { v0: user.name }) : t('Réglages')}
+          subtitle={t('Rappel du matin, données, diagnostic')}
           onPress={() => {
             router.back();
             router.push('/compte');
@@ -46,26 +56,26 @@ export default function Menu() {
         />
       </View>
 
-      <Eyebrow>Rêve lucide</Eyebrow>
+      <Eyebrow>{t('Rêve lucide')}</Eyebrow>
       <View style={st.group}>
         {LEARN.map((l) => (
-          <LinkRow key={l.path} icon={l.icon} title={l.title} onPress={() => go(l.path, l.title)} />
+          <LinkRow key={l.path} icon={l.icon} title={t(l.title)} onPress={() => go(l.path, t(l.title))} />
         ))}
       </View>
 
-      <Eyebrow>Le Cercle des 7 Sœurs</Eyebrow>
+      <Eyebrow>{t('Le Cercle des 7 Sœurs')}</Eyebrow>
       <View style={st.group}>
         {SISTERS.map((s) => (
-          <LinkRow key={s.slug} title={s.name} subtitle={s.role} onPress={() => go(s.path, s.name)} />
+          <LinkRow key={s.slug} title={s.name} subtitle={t(s.role)} onPress={() => go(s.path, s.name)} />
         ))}
       </View>
 
       <Eyebrow>Ressources</Eyebrow>
       <View style={st.group}>
-        <LinkRow icon="✦" title="Dictionnaire des symboles" onPress={() => tab('/symboles')} />
-        <LinkRow icon="✧" title="Oracle 127" onPress={() => tab('/oracle')} />
+        <LinkRow icon="✦" title={t('Dictionnaire des symboles')} onPress={() => tab('/symboles')} />
+        <LinkRow icon="✧" title={t('Oracle 127')} onPress={() => tab('/oracle')} />
         {EXPLORE.map((e) => (
-          <LinkRow key={e.path} icon={e.icon} title={e.title} onPress={() => go(e.path, e.title)} />
+          <LinkRow key={e.path} icon={e.icon} title={t(e.title)} onPress={() => go(e.path, t(e.title))} />
         ))}
       </View>
       <Text style={{ height: space.md }} />

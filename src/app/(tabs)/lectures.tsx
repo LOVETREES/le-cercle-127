@@ -7,11 +7,12 @@ import { AppHeader, Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Titl
 import { readingSummary } from '../../lib/model';
 import { useSession } from '../../lib/session';
 import { colors, fonts, radius, space } from '../../lib/theme';
+import { locale, t } from '../../i18n';
 
 function formatDate(iso: string) {
   const [y, m, d] = iso.split('-').map(Number);
   if (!y || !m || !d) return iso;
-  return new Date(y, m - 1, d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  return new Date(y, m - 1, d).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 // Toutes les lectures d'Oni au même endroit, et où elles arrivent.
@@ -29,35 +30,35 @@ export default function Lectures() {
       >
         <View style={{ gap: space.sm, alignItems: 'center' }}>
           <Image source={require('../../../assets/images/oni.webp')} style={st.oni} />
-          <Eyebrow>Oni lit vos rêves</Eyebrow>
-          <Title size={36}>Lectures d’Oni</Title>
+          <Eyebrow>{t('Oni lit vos rêves')}</Eyebrow>
+          <Title size={36}>{t('Lectures d’Oni')}</Title>
           <Body muted style={{ textAlign: 'center' }}>
-            Chaque lecture d’Oni arrive ici, et dans le rêve concerné de votre Grimoire.
+            {t('Chaque lecture d’Oni arrive ici, et dans le rêve concerné de votre Grimoire.')}
           </Body>
         </View>
 
-        {isDemo && <Notice text="Lecture fictive de démonstration. Aucun envoi à l’IA ni relecture réelle n’a lieu dans ce mode." />}
+        {isDemo && <Notice text={t('Lecture fictive de démonstration. Aucun envoi à l’IA ni relecture réelle n’a lieu dans ce mode.')} />}
         {!user && (
           <Card>
-            <Body>Connectez-vous pour retrouver les lectures liées à vos rêves.</Body>
-            <GoldButton label="Entrer dans mon Grimoire" onPress={() => router.push('/connexion')} />
+            <Body>{t('Connectez-vous pour retrouver les lectures liées à vos rêves.')}</Body>
+            <GoldButton label={t('Entrer dans mon Grimoire')} onPress={() => router.push('/connexion')} />
           </Card>
         )}
 
         {user && read.length === 0 && (
           <Card>
-            <Eyebrow>Comment ça marche</Eyebrow>
-            <Text style={st.step}>1. Confiez un rêve dans l’onglet Rêve.</Text>
-            <Text style={st.step}>2. Il rejoint votre Grimoire.</Text>
+            <Eyebrow>{t('Comment ça marche')}</Eyebrow>
+            <Text style={st.step}>{t('1. Confiez un rêve dans l’onglet Rêve.')}</Text>
+            <Text style={st.step}>{t('2. Il rejoint votre Grimoire.')}</Text>
             <Text style={st.step}>
-              3. {oniEnabled ? 'Ouvrez-le et touchez « Demander une lecture à Oni ».' : 'Quand Oni l’aura lu, sa lecture apparaîtra ici.'}
+              3. {oniEnabled ? t('Ouvrez-le et touchez « Demander une lecture à Oni ».') : t('Quand Oni l’aura lu, sa lecture apparaîtra ici.')}
             </Text>
-            <Text style={st.step}>4. La lecture est relue par une personne du Cercle, puis elle arrive ici.
+            <Text style={st.step}>{t('4. La lecture est relue par une personne du Cercle, puis elle arrive ici.')}
             </Text>
             {!oniEnabled && (
-              <Notice text={isDemo ? 'La démonstration utilise une lecture déjà préparée dans un rêve d’exemple.' : 'Les nouvelles demandes de lecture sont actuellement indisponibles. Votre Grimoire reste accessible.'} />
+              <Notice text={isDemo ? t('La démonstration utilise une lecture déjà préparée dans un rêve d’exemple.') : t('Les nouvelles demandes de lecture sont actuellement indisponibles. Votre Grimoire reste accessible.')} />
             )}
-            <OutlineButton label="Confier un rêve" onPress={() => router.navigate('/reve')} />
+            <OutlineButton label={t('Confier un rêve')} onPress={() => router.navigate('/reve')} />
           </Card>
         )}
 
@@ -67,20 +68,20 @@ export default function Lectures() {
             style={({ pressed }) => [st.item, pressed && { opacity: 0.7 }]}
             onPress={() => router.push({ pathname: '/reve/[id]', params: { id: d.id } })}
             accessibilityRole="link"
-            accessibilityLabel={`Lecture d’Oni : ${d.title}`}
+            accessibilityLabel={t('Lecture d’Oni : {v0}', { v0: d.title })}
           >
             <Text style={st.date}>{formatDate(d.dreamDate)}</Text>
             <Text style={st.title}>{d.title}</Text>
             <Text style={st.reading} numberOfLines={4}>
               {readingSummary(d.oniReading, d.title)}
             </Text>
-            <Text style={st.more}>Lire la lecture complète ›</Text>
+            <Text style={st.more}>{t('Lire la lecture complète ›')}</Text>
           </Pressable>
         ))}
 
         {user && waiting.length > 0 && (
           <Card>
-            <Eyebrow>En attente de lecture · {waiting.length}</Eyebrow>
+            <Eyebrow>{t('En attente de lecture ·')} {waiting.length}</Eyebrow>
             {waiting.slice(0, 5).map((d) => (
               <Pressable
                 key={d.id}
@@ -89,7 +90,7 @@ export default function Lectures() {
               >
                 <Text style={st.waiting}>
                   ☾ {d.title}
-                  {oniRequested.includes(d.id) ? <Text style={st.preparing}>  · lecture en préparation</Text> : null}
+                  {oniRequested.includes(d.id) ? <Text style={st.preparing}>  {t('· lecture en préparation')}</Text> : null}
                 </Text>
               </Pressable>
             ))}

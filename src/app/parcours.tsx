@@ -6,6 +6,7 @@ import { Body, Card, Eyebrow, GoldButton, OutlineButton, Screen, Title } from '.
 import { journey } from '../lib/insights';
 import { useSession } from '../lib/session';
 import { colors, fonts, radius, space } from '../lib/theme';
+import { t } from '../i18n';
 
 // « Mon parcours onirique » : ce qui se dessine au fil des nuits. Tout est calculé sur l'appareil.
 export default function Parcours() {
@@ -17,39 +18,39 @@ export default function Parcours() {
   return (
     <Screen>
       <View style={{ gap: space.sm }}>
-        <Eyebrow>Mon parcours onirique</Eyebrow>
-        <Title size={34}>Ce qui se dessine…</Title>
-        <Body muted>Évolutions, récurrences, transformations : un miroir de vos nuits, jamais un jugement.</Body>
+        <Eyebrow>{t('Mon parcours onirique')}</Eyebrow>
+        <Title size={34}>{t('Ce qui se dessine…')}</Title>
+        <Body muted>{t('Évolutions, récurrences, transformations : un miroir de vos nuits, jamais un jugement.')}</Body>
       </View>
 
       {j.total === 0 ? (
         <Card>
-          <Body>Votre parcours apparaîtra dès vos premiers rêves notés.</Body>
-          <GoldButton label="Raconter un rêve" onPress={() => router.navigate('/reve')} />
+          <Body>{t('Votre parcours apparaîtra dès vos premiers rêves notés.')}</Body>
+          <GoldButton label={t('Raconter un rêve')} onPress={() => router.navigate('/reve')} />
         </Card>
       ) : (
         <>
           <View style={st.row}>
-            <Stat value={j.total} label="Rêves notés" />
-            <Stat value={j.currentStreak} label="Jours d’affilée" />
-            <Stat value={j.longestStreak} label="Meilleure série" />
+            <Stat value={j.total} label={t('Rêves notés')} />
+            <Stat value={j.currentStreak} label={t('Jours d’affilée')} />
+            <Stat value={j.longestStreak} label={t('Meilleure série')} />
           </View>
 
           <Card>
-            <Eyebrow>Évolution · 6 derniers mois</Eyebrow>
+            <Eyebrow>{t('Évolution · 6 derniers mois')}</Eyebrow>
             <View style={st.chart}>
               {j.months.map((m) => (
-                <View key={m.key} style={st.barCol} accessibilityLabel={`${m.label} : ${m.count} rêve${m.count > 1 ? 's' : ''}`}>
+                <View key={m.key} style={st.barCol} accessibilityLabel={t('{v0} : {v1} rêve{v2}', { v0: m.label, v1: m.count, v2: m.count > 1 ? 's' : '' })}>
                   <Text style={st.barValue}>{m.count || ''}</Text>
                   <View style={[st.bar, { height: 6 + (m.count / maxMonth) * 110 }]} />
-                  <Text style={st.barLabel}>{m.label}</Text>
+                  <Text style={st.barLabel}>{t(m.label)}</Text>
                 </View>
               ))}
             </View>
             {j.months.some((m) => m.avgIntensity !== undefined) && (
               <Body muted style={{ fontSize: 13 }}>
-                Intensité moyenne :{' '}
-                {j.months.filter((m) => m.avgIntensity !== undefined).map((m) => `${m.label} ${String(m.avgIntensity).replace(".", ",")}/5`).join(' · ')}
+                {t('Intensité moyenne :')}{' '}
+                {j.months.filter((m) => m.avgIntensity !== undefined).map((m) => `${t(m.label)} ${String(m.avgIntensity).replace(".", ",")}/5`).join(' · ')}
               </Body>
             )}
           </Card>
@@ -61,15 +62,15 @@ export default function Parcours() {
                 {j.calmShare.before} % → {j.calmShare.after} %
               </Text>
               <Body muted>
-                Part de rêves vécus dans la joie, la sérénité ou l’émerveillement, entre la première et la seconde moitié de votre Grimoire.
+                {t('Part de rêves vécus dans la joie, la sérénité ou l’émerveillement, entre la première et la seconde moitié de votre Grimoire.')}
               </Body>
             </Card>
           )}
 
           <Card>
-            <Eyebrow>Récurrences</Eyebrow>
+            <Eyebrow>{t('Récurrences')}</Eyebrow>
             {j.recurring.length === 0 ? (
-              <Body muted>Aucun symbole ne revient encore. Ils apparaîtront ici au fil des nuits.</Body>
+              <Body muted>{t('Aucun symbole ne revient encore. Ils apparaîtront ici au fil des nuits.')}</Body>
             ) : (
               <View style={st.chips}>
                 {j.recurring.map(([s, n]) => (
@@ -83,10 +84,10 @@ export default function Parcours() {
 
           {j.emotions.length > 0 && (
             <Card>
-              <Eyebrow>Climat émotionnel</Eyebrow>
+              <Eyebrow>{t('Climat émotionnel')}</Eyebrow>
               {j.emotions.slice(0, 6).map((e) => (
                 <View key={e.label} style={st.emoRow}>
-                  <Text style={st.emoLabel}>{e.label}</Text>
+                  <Text style={st.emoLabel}>{t(e.label)}</Text>
                   <View style={st.emoTrack}>
                     <View style={[st.emoFill, { width: `${(e.count / maxEmo) * 100}%` }]} />
                   </View>
@@ -98,9 +99,9 @@ export default function Parcours() {
         </>
       )}
       <Body muted style={{ fontSize: 12, textAlign: 'center' }}>
-        Ces mesures restent sur votre téléphone et ne remplacent pas un accompagnement thérapeutique.
+        {t('Ces mesures restent sur votre téléphone et ne remplacent pas un accompagnement thérapeutique.')}
       </Body>
-      <OutlineButton label="Retour à l’accueil" onPress={() => router.navigate('/')} />
+      <OutlineButton label={t('Retour à l’accueil')} onPress={() => router.navigate('/')} />
     </Screen>
   );
 }

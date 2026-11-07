@@ -5,6 +5,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 
 import { Body, Eyebrow, Notice, Screen, Title } from '../../components/ui';
 import { api, type Symbol127 } from '../../lib/api';
 import { colors, fonts, radius, space } from '../../lib/theme';
+import { t } from '../../i18n';
 
 const SUGGESTIONS = ['arbre', 'eau', 'maison', 'serpent', 'chute', 'dents', 'lune', 'forêt'];
 
@@ -19,7 +20,7 @@ export default function Symboles() {
     const term = q.trim();
     if (term.length < 2) return;
     let cancelled = false;
-    const t = setTimeout(async () => {
+    const timer = setTimeout(async () => {
       setLoading(true);
       try {
         const r = await api.searchSymbols(term);
@@ -28,14 +29,14 @@ export default function Symboles() {
           setError(null);
         }
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Recherche impossible.');
+        if (!cancelled) setError(e instanceof Error ? e.message : t('Recherche impossible.'));
       } finally {
         if (!cancelled) setLoading(false);
       }
     }, 350);
     return () => {
       cancelled = true;
-      clearTimeout(t);
+      clearTimeout(timer);
     };
   }, [q]);
 
@@ -45,18 +46,18 @@ export default function Symboles() {
   return (
     <Screen>
       <View style={{ gap: space.sm }}>
-        <Eyebrow>Dictionnaire des symboles oniriques</Eyebrow>
-        <Title>Le sens des symboles</Title>
-        <Body muted>Sens possibles, pas une interprétation de votre rêve.</Body>
+        <Eyebrow>{t('Dictionnaire des symboles oniriques')}</Eyebrow>
+        <Title>{t('Le sens des symboles')}</Title>
+        <Body muted>{t('Sens possibles, pas une interprétation de votre rêve.')}</Body>
       </View>
 
       <TextInput
         value={q}
         onChangeText={setQ}
-        placeholder="Rechercher un symbole : arbre, eau, maison…"
+        placeholder={t('Rechercher un symbole : arbre, eau, maison…')}
         placeholderTextColor="#6f7090"
         style={st.search}
-        accessibilityLabel="Rechercher un symbole"
+        accessibilityLabel={t('Rechercher un symbole')}
         autoCorrect={false}
         autoCapitalize="none"
         clearButtonMode="while-editing"
@@ -75,7 +76,7 @@ export default function Symboles() {
 
       {active && loading && <ActivityIndicator color={colors.gold} />}
       {active && error && <Notice tone="error" text={error} />}
-      {active && !loading && !error && results.length === 0 && <Body muted>Aucun symbole trouvé pour « {q.trim()} ».</Body>}
+      {active && !loading && !error && results.length === 0 && <Body muted>{t('Aucun symbole trouvé pour «')} {q.trim()} {t('».')}</Body>}
 
       <View style={{ gap: space.sm }}>
         {shown.map((r) => (
@@ -99,7 +100,7 @@ export default function Symboles() {
         onPress={() => router.push({ pathname: '/page', params: { path: '/symboles-oniriques/', title: 'Symboles' } })}
         accessibilityRole="link"
       >
-        <Text style={st.allText}>Parcourir tout le dictionnaire  ›</Text>
+        <Text style={st.allText}>{t('Parcourir tout le dictionnaire  ›')}</Text>
       </Pressable>
     </Screen>
   );

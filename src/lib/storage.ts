@@ -52,6 +52,7 @@ export const KEYS = {
   demoJournal: 'c127.demo-reality-journal',
   pendingTranscript: 'c127.pending-transcript',
   palmReadings: 'c127.palm-readings',
+  lang: 'c127.lang',
   presenceDays: 'c127.presence-days',
   demoPendingTranscript: 'c127.demo-pending-transcript',
 } as const;

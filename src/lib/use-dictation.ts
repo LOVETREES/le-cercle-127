@@ -4,10 +4,11 @@ import { Alert, Platform } from 'react-native';
 
 import { appendTranscript, speechErrorMessage } from './dictation';
 import { getSpeechModule } from './speech-module';
+import { locale, t } from '../i18n';
 function allowSpeechService(): Promise<boolean> {
   const message = 'La transcription sur cet appareil n’est pas disponible. Le service vocal de votre téléphone ou navigateur peut envoyer cet audio à Apple, Google ou son fournisseur pour le convertir en texte. Autoriser cette transcription ?';
   if (Platform.OS === 'web') return Promise.resolve(window.confirm(message));
-  return new Promise((resolve) => Alert.alert('Transcription vocale', message, [
+  return new Promise((resolve) => Alert.alert(t('Transcription vocale'), message, [
     { text: 'Annuler', style: 'cancel', onPress: () => resolve(false) },
     { text: 'Autoriser', onPress: () => resolve(true) },
   ], { cancelable: true, onDismiss: () => resolve(false) }));
@@ -37,7 +38,7 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
         if (!capture.current || !focused.current) return;
         capture.current = false;
         if (event.uri) onRecording?.({ uri: event.uri, text: latest.current, durationMillis: Math.max(0, event.timestamp - recordingStartedAt.current) });
-        else setError('Aucun fichier audio n’a été créé. Le texte reconnu reste utilisable dans votre Grimoire.');
+        else setError(t('Aucun fichier audio n’a été créé. Le texte reconnu reste utilisable dans votre Grimoire.'));
       }),
       module.addListener('result', (event) => {
         if (!active.current) return;
@@ -55,7 +56,7 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
         if (!active.current) return;
         active.current = false; setPhase('idle');
         if (watchdog.current) clearTimeout(watchdog.current);
-        if (!latest.current) setError('Aucun texte reconnu. Réessayez ou écrivez votre récit.');
+        if (!latest.current) setError(t('Aucun texte reconnu. Réessayez ou écrivez votre récit.'));
       }),
     ] : [];
     return () => {
@@ -74,10 +75,10 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
     setError(null); setPhase('starting');
     try {
       const module = getSpeechModule();
-      if (!module) throw new Error('La dictée nécessite la nouvelle version native de l’app. Elle n’est pas disponible dans Expo Go.');
-      if (!module.isRecognitionAvailable()) throw new Error('La dictée n’est pas disponible sur cet appareil ou navigateur.');
-      if (uri && Platform.OS !== 'ios' && !(Platform.OS === 'android' && module.supportsRecording() && /\.wav$/i.test(uri))) throw new Error('Pour cet audio, utilisez « Dicter en texte ». Les nouveaux enregistrements Android 13 ou plus peuvent conserver audio et texte ensemble.');
-      if (persistRecording && !module.supportsRecording()) throw new Error('Cet appareil permet la dictée en texte, mais pas sa sauvegarde audio simultanée.');
+      if (!module) throw new Error(t('La dictée nécessite la nouvelle version native de l’app. Elle n’est pas disponible dans Expo Go.'));
+      if (!module.isRecognitionAvailable()) throw new Error(t('La dictée n’est pas disponible sur cet appareil ou navigateur.'));
+      if (uri && Platform.OS !== 'ios' && !(Platform.OS === 'android' && module.supportsRecording() && /\.wav$/i.test(uri))) throw new Error(t('Pour cet audio, utilisez « Dicter en texte ». Les nouveaux enregistrements Android 13 ou plus peuvent conserver audio et texte ensemble.'));
+      if (persistRecording && !module.supportsRecording()) throw new Error(t('Cet appareil permet la dictée en texte, mais pas sa sauvegarde audio simultanée.'));
       const permission = await module.requestPermissionsAsync();
       if (!focused.current || current !== generation.current) return;
       if (!permission.granted) throw new Error(speechErrorMessage('not-allowed'));
@@ -87,7 +88,7 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
         try {
           const locales = await Promise.race([
             module.getSupportedLocales({}),
-            new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error('Locale query timed out')), 2500); }),
+            new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error(t('Locale query timed out'))), 2500); }),
           ]);
           onDevice = locales.installedLocales.some((locale) => /^fr(?:[-_]fr)?$/i.test(locale));
         } catch { onDevice = false; }
@@ -98,18 +99,18 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
       if (!focused.current || current !== generation.current) return;
       committed.current = ''; latest.current = ''; setText('');
       active.current = true; capture.current = persistRecording; recordingStartedAt.current = Date.now();
-      module.start({ lang: 'fr-FR', interimResults: true, continuous: !uri, maxAlternatives: 1, addsPunctuation: true,
+      module.start({ lang: locale(), interimResults: true, continuous: !uri, maxAlternatives: 1, addsPunctuation: true,
         requiresOnDeviceRecognition: onDevice, iosTaskHint: 'dictation', ...(uri ? { audioSource: { uri } } : {}),
         ...(persistRecording ? { recordingOptions: { persist: true } } : {}),
       });
       watchdog.current = setTimeout(() => {
         if (!active.current) return;
         module.stop(); setPhase('stopping');
-        watchdog.current = setTimeout(() => { module.abort(); active.current = false; setPhase('idle'); if (!latest.current) setError('La dictée n’a pas répondu. Réessayez ou écrivez votre récit.'); }, 5000);
+        watchdog.current = setTimeout(() => { module.abort(); active.current = false; setPhase('idle'); if (!latest.current) setError(t('La dictée n’a pas répondu. Réessayez ou écrivez votre récit.')); }, 5000);
       }, uri ? 180000 : 120000);
     } catch (cause) {
       active.current = false; capture.current = false; setPhase('idle');
-      setError(cause instanceof Error ? cause.message : 'La dictée n’a pas pu démarrer.');
+      setError(cause instanceof Error ? cause.message : t('La dictée n’a pas pu démarrer.'));
     }
   };
   const stop = () => {

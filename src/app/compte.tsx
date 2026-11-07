@@ -8,6 +8,7 @@ import { clearLastError, clearWebError, readLastError, readWebError, type LastEr
 import { DEFAULT_REMINDER, loadReminder, saveReminder, type Reminder } from '../lib/reminders';
 import { useSession } from '../lib/session';
 import { colors, fonts, radius, space } from '../lib/theme';
+import { t } from '../i18n';
 
 const HOURS = [6, 7, 8, 9];
 
@@ -57,25 +58,25 @@ export default function Compte() {
     <ScrollView style={{ backgroundColor: colors.night }} contentContainerStyle={st.content}>
       {user ? (
         <View style={{ gap: space.sm }}>
-          <Eyebrow>Connecté·e</Eyebrow>
+          <Eyebrow>{t('Connecté·e')}</Eyebrow>
           <Title>{user.name}</Title>
           {user.email ? <Body muted>{user.email}</Body> : null}
         </View>
       ) : (
-        <OutlineButton label="Se connecter" onPress={() => router.replace('/connexion')} />
+        <OutlineButton label={t('Se connecter')} onPress={() => router.replace('/connexion')} />
       )}
 
       <Card>
-        <Eyebrow>Rappel du matin</Eyebrow>
+        <Eyebrow>{t('Rappel du matin')}</Eyebrow>
         <View style={st.switchRow}>
-          <Body style={{ flex: 1 }}>Me rappeler de noter mes rêves au réveil</Body>
+          <Body style={{ flex: 1 }}>{t('Me rappeler de noter mes rêves au réveil')}</Body>
           <Switch
             disabled={Platform.OS === 'web'}
             value={reminder.enabled}
             onValueChange={(v) => updateReminder({ ...reminder, enabled: v })}
             trackColor={{ true: colors.goldDeep, false: '#333652' }}
             thumbColor={reminder.enabled ? colors.gold : '#ccc'}
-            accessibilityLabel="Rappel du matin"
+            accessibilityLabel={t('Rappel du matin')}
           />
         </View>
         {reminder.enabled && (
@@ -96,17 +97,17 @@ export default function Compte() {
             })}
           </View>
         )}
-        <Body muted style={{ fontSize: 13 }}>{Platform.OS === 'web' ? 'Le rappel est disponible dans l’application iPhone et Android.' : 'Le rappel est programmé sur votre téléphone : aucune donnée n’est envoyée.'}</Body>
+        <Body muted style={{ fontSize: 13 }}>{Platform.OS === 'web' ? t('Le rappel est disponible dans l’application iPhone et Android.') : t('Le rappel est programmé sur votre téléphone : aucune donnée n’est envoyée.')}</Body>
       </Card>
 
       {notice && <Notice tone={notice.tone} text={notice.text} />}
-      {isDemo && <Notice text="Démonstration locale : exemples fictifs et données séparées. Aucun compte serveur ni envoi à l’IA." />}
+      {isDemo && <Notice text={t('Démonstration locale : exemples fictifs et données séparées. Aucun compte serveur ni envoi à l’IA.')} />}
 
       {user && (
         <Card>
-          <Eyebrow>Mes données</Eyebrow>
+          <Eyebrow>{t('Mes données')}</Eyebrow>
           <OutlineButton
-            label={isDemo ? 'Quitter et effacer la démo' : 'Me déconnecter'}
+            label={isDemo ? t('Quitter et effacer la démo') : t('Me déconnecter')}
             disabled={busy}
             onPress={async () => {
               await runAccountAction(signOut, isDemo ? 'Démonstration effacée. Vos données personnelles sont conservées.' : 'Vous êtes déconnecté·e.');
@@ -114,7 +115,7 @@ export default function Compte() {
           />
           <OutlineButton
             danger
-            label={isDemo ? 'Effacer la démonstration' : 'Supprimer mon compte'}
+            label={isDemo ? t('Effacer la démonstration') : t('Supprimer mon compte')}
             disabled={busy}
             onPress={async () => {
               const ok = await confirm(
@@ -127,27 +128,27 @@ export default function Compte() {
             }}
           />
           <Body muted style={{ fontSize: 13 }}>
-            Vous pouvez aussi écrire à contact@lecercle127.com pour exercer vos droits (accès, rectification, export).
+            {t('Vous pouvez aussi écrire à contact@lecercle127.com pour exercer vos droits (accès, rectification, export).')}
           </Body>
         </Card>
       )}
 
       <Card>
-        <Eyebrow>Sur cet appareil</Eyebrow>
-        <Body muted>Efface les brouillons, le journal de vérification, les textes temporaires, le cache et les enregistrements locaux. Les rêves déjà synchronisés restent sur le serveur jusqu’à leur suppression depuis le Grimoire ou le compte.</Body>
-        <OutlineButton danger disabled={busy} label="Effacer les données de cet appareil" onPress={async () => {
+        <Eyebrow>{t('Sur cet appareil')}</Eyebrow>
+        <Body muted>{t('Efface les brouillons, le journal de vérification, les textes temporaires, le cache et les enregistrements locaux. Les rêves déjà synchronisés restent sur le serveur jusqu’à leur suppression depuis le Grimoire ou le compte.')}</Body>
+        <OutlineButton danger disabled={busy} label={t('Effacer les données de cet appareil')} onPress={async () => {
           if (await confirm('Effacer les données locales ?', isDemo ? 'Seules les données de démonstration seront effacées.' : 'Les brouillons non synchronisés et les enregistrements vocaux seront perdus. Les rêves du serveur sont conservés.', 'Effacer')) {
             await runAccountAction(clearLocalData, 'Données locales effacées.');
           }
         }} />
-        <OutlineButton label="Confidentialité et services utilisés" onPress={() => router.push('/confidentialite')} />
+        <OutlineButton label={t('Confidentialité et services utilisés')} onPress={() => router.push('/confidentialite')} />
       </Card>
 
       {lastError && (
         <Card>
-          <Eyebrow>Dernière erreur (diagnostic)</Eyebrow>
+          <Eyebrow>{t('Dernière erreur (diagnostic)')}</Eyebrow>
           <Text selectable style={st.diag}>
-            {lastError.at} · {lastError.fatal ? 'fatale' : 'non fatale'}
+            {lastError.at} · {lastError.fatal ? 'fatale' : t('non fatale')}
             {'\n'}
             {lastError.message}
             {'\n'}
@@ -165,7 +166,7 @@ export default function Compte() {
 
       {webError && (
         <Card>
-          <Eyebrow>Dernière erreur d’une page du site</Eyebrow>
+          <Eyebrow>{t('Dernière erreur d’une page du site')}</Eyebrow>
           <Text selectable style={st.diag}>
             {webError.at} · {webError.page}
             {'\n'}
@@ -184,7 +185,7 @@ export default function Compte() {
         </Card>
       )}
 
-      <Text style={st.version}>Le Cercle 127 · version {Constants.expoConfig?.version ?? '1.0.1'} · build {Constants.platform?.ios?.buildNumber ?? Constants.expoConfig?.ios?.buildNumber ?? Constants.expoConfig?.android?.versionCode ?? 'développement'}</Text>
+      <Text style={st.version}>{t('Le Cercle 127 · version')} {Constants.expoConfig?.version ?? '1.0.1'} {t('· build')} {Constants.platform?.ios?.buildNumber ?? Constants.expoConfig?.ios?.buildNumber ?? Constants.expoConfig?.android?.versionCode ?? t('développement')}</Text>
       <SiteFooter />
     </ScrollView>
   );

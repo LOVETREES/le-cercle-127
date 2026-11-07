@@ -12,6 +12,7 @@ import {
   type DreamInput,
   type User,
 } from './model';
+import { t } from '../i18n';
 
 // Scénario Make « Cercle 127 — App : demande de lecture d'Oni (relue) ».
 export const ONI_REQUEST_URL = 'https://hook.eu2.make.com/494v4gvalix9usill8zoynzh2mtyt13w';
@@ -49,7 +50,7 @@ async function request(url: string, { method = 'GET', body, token, timeoutMs = 2
     });
     text = await res.text();
   } catch {
-    throw new ApiError('Connexion impossible. Vérifiez votre réseau et réessayez.', 0);
+    throw new ApiError(t('Connexion impossible. Vérifiez votre réseau et réessayez.'), 0);
   } finally {
     clearTimeout(timer);
   }
@@ -84,7 +85,7 @@ export const api = {
   async login(email: string, password: string): Promise<Session> {
     const body = await request(`${NS}/auth/login`, { method: 'POST', body: { login: email.trim(), password } });
     const token = extractToken(body);
-    if (!token) throw new ApiError('Réponse inattendue du serveur.', 500);
+    if (!token) throw new ApiError(t('Réponse inattendue du serveur.'), 500);
     return { token, user: normalizeUser(body) ?? { id: '', name: email.split('@')[0] } };
   },
 
@@ -142,14 +143,14 @@ export const api = {
   // Demande de lecture d'Oni : Make vérifie que le rêve appartient à la personne, Oni le lit,
   // puis la lecture est relue par une personne avant d'apparaître dans le Grimoire.
   async requestOniReading(token: string, id: string, consent: boolean): Promise<'en_attente' | 'deja_demandee'> {
-    if (consent !== true) throw new ApiError('Votre accord est nécessaire avant l’envoi à Oni.', 400);
+    if (consent !== true) throw new ApiError(t('Votre accord est nécessaire avant l’envoi à Oni.'), 400);
     const body = (await request(ONI_REQUEST_URL, {
       method: 'POST',
       body: { dream_id: Number(id), token, consent },
       timeoutMs: 30000,
     })) as { ok?: boolean; status?: string } | undefined;
     if (body?.ok && (body.status === 'en_attente' || body.status === 'deja_demandee')) return body.status;
-    throw new ApiError('Ce rêve n’a pas pu être confié à Oni. Actualisez votre Grimoire et réessayez.', 400);
+    throw new ApiError(t('Ce rêve n’a pas pu être confié à Oni. Actualisez votre Grimoire et réessayez.'), 400);
   },
 
   async privacy(): Promise<{ url: string; oniEnabled: boolean }> {

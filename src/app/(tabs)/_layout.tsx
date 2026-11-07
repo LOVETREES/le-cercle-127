@@ -4,6 +4,7 @@ import { Image, Pressable, StyleSheet, Text, View, type ImageSourcePropType } fr
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, fonts } from '../../lib/theme';
+import { t } from '../../i18n';
 
 // Barre du bas : Accueil · Oracle · Rêve (au centre) · Grimoire · Symboles.
 // Icônes illustrées reprises de la barre de navigation du site.
@@ -30,7 +31,7 @@ function TabBar({ state, emitter, navigateToTab }: BarProps) {
           <Pressable
             key={route.key}
             accessibilityRole="tab"
-            accessibilityLabel={tab.label}
+            accessibilityLabel={t(tab.label)}
             accessibilityState={{ selected: focused }}
             onPress={() => {
               const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
@@ -55,7 +56,7 @@ function TabBar({ state, emitter, navigateToTab }: BarProps) {
                 />
               </>
             )}
-            <Text style={[st.label, focused && { color: colors.gold }]}>{tab.label}</Text>
+            <Text style={[st.label, focused && { color: colors.gold }]}>{t(tab.label)}</Text>
           </Pressable>
         );
       })}
