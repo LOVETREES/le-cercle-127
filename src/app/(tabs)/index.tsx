@@ -77,7 +77,7 @@ export default function Home() {
       {/* Pensée du jour */}
       <View style={st.thought} accessibilityLabel={t('Pensée du jour : {v0}', { v0: thought })}>
         <Text style={st.kicker}>{t('✦ PENSÉE DU JOUR')}</Text>
-        <Text style={st.thoughtText}>{t('«')} {thought} {t('»')}</Text>
+        <Text style={st.thoughtText}>{quote(thought)}</Text>
       </View>
 
       {/* Mesures */}
