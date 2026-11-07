@@ -169,6 +169,8 @@ describe('pages du site dans l’application', () => {
     expect(HIDE_SITE_CHROME_CSS).toContain('.c127-appcard');
     expect(decideNavigation('https://lecercle127.com/interpreter-mes-reves-recurrents/')).toBe('block');
     expect(decideNavigation('https://onirologue.shop/produit/livre')).toBe('block');
+    expect(decideNavigation('https://netmedia.best/produit/livre-reves-recurrents/')).toBe('block');
+    expect(HIDE_SITE_CHROME_CSS).toContain('.os-book-wrap');
     expect(nativeRouteFor('https://lecercle127.com/carnet-vocal/')).toBeUndefined();
     expect(decideRequest({ url: 'https://lecercle127.com/grimoire/', isTopFrame: true, navigationType: 'click' })).toBe('native');
     expect(decideRequest({ url: 'https://lecercle127.com/grimoire/', isTopFrame: true, navigationType: 'other' })).toBe('allow');

@@ -13,7 +13,7 @@ export const HIDE_SITE_CHROME_CSS = [
   '[class*="install-banner"]', '.breadcrumbs', '.breadcrumb',
   // Bloc « L'application Le Cercle 127 » et liens de téléchargement : inutiles dans l'application.
   '.c127-appcard', '[data-c127-applink]', 'a[href*="testflight.apple.com"]', 'a[href*="apps.apple.com"]', 'a[href$=".apk"]',
-  'a[href*="/lecture-de-reve"]', 'a[href*="/interpreter-mes-reves-recurrents"]', 'a[href*="onirologue.shop"]', 'a[href*="buy.stripe.com"]', 'a[href*="checkout.stripe.com"]', '.simpay-form-wrap',
+  'a[href*="/lecture-de-reve"]', 'a[href*="/interpreter-mes-reves-recurrents"]', 'a[href*="onirologue.shop"]', 'a[href*="netmedia.best"]', '.os-book-wrap', 'a[href*="buy.stripe.com"]', 'a[href*="checkout.stripe.com"]', '.simpay-form-wrap',
 ].join(',') + '{display:none!important}body{padding-bottom:24px!important;margin-top:0!important}';
 
 const GRIMOIRE_HINT_CSS =
@@ -100,7 +100,7 @@ export function decideNavigation(url: string): NavDecision {
     if (/^\/(lecture-de-reve|interpreter-mes-reves-recurrents|wp-admin|wp-login)/.test(u.pathname)) return 'block';
     return 'allow';
   }
-  if (host.endsWith('stripe.com') || host === 'onirologue.shop') return 'block';
+  if (host.endsWith('stripe.com') || host === 'onirologue.shop' || host === 'netmedia.best') return 'block';
   if (u.protocol === 'mailto:' || u.protocol === 'tel:' || u.protocol === 'https:' || u.protocol === 'http:') return 'external';
   return 'block';
 }
