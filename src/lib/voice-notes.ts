@@ -2,6 +2,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import { Platform } from 'react-native';
 
 import { KEYS, local } from './storage';
+import { voiceFileExtension } from './dictation';
 
 export type VoiceNote = { id: string; createdAt: string; durationMillis: number; uri: string; transcript?: string };
 type StoredNote = Omit<VoiceNote, 'uri'> & { filename?: string; blob?: Blob };
@@ -55,7 +56,7 @@ export async function saveVoiceNote(uri: string, durationMillis: number, demo = 
   }
   const directory = new Directory(Paths.document, demo ? 'c127-voice-demo' : 'c127-voice');
   directory.create({ intermediates: true, idempotent: true });
-  note.filename = `${id}.m4a`;
+  note.filename = `${id}.${voiceFileExtension(uri)}`;
   const destination = new File(directory, note.filename);
   await new File(uri).move(destination);
   try {

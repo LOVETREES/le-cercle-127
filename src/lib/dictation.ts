@@ -6,6 +6,10 @@ export function appendTranscript(existing: string, next: string): string {
   return `${a}\n${b}`;
 }
 
+export function voiceFileExtension(uri: string): string {
+  return uri.split(/[?#]/)[0].match(/\.(wav|caf|m4a|mp3|ogg)$/i)?.[1]?.toLowerCase() ?? 'm4a';
+}
+
 export function speechErrorMessage(code: string): string {
   if (code === 'not-allowed') return 'La dictée est refusée. Autorisez le micro et la reconnaissance vocale dans les réglages de l’appareil.';
   if (code === 'no-speech' || code === 'speech-timeout') return 'Aucune parole reconnue. Réessayez en parlant près du micro.';

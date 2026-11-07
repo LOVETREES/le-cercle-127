@@ -118,3 +118,5 @@ TypeScript, lint et 93 tests locaux passent ; les bundles iOS, Android et web so
 ## Correctif 1.0.2 après les retours du build 10
 
 Les Sept Sœurs ont un écran natif. Le journal de vérification fonctionne localement sans inscription et propose les accès natifs au compte ; son contenu reste distinct du journal WordPress. Les pages intégrées utilisent leur URL canonique, sans boucle de navigation, et quittent le chargement au signal du document ou sur une erreur limitée dans le temps. Le bandeau cookies et son contrôleur sont retirés des WebViews mobiles. La dictée française alimente le récit, et les fichiers audio peuvent être transcrits sur iPhone. Cette version nécessite un nouveau binaire natif ; Expo Go ne contient pas le module de reconnaissance vocale.
+
+Pour l’APK et les capacités vocales Android, voir [docs/ANDROID-1.0.2.md](docs/ANDROID-1.0.2.md). Sur Android 13 ou plus, le carnet peut conserver audio et texte ensemble ; la dictée reste disponible sur les versions précédentes avec un service vocal compatible.

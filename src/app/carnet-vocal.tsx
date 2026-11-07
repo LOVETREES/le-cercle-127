@@ -7,7 +7,8 @@ import { Body, Card, Field, GoldButton, Notice, OutlineButton, Screen, Title } f
 import { useSession } from '../lib/session';
 import { deleteVoiceNote, listVoiceNotes, releaseVoiceUrls, saveVoiceNote, updateVoiceTranscript, type VoiceNote } from '../lib/voice-notes';
 import { colors, fonts, space } from '../lib/theme';
-import { useDictation } from '../lib/use-dictation';
+import { useDictation, type SpeechRecording } from '../lib/use-dictation';
+import { getSpeechModule } from '../lib/speech-module';
 import { KEYS, local } from '../lib/storage';
 
 function duration(ms: number) {
@@ -38,6 +39,7 @@ export default function CarnetVocal() {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const focused = useRef(false);
   const transcribedNoteId = useRef<string | null>(null);
+  const androidAudioAndText = Platform.OS === 'android' && Boolean(getSpeechModule()?.supportsRecording());
   const speech = useDictation({ onFinal: useCallback((text: string) => {
     const id = transcribedNoteId.current;
     if (!id) return;
@@ -46,6 +48,20 @@ export default function CarnetVocal() {
       if (!focused.current) return releaseVoiceUrls(list);
       releaseVoiceUrls(notesRef.current); notesRef.current = list; setNotes(list);
     }).catch(() => setError('Le texte est reconnu mais n’a pas pu être gardé avec l’audio. Réessayez.'));
+  }, [isDemo]), onRecording: useCallback((capture: SpeechRecording) => {
+    setBusy(true);
+    void (async () => {
+      try {
+        const id = await saveVoiceNote(capture.uri, capture.durationMillis, isDemo);
+        if (capture.text) await updateVoiceTranscript(id, capture.text, isDemo);
+        transcribedNoteId.current = id;
+        const list = await listVoiceNotes(isDemo);
+        if (!focused.current) return releaseVoiceUrls(list);
+        releaseVoiceUrls(notesRef.current); notesRef.current = list; setNotes(list);
+        setNotice(capture.text ? 'Audio et texte gardés sur cet appareil.' : 'Audio gardé. Aucun texte n’a été reconnu ; vous pouvez réessayer la transcription.');
+      } catch { setError('L’enregistrement n’a pas pu être gardé. Réessayez.'); }
+      finally { setBusy(false); }
+    })();
   }, [isDemo]) });
 
   useFocusEffect(useCallback(() => {
@@ -126,9 +142,14 @@ export default function CarnetVocal() {
       {isDemo && <Notice text="Démonstration : ces enregistrements sont séparés de votre carnet personnel et effacés en quittant la démo." />}
       <Card>
         <Text accessibilityLiveRegion="polite" style={{ fontFamily: fonts.bodyBold, color: recording ? colors.danger : colors.text }}>
-          {recording ? `Enregistrement en cours · ${duration(recorderState.durationMillis)}` : 'Le micro démarre uniquement lorsque vous le demandez.'}
+          {recording ? `Enregistrement en cours · ${duration(recorderState.durationMillis)}` : Platform.OS === 'android' && speech.active ? 'Dictée en cours : le texte apparaît ci-dessous.' : 'Le micro démarre uniquement lorsque vous le demandez.'}
         </Text>
-        <GoldButton label={recording ? Platform.OS === 'ios' ? 'Arrêter et transcrire' : 'Arrêter et garder l’enregistrement' : 'Enregistrer ma voix'} onPress={toggle} loading={busy} disabled={speech.active} />
+        <GoldButton label={recording ? Platform.OS === 'ios' ? 'Arrêter et transcrire' : 'Arrêter et garder l’enregistrement' : Platform.OS === 'android' ? speech.active ? 'Arrêter et garder le texte' : androidAudioAndText ? 'Enregistrer et transcrire' : 'Dicter mon rêve en texte' : 'Enregistrer ma voix'} onPress={() => {
+          if (Platform.OS !== 'android' || recording) { void toggle(); return; }
+          if (speech.active) speech.stop();
+          else { player.pause(); setError(null); setNotice(null); transcribedNoteId.current = null; void speech.start(undefined, androidAudioAndText); }
+        }} loading={busy || speech.phase === 'starting' || speech.phase === 'stopping'} disabled={Platform.OS !== 'android' && speech.active} />
+        {Platform.OS === 'android' && !recording && <OutlineButton label="Enregistrer uniquement l’audio" disabled={busy || speech.active} onPress={toggle} />}
         <Body muted>Arrêtez l’enregistrement avant de quitter cet écran. Vos fichiers restent sur cet appareil et ne sont pas synchronisés avec le compte.</Body>
       </Card>
       {error && <Notice tone="error" text={error} />}
@@ -160,7 +181,7 @@ export default function CarnetVocal() {
           <Card key={note.id}>
             <Body>{new Date(note.createdAt).toLocaleString('fr-FR')} · {duration(note.durationMillis)}</Body>
             {note.transcript && <Body>{note.transcript}</Body>}
-            {Platform.OS === 'ios' && <OutlineButton label="Transcrire cet enregistrement" disabled={recording || busy || speech.active} onPress={() => { player.pause(); transcribedNoteId.current = note.id; void speech.start(note.uri); }} />}
+            {(Platform.OS === 'ios' || androidAudioAndText && /\.wav$/i.test(note.uri)) && <OutlineButton label="Transcrire cet enregistrement" disabled={recording || busy || speech.active} onPress={() => { player.pause(); transcribedNoteId.current = note.id; void speech.start(note.uri); }} />}
             <OutlineButton disabled={recording || busy || speech.active} label={playingId === note.id && playback.playing ? 'Mettre en pause' : 'Écouter l’enregistrement'} onPress={() => {
               try {
                 if (playingId === note.id && playback.playing) player.pause();
@@ -177,7 +198,7 @@ export default function CarnetVocal() {
         ))}
       </View>
       <OutlineButton label="Écrire ou dicter un rêve dans mon Grimoire" onPress={() => router.navigate('/reve')} />
-      <Body muted>Sur iPhone, la transcription est proposée à l’arrêt de l’enregistrement et peut être relancée depuis chaque audio. Relisez le texte avant de le garder dans votre Grimoire.</Body>
+      <Body muted>{Platform.OS === 'android' ? 'Sur Android 13 ou plus, « Enregistrer et transcrire » garde ensemble votre voix et le texte reconnu. Sur les versions plus anciennes, utilisez la dictée pour obtenir le texte. Les anciens audios restent lisibles.' : 'Sur iPhone, la transcription est proposée à l’arrêt de l’enregistrement et peut être relancée depuis chaque audio.'} Relisez le texte avant de le garder dans votre Grimoire.</Body>
     </Screen>
   );
 }
