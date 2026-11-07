@@ -5,6 +5,7 @@ import { ActivityIndicator, Linking, Platform, StyleSheet, Text, View } from 're
 import { WebView as RNWebView } from 'react-native-webview';
 
 import { saveWebError } from '../lib/crash';
+import { savePalmMessage } from '../lib/palm';
 import { decideNavigation, decidePageRequest, injectedScript, nativeRouteFor, siteUrl } from '../lib/webpage';
 import { colors, fonts, space } from '../lib/theme';
 import { OutlineButton } from './ui';
@@ -160,7 +161,8 @@ function SitePageContent({ path }: { path: string }) {
         onRenderProcessGone={() => setFailed(true)}
         onMessage={(e) => {
           try { if (JSON.parse(e.nativeEvent.data)?.type === 'c127-ready') { setLoading(false); return; } } catch { /* diagnostic non JSON */ }
-          saveWebError(e.nativeEvent.data);
+          const data = e.nativeEvent.data;
+          savePalmMessage(data).then((saved) => { if (!saved) saveWebError(data); }, () => saveWebError(data));
         }}
         allowsBackForwardNavigationGestures
         sharedCookiesEnabled={false}

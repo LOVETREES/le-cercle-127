@@ -2,6 +2,7 @@
 import { isPaidOfferUrl, paidOfferFilterScript } from './paid-offers';
 import { facebookFilterScript, isFacebookUrl } from './facebook-links';
 import { cookieUiFilterScript, HIDE_COOKIE_UI_CSS } from './site-privacy';
+import { PALM_BRIDGE_JS } from './palm-bridge';
 
 export const SITE = 'https://lecercle127.com';
 
@@ -47,7 +48,7 @@ const ERROR_BRIDGE_JS =
 export function injectedScript(): string {
   const css = HIDE_SITE_CHROME_CSS + GRIMOIRE_HINT_CSS;
   // Le style est ajouté dès que la page existe (le script peut s'exécuter avant elle).
-  return `(function(){if(window.__c127)return;window.__c127=1;${ERROR_BRIDGE_JS}function st(){var r=document.head||document.documentElement;if(!r)return setTimeout(st,30);var s=document.createElement('style');s.innerHTML=${JSON.stringify(css)};r.appendChild(s);}st();${cookieUiFilterScript()}${paidOfferFilterScript()}${facebookFilterScript()}${GRIMOIRE_HINT_JS}function ready(){window.ReactNativeWebView&&window.ReactNativeWebView.postMessage(JSON.stringify({type:'c127-ready'}));}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();})();true;`;
+  return `(function(){if(window.__c127)return;window.__c127=1;${ERROR_BRIDGE_JS}function st(){var r=document.head||document.documentElement;if(!r)return setTimeout(st,30);var s=document.createElement('style');s.innerHTML=${JSON.stringify(css)};r.appendChild(s);}st();${cookieUiFilterScript()}${paidOfferFilterScript()}${facebookFilterScript()}${GRIMOIRE_HINT_JS}${PALM_BRIDGE_JS}function ready(){window.ReactNativeWebView&&window.ReactNativeWebView.postMessage(JSON.stringify({type:'c127-ready'}));try{c127palm()}catch(e){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();})();true;`;
 }
 
 export type NavDecision = 'allow' | 'external' | 'block' | 'native';

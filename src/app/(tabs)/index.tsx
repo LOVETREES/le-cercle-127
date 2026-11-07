@@ -111,6 +111,16 @@ export default function Home() {
         <Text style={st.chevron}>›</Text>
       </Pressable>
 
+      {/* Mes lectures : rêve et main */}
+      <Pressable style={st.card} onPress={() => router.push('/mes-lectures')} accessibilityRole="link" accessibilityLabel="Mes lectures : mes rêves et ma main">
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={st.kickerMuted}>MA PROMESSE D’INDIVIDUATION</Text>
+          <Text style={st.cardTitle}>Mes lectures</Text>
+          <Text style={st.cardSub}>Mes rêves avec Oni · Ma main avec Terra</Text>
+        </View>
+        <Text style={st.chevron}>›</Text>
+      </Pressable>
+
       {/* Action principale */}
       <GoldButton label="Raconter un rêve  ›" onPress={() => router.navigate('/reve')} />
 
