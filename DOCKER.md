@@ -18,7 +18,7 @@ docker compose up --build -d expo
 docker compose logs -f expo
 ```
 
-Ouvrir http://localhost:8081 pour l’aperçu navigateur. Pour saisir d’autres commandes, ouvrir un deuxième onglet Terminal ; celui qui affiche les journaux reste occupé. Vérifier que Mon compte affiche la version 1.0.1. Les modifications dans `src/` sont prises en compte par Metro et Fast Refresh. Le mode développement n’active pas `CI=1`, qui désactiverait la surveillance des fichiers dans cette version d’Expo.
+Ouvrir http://localhost:8081 pour l’aperçu navigateur. Pour saisir d’autres commandes, ouvrir un deuxième onglet Terminal ; celui qui affiche les journaux reste occupé. Vérifier que Mon compte affiche la version 1.0.2. Les modifications dans `src/` sont prises en compte par Metro et Fast Refresh. Le mode développement n’active pas `CI=1`, qui désactiverait la surveillance des fichiers dans cette version d’Expo.
 
 ### Tester sur iPhone, sur le même Wi-Fi
 
@@ -70,6 +70,8 @@ Le mode hors ligne est réservé à cette vérification sans services Expo dista
 
 ## Vérifications réalisées
 
-L’image de développement a été construite et le service Compose a réussi son contrôle de santé. TypeScript, lint et 93 tests passent. Les exports iOS, Android et web réussissent. Chromium vérifie le carnet vocal local avec un périphérique simulé : sauvegarde, persistance après rechargement, écoute, suppression, refus du micro. La démonstration est séparée des brouillons personnels. Les cinq onglets ont été exercés dans le navigateur.
+L’image de développement a été construite et le service Compose a réussi son contrôle de santé. TypeScript, lint et 113 tests passent. Les exports iOS, Android et web réussissent. Chromium vérifie le carnet vocal local avec un périphérique simulé : sauvegarde, persistance après rechargement, écoute, suppression, refus du micro. La démonstration est séparée des brouillons personnels. Les cinq onglets ont été exercés dans le navigateur.
 
 Les essais réels sur le Mac et sur iPhone restent à effectuer. La connexion et la suppression d’un compte réel n’ont pas été testées, conformément au choix de garder les tests locaux. Le rapport détaillé est dans [docs/APP-REVIEW-VALIDATION.md](docs/APP-REVIEW-VALIDATION.md).
+
+La dictée et la transcription iPhone nécessitent le nouveau module natif expo-speech-recognition 58. Expo Go peut afficher les écrans mais ne fournit pas ce module ; utiliser le nouveau build TestFlight ou un build de développement. Le navigateur utilise son API vocale lorsqu’elle est disponible.

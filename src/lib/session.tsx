@@ -108,7 +108,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const exitDemo = useCallback(async () => {
     await clearVoiceNotes(true);
-    await local.remove([KEYS.demoActive, KEYS.demoDreams]);
+    await local.remove([KEYS.demoActive, KEYS.demoDreams, KEYS.demoJournal, KEYS.demoPendingTranscript]);
     demoRef.current = [];
     setDemoRecords([]);
     setIsDemo(false);
@@ -188,7 +188,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await clearVoiceNotes();
         await saveReminder(DEFAULT_REMINDER);
         await Promise.all([clearLastError(), clearWebError()]);
-        await local.remove([KEYS.cache]);
+        await local.remove([KEYS.cache, KEYS.journal, KEYS.pendingTranscript]);
         setServer([]);
       },
       user: isDemo ? DEMO_USER : user,
@@ -221,6 +221,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         try {
           await persistDrafts([]);
           await clearVoiceNotes();
+          await local.remove([KEYS.journal, KEYS.pendingTranscript]);
           await saveReminder(DEFAULT_REMINDER);
           await Promise.all([clearLastError(), clearWebError()]);
         } catch {

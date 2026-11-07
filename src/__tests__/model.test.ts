@@ -160,7 +160,7 @@ describe('pages du site dans l’application', () => {
   it('ouvre les écrans de l’application à la place des parcours du site', () => {
     expect(nativeRouteFor('https://lecercle127.com/parcours-reve-127/')).toBe('/reve');
     expect(nativeRouteFor('https://www.lecercle127.com/grimoire/?x=1')).toBe('/grimoire');
-    expect(nativeRouteFor('https://lecercle127.com/creer-un-compte/')).toBe('/connexion');
+    expect(nativeRouteFor('https://lecercle127.com/creer-un-compte/')).toBe('/connexion?mode=register');
     expect(nativeRouteFor('cercle127://reve')).toBe('/reve');
     expect(nativeRouteFor('https://lecercle127.com/')).toBe('/');
     expect(nativeRouteFor('https://lecercle127.com')).toBe('/');
@@ -186,7 +186,7 @@ describe('pages du site dans l’application', () => {
     for (const sel of ['.oni-app-nav', '.site-footer', 'a[href*="/lecture-de-reve"]']) {
       expect(HIDE_SITE_CHROME_CSS).toContain(sel);
     }
-    expect(HIDE_SITE_CHROME_CSS).not.toContain('.cmplz-cookiebanner');
+    expect(HIDE_SITE_CHROME_CSS).toContain('html body .cmplz-cookiebanner');
   });
 
   it('produit un script injecté valide qui propose l’écran Rêve', () => {

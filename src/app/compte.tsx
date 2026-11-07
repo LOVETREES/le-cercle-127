@@ -134,7 +134,7 @@ export default function Compte() {
 
       <Card>
         <Eyebrow>Sur cet appareil</Eyebrow>
-        <Body muted>Efface les brouillons, le cache et les enregistrements locaux. Les rêves déjà synchronisés restent sur le serveur jusqu’à leur suppression depuis le Grimoire ou le compte.</Body>
+        <Body muted>Efface les brouillons, le journal de vérification, les textes temporaires, le cache et les enregistrements locaux. Les rêves déjà synchronisés restent sur le serveur jusqu’à leur suppression depuis le Grimoire ou le compte.</Body>
         <OutlineButton danger disabled={busy} label="Effacer les données de cet appareil" onPress={async () => {
           if (await confirm('Effacer les données locales ?', isDemo ? 'Seules les données de démonstration seront effacées.' : 'Les brouillons non synchronisés et les enregistrements vocaux seront perdus. Les rêves du serveur sont conservés.', 'Effacer')) {
             await runAccountAction(clearLocalData, 'Données locales effacées.');

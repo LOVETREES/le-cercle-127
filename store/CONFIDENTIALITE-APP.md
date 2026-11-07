@@ -13,3 +13,9 @@ Le code et les destinataires suivants sont confirmés par cette révision ; les 
 - Responsable et exercice des droits : coordonnées légales vérifiées de l’éditeur ; contact connu dans le projet : contact@lecercle127.com.
 
 Ce document est un complément à relire, pas une politique annoncée comme déjà publiée. La page publique actuelle n’a pas été modifiée depuis cet environnement.
+
+## Complément 1.0.2
+
+Le journal de vérification est local et distinct du journal WordPress. La dictée et la transcription des audios sur iPhone utilisent le service vocal système ; la reconnaissance sur l’appareil est privilégiée lorsqu’elle est disponible. Avant un traitement distant, l’app demande un accord explicite. Selon le système ou le navigateur, Apple, Google ou le fournisseur du service vocal peut alors recevoir l’audio pour produire le texte. Aucun audio n’est envoyé à Make ou OpenAI par ces fonctions. Le texte choisi par la personne peut ensuite être enregistré et synchronisé comme un récit. Les durées et conditions des services vocaux doivent être prises en compte dans la politique et les réponses App Privacy.
+
+Dans les WebViews mobiles, l’interface de cookies et ses scripts sont retirés avec les scripts de suivi connus, sans accord automatique aux mesures facultatives. Le site public conserve ses propres règles.

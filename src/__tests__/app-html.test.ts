@@ -19,12 +19,13 @@ describe('pages intégrées à l’app', () => {
     expect(dom.window.document.querySelector('base')?.getAttribute('href')).toBe('https://lecercle127.com/oracle-127/');
     dom.window.close();
   });
-  it('conserve les choix de consentement aux cookies et retire un ancien base URL', () => {
-    const html = prepareAppHtml('<head><base href="https://old.example"></head><body><div class="cmplz-cookiebanner">Choisir</div></body>', 'https://lecercle127.com/test/?a=1&b=2');
+  it('désactive le bandeau du site et ses scripts, tout en retirant un ancien base URL', () => {
+    const html = prepareAppHtml('<head><base href="https://old.example"><script id="cmplz-cookiebanner-js" src="/wp-content/plugins/complianz-gdpr/cookiebanner/js/complianz.min.js"></script></head><body><div class="cmplz-cookiebanner">Choisir</div></body>', 'https://lecercle127.com/test/?a=1&b=2');
     const dom = new JSDOM(html);
     expect(dom.window.document.querySelectorAll('base')).toHaveLength(1);
     expect(dom.window.document.querySelector('base')!.getAttribute('href')).toBe('https://lecercle127.com/test/?a=1&b=2');
-    expect(dom.window.getComputedStyle(dom.window.document.querySelector('.cmplz-cookiebanner')!).display).not.toBe('none');
+    expect(dom.window.getComputedStyle(dom.window.document.querySelector('.cmplz-cookiebanner')!).display).toBe('none');
+    expect(dom.window.document.querySelector('script[src*="complianz"]')).toBeNull();
     dom.window.close();
   });
 });

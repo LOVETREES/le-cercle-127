@@ -28,7 +28,7 @@ export type LinkItem = { title: string; subtitle: string; path: string; icon: st
 export const LEARN: LinkItem[] = [
   { title: 'Rêve lucide', subtitle: 'Savoir qu’on rêve, pour agir dans ses rêves.', path: '/reve-lucide/', icon: '☾' },
   { title: 'Laboratoire', subtitle: 'Des exercices simples chaque semaine.', path: '/laboratoire-des-reveurs/', icon: '⚗' },
-  { title: 'Carnet vocal', subtitle: 'Enregistrez et réécoutez votre rêve sur cet appareil.', path: '/carnet-vocal/', icon: '🎙' },
+  { title: 'Carnet vocal', subtitle: 'Gardez votre voix et transformez-la en texte.', path: '/carnet-vocal/', icon: '🎙' },
   { title: 'Suis-je en train de rêver ?', subtitle: 'Quelques gestes simples pour le savoir.', path: '/verification-des-reves/', icon: '◉' },
 ];
 

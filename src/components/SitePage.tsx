@@ -5,7 +5,7 @@ import { ActivityIndicator, Linking, Platform, StyleSheet, Text, View } from 're
 import { WebView as RNWebView } from 'react-native-webview';
 
 import { saveWebError } from '../lib/crash';
-import { decideNavigation, decideRequest, injectedScript, nativeRouteFor, siteUrl } from '../lib/webpage';
+import { decideNavigation, decidePageRequest, injectedScript, nativeRouteFor, siteUrl } from '../lib/webpage';
 import { colors, fonts, space } from '../lib/theme';
 import { OutlineButton } from './ui';
 import { prepareAppHtml } from '../lib/app-html';
@@ -55,21 +55,25 @@ function SitePageContent({ path }: { path: string }) {
   const browserOpen = useRef(false);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
-  const [html, setHtml] = useState<string | null>(null);
+  const [html, setHtml] = useState<{ content: string; baseUrl: string } | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
-  const initialHtmlNavigation = useRef(true);
   const url = siteUrl(path);
+
+  useEffect(() => {
+    if (!loading || Platform.OS === 'web') return;
+    const timer = setTimeout(() => { setFailed(true); setLoading(false); }, 25000);
+    return () => clearTimeout(timer);
+  }, [loading, reloadKey]);
 
   useEffect(() => {
     if (Platform.OS === 'web' || decideNavigation(url) === 'block') return;
     const controller = new AbortController();
     let active = true;
     const timeout = setTimeout(() => controller.abort(), 20000);
-    initialHtmlNavigation.current = true;
     fetch(url, { signal: controller.signal, credentials: 'omit' }).then(async (response) => {
       if (!response.ok) throw new Error('Page indisponible.');
       const content = await response.text();
-      if (active) setHtml(prepareAppHtml(content, response.url || url));
+      if (active) setHtml({ content: prepareAppHtml(content, response.url || url), baseUrl: response.url || url });
     }).catch(() => { if (active) { setFailed(true); setLoading(false); } })
       .finally(() => clearTimeout(timeout));
     return () => { active = false; clearTimeout(timeout); controller.abort(); };
@@ -100,18 +104,11 @@ function SitePageContent({ path }: { path: string }) {
   }
 
   const onShouldStart = (req: WebViewNavigation) => {
-    const d = decideRequest(req);
-    if (d === 'allow') {
-      // Toute nouvelle page du site repasse par le nettoyage, plutôt qu’un chargement brut.
-      if (/^https?:\/\/(?:www\.)?lecercle127\.com(?:\/|$)/i.test(req.url) && req.isTopFrame !== false) {
-        if (initialHtmlNavigation.current && req.navigationType === 'other' && req.url === url) {
-          initialHtmlNavigation.current = false;
-          return true;
-        }
-        router.push({ pathname: '/page', params: { path: req.url, title: '' } });
-        return false;
-      }
-      return true;
+    const d = decidePageRequest(req, html?.baseUrl ?? url);
+    if (d === 'allow') return true;
+    if (d === 'page') {
+      router.push({ pathname: '/page', params: { path: req.url, title: '' } });
+      return false;
     }
     if (d === 'native') {
       const route = nativeRouteFor(req.url);
@@ -149,19 +146,22 @@ function SitePageContent({ path }: { path: string }) {
     <View style={{ flex: 1, backgroundColor: colors.night }}>
       {html && <WebView
         ref={ref}
-        source={{ html, baseUrl: url }}
+        source={{ html: html.content, baseUrl: html.baseUrl }}
         originWhitelist={['*']}
         style={{ flex: 1, backgroundColor: colors.night }}
         injectedJavaScriptBeforeContentLoaded={injectedScript()}
         injectedJavaScript={injectedScript()}
         onShouldStartLoadWithRequest={onShouldStart}
-        onLoadEnd={() => { initialHtmlNavigation.current = false; setLoading(false); }}
+        onLoadEnd={() => setLoading(false)}
         onError={() => setFailed(true)}
-        onHttpError={(e) => e.nativeEvent.statusCode >= 500 && setFailed(true)}
+        onHttpError={(e) => e.nativeEvent.statusCode >= 400 && setFailed(true)}
         // Si le moteur web s'arrête (page trop lourde), on recharge au lieu de fermer l'app.
         onContentProcessDidTerminate={retryLoad}
         onRenderProcessGone={() => setFailed(true)}
-        onMessage={(e) => saveWebError(e.nativeEvent.data)}
+        onMessage={(e) => {
+          try { if (JSON.parse(e.nativeEvent.data)?.type === 'c127-ready') { setLoading(false); return; } } catch { /* diagnostic non JSON */ }
+          saveWebError(e.nativeEvent.data);
+        }}
         allowsBackForwardNavigationGestures
         sharedCookiesEnabled={false}
         thirdPartyCookiesEnabled={false}
@@ -175,7 +175,7 @@ function SitePageContent({ path }: { path: string }) {
         allowFileAccess
         javaScriptCanOpenWindowsAutomatically={false}
       />}
-      {loading && (
+      {loading && !html && (
         <View style={st.loader} pointerEvents="none">
           <ActivityIndicator color={colors.gold} size="large" />
         </View>

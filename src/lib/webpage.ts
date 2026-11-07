@@ -1,6 +1,7 @@
 // Règles d'affichage des pages du site dans l'application (fonctions pures, testées).
 import { isPaidOfferUrl, paidOfferFilterScript } from './paid-offers';
 import { facebookFilterScript, isFacebookUrl } from './facebook-links';
+import { cookieUiFilterScript, HIDE_COOKIE_UI_CSS } from './site-privacy';
 
 export const SITE = 'https://lecercle127.com';
 
@@ -20,7 +21,7 @@ export const HIDE_SITE_CHROME_CSS = [
   '[data-c127-paid-hidden]',
   // Encarts réellement présents sur la page « Le Cercle des 7 Sœurs ».
   '.c127-offer',
-].join(',') + '{display:none!important}body{padding-bottom:24px!important;margin-top:0!important}';
+].join(',') + '{display:none!important}body{padding-bottom:24px!important;margin-top:0!important}' + HIDE_COOKIE_UI_CSS;
 
 const GRIMOIRE_HINT_CSS =
   '.c127-app-hint{margin:0 0 16px;padding:14px 16px;border:1px solid rgba(223,194,125,.5);border-radius:14px;background:#11172b;color:#f2eadc;font:400 15px/1.45 Manrope,system-ui,sans-serif}' +
@@ -46,7 +47,7 @@ const ERROR_BRIDGE_JS =
 export function injectedScript(): string {
   const css = HIDE_SITE_CHROME_CSS + GRIMOIRE_HINT_CSS;
   // Le style est ajouté dès que la page existe (le script peut s'exécuter avant elle).
-  return `(function(){if(window.__c127)return;window.__c127=1;${ERROR_BRIDGE_JS}function st(){var r=document.head||document.documentElement;if(!r)return setTimeout(st,30);var s=document.createElement('style');s.innerHTML=${JSON.stringify(css)};r.appendChild(s);}st();${paidOfferFilterScript()}${facebookFilterScript()}${GRIMOIRE_HINT_JS}})();true;`;
+  return `(function(){if(window.__c127)return;window.__c127=1;${ERROR_BRIDGE_JS}function st(){var r=document.head||document.documentElement;if(!r)return setTimeout(st,30);var s=document.createElement('style');s.innerHTML=${JSON.stringify(css)};r.appendChild(s);}st();${cookieUiFilterScript()}${paidOfferFilterScript()}${facebookFilterScript()}${GRIMOIRE_HINT_JS}function ready(){window.ReactNativeWebView&&window.ReactNativeWebView.postMessage(JSON.stringify({type:'c127-ready'}));}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();})();true;`;
 }
 
 export type NavDecision = 'allow' | 'external' | 'block' | 'native';
@@ -60,7 +61,10 @@ const NATIVE_ROUTES: [RegExp, string][] = [
   [/^\/application(\/|$)/, '/'],
   [/^\/(parcours-reve-127|interpreter-mon-reve|raconter-un-reve)(\/|$)/, '/reve'],
   [/^\/(grimoire|mon-espace)(\/|$)/, '/grimoire'],
-  [/^\/creer-un-compte(\/|$)/, '/connexion'],
+  [/^\/(creer-un-compte|inscription)(\/|$)/, '/connexion?mode=register'],
+  [/^\/(connexion|se-connecter)(\/|$)/, '/connexion'],
+  [/^\/(verification-des-reves|mon-journal-de-verification|journal-de-verification|journal)(\/|$)/, '/journal'],
+  [/^\/(✦-le-cercle-des-soeurs-✦|le-cercle-des-7-soeurs|les-7-soeurs|soeurs)(\/|$)/, '/soeurs'],
   [/^\/oracle-127(\/|$)/, '/oracle'],
   [/^\/carnet-vocal(\/|$)/, '/carnet-vocal'],
   [/^\/confidentialite(\/|$)/, '/confidentialite'],
@@ -72,12 +76,32 @@ export function nativeRouteFor(url: string): string | undefined {
   if (m) return '/' + m[1].replace(/^\/+/, '');
   const u = url.match(/^https?:\/\/(?:www\.)?lecercle127\.com(\/[^?#]*)?/);
   if (!u) return undefined;
-  const path = u[1] ?? '/';
+  let path: string;
+  try { path = decodeURIComponent(u[1] ?? '/').normalize('NFC').toLowerCase(); }
+  catch { return undefined; }
+  if (/^\/wp-login\.php\/?$/.test(path)) return new URL(url).searchParams.get('action') === 'register' ? '/connexion?mode=register' : '/connexion';
   for (const [re, route] of NATIVE_ROUTES) if (re.test(path)) return route;
   return undefined;
 }
 
 export type NavRequest = { url: string; isTopFrame?: boolean; navigationType?: string };
+
+export function sameDocumentUrl(first: string, second: string): boolean {
+  try {
+    const a = new URL(first), b = new URL(second);
+    const path = (u: URL) => decodeURIComponent(u.pathname).normalize('NFC').replace(/\/+$/, '') || '/';
+    return a.origin === b.origin && path(a) === path(b) && a.search === b.search;
+  } catch { return false; }
+}
+
+/** L’URL canonique et ses ancres restent dans la WebView, sans nouvelle route en boucle. */
+export function decidePageRequest(req: NavRequest, currentUrl: string): NavDecision | 'page' {
+  if (isPaidOfferUrl(req.url) || isFacebookUrl(req.url)) return 'block';
+  if (sameDocumentUrl(req.url, currentUrl)) return 'allow';
+  const decision = decideRequest(req);
+  if (decision === 'allow' && req.isTopFrame !== false && /^https?:\/\/(?:www\.)?lecercle127\.com(?:\/|$)/i.test(req.url)) return 'page';
+  return decision;
+}
 
 /**
  * Où ouvrir un chargement demandé par une page du site.

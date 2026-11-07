@@ -15,7 +15,7 @@ vi.mock('../lib/voice-notes', () => ({ clearVoiceNotes: mocks.clearVoice }));
 vi.mock('../lib/reminders', () => ({ DEFAULT_REMINDER: { enabled: false, hour: 7, minute: 30 }, saveReminder: vi.fn(async () => true) }));
 vi.mock('../lib/crash', () => ({ clearLastError: vi.fn(async () => undefined), clearWebError: vi.fn(async () => undefined) }));
 vi.mock('../lib/storage', () => ({
-  KEYS: { token: 'token', user: 'user', drafts: 'drafts', cache: 'cache', oniRequested: 'requested', demoActive: 'demoActive', demoDreams: 'demoDreams' },
+  KEYS: { token: 'token', user: 'user', drafts: 'drafts', cache: 'cache', oniRequested: 'requested', demoActive: 'demoActive', demoDreams: 'demoDreams', journal: 'journal', demoJournal: 'demoJournal', pendingTranscript: 'pendingTranscript', demoPendingTranscript: 'demoPendingTranscript' },
   secure: {
     get: mocks.getSecret,
     set: async (key: string, value: string) => { mocks.data.set(key, value); },
@@ -54,6 +54,15 @@ beforeEach(() => {
 afterEach(async () => { if (root) await act(async () => root.unmount()); });
 
 describe('Grimoire, démonstration et effacement', () => {
+  it('efface le journal et les transcriptions locales sans toucher aux données du serveur', async () => {
+    mocks.data.set('journal', [{ id: 'private-check' }]);
+    mocks.data.set('pendingTranscript', 'Ma voix');
+    await mount();
+    await act(async () => session.clearLocalData());
+    expect(mocks.data.has('journal')).toBe(false);
+    expect(mocks.data.has('pendingTranscript')).toBe(false);
+    expect(mocks.api.deleteAccount).not.toHaveBeenCalled();
+  });
   it('termine le démarrage même si le trousseau est indisponible', async () => {
     mocks.getSecret.mockRejectedValue(new Error('Locked'));
     await mount();

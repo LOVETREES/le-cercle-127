@@ -7,7 +7,12 @@ export default function Confidentialite() {
       <Title>Vos données et vos choix</Title>
       <Card>
         <Title size={24}>Sur cet appareil</Title>
-        <Body>Sans compte, les récits écrits restent dans le Grimoire local. Les enregistrements vocaux restent uniquement sur cet appareil, même avec un compte. Vous pouvez supprimer un rêve ou un audio depuis son écran.</Body>
+        <Body>Sans compte, les récits écrits restent dans le Grimoire local. Le journal de vérification et les fichiers audio sont gardés sur cet appareil, sans synchronisation. Vous pouvez supprimer une note, un rêve ou un audio depuis son écran.</Body>
+      </Card>
+      <Card>
+        <Title size={24}>Transformer la voix en texte</Title>
+        <Body>La dictée et la transcription des audios sur iPhone utilisent le service vocal du système. La reconnaissance sur l’appareil est privilégiée lorsqu’elle est disponible. Sinon, votre accord est demandé avant de recourir au service du téléphone ou du navigateur, qui peut traiter l’audio chez Apple, Google ou son fournisseur. Le micro et la reconnaissance vocale nécessitent vos autorisations. Aucun audio n’est envoyé à Make ou OpenAI par ces fonctions.</Body>
+        <Body>Le texte reconnu peut être corrigé puis gardé dans le Grimoire. Seul ce texte est synchronisé si vous êtes connecté·e.</Body>
       </Card>
       <Card>
         <Title size={24}>Avec un compte</Title>
@@ -20,7 +25,7 @@ export default function Confidentialite() {
       </Card>
       <Card>
         <Title size={24}>Micro, notifications et pages du site</Title>
-        <Body>Le micro est demandé au démarrage d’un enregistrement. Les rappels sont facultatifs et programmés localement. Les pages provenant du site peuvent charger leurs propres ressources et outils de mesure : consultez les choix de cookies et la politique complète avant de les utiliser.</Body>
+        <Body>Le micro est demandé au démarrage d’un enregistrement. Les rappels sont facultatifs et programmés localement. Les pages intégrées retirent le bandeau cookies et les scripts de suivi connus : les mesures facultatives ne sont pas acceptées automatiquement. Les ressources du site nécessitent Internet. La politique complète reste accessible ci-dessous.</Body>
       </Card>
       <OutlineButton label="Ouvrir la politique complète" onPress={() => router.push({ pathname: '/page', params: { path: '/confidentialite-le-cercle-127/', title: 'Politique complète', fullPrivacy: '1' } })} />
       <OutlineButton label="Gérer mes données" onPress={() => router.push('/compte')} />

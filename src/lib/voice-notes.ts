@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 
 import { KEYS, local } from './storage';
 
-export type VoiceNote = { id: string; createdAt: string; durationMillis: number; uri: string };
+export type VoiceNote = { id: string; createdAt: string; durationMillis: number; uri: string; transcript?: string };
 type StoredNote = Omit<VoiceNote, 'uri'> & { filename?: string; blob?: Blob };
 const DB_NAME = 'c127-voice-notes';
 const generations = { personal: 0, demo: 0 };
@@ -37,7 +37,7 @@ export async function listVoiceNotes(demo = false): Promise<VoiceNote[]> {
   return notes.map((note) => ({ ...note, uri: new File(Paths.document, demo ? 'c127-voice-demo' : 'c127-voice', note.filename!).uri })).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-export async function saveVoiceNote(uri: string, durationMillis: number, demo = false): Promise<void> {
+export async function saveVoiceNote(uri: string, durationMillis: number, demo = false): Promise<string> {
   const scope = demo ? 'demo' : 'personal';
   const generation = generations[scope];
   const assertCurrent = () => {
@@ -51,7 +51,7 @@ export async function saveVoiceNote(uri: string, durationMillis: number, demo = 
     const blob = await response.blob();
     if (blob.size === 0) throw new Error('L’enregistrement est vide. Réessayez.');
     await withVoiceStore('readwrite', (store) => { assertCurrent(); return store.put({ ...note, blob }); }, demo);
-    return;
+    return id;
   }
   const directory = new Directory(Paths.document, demo ? 'c127-voice-demo' : 'c127-voice');
   directory.create({ intermediates: true, idempotent: true });
@@ -69,6 +69,26 @@ export async function saveVoiceNote(uri: string, durationMillis: number, demo = 
       else await destination.delete();
     }
     throw error;
+  }
+  return id;
+}
+
+export async function updateVoiceTranscript(id: string, transcript: string, demo = false): Promise<void> {
+  const generation = generations[demo ? 'demo' : 'personal'];
+  if (Platform.OS === 'web') {
+    await withVoiceStore('readwrite', (store) => {
+      const request = store.get(id);
+      request.onsuccess = () => {
+        if (request.result && generation === generations[demo ? 'demo' : 'personal']) store.put({ ...request.result, transcript: transcript.slice(0, 20000) });
+      };
+      return request;
+    }, demo);
+  } else {
+    const key = demo ? KEYS.demoVoiceNotes : KEYS.voiceNotes;
+    const notes = await local.getJson<StoredNote[]>(key, []);
+    if (generation !== generations[demo ? 'demo' : 'personal']) return;
+    if (!notes.some((note) => note.id === id)) return;
+    await local.setJson(key, notes.map((note) => note.id === id ? { ...note, transcript: transcript.slice(0, 20000) } : note));
   }
 }
 

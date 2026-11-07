@@ -2,7 +2,7 @@
 
 > L’application est sur la branche [`claude/upbeat-lamport-ymb7e2`](https://github.com/LOVETREES/le-cercle-127/tree/claude/upbeat-lamport-ymb7e2) du dépôt `LOVETREES/le-cercle-127`. La branche `main` contient un registre Solana : utiliser la branche mobile pour développer et construire cette application.
 
-Version préparée : **1.0.1**. Application iPhone et Android de **lecercle127.com**, construite avec Expo (SDK 58, Expo Router).
+Version préparée : **1.0.2**. Application iPhone et Android de **lecercle127.com**, construite avec Expo (SDK 58, Expo Router).
 Elle reprend la version mobile actuelle du site : même en-tête « Onirologue », même barre du bas
 (Accueil · Oracle · Rêve · Grimoire · Symboles), mêmes couleurs, mêmes visuels et mêmes textes.
 
@@ -14,9 +14,9 @@ Elle reprend la version mobile actuelle du site : même en-tête « Onirologue �
 | **Rêve** | Formulaire natif. Le rêve est gardé **sur le téléphone, même sans compte ni réseau**, puis envoyé au Grimoire dès la connexion. |
 | **Grimoire** | Connexion, création de compte, liste des rêves, « Ce qui revient », synchronisation par glisser vers le bas. |
 | **Symboles** | Recherche native dans les 3 900 symboles du site (API WordPress). |
-| **Carnet vocal** | Enregistrement audio local, écoute et suppression. Aucun audio envoyé à l’IA ; aucune transcription automatique. |
+| **Carnet vocal** | Enregistrement audio local, dictée en texte et transcription des fichiers sur iPhone. Aucun audio transmis à Make ou OpenAI par ces fonctions. |
 | **Démonstration** | Rêves fictifs et lecture d’exemple, données séparées du carnet personnel. |
-| **Oracle**, pages des Sœurs, Labyrinthe, Rêve lucide… | Ressources du site dans l’application, sans sa navigation ni ses offres payantes. Les choix de cookies restent accessibles ; les scripts de suivi connus sont retirés avant le rendu mobile. |
+| **Oracle**, pages des Sœurs, Labyrinthe, Rêve lucide… | Ressources du site dans l’application, sans sa navigation ni ses offres payantes. Le bandeau cookies et ses scripts sont retirés avec les scripts de suivi connus avant le rendu mobile ; aucun consentement aux mesures facultatives n’est accordé automatiquement. |
 | **Mon compte** | Rappel du matin sur mobile, déconnexion, suppression du compte, effacement local et accès à la confidentialité. |
 
 Oni n'est proposée que si le site l'active (`oni_enabled` dans `/wp-json/cercle127/v1/privacy`), avec un
@@ -114,3 +114,7 @@ npx eas-cli@latest submit --platform ios --id ID_DU_BUILD_EAS
 ## État des vérifications 1.0.1
 
 TypeScript, lint et 93 tests locaux passent ; les bundles iOS, Android et web sont exportés. Le carnet vocal est testé dans Chromium avec un micro simulé, y compris après rechargement et avec autorisation refusée. Voir le rapport pour les limites. Aucun test authentifié sur le serveur, binaire signé, envoi Apple ou installation sur le Mac n’est confirmé par ces résultats.
+
+## Correctif 1.0.2 après les retours du build 10
+
+Les Sept Sœurs ont un écran natif. Le journal de vérification fonctionne localement sans inscription et propose les accès natifs au compte ; son contenu reste distinct du journal WordPress. Les pages intégrées utilisent leur URL canonique, sans boucle de navigation, et quittent le chargement au signal du document ou sur une erreur limitée dans le temps. Le bandeau cookies et son contrôleur sont retirés des WebViews mobiles. La dictée française alimente le récit, et les fichiers audio peuvent être transcrits sur iPhone. Cette version nécessite un nouveau binaire natif ; Expo Go ne contient pas le module de reconnaissance vocale.

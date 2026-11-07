@@ -48,4 +48,8 @@ export const KEYS = {
   demoDreams: 'c127.demo-dreams',
   voiceNotes: 'c127.voice-notes',
   demoVoiceNotes: 'c127.demo-voice-notes',
+  journal: 'c127.reality-journal',
+  demoJournal: 'c127.demo-reality-journal',
+  pendingTranscript: 'c127.pending-transcript',
+  demoPendingTranscript: 'c127.demo-pending-transcript',
 } as const;

@@ -1,4 +1,4 @@
-# Soumission App Store — version 1.0.1
+# Soumission App Store — version 1.0.2
 
 Ce dossier prépare une soumission. Il ne confirme ni un nouveau build installé sur iPhone ni une validation Apple.
 
@@ -13,38 +13,36 @@ Ce dossier prépare une soumission. Il ne confirme ni un nouveau build installé
 - Politique publique : https://lecercle127.com/confidentialite-le-cercle-127/
 - Contact : contact@lecercle127.com
 
-La description ci-dessous correspond aux fonctions du code 1.0.1. Les nouvelles demandes d’IA sont fermées tant que le serveur renvoie `oni_enabled: false` ; elles ne doivent pas être présentées comme disponibles.
+La description ci-dessous correspond aux fonctions du code 1.0.2. Les nouvelles demandes d’IA sont fermées tant que le serveur renvoie `oni_enabled: false` ; elles ne doivent pas être présentées comme disponibles.
 
 ## Description
 
-Le Cercle 127 est un journal de rêves privé : gardez un récit, retrouvez les symboles qui reviennent et explorez vos nuits à votre rythme.
+Le Cercle 127 est un journal de rêves privé pour écrire vos récits, retrouver vos symboles et explorer vos nuits à votre rythme.
 
-VOTRE GRIMOIRE, MÊME HORS CONNEXION
-Écrivez un rêve sans créer de compte. Le brouillon reste sur votre appareil ; avec un compte, le Grimoire écrit peut être synchronisé avec lecercle127.com.
+VOTRE GRIMOIRE
+Écrivez sans compte, même hors connexion. Avec un compte, synchronisez vos rêves écrits avec lecercle127.com. La lecture par Oni dépend de l’activation du service et demande un accord explicite pour chaque rêve.
 
-UN CARNET VOCAL LOCAL
-Enregistrez votre voix, réécoutez-la et supprimez vos audios depuis l’application. Les fichiers restent sur cet appareil et ne sont pas envoyés à une IA ni synchronisés avec votre compte. Le carnet enregistre du son ; il ne réalise pas de transcription automatique.
+VOTRE VOIX EN TEXTE
+Dictez votre récit en français, relisez le texte puis gardez-le dans votre Grimoire. Sur iPhone, vous pouvez aussi transcrire les audios de votre carnet vocal. La reconnaissance sur l’appareil est privilégiée lorsqu’elle est disponible ; sinon, un accord est demandé avant le recours au service vocal du système ou du navigateur. Les fichiers audio restent stockés sur votre appareil.
 
-SYMBOLES ET REPÈRES
-Cherchez un symbole dans le dictionnaire du site et relisez vos propres récits. Le Grimoire permet de rechercher des mots et d’observer les émotions et symboles que vous avez notés. Des pistes de réflexion, sans diagnostic ni prédiction.
+UN JOURNAL DE VÉRIFICATION
+Notez un contexte et une observation sans inscription. Ce journal local est distinct du journal du site ; les anciennes entrées restent accessibles sur le site avec sa propre connexion.
 
-ESSAYEZ SANS IDENTIFIANTS
-La démonstration locale contient des rêves fictifs et une lecture d’exemple. Ses données sont séparées de votre carnet personnel et peuvent être effacées. Elle ne crée aucun compte serveur et ne simule pas une nouvelle lecture par l’IA.
+LES SEPT SŒURS ET LES SYMBOLES
+Découvrez les sept Sœurs depuis leur écran dans l’app et recherchez les symboles du dictionnaire du site. Certaines ressources nécessitent Internet.
 
-VOS CHOIX ET VOS DONNÉES
-Le micro et le rappel du matin sont facultatifs. La confidentialité est accessible dans l’app. Vous pouvez supprimer vos enregistrements, effacer les données de cet appareil et demander la suppression de votre compte depuis les réglages.
-
-Certaines ressources sont affichées depuis lecercle127.com et nécessitent Internet. Cette version ne propose aucun achat. Les nouvelles demandes de lecture par Oni dépendent de l’activation du service ; elles ne sont jamais envoyées sans un accord explicite pour chaque rêve.
+VOS DONNÉES ET VOS CHOIX
+Micro et reconnaissance vocale sont facultatifs. Vous pouvez supprimer les notes, les audios et le compte depuis l’app. Une démonstration locale contient des exemples fictifs séparés de vos données. Aucun achat dans cette version.
 
 Le Cercle 127 accompagne la réflexion personnelle et ne remplace pas un professionnel de santé.
 
 ## Texte promotionnel
 
-Gardez vos rêves, enregistrez votre voix localement et explorez les symboles. Essayez le Grimoire avec des exemples de démonstration.
+Écrivez ou dictez vos rêves, relisez vos transcriptions et gardez vos observations dans un journal local accessible sans inscription.
 
 ## Nouveautés
 
-Carnet vocal local avec écoute et suppression, démonstration isolée, confidentialité détaillée, consentement explicite, suppression du compte renforcée et retrait des offres payantes et liens Facebook dans l’app mobile.
+Correction des pages intégrées et du chargement des Sept Sœurs, journal local avec accès à l’inscription, retrait du bandeau cookies dans l’app mobile, dictée en texte et transcription des audios sur iPhone.
 
 ## Accès pour App Review
 
@@ -55,19 +53,13 @@ Le compte de test serveur documenté auparavant est `revue.apple@lecercle127.com
 ### Notes pour le relecteur
 
 ```text
-Le Cercle 127 is a French private dream journal.
+Version 1.0.2 adds a native Seven Sisters directory and a local reality-check journal, usable without account creation. Its notes are separate from the website journal. Native registration is accessible from the journal.
 
-The local demonstration is available from Menu > Se connecter > Explorer la démonstration locale. It contains fictional dreams and a sample reading, keeps personal drafts separate, and sends no dream to an AI service. It does not test real backend authentication. The real demo account credentials must be supplied separately in App Store Connect for reviewing account-based features.
+Voice dictation writes recognized French text directly into the dream form. On iPhone, saved recordings can also be transcribed. On-device recognition is preferred when available; if a network-based system speech service is needed, the app asks for explicit consent first. The speech framework requests microphone and speech permissions. Audio is not sent to Make or OpenAI by this feature.
 
-The native Voice notebook requests microphone permission only when recording starts. Audio can be recorded, played, deleted, and retained locally. It is not automatically transcribed or uploaded.
+Embedded mobile resource pages remove known tracking scripts, the website cookie banner, purchase offers and Facebook controls. These changes do not modify the public website.
 
-Account deletion is in Menu > Mon compte > Supprimer mon compte. Local-only data can also be erased without an account. During local demonstration, the equivalent action deletes only demo data.
-
-The server currently reports oni_enabled=false. New AI requests are therefore unavailable. Existing readings remain readable; the demonstration reading is explicitly fictional. When enabled, each new request requires explicit consent disclosing Make and OpenAI.
-
-Some resource pages come from lecercle127.com. Known analytics scripts are removed before mobile rendering; payment offers and Facebook controls are filtered and those destinations are blocked. The app provides no purchase flow.
-
-The app offers reflection tools, not medical advice, diagnosis or predictions. Contact: contact@lecercle127.com
+The local demonstration remains accessible from Menu > Se connecter > Explorer la démonstration locale. AI reading requests stay unavailable while the backend reports oni_enabled=false. Account deletion is in Menu > Mon compte.
 ```
 
 ## Confidentialité à déclarer
@@ -78,7 +70,7 @@ The app offers reflection tools, not medical advice, diagnosis or predictions. C
 |---|---|---|
 | E-mail et identifiant | Création de compte et synchronisation | Collectés pour la fonctionnalité du compte, liés à son identité |
 | Récits et contexte | Grimoire écrit ; IA uniquement avec accord lorsque le service est activé | Contenu utilisateur lié au compte, destinataires clairement indiqués |
-| Audio du carnet | Enregistrement et écoute sur l’appareil | Pas collecté par le serveur dans cette version ; expliquer l’autorisation du micro |
+| Audio du carnet | Enregistrement, écoute, dictée et transcription optionnelle | Stockage local ; transcription distante uniquement avec accord si nécessaire. Déclarer les destinataires effectifs du service vocal |
 | Images éventuelles dans les pages du site | Fonctions externes du site, distinctes du carnet | Contrôler leurs destinataires et leur consentement avant de déclarer leur absence |
 | Mesures d’usage, journaux et ressources du site | Le chargement mobile retire les scripts de suivi connus | Vérifier la configuration effective du serveur et des prestataires ; ne pas choisir « aucune collecte » par défaut |
 
@@ -90,15 +82,15 @@ Compléter le questionnaire actuellement proposé dans App Store Connect selon l
 
 ## Captures
 
-Les anciennes captures restent archivées dans `store/ios-6.9`. Les captures de validation web 1.0.1 sont séparées et ne doivent pas être présentées comme des captures d’iPhone. Les captures destinées à la boutique doivent montrer le build final réellement utilisé sur iPhone, avec le même logo, les bons onglets et sans achat ni bouton Facebook.
+Les anciennes captures restent archivées dans `store/ios-6.9`. Les captures de validation web 1.0.2 sont séparées et ne doivent pas être présentées comme des captures d’iPhone. Les captures destinées à la boutique doivent montrer le build final réellement utilisé sur iPhone, avec le même logo, les bons onglets et sans achat ni bouton Facebook.
 
 ## Validation avant envoi
 
 1. Installer le nouveau build sur un iPhone et relever son numéro dans Réglages de l’app.
-2. Tester le micro autorisé puis refusé, l’écoute, la suppression et la persistance de l’audio après relancement.
+2. Tester le micro et la reconnaissance vocale autorisés puis refusés, la dictée dans le récit, la transcription d’un audio iPhone, l’écoute et la suppression.
 3. Tester hors connexion le récit écrit et la recherche locale du Grimoire.
 4. Tester la connexion et la synchronisation avec un compte jetable ; demander sa suppression et confirmer le résultat sur le serveur.
-5. Parcourir les sept Sœurs, les ressources et la confidentialité : aucune offre d’achat ni ouverture de Facebook dans l’app mobile.
+5. Ouvrir l’annuaire des Sept Sœurs et le journal local, enregistrer puis supprimer une observation, accéder à l’inscription ; vérifier les ressources sans bandeau cookies, offre d’achat ni ouverture Facebook dans l’app mobile.
 6. Vérifier les captures, les URL d’assistance/confidentialité, les coordonnées de relecture et le compte destiné à Apple.
 
 ## Construire et transmettre
@@ -111,7 +103,7 @@ npm test
 npx eas-cli@latest build --platform ios --profile production --clear-cache
 ```
 
-Relever l’identifiant EAS du build 1.0.1 obtenu. Pour transmettre ce build précis :
+Relever l’identifiant EAS du build 1.0.2 obtenu. Pour transmettre ce build précis :
 
 ```sh
 npx eas-cli@latest submit --platform ios --id ID_DU_BUILD_EAS

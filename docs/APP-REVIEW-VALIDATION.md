@@ -1,5 +1,7 @@
 # Validation locale — version 1.0.1
 
+Rapport historique de préparation, avant l’envoi du build 10. Pour les correctifs suivants, voir [CORRECTIF-1.0.2.md](CORRECTIF-1.0.2.md).
+
 Date : 7 novembre 2026. Source : archive Expo fournie, corrigée dans cet environnement cloud. Le choix de l’utilisateur est de garder les tests locaux ; aucune suppression de compte réel n’a été tentée.
 
 ## Résultats

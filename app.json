@@ -3,7 +3,7 @@
     "name": "Le Cercle 127",
     "slug": "le-cercle-127",
     "scheme": "cercle127",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/brand/icon.png",
     "userInterfaceStyle": "dark",
@@ -21,9 +21,10 @@
         "CFBundleLocalizations": [
           "fr"
         ],
-        "NSMicrophoneUsageDescription": "Le Cercle 127 utilise le micro pour enregistrer votre rêve à voix haute dans le carnet vocal.",
+        "NSMicrophoneUsageDescription": "Autoriser Le Cercle 127 à enregistrer ou dicter vos rêves avec le micro.",
         "NSCameraUsageDescription": "Le Cercle 127 utilise l'appareil photo pour photographier votre main dans l'atelier de Terra.",
-        "NSPhotoLibraryUsageDescription": "Le Cercle 127 vous permet de choisir une photo de votre main dans l'atelier de Terra."
+        "NSPhotoLibraryUsageDescription": "Le Cercle 127 vous permet de choisir une photo de votre main dans l'atelier de Terra.",
+        "NSSpeechRecognitionUsageDescription": "Autoriser la transcription de votre voix en texte pour votre Grimoire."
       },
       "privacyManifests": {
         "NSPrivacyTracking": false,
@@ -81,6 +82,14 @@
             "NSPrivacyCollectedDataTypePurposes": [
               "NSPrivacyCollectedDataTypePurposeAppFunctionality"
             ]
+          },
+          {
+            "NSPrivacyCollectedDataType": "NSPrivacyCollectedDataTypeAudioData",
+            "NSPrivacyCollectedDataTypeLinked": false,
+            "NSPrivacyCollectedDataTypeTracking": false,
+            "NSPrivacyCollectedDataTypePurposes": [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality"
+            ]
           }
         ]
       }
@@ -128,10 +137,17 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "Autoriser Le Cercle 127 à enregistrer votre voix dans votre carnet local. Aucun audio n’est envoyé à l’IA.",
+          "microphonePermission": "Autoriser Le Cercle 127 à enregistrer ou dicter vos rêves avec le micro.",
           "recordAudioAndroid": true,
           "enableBackgroundRecording": false,
           "enableBackgroundPlayback": false
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Autoriser Le Cercle 127 à enregistrer ou dicter vos rêves avec le micro.",
+          "speechRecognitionPermission": "Autoriser la transcription de votre voix en texte. Si un service en ligne est nécessaire, votre accord sera demandé."
         }
       ]
     ],

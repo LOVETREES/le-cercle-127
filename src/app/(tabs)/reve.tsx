@@ -1,12 +1,15 @@
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Body, Card, Eyebrow, Field, GoldButton, Notice, OutlineButton, Screen, Title } from '../../components/ui';
 import { EMOTIONS, validateDream, type Emotion } from '../../lib/model';
 import { useSession } from '../../lib/session';
 import { colors, fonts, radius, space } from '../../lib/theme';
+import { useDictation } from '../../lib/use-dictation';
+import { appendTranscript } from '../../lib/dictation';
+import { KEYS, local } from '../../lib/storage';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -20,6 +23,20 @@ export default function Reve() {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
+  const dictationBase = useRef('');
+  const speech = useDictation({ onTranscript: useCallback((text: string) => {
+    setStory(appendTranscript(dictationBase.current, text).slice(0, 20000)); setSaved(false);
+  }, []) });
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    const key = isDemo ? KEYS.demoPendingTranscript : KEYS.pendingTranscript;
+    local.getJson<string>(key, '').then(async (text) => {
+      if (!active || !text) return;
+      setStory((previous) => appendTranscript(previous, text).slice(0, 20000));
+      setSaved(false); await local.remove([key]);
+    });
+    return () => { active = false; };
+  }, [isDemo]));
 
   const submit = async () => {
     const input = { title, story, dreamDate, emotion, intensity };
@@ -85,6 +102,7 @@ export default function Reve() {
           />
           <Field
             label="Que s’est-il passé ?"
+            editable={!speech.active}
             required
             placeholder="Je me souviens que…"
             value={story}
@@ -95,9 +113,15 @@ export default function Reve() {
             multiline
             maxLength={20000}
           />
+          <OutlineButton label={speech.active ? 'Arrêter la dictée' : 'Dicter mon rêve en texte'} disabled={speech.phase === 'starting' || speech.phase === 'stopping'} onPress={() => {
+            if (speech.active) speech.stop();
+            else { dictationBase.current = story; void speech.start(); }
+          }} />
+          {speech.active && <Notice text="Dictée en cours : le texte reconnu apparaît dans votre récit." />}
+          {speech.error && <Notice tone="error" text={speech.error} />}
           <Body muted style={{ fontSize: 13 }}>
             Racontez sans chercher à comprendre. Qui était là ? Où étiez-vous ? Que voyiez-vous, entendiez-vous ou
-            ressentiez-vous ? Vous pouvez écrire dans le désordre. Pour dicter, touchez le micro 🎙 du clavier.
+            ressentiez-vous ? Vous pouvez écrire dans le désordre, utiliser la dictée ci-dessus ou celle du clavier.
           </Body>
 
           <View style={{ gap: space.sm }}>
@@ -144,7 +168,7 @@ export default function Reve() {
           </View>
 
           {error && <Notice tone="error" text={error} />}
-          <GoldButton label="Garder dans mon Grimoire" onPress={submit} loading={busy} />
+          <GoldButton label="Garder dans mon Grimoire" onPress={submit} loading={busy} disabled={speech.active} />
           <Body muted style={{ fontSize: 13 }}>
             Votre récit reste sur cet appareil tant que vous n’êtes pas connecté·e. Il n’est jamais envoyé à Oni sans
             votre accord.
