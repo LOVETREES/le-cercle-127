@@ -1,8 +1,8 @@
-# Développement Expo avec Docker
+# Développement Expo 1.0.2 avec Docker
 
-Le service par défaut lance Metro pour développer l’application corrigée. Node 24 et les dépendances JavaScript sont dans le conteneur ; les fichiers du projet sont montés depuis le Mac. L’image ne génère pas à elle seule le binaire iOS signé pour TestFlight.
+Le service par défaut lance Metro pour développer l’application corrigée sur Mac, Windows ou Linux. Node 24, le code de l’application et les dépendances JavaScript sont dans l’image. Compose monte les fichiers du projet pour le rechargement automatique. L’image ne génère pas à elle seule le binaire iOS signé pour TestFlight.
 
-## Démarrer sur Mac
+## Démarrer avec Docker Desktop
 
 Pour récupérer la source depuis GitHub dans un nouveau dossier :
 
@@ -14,7 +14,7 @@ cd le-cercle-127-mobile
 Démarrer Docker Desktop. Dans Terminal, se placer dans le dossier contenant `package.json`, `Dockerfile` et `compose.yaml`, puis lancer :
 
 ```sh
-docker compose up --build -d expo
+docker compose up --build -d --wait expo
 docker compose logs -f expo
 ```
 
@@ -43,7 +43,20 @@ docker compose exec expo npx expo install NOM_DU_PAQUET
 docker compose down
 ```
 
-Les dépendances Linux sont isolées dans le volume `expo_node_modules`. Après une modification du fichier de verrouillage hors du conteneur, les synchroniser avec `docker compose run --rm expo npm ci`, puis relancer le service. `docker compose down` garde les caches.
+Les dépendances Linux sont isolées dans le volume `expo_node_modules`. À chaque démarrage, le conteneur compare les fichiers `package.json` et `package-lock.json` aux dépendances installées. Il exécute `npm ci` uniquement si elles doivent être synchronisées. Après une modification de ces fichiers pendant que Metro tourne, lancer `docker compose restart expo`. `docker compose down` garde les caches et la session Expo.
+
+Après avoir récupéré une mise à jour du code avec Git, relancer `docker compose up --build -d --wait expo`. Le volume des dépendances est vérifié automatiquement ; il n’est pas nécessaire d’effacer les volumes.
+
+### Image autonome
+
+L’image contient aussi le code et peut démarrer sans monter le dossier du projet :
+
+```sh
+docker build --target development -t le-cercle-127:expo-dev .
+docker run --rm --init -p 127.0.0.1:8082:8081 -e REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1 le-cercle-127:expo-dev
+```
+
+Dans ce cas, ouvrir http://localhost:8082. Ce mode utilise le code embarqué au moment de la construction ; pour modifier le code avec Fast Refresh, utiliser Compose.
 
 Pour une construction EAS, utiliser les commandes de `CORRECTIONS-BUILD-SUIVANT.md` depuis le Mac, ou les exécuter dans le conteneur. Par exemple :
 
@@ -70,8 +83,12 @@ Le mode hors ligne est réservé à cette vérification sans services Expo dista
 
 ## Vérifications réalisées
 
-L’image de développement a été construite et le service Compose a réussi son contrôle de santé. TypeScript, lint et 113 tests passent. Les exports iOS, Android et web réussissent. Chromium vérifie le carnet vocal local avec un périphérique simulé : sauvegarde, persistance après rechargement, écoute, suppression, refus du micro. La démonstration est séparée des brouillons personnels. Les cinq onglets ont été exercés dans le navigateur.
+La version 1.0.2 passe TypeScript, le lint et 117 tests. Les exports iOS, Android et web réussissent. Chromium vérifie le carnet vocal local avec un périphérique simulé : sauvegarde, persistance après rechargement, écoute, suppression, refus du micro. La démonstration est séparée des brouillons personnels. Les cinq onglets ont été exercés dans le navigateur.
+
+La construction de l’image Docker, son démarrage sans montage de source et le contrôle de santé Compose ont été vérifiés. Chromium affiche les sept profils depuis l’image autonome. Le service de développement passe aussi les parcours du journal, de l’inscription avec API simulée et de la dictée avec résultats vocaux simulés. Le démarrage synchronise un ancien volume de dépendances ; le lancement suivant conserve les dépendances déjà à jour.
 
 Les essais réels sur le Mac et sur iPhone restent à effectuer. La connexion et la suppression d’un compte réel n’ont pas été testées, conformément au choix de garder les tests locaux. Le rapport détaillé est dans [docs/APP-REVIEW-VALIDATION.md](docs/APP-REVIEW-VALIDATION.md).
 
 La dictée et la transcription iPhone nécessitent le nouveau module natif expo-speech-recognition 58. Expo Go peut afficher les écrans mais ne fournit pas ce module ; utiliser le nouveau build TestFlight ou un build de développement. Le navigateur utilise son API vocale lorsqu’elle est disponible.
+
+Sur Android 13 ou plus, le carnet peut conserver audio et texte ensemble avec un service vocal compatible. L’APK signé 1.0.2, code 3, a été construit et son module vocal a été vérifié ; son fonctionnement vocal réel sur téléphone reste à tester. Docker fournit le serveur de développement, et ne transforme pas l’aperçu navigateur en application Android native.

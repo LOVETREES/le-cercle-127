@@ -11,6 +11,11 @@ android
 store
 site-wordpress
 *.zip
+*.apk
+*.aab
+*.ipa
+*.tar
+*.tar.gz
 *.log
 .env*
 *.pem

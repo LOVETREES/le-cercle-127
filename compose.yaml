@@ -1,6 +1,7 @@
 services:
   expo:
     image: le-cercle-127:expo-dev
+    init: true
     build:
       context: .
       target: development
