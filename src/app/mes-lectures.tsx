@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -20,7 +20,8 @@ function longDate(iso: string) {
 export default function MesLectures() {
   const { dreams, token } = useSession();
   const [synced, setSynced] = useState<'ok' | 'local' | 'error'>('local');
-  const [tab, setTab] = useState<'reves' | 'main'>('reves');
+  const params = useLocalSearchParams<{ tab?: string }>();
+  const [tab, setTab] = useState<'reves' | 'main'>(params.tab === 'main' ? 'main' : 'reves');
   const [palms, setPalms] = useState<PalmReading[]>([]);
   const [open, setOpen] = useState<string | null>(null);
   const read = useMemo(() => dreams.filter((d) => d.oniReading).sort((a, b) => b.dreamDate.localeCompare(a.dreamDate)), [dreams]);

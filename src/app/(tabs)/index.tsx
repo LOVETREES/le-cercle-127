@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { NaiaCard, TerraCard } from '../../components/HomeSisters';
 import { GoldButton, Screen, SiteFooter } from '../../components/ui';
 import { IMAGES, SISTERS } from '../../lib/content';
 import { addPresence, dailyThought, journey } from '../../lib/insights';
@@ -124,6 +125,10 @@ export default function Home() {
 
       {/* Action principale */}
       <GoldButton label={t('Raconter un rêve  ›')} onPress={() => router.navigate('/reve')} />
+
+      {/* Naïa : l'émotion du moment ; Terra : la main du jour */}
+      <NaiaCard />
+      <TerraCard />
 
       {/* Dernier rêve */}
       {last && (

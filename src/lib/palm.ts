@@ -65,6 +65,11 @@ export function setPalmOwner(next: string) {
   owner = next;
 }
 
+/** Propriétaire actuel (démo, non connecté·e ou compte), pour ranger d'autres données personnelles. */
+export function currentOwner(): string {
+  return owner;
+}
+
 const keyFor = (o: string) => `${KEYS.palmReadings}:${o}`;
 
 /** Les lectures d'avant la 1.0.3 (clé commune) reviennent à la première personne réelle qui ouvre l'app. */
