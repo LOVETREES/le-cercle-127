@@ -166,17 +166,58 @@ export const api = {
   },
 
   async searchSymbols(query: string): Promise<Symbol127[]> {
+    const term = query.trim();
     // Chaîne de requête construite à la main (plus fiable sur iOS et Android).
-    const qs = `search=${encodeURIComponent(query.trim())}&per_page=30&_fields=id,title,excerpt,link`;
-    const body = await request(`${BASE}/wp/v2/symbole_onirique?${qs}`);
-    if (!Array.isArray(body)) return [];
-    return body.map((s: { id: number; title?: { rendered?: string }; excerpt?: { rendered?: string }; link: string }) => ({
-      id: String(s.id),
-      title: plainText(s.title?.rendered),
-      excerpt: plainText(s.excerpt?.rendered),
-      link: s.link,
-    }));
+    const url = (extra: string, n: number) =>
+      `${BASE}/wp/v2/symbole_onirique?search=${encodeURIComponent(term)}${extra}&per_page=${n}&_fields=id,title,excerpt,link`;
+    // D'abord les titres (« dent » → « Perdre une dent »), puis le texte des fiches en complément.
+    // La fiche principale (« L’eau », « La maison ») est cherchée directement par son adresse.
+    const base = fold(term).trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const forms = base ? [base, base.replace(/s$/, ''), `${base.replace(/s$/, '')}s`] : [];
+    const slugs = [...new Set(forms.flatMap((f) => [f, `le-${f}`, `la-${f}`, `les-${f}`, `l-${f}`]))].join(',');
+    const [main, inTitles, inText] = await Promise.all([
+      slugs
+        ? request(`${BASE}/wp/v2/symbole_onirique?slug=${encodeURIComponent(slugs)}&per_page=20&_fields=id,title,excerpt,link`).catch(() => [])
+        : Promise.resolve([]),
+      request(url('&search_columns=post_title', 100)),
+      request(url('', 20)).catch(() => []),
+    ]);
+    const seen = new Set<string>();
+    const list: (Symbol127 & { inTitle: boolean })[] = [];
+    for (const [body, inTitle] of [[main, true], [inTitles, true], [inText, false]] as const) {
+      if (!Array.isArray(body)) continue;
+      for (const s of body as { id: number; title?: { rendered?: string }; excerpt?: { rendered?: string }; link: string }[]) {
+        const id = String(s.id);
+        if (seen.has(id)) continue;
+        seen.add(id);
+        list.push({ id, title: plainText(s.title?.rendered), excerpt: plainText(s.excerpt?.rendered), link: s.link, inTitle });
+      }
+    }
+    return rankSymbols(term, list).slice(0, 30);
   },
 };
 
 export type Symbol127 = { id: string; title: string; excerpt: string; link: string };
+
+const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’']/g, ' ');
+const ARTICLES = new Set(['le', 'la', 'les', 'l', 'un', 'une', 'des', 'du', 'de', 'd']);
+
+/** Classe les symboles : titre exact, puis mot entier (singulier/pluriel), puis début de mot, puis le reste. */
+export function rankSymbols<T extends { title: string; inTitle?: boolean }>(query: string, list: T[]): T[] {
+  const q = fold(query).trim();
+  const qWords = q.split(/[^a-z0-9]+/).filter(Boolean);
+  const same = (w: string, x: string) => w === x || w === x + 's' || w === x + 'x' || x === w + 's' || x === w + 'x';
+  const score = (item: T) => {
+    const words = fold(item.title).split(/[^a-z0-9]+/).filter(Boolean);
+    const core = words.filter((w) => !ARTICLES.has(w));
+    if (core.join(' ') === qWords.filter((w) => !ARTICLES.has(w)).join(' ')) return 0;
+    if (qWords.every((x) => words.some((w) => same(w, x)))) return 1;
+    if (qWords.every((x) => words.some((w) => w.startsWith(x)))) return 2;
+    if (fold(item.title).includes(q)) return 3;
+    return item.inTitle === false ? 5 : 4;
+  };
+  return list
+    .map((item, i) => ({ item, i, s: score(item) }))
+    .sort((a, b) => a.s - b.s || a.item.title.length - b.item.title.length || a.i - b.i)
+    .map((x) => x.item);
+}
