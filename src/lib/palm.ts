@@ -116,3 +116,11 @@ export async function deletePalmEverywhere(id: string, token?: string | null): P
 }
 
 export { PALM_BRIDGE_JS } from './palm-bridge';
+
+/** Petit script qui donne à la page Terra la dernière lecture de la main (règle « une lecture par jour »). */
+export async function lastPalmScript(): Promise<string> {
+  const last = (await listPalmReadings()).reduce<PalmReading | undefined>((a, b) => (!a || b.at > a.at ? b : a), undefined);
+  if (!last) return '';
+  const data = { at: last.at, word: last.word, mantra: last.mantra, mudra: last.mudra, question: last.question };
+  return `<script>window.C127_LAST_PALM=${JSON.stringify(data).replace(/</g, '\\u003c')};</script>`;
+}

@@ -62,3 +62,19 @@ describe('formatPalmSummary', () => {
     expect(formatPalmSummary('Paume : carrée\nPouce : court')).toBe('Paume : carrée\nPouce : court');
   });
 });
+
+describe('lastPalmScript', () => {
+  it('transmet la lecture la plus récente sans pouvoir fermer la balise script', async () => {
+    const { lastPalmScript } = await import('../lib/palm');
+    const storage = await import('../lib/storage');
+    const getJson = storage.local.getJson as unknown as ReturnType<typeof vi.fn>;
+    getJson.mockResolvedValueOnce([
+      { id: 'a', at: '2026-11-07T08:00:00.000Z', word: 'ancienne' },
+      { id: 'b', at: '2026-11-08T08:00:00.000Z', word: 'du jour </script><b>', mantra: 'm' },
+    ]);
+    const s = await lastPalmScript();
+    expect(s.startsWith('<script>window.C127_LAST_PALM=')).toBe(true);
+    expect(s).toContain('du jour \\u003c/script>');
+    expect(s.match(/<\/script>/g)).toHaveLength(1);
+  });
+});
