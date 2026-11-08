@@ -45,7 +45,7 @@ export const LEGAL: { title: string; path: string }[] = [
   { title: 'Confidentialité', path: '/confidentialite/' },
 ];
 
-export const DISCLAIMER = 'Onirologue est un compagnon de réflexion, pas un substitut à un accompagnement thérapeutique.';
+export const DISCLAIMER = 'Le Cercle 127 est un compagnon de réflexion, pas un substitut à un accompagnement thérapeutique.';
 
 export const IMAGES = {
   hero: require('../../assets/images/home-hero.webp'),

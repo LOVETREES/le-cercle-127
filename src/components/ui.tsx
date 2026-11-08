@@ -20,7 +20,7 @@ import { colors, fonts, radius, space } from '../lib/theme';
 import { useSession } from '../lib/session';
 import { t } from '../i18n';
 
-/** En-tête repris du site mobile : logo, « Onirologue », bouton menu. */
+/** En-tête repris du site mobile : logo, « Le Cercle 127 », boutons paramètres et menu. */
 export function AppHeader() {
   const { isDemo } = useSession();
   return (
@@ -33,7 +33,7 @@ export function AppHeader() {
       >
         <Image source={IMAGES.logo} style={s.logo} />
         <View>
-          <Text style={s.brandText}>Onirologue</Text>
+          <Text style={s.brandText} numberOfLines={1}>Le Cercle 127</Text>
           {isDemo && <Text style={{ fontFamily: fonts.body, fontSize: 11, color: colors.gold }}>{t('Démonstration locale')}</Text>}
         </View>
       </Pressable>
@@ -195,7 +195,7 @@ export function SiteFooter() {
         ))}
       </View>
       <Text style={s.footerNote}>{t(DISCLAIMER)}</Text>
-      <Text style={s.footerCopy}>{t('© 2026 L’Onirologue — Le Cercle des 7 Sœurs')}</Text>
+      <Text style={s.footerCopy}>{t('© 2026 Le Cercle 127 — Le Cercle des 7 Sœurs')}</Text>
     </View>
   );
 }
@@ -215,7 +215,7 @@ export const s = StyleSheet.create({
   },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   logo: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: colors.gold },
-  brandText: { fontFamily: fonts.title, fontSize: 24, color: colors.text, letterSpacing: 1 },
+  brandText: { fontFamily: fonts.title, fontSize: 22, color: colors.text, letterSpacing: 1 },
   menuBtn: {
     width: 42,
     height: 42,
