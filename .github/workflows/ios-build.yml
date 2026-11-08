@@ -2,12 +2,11 @@ name: iOS – construction et envoi à TestFlight
 
 # Construit l'app iPhone sur un Mac de GitHub (gratuit pour un dépôt public),
 # avec les certificats gardés par Expo, puis l'envoie à App Store Connect.
-# Déclenchement : bouton « Run workflow » (onglet Actions) ou étiquette git ios-build-*.
+# Déclenchement : bouton « Run workflow » (onglet Actions, une fois sur main)
+# ou un envoi dont le message contient [ios-build].
 on:
   workflow_dispatch:
   push:
-    tags:
-      - 'ios-build-*'
 
 concurrency:
   group: ios-build
@@ -15,6 +14,7 @@ concurrency:
 
 jobs:
   ios:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[ios-build]')
     runs-on: macos-26
     timeout-minutes: 90
     env:
