@@ -36,3 +36,42 @@
 .terra127 .c127-daycard blockquote { margin: 14px 0; padding: 0 0 0 14px; border-left: 2px solid #d8b66b; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 20px; }
 .terra127 .c127-daycard__eyebrow, .terra127 .c127-daycard__label { font-size: 11px; letter-spacing: .22em; color: #d8b66b; }
 .terra127 .c127-daycard__muted { color: #a9a6bd; font-size: 13.5px; }
+
+/* ---------- Lecture détaillée (photo) ---------- */
+.c127d { margin: 0 auto 28px; max-width: 920px; padding: 24px 20px; border-radius: 22px; border: 1px solid rgba(169,201,138,.45);
+  background: radial-gradient(circle at 20% 0, rgba(169,201,138,.14), rgba(13,18,38,.94) 60%); color: #ece9f6; font-size: 15.5px; line-height: 1.6; }
+.c127d-eyebrow { font-size: 11px; letter-spacing: .2em; color: #a9c98a; margin: 0 0 6px; }
+.c127d-h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; line-height: 1.15; margin: 0 0 8px; color: #f3ead2; }
+.c127d-lead { margin: 0 0 14px; color: #d7d3e6; }
+.c127d-note { padding: 12px 14px; border-radius: 14px; background: rgba(216,182,107,.1); border: 1px solid rgba(216,182,107,.3); margin: 10px 0; }
+.c127d-btn { display: inline-block; padding: 12px 18px; border-radius: 999px; background: linear-gradient(135deg, #e8d29a, #a9c98a); color: #0d1226 !important; font-weight: 700; text-decoration: none; margin-right: 10px; }
+.c127d-muted { color: #a9a6bd; font-size: 13.5px; }
+.c127d-form { display: grid; gap: 12px; margin: 10px 0 18px; }
+.c127d-tip { margin: 0; font-size: 14px; color: #cfcbe2; }
+.c127d-hands { display: flex; gap: 18px; flex-wrap: wrap; }
+.c127d-pick { display: block; text-align: center; padding: 14px; border-radius: 14px; border: 1px dashed rgba(216,182,107,.6); cursor: pointer; color: #f3ead2; font-weight: 600; }
+.c127d-preview canvas { width: 100%; max-height: 420px; object-fit: contain; border-radius: 14px; background: #0b0f20; }
+.c127d-check { margin: 6px 0 0; font-size: 14px; color: #a9c98a; }
+.c127d-consent { font-size: 13.5px; line-height: 1.5; color: #cfcbe2; display: flex; gap: 10px; align-items: flex-start; }
+.c127d-consent input { margin-top: 4px; flex: 0 0 auto; }
+.c127d-go { padding: 14px; border-radius: 999px; border: 0; background: linear-gradient(135deg, #e8d29a, #a9c98a); color: #0d1226; font-weight: 700; font-size: 16px; cursor: pointer; }
+.c127d-go:disabled { opacity: .45; cursor: default; }
+.c127d-status { min-height: 1.4em; margin: 0; color: #f2dea8; }
+.c127d-reading { margin: 18px 0; padding: 20px 18px; border-radius: 18px; background: rgba(8,11,23,.6); border: 1px solid rgba(216,182,107,.3); }
+.c127d-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; margin: 0 0 12px; color: #f3ead2; }
+.c127d-sec { border-left: 3px solid var(--c, #d8b66b); padding: 2px 0 2px 14px; margin: 14px 0; }
+.c127d-sec h4 { margin: 0 0 4px; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--c, #d8b66b); }
+.c127d-sec p, .c127d-sec ul { margin: 0; }
+.c127d-strengths { --c: #a9c98a; } .c127d-watch { --c: #eb9a68; }
+.c127d-ritual { display: grid; gap: 10px; margin: 16px 0; padding: 14px; border-radius: 14px; background: rgba(216,182,107,.08); }
+.c127d-ritual p { margin: 0; } .c127d-ritual span { font-size: 11px; letter-spacing: .2em; color: #d8b66b; }
+.c127d-ritual em { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; }
+.c127d-evolution { margin: 16px 0; padding: 14px; border-radius: 14px; border: 1px solid rgba(143,200,232,.45); background: rgba(143,200,232,.08); }
+.c127d-evolution h4 { margin: 0 0 6px; color: #8fc8e8; } .c127d-change { margin: 4px 0 0; font-size: 14px; }
+.c127d-timeline { margin-top: 22px; } .c127d-timeline h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; margin: 0 0 4px; color: #f3ead2; }
+.c127d-grid { display: grid; gap: 4px; overflow-x: auto; margin: 10px 0; font-size: 13px; }
+.c127d-cell { padding: 8px; border-radius: 8px; background: rgba(255,255,255,.04); }
+.c127d-head { background: none; color: #a9a6bd; font-size: 12px; } .c127d-line { background: none; font-weight: 600; }
+.c127d-changed { outline: 1px solid #8fc8e8; background: rgba(143,200,232,.12); } .c127d-faint { opacity: .5; }
+.c127d-hist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.c127d-histbtn { padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(216,182,107,.35); background: none; color: #ece9f6; font-size: 13px; cursor: pointer; }
