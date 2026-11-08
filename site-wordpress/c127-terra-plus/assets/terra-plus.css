@@ -1,9 +1,9 @@
 /* Cercle 127 — Terra Plus */
-.terra127 .c127-mudra { display: flex !important; align-items: center; justify-content: center; width: min(210px, 72%) !important; height: auto !important;
-  aspect-ratio: 1; margin: 10px auto 14px !important; padding: 8px; border-radius: 50%; border: 1px solid rgba(216,182,107,.35);
-  background: radial-gradient(circle, rgba(42,63,122,.45), rgba(13,18,38,0) 70%) !important; }
-.terra127 .c127-mudra > :not(svg) { display: none !important; }
-.terra127 .c127-mudra svg { width: 100%; height: 100%; filter: drop-shadow(0 0 14px rgba(216,182,107,.18)); }
+.terra127 .c127-mudra { display: block !important; width: 100% !important; height: auto !important; margin: 10px 0 14px !important; padding: 0; border: 0; background: none !important; aspect-ratio: auto; }
+.terra127 .c127-mudra > :not(img):not(.c127-mudra__how) { display: none !important; }
+.terra127 .c127-mudra img { display: block; width: min(260px, 100%); height: auto; margin: 0 auto; border-radius: 22px; border: 1px solid rgba(216,182,107,.35); box-shadow: 0 0 30px rgba(216,182,107,.12); }
+.terra127 .c127-mudra__how { margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; background: rgba(216,182,107,.08); font-size: 14.5px; line-height: 1.5; color: #ece9f6; }
+.terra127 .c127-mudra__how strong { color: #d8b66b; }
 .terra127 .c127-finale--end { margin: 18px 0 14px; }
 
 .terra127 .c127-linemap { position: sticky; top: 64px; z-index: 5; margin: 0 0 18px; padding: 12px 14px; display: flex; gap: 14px; align-items: center;

@@ -3,47 +3,15 @@
   'use strict';
   var NS = 'http://www.w3.org/2000/svg';
   var GOLD = '#d8b66b';
-  var INK = '#11162b';
   var inApp = !!window.ReactNativeWebView || /Cercle127App/.test(navigator.userAgent);
 
-  /* ---------- Illustrations originales des mudras (traits dorés) ---------- */
-  function finger(d) {
-    return '<path d="' + d + '" stroke="' + GOLD + '" stroke-width="19" stroke-linecap="round" fill="none"/>' +
-      '<path d="' + d + '" stroke="' + INK + '" stroke-width="14" stroke-linecap="round" fill="none"/>';
-  }
-  var PALM = '<path d="M68 104 C64 150 72 178 102 180 C134 180 142 150 138 104 Z" fill="' + INK + '" stroke="' + GOLD + '" stroke-width="2.6" stroke-linejoin="round"/>' +
-    '<path d="M84 168 C94 172 112 172 122 168" stroke="' + GOLD + '" stroke-opacity=".35" stroke-width="1.6" fill="none"/>';
-  function spark(x, y) {
-    return '<circle cx="' + x + '" cy="' + y + '" r="16" fill="url(#c127glow)"/>' +
-      '<circle cx="' + x + '" cy="' + y + '" r="3.6" fill="#f6e3b0"/>';
-  }
-  var DEFS = '<defs><radialGradient id="c127glow"><stop offset="0" stop-color="#f6e3b0" stop-opacity=".85"/>' +
-    '<stop offset="1" stop-color="#f6e3b0" stop-opacity="0"/></radialGradient></defs>';
-  var IDX = 'M80 108 L77 44', MID = 'M97 104 L97 32', RING = 'M114 106 L116 40', PINKY = 'M130 112 L135 58';
-  var THUMB = 'M74 146 Q52 128 46 102';
-
+  /* ---------- Illustrations des mudras (bibliothèque du site) ---------- */
+  var UP = 'https://lecercle127.com/wp-content/uploads/2026/11/';
   var MUDRAS = {
-    // Prithvi : pouce et annulaire se rejoignent, les autres doigts restent libres.
-    prithvi: DEFS + finger(IDX) + finger(MID) + finger(PINKY) + PALM +
-      finger('M114 106 Q118 84 100 96') + finger('M72 148 Q70 118 96 100') + spark(98, 98),
-    // Jnana : pouce et index forment un cercle.
-    jnana: DEFS + finger(MID) + finger(RING) + finger(PINKY) + PALM +
-      finger('M80 108 Q76 70 56 80') + finger('M72 148 Q48 124 54 86') + spark(55, 83),
-    // Anjali : les deux paumes réunies devant le cœur.
-    anjali: DEFS +
-      '<path d="M56 196 C70 188 80 182 86 176 M144 196 C130 188 120 182 114 176" stroke="' + GOLD + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
-      '<path d="M86 178 C78 146 72 116 76 86 C79 60 88 38 100 20 C112 38 121 60 124 86 C128 116 122 146 114 178 Z" fill="' + INK + '" stroke="' + GOLD + '" stroke-width="2.6" stroke-linejoin="round"/>' +
-      '<path d="M100 22 L100 176" stroke="' + GOLD + '" stroke-opacity=".6" stroke-width="1.6"/>' +
-      '<path d="M93 34 C89 52 87 70 87 90 M86 52 C82 66 80 80 80 96 M107 34 C111 52 113 70 113 90 M114 52 C118 66 120 80 120 96" stroke="' + GOLD + '" stroke-opacity=".45" stroke-width="1.4" fill="none"/>' +
-      '<path d="M80 136 C84 120 92 112 99 110 M120 136 C116 120 108 112 101 110" stroke="' + GOLD + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
-      spark(100, 122),
-    // Dhyana : mains posées l'une dans l'autre, paumes vers le ciel, pouces qui se touchent.
-    dhyana: DEFS +
-      '<path d="M10 128 C26 126 36 122 44 116 M190 128 C174 126 164 122 156 116" stroke="' + GOLD + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
-      '<path d="M36 112 Q100 196 164 112 Q100 150 36 112 Z" fill="' + INK + '" stroke="' + GOLD + '" stroke-width="2.6" stroke-linejoin="round"/>' +
-      '<path d="M48 108 Q100 176 152 108 Q100 140 48 108 Z" fill="' + INK + '" stroke="' + GOLD + '" stroke-width="2.6" stroke-linejoin="round"/>' +
-      '<path d="M64 128 Q100 156 136 128 M74 138 Q100 158 126 138 M84 146 Q100 160 116 146" stroke="' + GOLD + '" stroke-opacity=".4" stroke-width="1.4" fill="none"/>' +
-      finger('M56 108 Q64 70 97 74') + finger('M144 108 Q136 70 103 74') + spark(100, 74)
+    prithvi: { img: 'Terra-Prithvi-Mudra', how: 'Le bout du pouce rejoint le bout de l’annulaire (4e doigt). Index, majeur et auriculaire restent détendus.' },
+    jnana: { img: 'Terra-Jnana-Mudra', how: 'Le bout du pouce rejoint le bout de l’index et forme un petit cercle. Les trois autres doigts restent détendus.' },
+    anjali: { img: 'Terra-Anjali-Mudra', how: 'Les deux paumes se rejoignent devant la poitrine, doigts vers le haut, sans appuyer.' },
+    dhyana: { img: 'Terra-Dhyana-Mudra-v2', how: 'Les mains reposent l’une dans l’autre, paumes vers le ciel ; les pouces se touchent légèrement.' }
   };
   var MUDRA_KEYS = [['prithvi', /prithvi/i], ['jnana', /jnana|jñana/i], ['anjali', /anjali/i], ['dhyana', /dhyana/i]];
 
@@ -55,10 +23,13 @@
     var key = null;
     MUDRA_KEYS.forEach(function (k) { if (!key && k[1].test(name)) key = k[0]; });
     if (!key || vis.getAttribute('data-c127') === key) return;
+    var m = MUDRAS[key];
+    var short = name.split('—')[0].trim();
     vis.setAttribute('data-c127', key);
     vis.classList.add('c127-mudra');
-    vis.innerHTML = '<svg viewBox="0 0 200 200" role="img" aria-label="Illustration du geste ' + name.split('—')[0].trim() + '">' + MUDRAS[key] + '</svg>';
     vis.removeAttribute('aria-hidden');
+    vis.innerHTML = '<img src="' + UP + m.img + '-300x300.png" srcset="' + UP + m.img + '-300x300.png 300w, ' + UP + m.img + '-768x768.png 768w" sizes="260px" width="300" height="300" loading="lazy" alt="Illustration du geste ' + short + '">' +
+      '<p class="c127-mudra__how"><strong>Comment faire :</strong> ' + m.how + '</p>';
   }
 
   /* ---------- Schéma de la main : la ligne travaillée s'allume ---------- */
