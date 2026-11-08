@@ -5,7 +5,7 @@ import { ActivityIndicator, Linking, Platform, StyleSheet, Text, View } from 're
 import { WebView as RNWebView } from 'react-native-webview';
 
 import { saveWebError } from '../lib/crash';
-import { savePalmMessage } from '../lib/palm';
+import { storePalmMessage } from '../lib/palm';
 import { decideNavigation, decidePageRequest, injectedScript, nativeRouteFor, siteUrl } from '../lib/webpage';
 import { colors, fonts, space } from '../lib/theme';
 import { OutlineButton } from './ui';
@@ -59,6 +59,7 @@ function SitePageContent({ path }: { path: string }) {
   const [failed, setFailed] = useState(false);
   const [html, setHtml] = useState<{ content: string; baseUrl: string } | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [palmSaved, setPalmSaved] = useState(false);
   const url = siteUrl(path);
 
   useEffect(() => {
@@ -163,7 +164,7 @@ function SitePageContent({ path }: { path: string }) {
         onMessage={(e) => {
           try { if (JSON.parse(e.nativeEvent.data)?.type === 'c127-ready') { setLoading(false); return; } } catch { /* diagnostic non JSON */ }
           const data = e.nativeEvent.data;
-          savePalmMessage(data).then((saved) => { if (!saved) saveWebError(data); }, () => saveWebError(data));
+          storePalmMessage(data).then((r) => { if (r === 'ignored') saveWebError(data); else if (r === 'new') setPalmSaved(true); }, () => saveWebError(data));
         }}
         allowsBackForwardNavigationGestures
         sharedCookiesEnabled={false}
@@ -183,6 +184,19 @@ function SitePageContent({ path }: { path: string }) {
           <ActivityIndicator color={colors.gold} size="large" />
         </View>
       )}
+      {palmSaved && (
+        <View style={st.toast} accessibilityLiveRegion="polite">
+          <Text style={st.toastText}>{t('✓ Lecture de ta main gardée dans « Mes lectures »')}</Text>
+          <View style={st.toastRow}>
+            <Text style={st.toastLink} accessibilityRole="button" onPress={() => { setPalmSaved(false); router.push('/mes-lectures'); }}>
+              {t('Voir')}
+            </Text>
+            <Text style={st.toastClose} accessibilityRole="button" onPress={() => setPalmSaved(false)}>
+              {t('Fermer')}
+            </Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -190,5 +204,13 @@ function SitePageContent({ path }: { path: string }) {
 const st = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space.lg, gap: space.md, backgroundColor: colors.night },
   msg: { fontFamily: fonts.body, color: colors.text, textAlign: 'center', fontSize: 15 },
+  toast: {
+    position: 'absolute', left: space.md, right: space.md, bottom: space.lg,
+    backgroundColor: '#1d2238', borderColor: colors.gold, borderWidth: 1, borderRadius: 14, padding: space.md, gap: 8,
+  },
+  toastText: { fontFamily: fonts.bodyMedium, color: colors.text, fontSize: 15 },
+  toastRow: { flexDirection: 'row', gap: 24 },
+  toastLink: { fontFamily: fonts.bodyBold, color: colors.gold, fontSize: 15 },
+  toastClose: { fontFamily: fonts.body, color: colors.muted, fontSize: 15 },
   loader: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.night },
 });

@@ -43,3 +43,22 @@ describe('synchronisation des lectures de la main', () => {
     expect(mergePalmReadings([a], [b, dupe]).map((r) => r.id)).toEqual(['palm-2', 'palm-1']);
   });
 });
+
+describe('formatPalmSummary', () => {
+  it('remet une observation par ligne', async () => {
+    const { formatPalmSummary } = await import('../lib/palm');
+    const glued = 'Main observée : droitePaume : plutôt carréeDoigts : courts par rapport à la paumeSouplesse : intermédiairePouce : courtLigne Cœur : courte · profondeLigne Tête : moyenne · profondeLigne Vie : courte · droiteLigne Destin : moyenne · droite';
+    expect(formatPalmSummary(glued).split('\n')).toEqual([
+      'Main observée : droite',
+      'Paume : plutôt carrée',
+      'Doigts : courts par rapport à la paume',
+      'Souplesse : intermédiaire',
+      'Pouce : court',
+      'Ligne Cœur : courte · profonde',
+      'Ligne Tête : moyenne · profonde',
+      'Ligne Vie : courte · droite',
+      'Ligne Destin : moyenne · droite',
+    ]);
+    expect(formatPalmSummary('Paume : carrée\nPouce : court')).toBe('Paume : carrée\nPouce : court');
+  });
+});

@@ -57,12 +57,25 @@ export async function listPalmReadings(): Promise<PalmReading[]> {
 }
 
 export async function savePalmMessage(raw: string): Promise<boolean> {
+  return (await storePalmMessage(raw)) !== 'ignored';
+}
+
+/** Comme savePalmMessage, mais dit si la lecture est nouvelle (pour afficher une confirmation). */
+export async function storePalmMessage(raw: string): Promise<'ignored' | 'known' | 'new'> {
   const r = parsePalmMessage(raw);
-  if (!r) return false;
+  if (!r) return 'ignored';
   const list = await listPalmReadings();
   const next = addPalmReading(list, r);
-  if (next !== list) await local.setJson(KEYS.palmReadings, next);
-  return true;
+  if (next === list) return 'known';
+  await local.setJson(KEYS.palmReadings, next);
+  return 'new';
+}
+
+const SUMMARY_LABELS = /([^\s])(Main observée|Paume|Doigts|Souplesse|Pouce|Ligne (?:Cœur|Coeur|Tête|Vie|Destin)|Mont)(\s*:)/g;
+
+/** Remet une observation par ligne (les anciennes lectures avaient été collées bout à bout). */
+export function formatPalmSummary(s: string): string {
+  return s.replace(SUMMARY_LABELS, '$1\n$2$3').replace(/\n{2,}/g, '\n').trim();
 }
 
 export async function removePalmReading(id: string): Promise<PalmReading[]> {

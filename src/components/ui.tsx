@@ -38,6 +38,15 @@ export function AppHeader() {
         </View>
       </Pressable>
       <Pressable
+        style={[s.menuBtn, { marginLeft: 'auto', marginRight: 10 }]}
+        accessibilityRole="button"
+        accessibilityLabel={t('Paramètres')}
+        onPress={() => router.push('/parametres')}
+        hitSlop={8}
+      >
+        <Text style={{ fontSize: 20, color: colors.text }}>⚙︎</Text>
+      </Pressable>
+      <Pressable
         style={s.menuBtn}
         accessibilityRole="button"
         accessibilityLabel={t('Ouvrir le menu')}

@@ -4,7 +4,7 @@ import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 
 import { Body, Card, Eyebrow, GoldButton, OutlineButton, Screen, Title } from '../components/ui';
 import { readingSummary } from '../lib/model';
-import { deletePalmEverywhere, listPalmReadings, syncPalmReadings, type PalmReading } from '../lib/palm';
+import { deletePalmEverywhere, formatPalmSummary, listPalmReadings, syncPalmReadings, type PalmReading } from '../lib/palm';
 import { useSession } from '../lib/session';
 import { colors, fonts, radius, space } from '../lib/theme';
 import { locale, t } from '../i18n';
@@ -137,7 +137,7 @@ export default function MesLectures() {
                       <Text style={st.more}>{expanded ? t('Masquer les observations de ma main') : t('Voir les observations de ma main ›')}</Text>
                     </Pressable>
                   ) : null}
-                  {expanded && p.summary ? <Text style={st.lineText}>{p.summary}</Text> : null}
+                  {expanded && p.summary ? <Text style={st.lineText}>{formatPalmSummary(p.summary)}</Text> : null}
                   <Pressable onPress={() => remove(p)} accessibilityRole="button">
                     <Text style={st.remove}>{t('Retirer cette lecture')}</Text>
                   </Pressable>

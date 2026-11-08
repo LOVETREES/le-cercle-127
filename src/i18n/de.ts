@@ -427,4 +427,7 @@ export const de: Record<string, string> = {
   "Évolutions · Récurrences · Transformations": "Entwicklungen · Wiederholungen · Wandlungen",
   "Évolutions, récurrences, transformations : un miroir de vos nuits, jamais un jugement.": "Entwicklungen, Wiederholungen, Wandlungen: ein Spiegel deiner Nächte, nie ein Urteil.",
   "✦ PENSÉE DU JOUR": "✦ GEDANKE DES TAGES",
+  "✓ Lecture de ta main gardée dans « Mes lectures »": "✓ Deine Handlesung ist unter „Meine Deutungen“ gespeichert",
+  "Voir": "Ansehen",
+  "Fermer": "Schließen",
 };
