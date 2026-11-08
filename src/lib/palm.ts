@@ -52,8 +52,41 @@ export function addPalmReading(list: PalmReading[], r: PalmReading): PalmReading
   return [r, ...list].slice(0, 50);
 }
 
-export async function listPalmReadings(): Promise<PalmReading[]> {
-  return local.getJson<PalmReading[]>(KEYS.palmReadings, []);
+// Chaque propriétaire a ses lectures : la démonstration, la personne non connectée et chaque compte.
+let owner = 'local';
+let legacyChecked = false;
+
+export function palmOwnerFor(isDemo: boolean, userId?: string | null): string {
+  return isDemo ? 'demo' : userId ? `user-${userId}` : 'local';
+}
+
+/** Choisit à qui appartiennent les lectures lues et écrites (appelé par la session). */
+export function setPalmOwner(next: string) {
+  owner = next;
+}
+
+const keyFor = (o: string) => `${KEYS.palmReadings}:${o}`;
+
+/** Les lectures d'avant la 1.0.3 (clé commune) reviennent à la première personne réelle qui ouvre l'app. */
+async function adoptLegacy(o: string) {
+  if (legacyChecked || o === 'demo') return;
+  legacyChecked = true;
+  const legacy = await local.getJson<PalmReading[]>(KEYS.palmReadings, []);
+  if (!Array.isArray(legacy) || !legacy.length) return;
+  const mine = await local.getJson<PalmReading[]>(keyFor(o), []);
+  await local.setJson(keyFor(o), mergePalmReadings(mine ?? [], legacy));
+  await local.remove([KEYS.palmReadings]);
+}
+
+export async function listPalmReadings(o: string = owner): Promise<PalmReading[]> {
+  await adoptLegacy(o);
+  const list = await local.getJson<PalmReading[]>(keyFor(o), []);
+  return Array.isArray(list) ? list : [];
+}
+
+/** Efface les lectures de la main gardées sur l'appareil pour ce propriétaire. */
+export async function clearPalmReadings(o: string = owner): Promise<void> {
+  await local.remove([keyFor(o)]);
 }
 
 export async function savePalmMessage(raw: string): Promise<boolean> {
@@ -64,10 +97,11 @@ export async function savePalmMessage(raw: string): Promise<boolean> {
 export async function storePalmMessage(raw: string): Promise<'ignored' | 'known' | 'new'> {
   const r = parsePalmMessage(raw);
   if (!r) return 'ignored';
-  const list = await listPalmReadings();
+  const o = owner;
+  const list = await listPalmReadings(o);
   const next = addPalmReading(list, r);
   if (next === list) return 'known';
-  await local.setJson(KEYS.palmReadings, next);
+  await local.setJson(keyFor(o), next);
   return 'new';
 }
 
@@ -79,8 +113,9 @@ export function formatPalmSummary(s: string): string {
 }
 
 export async function removePalmReading(id: string): Promise<PalmReading[]> {
-  const next = (await listPalmReadings()).filter((x) => x.id !== id);
-  await local.setJson(KEYS.palmReadings, next);
+  const o = owner;
+  const next = (await listPalmReadings(o)).filter((x) => x.id !== id);
+  await local.setJson(keyFor(o), next);
   return next;
 }
 
@@ -102,12 +137,20 @@ function fromServer(raw: Record<string, unknown>): PalmReading | undefined {
 
 /** Synchronise avec le compte : envoie les lectures du téléphone absentes du compte, puis réunit les deux. */
 export async function syncPalmReadings(token: string): Promise<PalmReading[]> {
-  const mine = await listPalmReadings();
+  const o = owner;
+  if (!o.startsWith('user-')) return listPalmReadings(o);
+  const mine = await listPalmReadings(o);
   const server = (await api.palmList(token)).map(fromServer).filter((r): r is PalmReading => !!r);
   for (const r of mine) if (!server.some((x) => x.id === r.id || sameReading(x, r))) await api.palmAdd(token, r);
   const merged = mergePalmReadings(mine, server);
-  await local.setJson(KEYS.palmReadings, merged);
+  if (o !== owner) return listPalmReadings(); // la personne a changé de compte pendant l'envoi
+  await local.setJson(keyFor(o), merged);
   return merged;
+}
+
+export function __resetPalmForTests() {
+  owner = 'local';
+  legacyChecked = false;
 }
 
 export async function deletePalmEverywhere(id: string, token?: string | null): Promise<PalmReading[]> {

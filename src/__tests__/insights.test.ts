@@ -46,3 +46,19 @@ describe('mesures d’évolution', () => {
     expect(dailyThought(new Date(2026, 10, 8))).not.toBe(dailyThought(t));
   });
 });
+
+describe('compteur de motifs récurrents (audit N02)', () => {
+  it('compte tous les motifs, même au-delà de huit, sans tenir compte des majuscules', async () => {
+    const { journey } = await import('../lib/insights');
+    const symbols = Array.from({ length: 10 }, (_, i) => `Motif ${i + 1}`);
+    const base = { story: 'x', emotion: 'serenite', intensity: 2 };
+    const dreams = [
+      { ...base, id: 'a', title: 'A', dreamDate: '2026-11-01', createdAt: '2026-11-01T08:00:00Z', symbols },
+      { ...base, id: 'b', title: 'B', dreamDate: '2026-11-02', createdAt: '2026-11-02T08:00:00Z', symbols: symbols.map((s) => s.toLowerCase()) },
+    ];
+    const j = journey(dreams as never);
+    expect(j.recurringCount).toBe(10);
+    expect(j.recurring).toHaveLength(8);
+    expect(j.recurring[0][0]).toBe('Motif 1');
+  });
+});

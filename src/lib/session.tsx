@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 
 import { ApiError, api } from './api';
 import { mergeDreams, makeDraft, type Dream, type DreamInput, type User } from './model';
+import { clearPalmReadings, palmOwnerFor, setPalmOwner } from './palm';
 import { KEYS, local, secure } from './storage';
 import { DEMO_USER, demoDreams } from './demo';
 import { clearVoiceNotes } from './voice-notes';
@@ -110,6 +111,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const exitDemo = useCallback(async () => {
     await clearVoiceNotes(true);
     await local.remove([KEYS.demoActive, KEYS.demoDreams, KEYS.demoJournal, KEYS.demoPendingTranscript]);
+    await clearPalmReadings('demo');
     demoRef.current = [];
     setDemoRecords([]);
     setIsDemo(false);
@@ -172,6 +174,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [sync],
   );
 
+  // Les lectures de la main suivent la personne : démonstration, non connectée ou compte.
+  setPalmOwner(palmOwnerFor(isDemo, user?.id));
+
   const value = useMemo<SessionState>(
     () => ({
       ready,
@@ -189,10 +194,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await clearVoiceNotes();
         await saveReminder(DEFAULT_REMINDER);
         await Promise.all([clearLastError(), clearWebError()]);
-        await local.remove([KEYS.cache, KEYS.journal, KEYS.pendingTranscript]);
+        await local.remove([KEYS.cache, KEYS.journal, KEYS.pendingTranscript, KEYS.presenceDays]);
+        await clearPalmReadings(palmOwnerFor(false, user?.id));
         setServer([]);
       },
-      user: isDemo ? DEMO_USER : user,
+      user: isDemo ? { ...DEMO_USER, name: t(DEMO_USER.name) } : user,
       token: isDemo ? null : token,
       dreams: isDemo ? demoRecords : mergeDreams(server, drafts),
       syncing,
@@ -218,11 +224,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (!token) return;
         sessionEpoch.current += 1;
         await api.deleteAccount(token).catch(handleAuthError);
+        const deletedOwner = palmOwnerFor(false, user?.id);
         await clearSession();
         try {
           await persistDrafts([]);
           await clearVoiceNotes();
-          await local.remove([KEYS.journal, KEYS.pendingTranscript]);
+          await local.remove([KEYS.journal, KEYS.pendingTranscript, KEYS.presenceDays]);
+          await clearPalmReadings(deletedOwner);
           await saveReminder(DEFAULT_REMINDER);
           await Promise.all([clearLastError(), clearWebError()]);
         } catch {

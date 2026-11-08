@@ -84,7 +84,7 @@ export default function Home() {
       <View style={st.stats}>
         {[
           { icon: '📖', value: j.total, label: 'Rêves dans\nmon Grimoire', go: () => router.navigate('/grimoire') },
-          { icon: '∞', value: j.recurring.length, label: 'Motifs\nrécurrents', go: () => router.push('/parcours') },
+          { icon: '∞', value: j.recurringCount, label: 'Motifs\nrécurrents', go: () => router.push('/parcours') },
           { icon: '☾', value: presence, label: 'Jours\nde présence', go: () => router.push('/parcours') },
         ].map((x) => (
           <Pressable key={x.label} style={st.stat} onPress={x.go} accessibilityRole="button" accessibilityLabel={`${x.value} ${t(x.label).replace('\n', ' ')}`}>

@@ -176,7 +176,7 @@ export default function Reve() {
         {saved && (
           <View style={{ gap: space.sm }}>
             <GoldButton label={t('Voir mon Grimoire')} onPress={() => router.navigate('/grimoire')} />
-            <OutlineButton label={t('Lectures d’Oni')} onPress={() => router.navigate('/lectures')} />
+            <OutlineButton label={t('Mes lectures')} onPress={() => router.push('/mes-lectures')} />
           </View>
         )}
 

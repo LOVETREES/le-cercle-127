@@ -6,6 +6,8 @@ export type MonthStat = { key: string; label: string; count: number; avgIntensit
 export type Journey = {
   total: number;
   recurring: [string, number][];
+  /** Nombre total de motifs récurrents (la liste `recurring` n'en garde que les premiers). */
+  recurringCount: number;
   months: MonthStat[];
   emotions: { label: string; count: number }[];
   longestStreak: number;
@@ -22,18 +24,25 @@ export function dayKey(d: Date): string {
 
 /** Symboles et émotions qui reviennent au moins deux fois. */
 export function recurringMotifs(dreams: Dream[], limit = 8): [string, number][] {
-  const counts = new Map<string, number>();
+  return allRecurringMotifs(dreams).slice(0, limit);
+}
+
+/** Tous les motifs revenus au moins deux fois (sans tenir compte des majuscules), du plus fréquent au moins fréquent. */
+export function allRecurringMotifs(dreams: Dream[]): [string, number][] {
+  const counts = new Map<string, [string, number]>();
   for (const d of dreams) {
     const seen = new Set<string>();
     for (const s of d.symbols ?? []) {
-      const k = s.trim();
-      if (k && !seen.has(k.toLowerCase())) {
-        seen.add(k.toLowerCase());
-        counts.set(k, (counts.get(k) ?? 0) + 1);
+      const label = s.trim();
+      const k = label.toLowerCase();
+      if (label && !seen.has(k)) {
+        seen.add(k);
+        const prev = counts.get(k);
+        counts.set(k, [prev?.[0] ?? label, (prev?.[1] ?? 0) + 1]);
       }
     }
   }
-  return [...counts.entries()].filter(([, n]) => n > 1).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, limit);
+  return [...counts.values()].filter(([, n]) => n > 1).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 }
 
 /** Jours consécutifs avec au moins un rêve noté (série la plus longue et série en cours). */
@@ -88,7 +97,8 @@ export function journey(dreams: Dream[], today = new Date()): Journey {
     calmShare = { before: share(dated.slice(0, half)), after: share(dated.slice(half)) };
   }
   const { longest, current } = streaks(dreams.map((d) => d.dreamDate), today);
-  return { total: dreams.length, recurring: recurringMotifs(dreams), months, emotions, longestStreak: longest, currentStreak: current, calmShare };
+  const allRecurring = allRecurringMotifs(dreams);
+  return { total: dreams.length, recurring: allRecurring.slice(0, 8), recurringCount: allRecurring.length, months, emotions, longestStreak: longest, currentStreak: current, calmShare };
 }
 
 /** Ajoute aujourd'hui aux jours de présence (sans doublon, 400 jours gardés au plus). */

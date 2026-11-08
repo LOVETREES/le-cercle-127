@@ -32,6 +32,10 @@ describe('API : consentement, disponibilité et effacement', () => {
     expect(fetchMock.mock.calls[0][1]?.method).toBe('DELETE');
     expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual({ confirm: true });
   });
+  it('ne signale pas une suppression réussie si le serveur renvoie une page HTML avec un statut 200', async () => {
+    fetchMock.mockResolvedValue(new Response('<html><body>Maintenance</body></html>', { status: 200 }));
+    await expect(api.deleteAccount('test-session')).rejects.toThrow('Réponse inattendue');
+  });
   it('ne signale pas une suppression réussie en cas d’erreur serveur', async () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify({ message: 'Suppression refusée' }), { status: 503 }));
     await expect(api.deleteAccount('test-session')).rejects.toThrow('Suppression refusée');

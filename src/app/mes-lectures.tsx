@@ -59,8 +59,8 @@ export default function MesLectures() {
       <View style={st.switch} accessibilityRole="tablist">
         {(
           [
-            ['reves', `Mes rêves · ${read.length}`],
-            ['main', `Ma main · ${palms.length}`],
+            ['reves', t('Mes rêves · {n}', { n: read.length })],
+            ['main', t('Ma main · {n}', { n: palms.length })],
           ] as const
         ).map(([k, label]) => (
           <Pressable key={k} style={[st.switchBtn, tab === k && st.switchOn]} onPress={() => setTab(k)} accessibilityRole="tab" accessibilityState={{ selected: tab === k }}>

@@ -14,7 +14,7 @@ export default function Menu() {
     router.back();
     router.push({ pathname: '/page', params: { path, title } });
   };
-  const tab = (to: '/grimoire' | '/reve' | '/symboles' | '/oracle' | '/lectures') => {
+  const tab = (to: '/grimoire' | '/reve' | '/symboles' | '/oracle') => {
     router.back();
     router.navigate(to);
   };
@@ -25,7 +25,15 @@ export default function Menu() {
       <View style={st.group}>
         <LinkRow icon="❖" title={t('Mon Grimoire')} onPress={() => tab('/grimoire')} />
         <LinkRow icon="☾" title={t('Raconter un rêve')} onPress={() => tab('/reve')} />
-        <LinkRow icon="✧" title={t('Lectures d’Oni')} onPress={() => tab('/lectures')} />
+        <LinkRow
+          icon="✧"
+          title={t('Mes lectures')}
+          subtitle={t('Mes rêves avec Oni · Ma main avec Terra')}
+          onPress={() => {
+            router.back();
+            router.push('/mes-lectures');
+          }}
+        />
         {!user && (
           <LinkRow
             icon="◐"

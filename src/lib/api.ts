@@ -55,11 +55,15 @@ async function request(url: string, { method = 'GET', body, token, timeoutMs = 2
     clearTimeout(timer);
   }
   let json: unknown = undefined;
+  let unreadable = false;
   try {
-    json = text ? JSON.parse(text) : undefined;
+    json = text.trim() ? JSON.parse(text) : undefined;
   } catch {
     json = undefined;
+    unreadable = true;
   }
+  // Une page HTML (erreur, maintenance, portail Wi-Fi) renvoyée avec un statut 200 n'est pas une réussite.
+  if (res.ok && unreadable) throw new ApiError(t('Réponse inattendue du serveur. Réessayez dans un instant.'), res.status);
   if (!res.ok) {
     const fallback = res.status === 401 ? 'Votre session a expiré. Reconnectez-vous.' : 'Une erreur est survenue.';
     throw new ApiError(apiErrorMessage(json, fallback), res.status);

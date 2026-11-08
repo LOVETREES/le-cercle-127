@@ -13,10 +13,11 @@ import { t } from '../i18n';
 const HOURS = [6, 7, 8, 9];
 
 function confirm(title: string, message: string, action: string): Promise<boolean> {
+  title = t(title); message = t(message); action = t(action);
   if (Platform.OS === 'web') return Promise.resolve(window.confirm(`${title}\n\n${message}`));
   return new Promise((resolve) =>
     Alert.alert(title, message, [
-      { text: 'Annuler', style: 'cancel', onPress: () => resolve(false) },
+      { text: t('Annuler'), style: 'cancel', onPress: () => resolve(false) },
       { text: action, style: 'destructive', onPress: () => resolve(true) },
     ]),
   );
@@ -49,8 +50,8 @@ export default function Compte() {
     if (busy) return;
     setBusy(true);
     setNotice(null);
-    try { await action(); setNotice({ tone: 'success', text: message }); }
-    catch (e) { setNotice({ tone: 'error', text: e instanceof Error ? e.message : 'L’opération a échoué. Réessayez.' }); }
+    try { await action(); setNotice({ tone: 'success', text: t(message) }); }
+    catch (e) { setNotice({ tone: 'error', text: e instanceof Error ? e.message : t('L’opération a échoué. Réessayez.') }); }
     finally { setBusy(false); }
   };
 
@@ -137,7 +138,7 @@ export default function Compte() {
         <Eyebrow>{t('Sur cet appareil')}</Eyebrow>
         <Body muted>{t('Efface les brouillons, le journal de vérification, les textes temporaires, le cache et les enregistrements locaux. Les rêves déjà synchronisés restent sur le serveur jusqu’à leur suppression depuis le Grimoire ou le compte.')}</Body>
         <OutlineButton danger disabled={busy} label={t('Effacer les données de cet appareil')} onPress={async () => {
-          if (await confirm('Effacer les données locales ?', isDemo ? 'Seules les données de démonstration seront effacées.' : 'Les brouillons non synchronisés et les enregistrements vocaux seront perdus. Les rêves du serveur sont conservés.', 'Effacer')) {
+          if (await confirm('Effacer les données locales ?', isDemo ? 'Seules les données de démonstration seront effacées.' : 'Les brouillons non synchronisés, les enregistrements vocaux, les lectures de la main et les jours de présence de cet appareil seront effacés. Les rêves et lectures enregistrés dans votre compte sont conservés.', 'Effacer')) {
             await runAccountAction(clearLocalData, 'Données locales effacées.');
           }
         }} />
