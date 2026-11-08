@@ -27,18 +27,18 @@ describe('API : consentement, disponibilité et effacement', () => {
   });
   it('demande la suppression au serveur et accepte une réponse sans contenu', async () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
-    await api.deleteAccount('test-session');
+    await api.deleteAccount('test-session', 'test-password');
     expect(fetchMock.mock.calls[0][0]).toBe('https://example.test/wp-json/cercle127/v1/me');
     expect(fetchMock.mock.calls[0][1]?.method).toBe('DELETE');
-    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual({ confirm: true });
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual({ password: 'test-password', confirmation: 'SUPPRIMER' });
   });
   it('ne signale pas une suppression réussie si le serveur renvoie une page HTML avec un statut 200', async () => {
     fetchMock.mockResolvedValue(new Response('<html><body>Maintenance</body></html>', { status: 200 }));
-    await expect(api.deleteAccount('test-session')).rejects.toThrow('Réponse inattendue');
+    await expect(api.deleteAccount('test-session', 'test-password')).rejects.toThrow('Réponse inattendue');
   });
   it('ne signale pas une suppression réussie en cas d’erreur serveur', async () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify({ message: 'Suppression refusée' }), { status: 503 }));
-    await expect(api.deleteAccount('test-session')).rejects.toThrow('Suppression refusée');
+    await expect(api.deleteAccount('test-session', 'test-password')).rejects.toThrow('Suppression refusée');
   });
 });
 

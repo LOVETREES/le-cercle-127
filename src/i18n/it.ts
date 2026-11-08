@@ -557,4 +557,6 @@ export const it: Record<string, string> = {
   "À accueillir avec douceur": "Da accogliere con dolcezza",
   "✦ Lecture détaillée sur photo ›": "✦ Lettura dettagliata da foto ›",
   "📷 Photographier": "📷 Fotografa",
+  "Saisissez le mot SUPPRIMER": "Digita la parola SUPPRIMER",
+  "Saisissez votre mot de passe.": "Inserisci la password.",
 };

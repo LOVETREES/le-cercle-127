@@ -25,7 +25,7 @@ type SessionState = {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (pseudonym: string, email: string, password: string, ageConfirmed: boolean) => Promise<'signed-in' | 'created'>;
   signOut: () => Promise<void>;
-  deleteAccount: () => Promise<void>;
+  deleteAccount: (password?: string) => Promise<void>;
   refresh: () => Promise<void>;
   addDream: (input: DreamInput) => Promise<Dream>;
   removeDream: (id: string) => Promise<void>;
@@ -222,11 +222,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (token) await api.logout(token);
         await clearSession();
       },
-      async deleteAccount() {
+      async deleteAccount(password) {
         if (isDemo) return exitDemo();
         if (!token) return;
+        if (!password) throw new Error(t('Saisissez votre mot de passe.'));
         sessionEpoch.current += 1;
-        await api.deleteAccount(token).catch(handleAuthError);
+        await api.deleteAccount(token, password).catch((error: unknown) => {
+          if (error instanceof ApiError && error.code === 'c127_invalid_password') throw error;
+          return handleAuthError(error);
+        });
         const deletedOwner = palmOwnerFor(false, user?.id);
         await clearSession();
         try {

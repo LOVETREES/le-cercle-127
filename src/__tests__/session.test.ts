@@ -2,6 +2,7 @@
 import { act, createElement, useLayoutEffect } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ApiError } from '../lib/api';
 import { SessionProvider, useSession } from '../lib/session';
 
 const mocks = vi.hoisted(() => ({
@@ -10,7 +11,7 @@ const mocks = vi.hoisted(() => ({
   api: { privacy: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn(), createDream: vi.fn(), listDreams: vi.fn(), deleteDream: vi.fn(), deleteAccount: vi.fn(), requestOniReading: vi.fn() },
   clearVoice: vi.fn(),
 }));
-vi.mock('../lib/api', () => ({ api: mocks.api, ApiError: class extends Error { constructor(message: string, public status: number) { super(message); } } }));
+vi.mock('../lib/api', () => ({ api: mocks.api, ApiError: class extends Error { constructor(message: string, public status: number, public code?: string) { super(message); } } }));
 vi.mock('../lib/voice-notes', () => ({ clearVoiceNotes: mocks.clearVoice }));
 vi.mock('../lib/reminders', () => ({ DEFAULT_REMINDER: { enabled: false, hour: 7, minute: 30 }, saveReminder: vi.fn(async () => true) }));
 vi.mock('../lib/crash', () => ({ clearLastError: vi.fn(async () => undefined), clearWebError: vi.fn(async () => undefined) }));
@@ -110,7 +111,17 @@ describe('Grimoire, démonstration et effacement', () => {
     await mount();
     await act(async () => session.signIn('test', 'not-a-real-password'));
     mocks.api.deleteAccount.mockRejectedValue(new Error('Serveur indisponible'));
-    await act(async () => { await expect(session.deleteAccount()).rejects.toThrow('Serveur indisponible'); });
+    await act(async () => { await expect(session.deleteAccount('not-a-real-password')).rejects.toThrow('Serveur indisponible'); });
+    expect(session.user?.id).toBe('test-user');
+    expect(mocks.data.get('token')).toBe('test-session');
+    expect(mocks.clearVoice).not.toHaveBeenCalled();
+  });
+  it('garde la session ouverte si le mot de passe de suppression est incorrect', async () => {
+    await mount();
+    await act(async () => session.signIn('test', 'not-a-real-password'));
+    mocks.api.deleteAccount.mockRejectedValue(new ApiError('Mot de passe incorrect', 401, 'c127_invalid_password'));
+    await act(async () => { await expect(session.deleteAccount('incorrect')).rejects.toThrow('Mot de passe incorrect'); });
+    expect(mocks.api.deleteAccount).toHaveBeenCalledWith('test-session', 'incorrect');
     expect(session.user?.id).toBe('test-user');
     expect(mocks.data.get('token')).toBe('test-session');
     expect(mocks.clearVoice).not.toHaveBeenCalled();
@@ -122,7 +133,7 @@ describe('Grimoire, démonstration et effacement', () => {
     mocks.api.listDreams.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
     let pending!: Promise<void>;
     await act(async () => { pending = session.refresh(); await Promise.resolve(); });
-    await act(async () => session.deleteAccount());
+    await act(async () => session.deleteAccount('not-a-real-password'));
     await act(async () => { finish([{ id: 'late', title: 'Ancien contenu' }]); await pending; });
     expect(session.user).toBeNull();
     expect(session.dreams).toHaveLength(0);

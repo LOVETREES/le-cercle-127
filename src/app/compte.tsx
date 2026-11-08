@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
-import { Body, Card, Eyebrow, Notice, OutlineButton, SiteFooter, Title } from '../components/ui';
+import { Body, Card, Eyebrow, Field, Notice, OutlineButton, SiteFooter, Title } from '../components/ui';
 import { clearLastError, clearWebError, readLastError, readWebError, type LastError, type WebError } from '../lib/crash';
 import { DEFAULT_REMINDER, loadReminder, saveReminder, type Reminder } from '../lib/reminders';
 import { useSession } from '../lib/session';
@@ -26,6 +26,9 @@ function confirm(title: string, message: string, action: string): Promise<boolea
 export default function Compte() {
   const { user, signOut, deleteAccount, isDemo, clearLocalData } = useSession();
   const [busy, setBusy] = useState(false);
+  const [showDeletion, setShowDeletion] = useState(false);
+  const [deletionPassword, setDeletionPassword] = useState('');
+  const [deletionConfirmation, setDeletionConfirmation] = useState('');
   const [reminder, setReminder] = useState<Reminder>(DEFAULT_REMINDER);
   const [notice, setNotice] = useState<{ text: string; tone: 'error' | 'success' } | null>(null);
   const [lastError, setLastError] = useState<LastError | null>(null);
@@ -55,8 +58,14 @@ export default function Compte() {
     finally { setBusy(false); }
   };
 
+  const closeDeletion = () => {
+    setShowDeletion(false);
+    setDeletionPassword('');
+    setDeletionConfirmation('');
+  };
+
   return (
-    <ScrollView style={{ backgroundColor: colors.night }} contentContainerStyle={st.content}>
+    <ScrollView keyboardShouldPersistTaps="handled" style={{ backgroundColor: colors.night }} contentContainerStyle={st.content}>
       {user ? (
         <View style={{ gap: space.sm }}>
           <Eyebrow>{t('Connecté·e')}</Eyebrow>
@@ -111,23 +120,47 @@ export default function Compte() {
             label={isDemo ? t('Quitter et effacer la démo') : t('Me déconnecter')}
             disabled={busy}
             onPress={async () => {
+              closeDeletion();
               await runAccountAction(signOut, isDemo ? 'Démonstration effacée. Vos données personnelles sont conservées.' : 'Vous êtes déconnecté·e.');
             }}
           />
-          <OutlineButton
-            danger
-            label={isDemo ? t('Effacer la démonstration') : t('Supprimer mon compte')}
-            disabled={busy}
-            onPress={async () => {
-              const ok = await confirm(
-                isDemo ? 'Effacer la démonstration ?' : 'Supprimer mon compte ?',
-                isDemo ? 'Les exemples de démonstration seront effacés. Vos données personnelles ne seront pas modifiées.' : 'Cette demande supprime votre compte et vos rêves sur le serveur, puis efface les données locales et les audios de cet appareil. Les sauvegardes techniques peuvent suivre les délais de la politique de confidentialité.',
-                'Supprimer',
-              );
-              if (!ok) return;
-              await runAccountAction(deleteAccount, isDemo ? 'Démonstration effacée.' : 'Votre compte a été supprimé.');
-            }}
-          />
+          {showDeletion && !isDemo ? (
+            <>
+              <Body>{t('Cette demande supprime votre compte et vos rêves sur le serveur, puis efface les données locales et les audios de cet appareil. Les sauvegardes techniques peuvent suivre les délais de la politique de confidentialité.')}</Body>
+              <Field label={t('Mot de passe')} required secureTextEntry autoComplete="current-password" value={deletionPassword} onChangeText={setDeletionPassword} editable={!busy} />
+              <Field label={t('Saisissez le mot SUPPRIMER')} required autoCapitalize="characters" autoCorrect={false} value={deletionConfirmation} onChangeText={setDeletionConfirmation} editable={!busy} />
+              <OutlineButton
+                danger
+                label={t('Supprimer mon compte')}
+                disabled={busy || !deletionPassword || deletionConfirmation.trim() !== 'SUPPRIMER'}
+                onPress={async () => {
+                  if (deletionConfirmation.trim() !== 'SUPPRIMER' || !deletionPassword) return;
+                  const password = deletionPassword;
+                  setDeletionPassword('');
+                  await runAccountAction(async () => {
+                    await deleteAccount(password);
+                    closeDeletion();
+                  }, 'Votre compte a été supprimé.');
+                }}
+              />
+              <OutlineButton label={t('Annuler')} disabled={busy} onPress={closeDeletion} />
+            </>
+          ) : (
+            <OutlineButton
+              danger
+              label={isDemo ? t('Effacer la démonstration') : t('Supprimer mon compte')}
+              disabled={busy}
+              onPress={async () => {
+                if (!isDemo) {
+                  setNotice(null);
+                  setShowDeletion(true);
+                  return;
+                }
+                if (!await confirm('Effacer la démonstration ?', 'Les exemples de démonstration seront effacés. Vos données personnelles ne seront pas modifiées.', 'Supprimer')) return;
+                await runAccountAction(() => deleteAccount(), 'Démonstration effacée.');
+              }}
+            />
+          )}
           <Body muted style={{ fontSize: 13 }}>
             {t('Vous pouvez aussi écrire à contact@lecercle127.com pour exercer vos droits (accès, rectification, export).')}
           </Body>

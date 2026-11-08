@@ -27,6 +27,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
+    public code?: string,
   ) {
     super(message);
   }
@@ -67,7 +68,8 @@ async function request(url: string, { method = 'GET', body, token, timeoutMs = 2
   if (res.ok && unreadable) throw new ApiError(t('Réponse inattendue du serveur. Réessayez dans un instant.'), res.status);
   if (!res.ok) {
     const fallback = res.status === 401 ? 'Votre session a expiré. Reconnectez-vous.' : 'Une erreur est survenue.';
-    throw new ApiError(apiErrorMessage(json, fallback), res.status);
+    const code = (json as { code?: unknown } | undefined)?.code;
+    throw new ApiError(apiErrorMessage(json, fallback), res.status, typeof code === 'string' ? code : undefined);
   }
   return json;
 }
@@ -139,8 +141,8 @@ export const api = {
     return normalizeUser(await request(`${NS}/me`, { token }));
   },
 
-  async deleteAccount(token: string): Promise<void> {
-    await request(`${NS}/me`, { method: 'DELETE', token, body: { confirm: true } });
+  async deleteAccount(token: string, password: string): Promise<void> {
+    await request(`${NS}/me`, { method: 'DELETE', token, body: { password, confirmation: 'SUPPRIMER' } });
   },
 
   async listDreams(token: string): Promise<Dream[]> {
