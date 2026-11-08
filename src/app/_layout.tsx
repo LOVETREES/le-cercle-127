@@ -83,6 +83,7 @@ function Root() {
         <Stack.Screen name="explorer" options={{ title: 'Apprendre et explorer', headerShown: false }} />
         <Stack.Screen name="mes-lectures" options={{ title: 'Mes lectures', headerShown: false }} />
         <Stack.Screen name="parametres" options={{ title: 'Paramètres', headerShown: false }} />
+        <Stack.Screen name="lecture-main" options={{ title: 'Lecture de la main', headerShown: false }} />
         <Stack.Screen name="parcours" options={{ title: 'Mon parcours onirique', headerShown: false }} />
         <Stack.Screen name="soeurs" options={{ title: 'Le Cercle des 7 Sœurs', headerShown: false }} />
         <Stack.Screen name="journal" options={{ title: 'Mon journal', headerShown: false }} />

@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
+import { FEATURES } from '../lib/features';
 import { dayKey } from '../lib/insights';
 import { EMOTIONS, emotionOf, lastSevenDays, listEmotions, recordEmotion, type EmotionEntry, type EmotionKey } from '../lib/naia';
 import { listPalmReadings, type PalmReading } from '../lib/palm';
@@ -163,6 +164,11 @@ export function TerraCard() {
             <Text style={st.text}>{t('Une lecture par jour : un geste, un mantra, une question.')}</Text>
           </>
         )}
+        {FEATURES.palmDetailed ? (
+          <Pressable onPress={() => router.push('/lecture-main')} accessibilityRole="link" hitSlop={6}>
+            <Text style={[st.link, { color: TERRA }]}>{t('✦ Lecture détaillée sur photo ›')}</Text>
+          </Pressable>
+        ) : null}
       </View>
       <Text style={st.chevron}>›</Text>
     </Pressable>

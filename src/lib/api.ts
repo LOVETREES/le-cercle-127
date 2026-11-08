@@ -21,6 +21,7 @@ const BASE: string =
   (Constants.expoConfig?.extra as { apiBaseUrl?: string } | undefined)?.apiBaseUrl ?? 'https://lecercle127.com/wp-json';
 const NS = `${BASE}/cercle127/v1`;
 const PALM = `${BASE}/c127-palm/v1/readings`;
+const PALM_DETAILED = `${BASE}/c127-palm/v1/detailed`;
 
 export class ApiError extends Error {
   constructor(
@@ -84,6 +85,17 @@ export const api = {
   },
   async palmDelete(token: string, id: string): Promise<void> {
     await request(`${PALM}/${encodeURIComponent(id)}`, { method: 'DELETE', token });
+  },
+
+  // Lecture détaillée de la main sur photo (Terra). La photo n'est pas conservée par le site.
+  async palmDetailedList(token: string): Promise<unknown> {
+    return request(PALM_DETAILED, { token });
+  },
+  async palmDetailedCreate(token: string, body: { image: string; hand: string; lang: string; consent: true; metrics?: Record<string, number> }): Promise<unknown> {
+    return request(PALM_DETAILED, { method: 'POST', token, body, timeoutMs: 190000 });
+  },
+  async palmDetailedDelete(token: string, id: string): Promise<void> {
+    await request(`${PALM_DETAILED}/${encodeURIComponent(id)}`, { method: 'DELETE', token });
   },
 
   async login(email: string, password: string): Promise<Session> {

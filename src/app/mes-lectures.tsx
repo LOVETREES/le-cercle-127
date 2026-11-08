@@ -5,6 +5,7 @@ import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 import { Body, Card, Eyebrow, GoldButton, OutlineButton, Screen, Title } from '../components/ui';
 import { readingSummary } from '../lib/model';
 import { deletePalmEverywhere, formatPalmSummary, listPalmReadings, syncPalmReadings, type PalmReading } from '../lib/palm';
+import { FEATURES } from '../lib/features';
 import { useSession } from '../lib/session';
 import { colors, fonts, radius, space } from '../lib/theme';
 import { locale, t } from '../i18n';
@@ -99,6 +100,14 @@ export default function MesLectures() {
                 ? t('Gardées sur ce téléphone. La sauvegarde dans votre compte reprendra plus tard.')
                 : t('Gardées sur ce téléphone. Connectez-vous pour les retrouver partout.')}
           </Body>
+          {FEATURES.palmDetailed ? (
+            <Pressable onPress={() => router.push('/lecture-main')} accessibilityRole="link">
+              <Card>
+                <Eyebrow>{t('TERRA · LECTURE DÉTAILLÉE DE TA MAIN')}</Eyebrow>
+                <Body>{t('Ta main lue sur photo comme un horoscope, et l’évolution de tes lignes dans le temps ›')}</Body>
+              </Card>
+            </Pressable>
+          ) : null}
           {palms.length === 0 ? (
             <Card>
               <Eyebrow>Terra</Eyebrow>

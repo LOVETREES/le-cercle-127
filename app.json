@@ -149,6 +149,13 @@
           "microphonePermission": "Autoriser Le Cercle 127 à enregistrer ou dicter vos rêves avec le micro.",
           "speechRecognitionPermission": "Autoriser la transcription de votre voix en texte. Si un service en ligne est nécessaire, votre accord sera demandé."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Le Cercle 127 vous permet de choisir une photo de votre main pour la lecture de Terra.",
+          "cameraPermission": "Le Cercle 127 utilise l'appareil photo pour photographier votre main pour la lecture de Terra."
+        }
       ]
     ],
     "experiments": {

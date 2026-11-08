@@ -103,6 +103,14 @@
       box.appendChild(ev);
     }
     box.appendChild(el('p', 'c127d-muted', 'Une lecture symbolique, pour réfléchir et s’ancrer : jamais un diagnostic ni une prédiction.'));
+    var del = el('button', 'c127d-del', 'Supprimer cette lecture');
+    del.type = 'button';
+    del.addEventListener('click', function () {
+      if (!window.confirm('Supprimer cette lecture ? Elle et sa fiche d’observations seront effacées de ton compte.')) return;
+      del.disabled = true;
+      api('detailed/' + encodeURIComponent(item.id), { method: 'DELETE' }).then(function () { load(); }, function () { del.disabled = false; });
+    });
+    box.appendChild(del);
     return box;
   }
 

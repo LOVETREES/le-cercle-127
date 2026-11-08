@@ -75,3 +75,4 @@
 .c127d-changed { outline: 1px solid #8fc8e8; background: rgba(143,200,232,.12); } .c127d-faint { opacity: .5; }
 .c127d-hist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .c127d-histbtn { padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(216,182,107,.35); background: none; color: #ece9f6; font-size: 13px; cursor: pointer; }
+.c127d-del { margin-top: 6px; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.2); background: none; color: #a9a6bd; font-size: 13px; cursor: pointer; }
