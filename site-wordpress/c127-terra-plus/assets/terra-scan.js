@@ -258,6 +258,23 @@
       }
       f.joint = best;
     }
+    // Tracés pour l'animation : le cœur part de l'auriculaire, la tête de l'index, la vie du haut de la paume.
+    f.polys = {};
+    ['heart', 'head', 'life'].forEach(function (name) {
+      var pts = groups[CLASS[name]]; if (!pts || pts.length < 40) return;
+      var mx = 0, my = 0; pts.forEach(function (p) { mx += p.x; my += p.y; }); mx /= pts.length; my /= pts.length;
+      var a1 = 0, b1 = 0, c1 = 0; pts.forEach(function (p) { var dx = p.x - mx, dy = p.y - my; a1 += dx * dx; b1 += dx * dy; c1 += dy * dy; });
+      var th = 0.5 * Math.atan2(2 * b1, a1 - c1), ax = Math.cos(th), ay = Math.sin(th);
+      var pr = pts.map(function (p) { return { t: (p.x - mx) * ax + (p.y - my) * ay, p: p }; }).sort(function (u, v) { return u.t - v.t; });
+      var t0 = pr[Math.floor(pr.length * 0.01)].t, t1 = pr[Math.floor(pr.length * 0.99)].t, B = 28, bins = [];
+      for (var i = 0; i < B; i++) bins.push({ x: 0, y: 0, n: 0 });
+      pr.forEach(function (e) { if (e.t < t0 || e.t > t1) return; var k = Math.min(B - 1, Math.floor((e.t - t0) / ((t1 - t0) || 1) * B)); bins[k].x += e.p.x; bins[k].y += e.p.y; bins[k].n++; });
+      var line = bins.filter(function (q) { return q.n > 3; }).map(function (q) { return [Math.round(q.x / q.n), Math.round(q.y / q.n)]; });
+      if (line.length < 3) return;
+      var A = fr({ x: line[0][0], y: line[0][1] }), Z = fr({ x: line[line.length - 1][0], y: line[line.length - 1][1] });
+      var flip = name === 'heart' ? A.k > Z.k : name === 'head' ? A.k < Z.k : A.s < Z.s;
+      f.polys[name] = flip ? line.reverse() : line;
+    });
     ['heart', 'head', 'life'].forEach(function (n) { if (f.lines[n]) delete f.lines[n].pts; });
     return f;
   }
@@ -330,7 +347,7 @@
           return [a, m, c];
         };
         say('busy', '<span class="c127-scan__dot" aria-hidden="true"></span> Main repérée. Terra lit tes lignes…');
-        emit('lines');
+        emit('lines', { P: P.map(function (p) { return [p.x, p.y]; }), W: W, H: H });
         return segmenter().then(function (seg) {
           var crop = cropPalm(img, P, hand !== 'Left');
           return runLines(seg, crop).then(function (mask) {
@@ -367,7 +384,7 @@
         else msg = '<b>Main repérée.</b> Tes lignes sont placées d’après la forme de ta main' + (r.geometric ? '' : ' (plis peu visibles sur la photo : essaie une lumière rasante)') + '.';
         say('ok', msg + ' Ajuste un point en le faisant glisser si besoin. <button type="button" class="c127-scan__redo">Relire</button>');
         var redo = status.querySelector('.c127-scan__redo'); if (redo) redo.addEventListener('click', run);
-        emit('done', { found: r.found, feats: r.feats, geometric: !!r.geometric });
+        emit('done', { found: r.found, feats: r.feats, geometric: !!r.geometric, P: r.L.map(function (p) { return [p.x * img.naturalWidth, p.y * img.naturalHeight]; }), W: img.naturalWidth, H: img.naturalHeight });
       }).catch(function () {
         say('warn', 'La lecture automatique n’a pas pu se lancer sur cet appareil. Fais glisser les points pour suivre tes lignes.');
         emit('fail');

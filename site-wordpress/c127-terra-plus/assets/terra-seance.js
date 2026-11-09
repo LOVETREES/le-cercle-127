@@ -116,31 +116,95 @@
   var HEART_KEY = { jupiter: 'un cœur idéaliste', entre: 'un cœur équilibré', saturne: 'un cœur qui se protège' };
   var LIFE_KEY = { large: 'une énergie généreuse', moyen: 'une énergie régulière', serre: 'une énergie à préserver' };
 
-  function join(arr) { return arr.filter(Boolean).join(' '); }
-  function sec(cls, icon, title, sub, body) {
-    return '<section class="c127s-sec ' + cls + '"><h4><span aria-hidden="true">' + icon + '</span> ' + title + (sub ? ' <small>' + sub + '</small>' : '') + '</h4><p>' + body + '</p></section>';
+  // Ce que chaque trait devient quand on le lit avec l'élément de la main
+  var TITLE = {
+    feu: { jupiter: 'Un feu qui vise haut', entre: 'Un feu qui sait attendre son heure', saturne: 'Un feu qui couve sous la braise' },
+    eau: { jupiter: 'Une eau claire qui cherche l’idéal', entre: 'Une eau profonde et juste', saturne: 'Une eau calme qui garde ses secrets' },
+    air: { jupiter: 'Un souffle qui porte loin', entre: 'Un vent juste, ni tempête ni calme plat', saturne: 'Un air léger qui protège son cœur' },
+    terre: { jupiter: 'Une terre qui fait pousser des rêves', entre: 'Une terre fertile et équilibrée', saturne: 'Une terre solide, fidèle à ses racines' }
+  };
+  var VERB = { feu: 'Tu brûles', eau: 'Tu ressens tout', air: 'Tu penses vite', terre: 'Tu construis' };
+  var HEART_CLAUSE = { jupiter: 'tu vises haut pour ceux que tu aimes', entre: 'tu sais choisir pour qui', saturne: 'tu gardes ta chaleur pour quelques-uns' };
+  var HEAD_COMBO = {
+    feu: { descendante: 'Le Feu de ta main pousse à agir, et ta tête qui plonge vers la Lune donne à cet élan des images : tu agis souvent sur une vision.', droite: 'Feu et tête droite : tu décides vite et tu sais pourquoi. Prends garde seulement à ne pas confondre rapidité et précipitation.', inclinee: 'Le Feu te pousse, et ta tête inclinée te fait rêver juste assez pour viser la bonne direction.' },
+    eau: { descendante: 'Une main d’Eau et une tête qui plonge : ton monde intérieur est très riche. Écrire, dessiner ou créer t’aide à lui donner forme.', droite: 'Ta sensibilité d’Eau est tenue par une tête droite : tu ressens tout, mais tu sais mettre de l’ordre.', inclinee: 'Ta main d’Eau et ta tête inclinée se répondent : l’intuition guide, la raison vérifie.' },
+    air: { descendante: 'Une main d’Air et une tête vers la Lune : les idées fusent. Note-les, sinon elles repartent avec le vent.', droite: 'Main d’Air et tête droite : une pensée nette, qui aime comprendre comment les choses marchent.', inclinee: 'Ta main d’Air et ta tête inclinée font une pensée souple et curieuse, qui relie les idées entre elles.' },
+    terre: { descendante: 'Une main de Terre et une tête qui plonge : sous ton côté concret vit une imagination qu’on ne soupçonne pas.', droite: 'Terre et tête droite : du concret, du solide, des décisions qui tiennent.', inclinee: 'Ta main de Terre garde les pieds sur terre pendant que ta tête imagine : tu rêves des projets réalisables.' }
+  };
+  var JOINT_COMBO = {
+    liees: { feu: 'Le Feu de ta main pousse à foncer ; cette tête liée te fait d’abord regarder qui tu emmènes avec toi.', eau: 'Ta sensibilité d’Eau s’est construite au contact des tiens : tu ressens d’abord ce que vit ton entourage.', air: 'Ton esprit d’Air consulte, compare et écoute avant de trancher.', terre: 'Ta main de Terre aime les racines : tu avances quand le sol est sûr et les tiens à côté.' },
+    separees: { feu: 'Avec une main de Feu, cette indépendance donne de l’audace : tu pars souvent avant les autres.', eau: 'Ta sensibilité d’Eau ne t’empêche pas de suivre ta propre route, même à contre-courant.', air: 'Ton esprit d’Air aime penser par lui-même, hors des sentiers battus.', terre: 'Ta main de Terre bâtit à sa façon, sans attendre l’approbation des autres.' }
+  };
+  var LIFE_COMBO = { feu: 'Pour une main de Feu, c’est un rappel que l’élan dure quand il est nourri.', eau: 'Pour une main d’Eau, se ressourcer veut souvent dire s’isoler un peu, au calme.', air: 'Pour une main d’Air, l’énergie revient avec le mouvement et l’air libre.', terre: 'Pour une main de Terre, l’énergie revient au contact du concret : marcher, jardiner, faire.' };
+  function fingersCombo(t) {
+    if (t.indexRing === 'annulaire') return t.head && t.head.slope === 'descendante' ? 'Il rejoint ta ligne de tête qui file vers la Lune : chez toi, l’imagination a de la place.' : 'Chez toi, le goût de créer cherche toujours une place.';
+    if (t.indexRing === 'index') return t.head && t.head.slope === 'droite' ? 'Avec ta tête droite, c’est la main de quelqu’un qui sait organiser et mener.' : 'Tu sais prendre ta place quand il le faut.';
+    return '';
   }
-  function reading(t, photo) {
-    var E = ELEMENT[t.element], h = '';
-    h += '<p class="c127s-eyebrow">Ta lecture de la main</p>';
-    h += '<h3 class="c127s-title">' + E.icon + ' Une ' + E.name + ', ' + E.key + '</h3>';
-    if (photo) h += '<div class="c127s-photo">' + photo + '</div>';
-    h += '<p class="c127s-lead">J’ai regardé ta main entière, puis chacune de tes lignes. Voici ce qu’elles racontent.</p>';
-    h += sec('is-hand', '✋', 'Ta main en un regard', '', E.text);
-    if (t.heart) h += sec('is-heart', '♥', 'Ligne de cœur', 'ta manière d’aimer', join([HEART.end[t.heart.end], HEART.form[t.heart.form], HEART.len[t.heart.len], HEART.depth[t.heart.depth], t.heart.broken && HEART.broken]));
-    if (t.head) h += sec('is-head', '✦', 'Ligne de tête', 'ta manière de penser', join([HEAD.slope[t.head.slope], HEAD.len[t.head.len], t.joint && HEAD.joint[t.joint]]));
-    if (t.life) h += sec('is-life', '❦', 'Ligne de vie', 'ton énergie', join([LIFE.arc[t.life.arc], LIFE.len[t.life.len], LIFE.depth[t.life.depth]]) + ' <i>Elle ne dit rien de la durée de ta vie : elle parle de la façon dont tu dépenses et recharges ton énergie.</i>');
-    h += sec('is-fingers', '☝', 'Pouce et doigts', 'ta volonté, tes talents', join([HAND.thumb[t.thumb], HAND.open[t.thumbOpen], HAND.ir[t.indexRing], HAND.pinky[t.pinky]]));
-    h += '<section class="c127s-sec is-fate"><h4><span aria-hidden="true">↟</span> Ligne du destin <small>ta direction</small></h4>' +
-      '<p class="c127s-fate-q">Elle est souvent trop fine pour la photo. Regarde le centre de ta paume : vois-tu une ligne qui monte du poignet vers le majeur ?</p>' +
-      '<div class="c127s-fate-b" role="group" aria-label="Ma ligne du destin"><button type="button" data-fate="nette">Oui, nette</button><button type="button" data-fate="legere">Légère ou en morceaux</button><button type="button" data-fate="absente">Je n’en vois pas</button></div><p class="c127s-fate-a" aria-live="polite"></p></section>';
+  var L_END = { jupiter: 'sous l’index', entre: 'entre index et majeur', saturne: 'sous le majeur' };
+  var L_SHAPE = { carree: 'paume carrée', rect: 'paume rectangulaire', longue: 'paume allongée' };
+  var L_FING = { courts: 'doigts plus courts que la paume', prop: 'doigts proportionnés', longs: 'doigts longs' };
+  var L_THUMB = { court: 'pouce court', moyen: 'pouce moyen', long: 'pouce long' };
+  var L_OPEN = { serre: 'pouce proche de la main', ouvert: 'pouce ouvert', tres: 'pouce très ouvert' };
+  var L_IR = { index: 'index plus long', annulaire: 'annulaire plus long', egal: 'index et annulaire égaux' };
+  var L_SLOPE = { droite: 'pensée droite', inclinee: 'légèrement inclinée', descendante: 'vers le mont de la Lune' };
+  var L_JOINT = { liees: 'lignes liées', proches: 'lignes proches', separees: 'lignes séparées' };
+  var L_ARC = { large: 'large arc', moyen: 'arc équilibré', serre: 'arc serré près du pouce' };
+  var L_LIFELEN = { longue: 'descend jusqu’au poignet', moyenne: 'descend vers le poignet', courte: 's’arrête tôt' };
+
+  function num(v, d) { return (Math.round(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d).replace('.', ',').replace('-', '−'); }
+  function signed(v, d) { return (v > 0 ? '+' : '') + num(v, d); }
+  function join(arr) { return arr.filter(Boolean).join(' '); }
+  function obs(list) { return '<ul class="c127s-obs">' + list.filter(Boolean).map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>'; }
+  function sec(k, title, sub, paras, list) {
+    return '<section class="c127s-sec is-' + k + '" data-k="' + k + '" tabindex="0"><h4>' + title + (sub ? ' <small>' + sub + '</small>' : '') + '</h4>' +
+      paras.filter(Boolean).map(function (p) { return '<p>' + p + '</p>'; }).join('') + (list ? obs(list) : '') + '</section>';
+  }
+  function measures(F, t) {
+    var H = F.lines.heart, T = F.lines.head, rows = [
+      ['Paume : longueur ÷ largeur', num(F.ratio, 2), L_SHAPE[t.shape]],
+      ['Majeur ÷ paume', num(F.fingers, 2), L_FING[t.fingers]],
+      ['Pouce ÷ paume', num(F.thumbLen, 2), L_THUMB[t.thumb]],
+      ['Écart pouce–index', Math.round(F.thumbOpen) + '°', L_OPEN[t.thumbOpen]],
+      ['Index ÷ annulaire', signed(F.indexRing * 100, 1) + ' %', L_IR[t.indexRing]]
+    ];
+    if (H && t.heart) rows.push(['Fin de la ligne de cœur', signed(H.endK, 2), L_END[t.heart.end]]);
+    if (T && t.head) rows.push(['Pente de la ligne de tête', Math.round(T.slope) + '°', L_SLOPE[t.head.slope]]);
+    if (t.joint) rows.push(['Écart tête–vie au départ', num(F.joint, 2), L_JOINT[t.joint]]);
+    return '<details class="c127s-measures" open><summary>Mesures relevées sur ta photo</summary><dl>' +
+      rows.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '<small>' + r[2] + '</small></dd>'; }).join('') + '</dl></details>';
+  }
+  function reading(t, F, hasScene) {
+    var E = ELEMENT[t.element], H = F.lines.heart, T = F.lines.head, h = '';
     var end = t.heart ? t.heart.end : 'entre';
-    h += '<section class="c127s-sum"><h4>Ce que ta main te murmure</h4><p>' +
+    h += '<p class="c127s-eyebrow">Ta lecture de la main</p>';
+    h += '<h3 class="c127s-title">Une ' + E.name + ', ' + E.key + '</h3>';
+    h += '<div class="c127s-rgrid"><div class="c127s-rside">';
+    if (hasScene) h += '<div class="c127s-scenebox"><div data-c127s-scene></div><button type="button" class="c127s-replay" data-c127s="replay">Revoir le scan</button></div>';
+    h += measures(F, t) + '</div><div class="c127s-rmain">';
+    h += '<section class="c127s-elem"><span class="c127s-sigil" aria-hidden="true">' + E.icon + '</span><div><p class="c127s-k">Ta main en un regard</p><p>' + E.text + '</p></div></section>';
+    if (t.heart) h += sec('heart', 'Ligne de cœur', 'ta manière d’aimer',
+      [HEART.end[t.heart.end], join([HEART.form[t.heart.form], HEART.len[t.heart.len], HEART.depth[t.heart.depth], t.heart.broken && HEART.broken])],
+      [t.heart.len + ' · ' + num(H.length, 2) + ' paume', { droite: 'droite', souple: 'souple', courbe: 'courbe' }[t.heart.form] + ' · courbure ' + num(H.curve, 2), 'finit ' + L_END[t.heart.end]]);
+    if (t.head) h += sec('head', 'Ligne de tête', 'ta manière de penser',
+      [join([HEAD.slope[t.head.slope], HEAD.len[t.head.len]]), t.joint ? join([HEAD.joint[t.joint], JOINT_COMBO[t.joint] && JOINT_COMBO[t.joint][t.element]]) : ''],
+      ['pente ' + Math.round(T.slope) + '° · ' + { droite: 'droite', inclinee: 'inclinée', descendante: 'descendante' }[t.head.slope], t.joint && { liees: 'départ lié à la vie', proches: 'départ proche de la vie', separees: 'départ séparé de la vie' }[t.joint]]);
+    if (t.life) h += sec('life', 'Ligne de vie', 'ton énergie',
+      [join([LIFE.arc[t.life.arc], LIFE.len[t.life.len], LIFE.depth[t.life.depth]]), 'Elle ne dit rien de la durée de ta vie : elle parle de la façon dont tu dépenses et recharges ton énergie. ' + LIFE_COMBO[t.element]],
+      [L_ARC[t.life.arc], L_LIFELEN[t.life.len]]);
+    h += sec('fingers', 'Pouce et doigts', 'ta volonté, tes talents',
+      [join([HAND.thumb[t.thumb], HAND.open[t.thumbOpen]]), join([HAND.ir[t.indexRing], fingersCombo(t), HAND.pinky[t.pinky]])],
+      ['pouce ' + num(F.thumbLen, 2) + ' paume', { index: 'index > annulaire', annulaire: 'annulaire > index', egal: 'index ≈ annulaire' }[t.indexRing]]);
+    h += '<section class="c127s-sec is-fate" data-k="fate" tabindex="0"><h4>Ligne du destin <small>ta direction</small></h4>' +
+      '<p class="c127s-fate-q">Elle est souvent trop fine pour la photo. Regarde le centre de ta paume : vois-tu une ligne qui monte du poignet vers le majeur ?</p>' +
+      '<div class="c127s-fate-b" role="group" aria-label="Ma ligne du destin"><button type="button" data-fate="nette" aria-pressed="false">Oui, nette</button><button type="button" data-fate="legere" aria-pressed="false">Légère ou en morceaux</button><button type="button" data-fate="absente" aria-pressed="false">Je n’en vois pas</button></div><p class="c127s-fate-a" aria-live="polite"></p></section>';
+    h += '<section class="c127s-sum"><p class="c127s-k">Le fil qui relie tout</p><h4 class="c127s-sum__t">' + TITLE[t.element][end] + '</h4><p>' +
       'Une ' + E.name + ', ' + (t.heart ? HEART_KEY[t.heart.end] : 'un cœur à écouter') + ', ' + (t.head ? HEAD_KEY[t.head.slope] : 'une pensée à découvrir') + (t.life ? ' et ' + LIFE_KEY[t.life.arc] : '') + '. ' +
-      'Ta force du moment, c’est <b>' + E.force + '</b>. Ce que ta main t’invite à travailler : <b>' + E.defi + '</b>.</p>' +
+      (t.head ? HEAD_COMBO[t.element][t.head.slope] + ' ' : '') + VERB[t.element] + ', et ' + HEART_CLAUSE[end] + '.</p>' +
+      '<p>Ta force du moment, c’est <b>' + E.force + '</b>. Ce que ta main t’invite à travailler : <b>' + E.defi + '</b>.</p>' +
       '<p class="c127s-q"><span>Question pour ton Grimoire</span>' + QUESTION[end] + '</p></section>';
-    h += '<p class="c127s-note">Lecture symbolique inspirée de la chiromancie traditionnelle, à partir des proportions et des lignes mesurées sur ta photo. C’est un miroir pour réfléchir, jamais une prédiction ni un avis médical.</p>';
-    return h;
+    h += '<p class="c127s-note">Lecture symbolique inspirée de la chiromancie traditionnelle, à partir des proportions et des lignes mesurées sur ta photo, directement sur ton appareil. C’est un miroir pour réfléchir, jamais une prédiction ni un avis médical.</p>';
+    return h + '</div></div>';
   }
 
   /* ---------- 3. Remplir le moteur de l'atelier (sa carte du jour s'appuie sur ces champs) ---------- */
@@ -198,22 +262,43 @@
       var i = order.indexOf(s);
       Array.prototype.forEach.call(steps.children, function (li, j) { li.className = j < i ? 'is-done' : j === i ? 'is-now' : ''; });
     }
-    var T = null;
+    var T = null, D = null, sc = null, handP = Promise.resolve();
+    var S = window.C127Scene;
+    function dropScene() { if (sc) { sc.destroy(); sc = null; } root.classList.remove('c127s-scene'); }
+    function ratioOf(P) { return Math.hypot(P[9][0] - P[0][0], P[9][1] - P[0][1]) / (Math.hypot(P[5][0] - P[17][0], P[5][1] - P[17][1]) || 1); }
     root.addEventListener('c127:palm', function (e) {
       var d = e.detail || {};
       if (d.stage === 'photo') {
-        root.classList.remove('c127s-ready', 'c127s-auto', 'c127s-edit'); found.hidden = true; T = null;
+        dropScene();
+        root.classList.remove('c127s-ready', 'c127s-auto', 'c127s-edit'); found.hidden = true; T = null; D = null;
         wrap.classList.add('is-scanning'); progress('photo');
         if (upLabel) upLabel.textContent = 'Changer de photo';
         setTimeout(function () { wrap.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 80);
-      } else if (d.stage === 'hand' || d.stage === 'lines') {
-        progress(d.stage);
+      } else if (d.stage === 'hand') {
+        progress('hand');
+      } else if (d.stage === 'lines') {
+        progress('lines');
+        // La main est trouvée : ses points apparaissent pendant que Terra cherche les lignes.
+        if (S && d.P && d.W) {
+          dropScene();
+          sc = S.create({ W: d.W, H: d.H, fit: getComputedStyle(img).objectFit === 'contain' ? 'contain' : 'cover', over: img, wrap: wrap, ratio: num(ratioOf(d.P), 2) });
+          sc.setHand(d.P); root.classList.add('c127s-scene');
+          handP = sc.showHand();
+        }
       } else if (d.stage === 'done') {
-        wrap.classList.remove('is-scanning');
-        Array.prototype.forEach.call(steps.children, function (li) { li.className = 'is-done'; });
-        T = d.feats ? traits(d.feats) : null;
-        showFound(d);
+        D = d; T = d.feats ? traits(d.feats) : null;
+        var polys = d.feats && d.feats.polys;
+        var finishScan = function () {
+          wrap.classList.remove('is-scanning');
+          Array.prototype.forEach.call(steps.children, function (li) { li.className = 'is-done'; });
+          showFound(d);
+        };
+        if (sc && polys && polys.heart) {
+          sc.setLines(polys);
+          handP.then(function () { wrap.classList.remove('is-scanning'); return sc && sc.drawAll(); }).then(function () { if (sc) sc.settle(); finishScan(); });
+        } else { root.classList.remove('c127s-scene'); finishScan(); }
       } else if (d.stage === 'nohand' || d.stage === 'fail') {
+        dropScene();
         wrap.classList.remove('is-scanning'); steps.hidden = true;
         found.hidden = false; found.className = 'c127s-found wp-exclude-emoji is-warn';
         found.innerHTML = '<p><b>' + (d.stage === 'nohand' ? 'Je ne vois pas bien ta main.' : 'La lecture automatique ne marche pas sur cet appareil.') + '</b> ' +
@@ -254,32 +339,54 @@
     });
 
     function go(n) { var nav = root.querySelector('[data-step-nav="' + n + '"]'); if (nav) nav.click(); }
-    function photoClone() {
-      // vignette : la photo avec ses tracés, figée au moment de la lecture
-      if (!img || !img.src) return '';
-      var svg = root.querySelector('[data-mapper]'), lines = svg ? svg.querySelector('.terra127__palm-lines') : null;
-      var r = img.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
-      var box = '<div class="c127s-thumb" style="aspect-ratio:' + (wr.width / wr.height || 0.75).toFixed(3) + '"><img src="' + img.src + '" alt="Ta paume" style="object-fit:' + getComputedStyle(img).objectFit + '">';
-      if (lines) box += '<svg viewBox="' + svg.getAttribute('viewBox') + '" preserveAspectRatio="' + (svg.getAttribute('preserveAspectRatio') || 'xMidYMid meet') + '" aria-hidden="true">' + lines.outerHTML + '</svg>';
-      void r;
-      return box + '</div>';
-    }
+    var rsc = null;
     function finish() {
-      if (!T) { go(3); return; }
+      if (!T || !D || !D.feats) { go(3); return; }
       fill(root, T);
-      var thumb = photoClone();
       go(6);
       var box = finalP.querySelector('.c127s-reading');
       if (!box) { box = el('article', 'c127s-reading wp-exclude-emoji'); finalP.insertBefore(box, finalP.firstChild); }
-      box.innerHTML = reading(T, thumb) +
+      var canScene = !!(S && D.P && D.feats.polys && img && img.src);
+      box.innerHTML = reading(T, D.feats, canScene) +
         '<div class="c127s-after"><button type="button" class="c127s-link" data-c127s="fix">Corriger ce que Terra a lu</button>' +
         (document.getElementById('c127-hub-tab-photo') ? '<button type="button" class="c127s-link" data-c127s="deep">Aller plus loin : lecture détaillée</button>' : '') + '</div>' +
         '<p class="c127s-bridge">Et pour aujourd’hui, Terra te confie un geste.</p>';
+      if (rsc) { rsc.destroy(); rsc = null; }
+      var host = box.querySelector('[data-c127s-scene]');
+      if (canScene && host) {
+        rsc = S.create({ W: D.W, H: D.H, src: img.src, ratio: num(D.feats.ratio, 2) });
+        host.appendChild(rsc.el); rsc.setHand(D.P); rsc.setLines(D.feats.polys);
+        setTimeout(function () { replay(); }, 500);
+      }
       try { sessionStorage.setItem('c127_palm_reading', JSON.stringify({ at: Date.now(), t: T })); } catch (e) {}
       setTimeout(function () { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120);
     }
+    function live(k) {
+      var sec = finalP.querySelector('.c127s-sec[data-k="' + k + '"]');
+      if (sec) { sec.classList.remove('is-live'); void sec.offsetWidth; sec.classList.add('is-live'); }
+    }
+    function replay() { if (rsc) rsc.play(live); }
+    function focusLine(k) {
+      Array.prototype.forEach.call(finalP.querySelectorAll('.c127s-sec'), function (x) { x.classList.toggle('is-on', x.getAttribute('data-k') === k); });
+      if (rsc) rsc.focus(k);
+    }
+    ['mouseover', 'focusin'].forEach(function (ev) {
+      finalP.addEventListener(ev, function (e) { var sct = e.target.closest && e.target.closest('.c127s-sec'); if (sct) focusLine(sct.getAttribute('data-k')); });
+    });
+    ['mouseout', 'focusout'].forEach(function (ev) {
+      finalP.addEventListener(ev, function (e) { var sct = e.target.closest && e.target.closest('.c127s-sec'); if (sct && !(e.relatedTarget && sct.contains(e.relatedTarget))) focusLine(null); });
+    });
     finalP.addEventListener('click', function (e) {
-      var b = e.target.closest('[data-c127s],[data-fate]'); if (!b) return;
+      var b = e.target.closest('[data-c127s],[data-fate]');
+      if (!b) {
+        var sct = e.target.closest('.c127s-sec');
+        if (sct && rsc && rsc.lines[sct.getAttribute('data-k')]) {
+          focusLine(sct.getAttribute('data-k'));
+          var fig = rsc.el.getBoundingClientRect();
+          if (fig.bottom < 0 || fig.top > innerHeight) rsc.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
       if (b.hasAttribute('data-fate')) {
         var k = b.getAttribute('data-fate'), sec2 = b.closest('.c127s-sec');
         Array.prototype.forEach.call(sec2.querySelectorAll('[data-fate]'), function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
@@ -289,6 +396,7 @@
         return;
       }
       var a = b.getAttribute('data-c127s');
+      if (a === 'replay') { replay(); return; }
       if (a === 'fix') { root.classList.remove('c127s-auto'); go(3); root.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
       if (a === 'deep') { var tab = document.getElementById('c127-hub-tab-photo'); if (tab) { tab.click(); tab.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
     });
