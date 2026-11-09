@@ -12,7 +12,7 @@ vi.mock('../lib/storage', () => ({
 }));
 
 import { __resetPalmForTests } from '../lib/palm';
-import { clearRitual, isOracleReveal, readRitual, recordGesture, ritualToday, withGesture } from '../lib/rituel';
+import { clearRitual, isOracleReveal, isPalmSeance, readRitual, recordGesture, ritualToday, withGesture } from '../lib/rituel';
 
 beforeEach(() => {
   store.clear();
@@ -28,6 +28,20 @@ describe('rituel du jour', () => {
     expect(isOracleReveal(JSON.stringify({ type: 'c127-oracle-reveal', n: '42' }))).toBe(true);
     expect(isOracleReveal(JSON.stringify({ type: 'c127-ready' }))).toBe(false);
     expect(isOracleReveal('pas du json')).toBe(false);
+  });
+
+  it('reconnaît la fin d’une lecture de la main dans l’atelier de Terra', () => {
+    expect(isPalmSeance(JSON.stringify({ type: 'c127-terra-reading', element: 'feu' }))).toBe(true);
+    expect(isPalmSeance(JSON.stringify({ type: 'c127-oracle-reveal' }))).toBe(false);
+    expect(isPalmSeance('{')).toBe(false);
+  });
+
+  it('coche « Ta main » après une lecture faite dans l’atelier du site', async () => {
+    await recordGesture('main', NOW);
+    const store = await readRitual();
+    expect(store.main).toBe(TODAY);
+    expect(ritualToday(store, [], [], NOW)).toMatchObject({ main: true, count: 1 });
+    expect(ritualToday(store, [], [], new Date(2026, 10, 10, 9))).toMatchObject({ main: false });
   });
 
   it('coche chaque geste à partir des vraies actions du jour', () => {

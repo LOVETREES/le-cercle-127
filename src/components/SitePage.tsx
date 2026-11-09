@@ -6,7 +6,7 @@ import { WebView as RNWebView } from 'react-native-webview';
 
 import { saveWebError } from '../lib/crash';
 import { lastPalmScript, storePalmMessage } from '../lib/palm';
-import { isOracleReveal, recordGesture } from '../lib/rituel';
+import { isOracleReveal, isPalmSeance, recordGesture } from '../lib/rituel';
 import { decideNavigation, decidePageRequest, injectedScript, nativeRouteFor, siteUrl } from '../lib/webpage';
 import { colors, fonts, space } from '../lib/theme';
 import { OutlineButton } from './ui';
@@ -170,6 +170,8 @@ function SitePageContent({ path }: { path: string }) {
           const data = e.nativeEvent.data;
           // Une carte révélée dans l'Oracle coche « Ta carte » du rituel du jour.
           if (isOracleReveal(data)) { recordGesture('carte').catch(() => undefined); return; }
+          // Une lecture de la main terminée dans l'atelier de Terra coche « Ta main ».
+          if (isPalmSeance(data)) { recordGesture('main').catch(() => undefined); return; }
           storePalmMessage(data).then((r) => { if (r === 'ignored') saveWebError(data); else if (r === 'new') setPalmSaved(true); }, () => saveWebError(data));
         }}
         allowsBackForwardNavigationGestures

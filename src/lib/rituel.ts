@@ -1,13 +1,14 @@
 // Rituel du jour : trois gestes courts (carte, émotion, main) et une série de jours.
 // La carte est signalée par la page de l'Oracle (message « c127-oracle-reveal »),
-// l'émotion vient de Naïa (accueil), la main des lectures de Terra enregistrées.
+// l'émotion vient de Naïa (accueil), la main des lectures de Terra enregistrées
+// ou de la séance de lecture de l'atelier (message « c127-terra-reading »).
 import { dayKey } from './insights';
 import type { EmotionEntry } from './naia';
 import type { PalmReading } from './palm';
 import { currentOwner } from './palm';
 import { KEYS, local } from './storage';
 
-export type RitualStore = { carte?: string; lastDay?: string; streak?: number };
+export type RitualStore = { carte?: string; main?: string; lastDay?: string; streak?: number };
 export type RitualToday = { carte: boolean; emotion: boolean; main: boolean; count: number; streak: number };
 
 const keyFor = () => `${KEYS.rituel}:${currentOwner()}`;
@@ -17,6 +18,16 @@ export function isOracleReveal(raw: string): boolean {
   try {
     const d = JSON.parse(raw);
     return !!d && d.type === 'c127-oracle-reveal';
+  } catch {
+    return false;
+  }
+}
+
+/** Le message envoyé par l'atelier de Terra quand une lecture de la main est terminée. */
+export function isPalmSeance(raw: string): boolean {
+  try {
+    const d = JSON.parse(raw);
+    return !!d && d.type === 'c127-terra-reading';
   } catch {
     return false;
   }
@@ -35,7 +46,7 @@ export function ritualToday(store: RitualStore, emotions: EmotionEntry[], palms:
   const today = dayKey(now);
   const carte = store.carte === today;
   const emotion = emotions.some((e) => e.day === today);
-  const main = palms.some((p) => {
+  const main = store.main === today || palms.some((p) => {
     const d = new Date(p.at);
     return !Number.isNaN(d.getTime()) && dayKey(d) === today;
   });
@@ -56,7 +67,7 @@ export async function readRitual(): Promise<RitualStore> {
 /** À appeler quand un geste vient d'être accompli (carte, émotion, main). */
 export async function recordGesture(kind: 'carte' | 'emotion' | 'main', now = new Date()): Promise<RitualStore> {
   const cur = await readRitual();
-  const next = withGesture(kind === 'carte' ? { ...cur, carte: dayKey(now) } : cur, now);
+  const next = withGesture(kind === 'carte' ? { ...cur, carte: dayKey(now) } : kind === 'main' ? { ...cur, main: dayKey(now) } : cur, now);
   await local.setJson(keyFor(), next);
   return next;
 }
