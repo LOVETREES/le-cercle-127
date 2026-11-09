@@ -55,5 +55,6 @@ export const KEYS = {
   lang: 'c127.lang',
   presenceDays: 'c127.presence-days',
   emotions: 'c127.emotions',
+  rituel: 'c127.rituel',
   demoPendingTranscript: 'c127.demo-pending-transcript',
 } as const;

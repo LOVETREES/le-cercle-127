@@ -53,3 +53,7 @@ body.home .m1 > .wrap > .c127a-unfold{order:11}
 .c127a-suite__item small{color:#aeb5c8;font:500 .8rem/1.35 "Manrope",system-ui,sans-serif}
 .c127a-suite__item .c127a-geste__ic{flex:0 0 auto}
 .c127a-suite__item::after{content:"›";margin-left:auto;color:#d8b66b;font-size:1.4rem}
+
+.c127a-pic{display:block;width:44px;height:44px;flex:0 0 auto;border-radius:12px;object-fit:contain}
+.c127a-pic.is-round{border-radius:50%;object-fit:cover;border:1px solid rgba(216,182,107,.6)}
+.c127a-pic.is-small{width:30px;height:30px;border-radius:8px}

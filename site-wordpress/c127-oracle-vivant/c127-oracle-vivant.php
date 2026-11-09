@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Le Cercle 127 — Oracle vivant
  * Description: Anime et « gamifie » le tirage de l'Oracle 127 sans toucher au moteur : distribution des cartes depuis le paquet, révélation 3D avec halo et gerbe dorée, carillon (coupable) et vibration, collection des 127 lames découvertes, série de jours et paliers. Respecte « réduire les animations ». Désactiver l'extension rend l'Oracle d'origine.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Le Cercle 127
  */
 if (!defined('ABSPATH')) { exit; }

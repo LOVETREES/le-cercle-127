@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { type ComponentRef, useEffect, useMemo, useRef, useState } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { NaiaCard, TerraCard } from '../../components/HomeSisters';
+import { RituelDuJour } from '../../components/RituelDuJour';
 import { GoldButton, Screen, SiteFooter } from '../../components/ui';
 import { IMAGES, SISTERS } from '../../lib/content';
 import { addPresence, dailyThought, journey } from '../../lib/insights';
@@ -10,6 +11,8 @@ import { useSession } from '../../lib/session';
 import { KEYS, local } from '../../lib/storage';
 import { colors, fonts, radius, space } from '../../lib/theme';
 import { locale, quote, t } from '../../i18n';
+
+const PICTO_GRIMOIRE = require('../../../assets/images/nav-grimoire.png');
 
 // Couleurs des Sœurs, reprises du site (--sister-accent).
 const SISTER_COLORS = ['#d9cdfb', '#a9c2f7', '#8fdad3', '#a9c98a', '#eb9a68', '#f2dea8', '#f3f1fb'];
@@ -31,6 +34,9 @@ function formatDate(iso: string) {
 export default function Home() {
   const { dreams, user } = useSession();
   const [presence, setPresence] = useState(1);
+  const [ritualTick, setRitualTick] = useState(0);
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const naiaY = useRef(0);
   const now = useMemo(() => new Date(), []);
   const thought = useMemo(() => t(dailyThought(now)), [now]);
   const j = useMemo(() => journey(dreams, now), [dreams, now]);
@@ -64,7 +70,7 @@ export default function Home() {
             : t(j.total > 1 ? '{n} rêves gardés dans votre Grimoire.' : '{n} rêve gardé dans votre Grimoire.', { n: j.total });
 
   return (
-    <Screen>
+    <Screen scrollRef={scrollRef}>
       {/* Salut personnel */}
       <View style={{ gap: 4 }}>
         <Text style={st.date}>{now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}</Text>
@@ -74,6 +80,22 @@ export default function Home() {
         </Text>
         <Text style={st.progress}>{progress}</Text>
       </View>
+
+      {/* L'essentiel d'abord : raconter son rêve, puis son Grimoire */}
+      <GoldButton label={t('Raconter un rêve  ›')} onPress={() => router.navigate('/reve')} />
+      <Pressable style={st.grimoireBtn} onPress={() => router.navigate('/grimoire')} accessibilityRole="button" accessibilityLabel={t('Ouvrir mon Grimoire')}>
+        <Image source={PICTO_GRIMOIRE} style={st.grimoirePicto} resizeMode="contain" />
+        <Text style={st.grimoireLabel}>{t('Ouvrir mon Grimoire')}</Text>
+      </Pressable>
+
+      {/* Rituel du jour : carte, émotion, main */}
+      <RituelDuJour refreshKey={ritualTick} onEmotion={() => scrollRef.current?.scrollTo({ y: Math.max(0, naiaY.current - 12), animated: true })} />
+
+      {/* Naïa : l'émotion du moment ; Terra : la main du jour */}
+      <View onLayout={(e) => { naiaY.current = e.nativeEvent.layout.y; }}>
+        <NaiaCard onRecorded={() => setRitualTick((n) => n + 1)} />
+      </View>
+      <TerraCard />
 
       {/* Pensée du jour */}
       <View style={st.thought} accessibilityLabel={t('Pensée du jour : {v0}', { v0: thought })}>
@@ -122,13 +144,6 @@ export default function Home() {
         </View>
         <Text style={st.chevron}>›</Text>
       </Pressable>
-
-      {/* Action principale */}
-      <GoldButton label={t('Raconter un rêve  ›')} onPress={() => router.navigate('/reve')} />
-
-      {/* Naïa : l'émotion du moment ; Terra : la main du jour */}
-      <NaiaCard />
-      <TerraCard />
 
       {/* Dernier rêve */}
       {last && (
@@ -197,6 +212,9 @@ export default function Home() {
 const card = { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: colors.surface } as const;
 
 const st = StyleSheet.create({
+  grimoireBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 52, paddingHorizontal: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.gold },
+  grimoirePicto: { width: 30, height: 30 },
+  grimoireLabel: { fontFamily: fonts.bodyBold, fontSize: 16, color: colors.gold },
   date: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 2, color: colors.muted },
   hello: { fontFamily: fonts.title, fontSize: 34, color: colors.text },
   progress: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.gold },

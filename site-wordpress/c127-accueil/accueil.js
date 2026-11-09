@@ -3,6 +3,8 @@
   'use strict';
   var cfg = window.C127Accueil || {};
   var L = cfg.links || {};
+  var IMG = cfg.img || {};
+  function pic(src, round, fallback) { return src ? '<img class="c127a-pic' + (round ? ' is-round' : '') + '" src="' + src + '" alt="" width="44" height="44" loading="lazy" decoding="async">' : '<span class="c127a-geste__ic" aria-hidden="true">' + fallback + '</span>'; }
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function read(k) { try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch (e) { return {}; } }
   function write(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
@@ -42,7 +44,7 @@
     }
     // 2. Le second : le Grimoire.
     if (!wrap.querySelector('.c127a-cta2')) {
-      var g = el('a', 'c127a-cta2 wp-exclude-emoji', '<span aria-hidden="true">📖</span> Ouvrir mon Grimoire');
+      var g = el('a', 'c127a-cta2 wp-exclude-emoji', (IMG.grimoire ? '<img class="c127a-pic is-small" src="' + IMG.grimoire + '" alt="" width="30" height="30">' : '<span aria-hidden="true">📖</span>') + ' Ouvrir mon Grimoire');
       g.href = L.grimoire || '/grimoire/';
       wrap.appendChild(g);
     }
@@ -56,14 +58,14 @@
     band.innerHTML =
       '<div class="c127a-rituel__head"><h2 id="c127a-rituel-h">Ton rituel du jour</h2><span class="c127a-rituel__meta">' + st.count + ' / 3' + (streakTxt ? ' · ' + streakTxt : '') + '</span></div>' +
       '<div class="c127a-gestes">' +
-      geste('carte', '🃏', 'Ta carte', 'Un éclairage pour aujourd’hui', L.oracle) +
-      geste('emotion', '💧', 'Ton émotion', 'L’accueillir avec Naïa', L.naia) +
-      geste('main', '✋', 'Ta main', 'Revenir au corps avec Terra', L.terra) +
+      geste('carte', pic(IMG.carte, false, '🌙'), 'Ta carte', 'Un éclairage pour aujourd’hui', L.oracle) +
+      geste('emotion', pic(IMG.naia, true, '💧'), 'Ton émotion', 'L’accueillir avec Naïa', L.naia) +
+      geste('main', pic(IMG.terra, true, '✋'), 'Ta main', 'Revenir au corps avec Terra', L.terra) +
       '</div><div class="c127a-bar" aria-hidden="true"><i></i></div>' +
       '<p class="c127a-rituel__foot">' + footer(st.count) + '</p>';
     function geste(key, ic, t, s, href) {
       return '<a class="c127a-geste' + (st.done[key] ? ' is-done' : '') + '" data-geste="' + key + '" href="' + (href || '#') + '">' +
-        '<span class="c127a-geste__ic" aria-hidden="true">' + ic + '</span><b>' + t + '</b><span class="c127a-geste__s">' + s + '</span>' +
+        ic + '<b>' + t + '</b><span class="c127a-geste__s">' + s + '</span>' +
         (st.done[key] ? '<span class="screen-reader-text"> (fait aujourd’hui)</span>' : '') + '</a>';
     }
     function footer(n) {
@@ -109,9 +111,9 @@
       '<h2 id="c127a-suite-h">Pendant qu’Oni lit ton rêve…</h2>' +
       '<p>Ta Perle d’Oni arrive par e-mail. En attendant, prolonge ce que le rêve a laissé en toi.</p>' +
       '<div class="c127a-suite__list">' +
-      '<a class="c127a-suite__item" data-geste="main" href="' + (L.terraAncrage || L.terra) + '"><span class="c127a-geste__ic" aria-hidden="true">🌿</span><span><b>Revenir au corps avec Terra</b><small>Un ancrage guidé d’une à cinq minutes, juste après le rêve.</small></span></a>' +
-      '<a class="c127a-suite__item" data-geste="main" href="' + L.terra + '"><span class="c127a-geste__ic" aria-hidden="true">✋</span><span><b>Lire ta main avec Terra</b><small>Le rêve parle la nuit, la main parle le jour : complète ta carte.</small></span></a>' +
-      '<a class="c127a-suite__item" data-geste="emotion" href="' + L.naia + '"><span class="c127a-geste__ic" aria-hidden="true">💧</span><span><b>Nommer ce que le rêve a laissé</b><small>Naïa t’aide à accueillir l’émotion du réveil.</small></span></a>' +
+      '<a class="c127a-suite__item" data-geste="main" href="' + (L.terraAncrage || L.terra) + '">' + pic(IMG.terra, true, '🌿') + '<span><b>Revenir au corps avec Terra</b><small>Un ancrage guidé d’une à cinq minutes, juste après le rêve.</small></span></a>' +
+      '<a class="c127a-suite__item" data-geste="main" href="' + L.terra + '">' + pic(IMG.terra, true, '✋') + '<span><b>Lire ta main avec Terra</b><small>Le rêve parle la nuit, la main parle le jour : complète ta carte.</small></span></a>' +
+      '<a class="c127a-suite__item" data-geste="emotion" href="' + L.naia + '">' + pic(IMG.naia, true, '💧') + '<span><b>Nommer ce que le rêve a laissé</b><small>Naïa t’aide à accueillir l’émotion du réveil.</small></span></a>' +
       '</div>';
     box.addEventListener('click', function (e) {
       var a = e.target.closest('[data-geste]');

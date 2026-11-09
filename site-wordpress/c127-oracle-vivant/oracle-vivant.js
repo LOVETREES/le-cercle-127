@@ -160,6 +160,8 @@
       card.appendChild(halo); setTimeout(function () { halo.remove(); }, 1700);
     }
     var n = card.getAttribute('data-n');
+    // Dans l'application : « Ta carte » du rituel du jour est cochée.
+    try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'c127-oracle-reveal', n: n || '' })); } catch (e) {}
     var isNew = n && !S.seen[n];
     setTimeout(function () {
       var r = card.getBoundingClientRect();

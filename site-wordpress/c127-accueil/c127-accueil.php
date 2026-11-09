@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Le Cercle 127 — Accueil recentré et prolongement du rêve
  * Description: Accueil centré sur le rêve : « Raconter mon rêve » (prix lu sur la page) et « Ouvrir mon Grimoire » en tête, bandeau « Ton rituel du jour » (carte, émotion, main) avec gestes cochés et série de jours, le reste replié plus bas. Après le paiement d'une Perle d'Oni : « Pendant qu'Oni lit ton rêve », Terra et Naïa en prolongement. Le thème n'est pas modifié ; désactiver l'extension rend l'accueil d'origine.
- * Version: 1.0.0
+ * Version: 1.0.2
  * Author: Le Cercle 127
  */
 if (!defined('ABSPATH')) { exit; }
@@ -24,6 +24,12 @@ add_action('wp_enqueue_scripts', function () {
             'naia' => home_url('/naia-gardienne-des-emotions/#c127-ask-naia-apaisement'),
             'terra' => home_url('/terra-gardienne-de-lancrage/'),
             'terraAncrage' => home_url('/terra-gardienne-de-lancrage/#c127-ask-terra-ancrage'),
+        ],
+        'img' => [
+            'carte' => $base . 'img/nav-oracle.png',
+            'grimoire' => $base . 'img/nav-grimoire.png',
+            'naia' => content_url('uploads/2026/08/naia-carre.webp'),
+            'terra' => content_url('uploads/2026/08/terra-carre.webp'),
         ],
     ]);
 }, 40);

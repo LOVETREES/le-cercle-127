@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import type { ReactNode } from 'react';
+import type { ComponentRef, ReactNode, Ref } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -61,12 +61,12 @@ export function AppHeader() {
   );
 }
 
-export function Screen({ children, scroll = true, header = true }: { children: ReactNode; scroll?: boolean; header?: boolean }) {
+export function Screen({ children, scroll = true, header = true, scrollRef }: { children: ReactNode; scroll?: boolean; header?: boolean; scrollRef?: Ref<ComponentRef<typeof ScrollView>> }) {
   return (
     <SafeAreaView style={s.screen} edges={['top']}>
       {header && <AppHeader />}
       {scroll ? (
-        <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={scrollRef} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
           {children}
         </ScrollView>
       ) : (

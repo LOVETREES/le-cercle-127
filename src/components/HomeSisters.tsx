@@ -71,7 +71,7 @@ function AskSister({ emotion, entries }: { emotion: EmotionKey; entries: Emotion
   );
 }
 
-export function NaiaCard() {
+export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
   const [entries, setEntries] = useState<EmotionEntry[]>([]);
   const [open, setOpen] = useState<EmotionKey | null>(null);
   const today = dayKey(new Date());
@@ -92,7 +92,7 @@ export function NaiaCard() {
 
   const choose = (key: EmotionKey) => {
     setOpen(key);
-    recordEmotion(key).then(setEntries, () => undefined);
+    recordEmotion(key).then((l) => { setEntries(l); onRecorded?.(); }, () => undefined);
   };
 
   return (

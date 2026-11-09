@@ -4,6 +4,7 @@ import { ApiError, api } from './api';
 import { mergeDreams, makeDraft, type Dream, type DreamInput, type User } from './model';
 import { clearPalmReadings, palmOwnerFor, setPalmOwner } from './palm';
 import { clearEmotions } from './naia';
+import { clearRitual } from './rituel';
 import { KEYS, local, secure } from './storage';
 import { DEMO_USER, demoDreams } from './demo';
 import { clearVoiceNotes } from './voice-notes';
@@ -114,6 +115,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await local.remove([KEYS.demoActive, KEYS.demoDreams, KEYS.demoJournal, KEYS.demoPendingTranscript]);
     await clearPalmReadings('demo');
     await clearEmotions('demo');
+    await clearRitual('demo');
     demoRef.current = [];
     setDemoRecords([]);
     setIsDemo(false);
@@ -199,6 +201,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await local.remove([KEYS.cache, KEYS.journal, KEYS.pendingTranscript, KEYS.presenceDays]);
         await clearPalmReadings(palmOwnerFor(false, user?.id));
         await clearEmotions(palmOwnerFor(false, user?.id));
+        await clearRitual(palmOwnerFor(false, user?.id));
         setServer([]);
       },
       user: isDemo ? { ...DEMO_USER, name: t(DEMO_USER.name) } : user,
@@ -235,6 +238,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           await local.remove([KEYS.journal, KEYS.pendingTranscript, KEYS.presenceDays]);
           await clearPalmReadings(deletedOwner);
           await clearEmotions(deletedOwner);
+          await clearRitual(deletedOwner);
           await saveReminder(DEFAULT_REMINDER);
           await Promise.all([clearLastError(), clearWebError()]);
         } catch {
