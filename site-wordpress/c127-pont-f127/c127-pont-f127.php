@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cercle 127 - Pont Framework 127 (Terra, Naïa, app)
  * Description: Relie l'application et la lecture détaillée de Terra à Framework 127. Publie palm.reading.completed et emotion.submitted dans l'Event Bus (en interne, sans jeton exposé), laisse la Conscience choisir la Sœur (Naïa pour les émotions et l'apaisement, Alka pour les rêves récurrents, Terra pour l'ancrage, Ignis pour un petit pas, Irma pour les choix, Astria pour les aspirations). « Ce que le Cercle retient de moi » dans Mon Grimoire : garder ou oublier chaque souvenir ; seuls les souvenirs gardés sont transmis aux Sœurs., et propose des souvenirs (memory_candidate_emitted, à valider) uniquement avec l'accord explicite de la personne. Effacement : retirer une lecture ou supprimer son compte efface ses souvenirs. Sans Framework 127 actif, l'extension ne fait rien.
- * Version: 1.3.4
+ * Version: 1.4.1
  * Author: Le Cercle 127
  * Requires PHP: 7.4
  */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 final class C127_Pont_F127 {
-    const VERSION = '1.3.4';
+    const VERSION = '1.4.1';
     const NS = 'c127-f127/v1';
     const DAILY_LIMIT = 3;
 
@@ -21,8 +21,64 @@ final class C127_Pont_F127 {
         add_action('c127_palm_detailed_deleted', [__CLASS__, 'on_palm_deleted'], 10, 2);
         add_action('delete_user', [__CLASS__, 'on_user_deleted'], 10, 1);
         add_action('rest_api_init', [__CLASS__, 'routes']);
+        add_action('init', [__CLASS__, 'migrate_memory_table'], 20);
         add_filter('the_content', [__CLASS__, 'widget_content'], 20);
         add_shortcode('c127_soeur', [__CLASS__, 'shortcode']);
+    }
+
+    /* ---------- 0. Migration unique : table f127_memories héritée d'un ancien schéma ---------- */
+
+    const MEM_MIGRATION = 'c127_f127_memories_schema_v1';
+
+    /**
+     * L'ancienne table impose uuid (CHAR 36, unique, sans défaut), user_id et updated_at.
+     * Le Framework 0.3.x n'écrit pas ces colonnes : MySQL met uuid à '' et la 2e écriture
+     * échoue en silence (doublon). On les rend facultatives ; rien n'est supprimé.
+     * Retour arrière : voir docs/f127-memories-migration.md.
+     */
+    public static function migrate_memory_table(): void {
+        if (get_option(self::MEM_MIGRATION) === 'done' || !class_exists('F127_Runtime')) {
+            return;
+        }
+        global $wpdb;
+        $m = F127_Runtime::memories_table();
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $m)) !== $m) {
+            return;
+        }
+        if (get_transient('c127_f127_mig_lock')) {
+            return;
+        }
+        set_transient('c127_f127_mig_lock', 1, 120);
+        $cols = [];
+        foreach ((array) $wpdb->get_results("SHOW COLUMNS FROM {$m}", ARRAY_A) as $c) {
+            $cols[$c['Field']] = $c;
+        }
+        $log = [];
+        if (isset($cols['uuid'])) {
+            // La ligne existante garde un identifiant réel, puis la colonne devient facultative.
+            $log[] = $wpdb->query("UPDATE {$m} SET uuid = UUID() WHERE uuid = '' OR uuid IS NULL");
+            $log[] = $wpdb->query("ALTER TABLE {$m} MODIFY uuid CHAR(36) NULL DEFAULT NULL");
+        }
+        if (isset($cols['user_id'])) {
+            $log[] = $wpdb->query("ALTER TABLE {$m} MODIFY user_id BIGINT UNSIGNED NOT NULL DEFAULT 0");
+        }
+        if (isset($cols['updated_at'])) {
+            $log[] = $wpdb->query("ALTER TABLE {$m} MODIFY updated_at DATETIME NULL DEFAULT NULL");
+        }
+        $ok = !in_array(false, $log, true);
+        update_option(self::MEM_MIGRATION, $ok ? 'done' : 'failed:' . mb_substr((string) $wpdb->last_error, 0, 160), false);
+        delete_transient('c127_f127_mig_lock');
+    }
+
+    private static function memory_schema_state(): array {
+        global $wpdb;
+        $state = ['migration' => (string) get_option(self::MEM_MIGRATION, 'pending')];
+        if (class_exists('F127_Runtime')) {
+            $m = F127_Runtime::memories_table();
+            $u = $wpdb->get_row($wpdb->prepare("SHOW COLUMNS FROM {$m} LIKE %s", 'uuid'), ARRAY_A);
+            $state['uuid_nullable'] = $u ? ($u['Null'] === 'YES') : null;
+        }
+        return $state;
     }
 
     /* ---------- Outils ---------- */
@@ -222,7 +278,7 @@ final class C127_Pont_F127 {
         register_rest_route(self::NS, '/health', [
             'methods' => 'GET',
             'callback' => function () {
-                return rest_ensure_response(['ok' => true, 'version' => self::VERSION, 'framework' => self::ready(), 'conscience' => class_exists('F127_Conscience'), 'asks' => array_keys(self::ASKS)]);
+                return rest_ensure_response(['ok' => true, 'version' => self::VERSION, 'framework' => self::ready(), 'conscience' => class_exists('F127_Conscience'), 'asks' => array_keys(self::ASKS), 'memory_schema' => self::memory_schema_state()]);
             },
             'permission_callback' => '__return_true',
         ]);
@@ -262,7 +318,7 @@ final class C127_Pont_F127 {
         'astria-aspiration' => ['event_type' => 'aspiration.submitted', 'source' => 'site.astria', 'limit' => 3, 'fallback' => ['astria', 'aspiration.clarification']],
     ];
 
-    private const BODY_PLACES = ['gorge' => 'la gorge', 'poitrine' => 'la poitrine', 'ventre' => 'le ventre', 'tete' => 'la tête', 'epaules' => 'les épaules', 'partout' => 'partout', 'nulle_part' => 'je ne sais pas'];
+    private const BODY_PLACES = ['gorge' => 'la gorge', 'poitrine' => 'la poitrine', 'ventre' => 'le ventre', 'tete' => 'la tête', 'epaules' => 'les épaules', 'partout' => 'tout le corps', 'nulle_part' => 'un endroit encore flou'];
     private const ENERGY = ['faible' => 'faible', 'moyenne' => 'moyenne', 'haute' => 'haute'];
     private const HORIZONS = ['5min' => 'cinq minutes, aujourd’hui', 'jour' => 'dans la journée', 'semaine' => 'cette semaine'];
     private const DEADLINES = ['aucune' => 'pas d’échéance', 'semaine' => 'dans la semaine', 'mois' => 'dans le mois', 'urgent' => 'très bientôt'];
@@ -518,7 +574,7 @@ final class C127_Pont_F127 {
                 'emotion' => self::EMOTIONS[$key],
                 'emotion_key' => $key,
                 'intensity' => max(1, min(5, (int) ($p['intensity'] ?? 3))),
-                'body_location' => self::BODY_PLACES[$where] ?? 'je ne sais pas',
+                'body_location' => self::BODY_PLACES[$where] ?? 'un endroit encore flou',
                 'note' => mb_substr(sanitize_textarea_field((string) ($p['note'] ?? '')), 0, 400),
                 'request' => 'Aider à apaiser cette émotion maintenant : la reconnaître, la situer dans le corps, puis un geste ou une respiration simple. Tutoyer.',
             ];
@@ -607,7 +663,7 @@ final class C127_Pont_F127 {
         if (!empty($p['remember']) && 'naia-apaisement' === $kind) {
             self::propose_memory($corr, (string) ($r['decision']['agent'] ?? 'naia'), (string) ($r['decision']['capability'] ?? 'emotion.regulation'), [
                 'type' => 'emotion_pattern',
-                'summary' => sprintf('Le %s : %s (intensité %d/5), ressentie dans %s.', wp_date('j F Y'), mb_strtolower($payload['emotion']), $payload['intensity'], $payload['body_location']),
+                'summary' => sprintf('Le %s : %s (intensité %d/5), surtout dans %s.', wp_date('j F Y'), mb_strtolower($payload['emotion']), $payload['intensity'], $payload['body_location']),
                 'confidence' => 0.9,
                 'sensitivity' => 'medium',
                 'subject_ref' => $ref,
@@ -916,6 +972,19 @@ final class C127_Pont_F127 {
 
     private static function keep_candidate(array $row, array $t) {
         global $wpdb;
+        // 1) Chemin officiel du Framework (le même que « Accepter » dans son admin).
+        if (is_callable(['F127_Runtime', 'memories_table']) && method_exists('F127_Runtime', 'commit_candidate_by_db_id')) {
+            $rm = new ReflectionMethod('F127_Runtime', 'commit_candidate_by_db_id');
+            $rm->setAccessible(true);
+            $res = $rm->invoke(null, (int) $row['id'], false);
+            $n = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$t[1]} WHERE candidate_id = %s", $row['candidate_id']));
+            if (!is_wp_error($res) && $n > 0) {
+                return rest_ensure_response(['ok' => true, 'path' => 'framework']);
+            }
+            // Échec silencieux du Framework : on remet la proposition en attente avant le secours.
+            $wpdb->update($t[0], ['status' => 'pending'], ['id' => (int) $row['id']], ['%s'], ['%d']);
+        }
+        // 2) Secours : écriture directe, compatible avec l'ancien schéma.
         $memory_id = 'MEM:' . $row['candidate_id'];
         $now = gmdate('Y-m-d H:i:s');
         $already = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$t[1]} WHERE candidate_id = %s", $row['candidate_id']));
@@ -954,7 +1023,7 @@ final class C127_Pont_F127 {
             'status' => 'success',
             'result_summary' => ['memory_id' => $memory_id, 'candidate_id' => $row['candidate_id'], 'memory_type' => $row['memory_type'], 'validated_by' => 'user'],
         ]);
-        return rest_ensure_response(['ok' => true]);
+        return rest_ensure_response(['ok' => true, 'path' => 'fallback']);
     }
 
     public static function rest_memories_act(WP_REST_Request $request) {
