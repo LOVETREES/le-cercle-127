@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cercle 127 - Pont Framework 127 (Terra, Naïa, app)
  * Description: Relie l'application et la lecture détaillée de Terra à Framework 127. Publie palm.reading.completed et emotion.submitted dans l'Event Bus (en interne, sans jeton exposé), laisse la Conscience choisir la Sœur (Naïa, Alka pour les rêves récurrents, Terra pour l'ancrage), et propose des souvenirs (memory_candidate_emitted, à valider) uniquement avec l'accord explicite de la personne. Effacement : retirer une lecture ou supprimer son compte efface ses souvenirs. Sans Framework 127 actif, l'extension ne fait rien.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Le Cercle 127
  * Requires PHP: 7.4
  */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 final class C127_Pont_F127 {
-    const VERSION = '1.1.0';
+    const VERSION = '1.1.1';
     const NS = 'c127-f127/v1';
     const DAILY_LIMIT = 3;
 
@@ -562,6 +562,7 @@ final class C127_Pont_F127 {
   </form>
   <div class="c127ask__out" aria-live="polite"></div>
 </section>
+<script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
 <?php } else { ?>
 <section class="c127ask c127ask--terra" data-c127-ask="terra-ancrage" style="--ask-accent:#9fcf8f">
   <p class="c127ask__eyebrow">Terra · Gardienne de l’ancrage</p>
@@ -587,6 +588,7 @@ final class C127_Pont_F127 {
   <div class="c127ask__out" aria-live="polite"></div>
   <p class="c127ask__notice">Un exercice de bien-être, pas un soin. En cas de détresse, appelle le 3114 (gratuit, 24 h/24).</p>
 </section>
+<script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
 <?php }
         return (string) ob_get_clean();
     }

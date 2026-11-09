@@ -23,6 +23,7 @@
   }
 
   function setup(box) {
+    if (window.ReactNativeWebView) { box.hidden = true; box.style.display = 'none'; return; }
     var kind = box.getAttribute('data-c127-ask');
     var form = box.querySelector('form');
     var out = box.querySelector('.c127ask__out');
