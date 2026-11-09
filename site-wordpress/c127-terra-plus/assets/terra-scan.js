@@ -110,14 +110,19 @@
     '  }, function (err) { postMessage({ id: d.id, error: String(err) }); });',
     '};'
   ].join('\n');
+  // Variante « module » : le moteur est chargé comme texte puis évalué (Safari refuse parfois importScripts + import()).
+  var WORKER_MOD = WORKER_SRC.replace('importScripts(d.ort + "/ort.wasm.min.js");', '').replace(
+    'function init(d) {',
+    'var ort = null;\nfunction init(d) {\n  return fetch(d.ort + "/ort.wasm.min.js").then(function (r) { return r.text(); }).then(function (txt) { ort = new Function(txt + "\\nreturn ort;")(); return init2(d); });\n}\nfunction init2(d) {');
+  var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+  var INFO = window.__c127ScanInfo = { path: '', t: {} };
+  function mark(k) { INFO.t[k] = Math.round(performance.now()); }
   var workerP = null, jobs = {}, jobId = 0;
-  function lineWorker() {
-    if (!ORT_BASE || !LINES_MODEL || typeof Worker === 'undefined' || typeof Blob === 'undefined') return Promise.reject(new Error('no-worker'));
-    if (!workerP) {
-      workerP = new Promise(function (res, rej) {
-        var w, url;
-        try { url = URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' })); w = new Worker(url); } catch (e) { return rej(e); }
-        var abs = function (u) { return new URL(u, location.href).href; };
+  function startWorker(src, type) {
+    return new Promise(function (res, rej) {
+      var w, url;
+      try { url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' })); w = type ? new Worker(url, { type: type }) : new Worker(url); } catch (e) { return rej(e); }
+      var abs = function (u) { return new URL(u, location.href).href; };
         var t = setTimeout(function () { rej(new Error('worker-timeout')); try { w.terminate(); } catch (e) {} }, 45000);
         w.onmessage = function (e) {
           var d = e.data || {};
@@ -126,25 +131,44 @@
           var j = jobs[d.id]; if (!j) return; delete jobs[d.id];
           if (d.error) j.rej(new Error(d.error)); else j.res(d.mask);
         };
-        w.onerror = function (e) { clearTimeout(t); rej(e); };
+        w.onerror = function (e) { clearTimeout(t); rej(e); try { w.terminate(); } catch (er) {} };
         w.postMessage({ init: true, ort: abs(ORT_BASE), model: abs(LINES_MODEL) });
+    });
+  }
+  function lineWorker() {
+    if (!ORT_BASE || !LINES_MODEL || typeof Worker === 'undefined' || typeof Blob === 'undefined') return Promise.reject(new Error('no-worker'));
+    if (!workerP) {
+      mark('workerStart');
+      workerP = startWorker(WORKER_SRC).then(function (w) { INFO.path = 'worker'; return w; }, function () {
+        return startWorker(WORKER_MOD, 'module').then(function (w) { INFO.path = 'worker-module'; return w; });
       });
-      workerP.catch(function () { workerP = 'off'; });
+      workerP.then(function () { mark('workerReady'); }, function () { workerP = 'off'; mark('workerOff'); });
     }
     return workerP === 'off' ? Promise.reject(new Error('worker-off')) : workerP;
   }
   function runLinesOff(w, crop) {
     var px = crop.ctx.getImageData(0, 0, SIZE, SIZE).data.buffer, id = ++jobId;
     return new Promise(function (res, rej) {
-      jobs[id] = { res: res, rej: rej };
+      var t = setTimeout(function () { if (jobs[id]) { delete jobs[id]; rej(new Error('job-timeout')); } }, 40000);
+      jobs[id] = { res: function (m) { clearTimeout(t); res(m); }, rej: function (e) { clearTimeout(t); rej(e); } };
       w.postMessage({ id: id, px: px, size: SIZE, mean: MEAN, std: STD }, [px]);
     });
   }
   // Le worker d'abord ; s'il est indisponible sur cet appareil, l'ancienne voie sur le fil principal.
   function readLines(crop) {
     return lineWorker().then(function (w) { return runLinesOff(w, crop); }, function () {
+      // Sur iPhone, le calcul sur le fil principal fige l'écran : on garde la lecture géométrique.
+      if (IOS) { INFO.path = 'geometrie (iPhone sans worker)'; return Promise.reject(new Error('ios-main')); }
+      INFO.path = 'fil principal';
       return segmenter().then(function (seg) { return runLines(seg, crop); });
     });
+  }
+  // Les modèles se chargent pendant que la personne prend sa photo.
+  var preloaded = false;
+  function preload() {
+    if (preloaded) return; preloaded = true; mark('preload');
+    var go = function () { landmarker().then(function () { mark('handReady'); }, function () {}); lineWorker().catch(function () {}); };
+    if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 1500 }); else setTimeout(go, 300);
   }
 
   // Une photo de téléphone (12 Mpx) est ramenée à 1280 px : assez pour les plis, bien plus léger.
@@ -402,9 +426,9 @@
       say('busy', '<span class="c127-scan__dot" aria-hidden="true"></span> Terra repère ta main… <small>(la première fois, ses outils se chargent : quelques secondes)</small>');
       emit('hand');
       var ready = img.complete && img.naturalWidth ? Promise.resolve() : new Promise(function (res, rej) { img.onload = res; img.onerror = rej; });
-      var work = null;
+      var work = null; mark('photo');
       ready.then(nextFrame).then(function () { work = workImage(img); K = img.naturalWidth / work.naturalWidth; lineWorker().catch(function () {}); return landmarker(); }).then(function (lm) {
-        var res = lm.detect(work), L = res && res.landmarks && res.landmarks[0];
+        mark('detect'); var res = lm.detect(work), L = res && res.landmarks && res.landmarks[0]; mark('detected');
         if (!L) {
           say('warn', '<b>Main non repérée.</b> Pose ta paume bien à plat, doigts légèrement écartés, face à l’objectif, avec une lumière douce, puis reprends la photo.');
           emit('nohand');
@@ -458,12 +482,18 @@
         say('ok', msg + ' Ajuste un point en le faisant glisser si besoin. <button type="button" class="c127-scan__redo">Relire</button>');
         var redo = status.querySelector('.c127-scan__redo'); if (redo) redo.addEventListener('click', run);
         var WW = work ? work.naturalWidth : img.naturalWidth, WH = work ? work.naturalHeight : img.naturalHeight;
+        mark('done'); INFO.found = r.found.join(',');
         emit('done', { found: r.found, feats: r.feats, geometric: !!r.geometric, P: r.L.map(function (p) { return [p.x * WW, p.y * WH]; }), W: WW, H: WH });
       }).catch(function () {
         say('warn', 'La lecture automatique n’a pas pu se lancer sur cet appareil. Fais glisser les points pour suivre tes lignes.');
         emit('fail');
       });
     }
+    if (window.IntersectionObserver && wrap) {
+      var io = new IntersectionObserver(function (en) { if (en.some(function (x) { return x.isIntersecting; })) { preload(); io.disconnect(); } });
+      io.observe(wrap);
+    }
+    var up0 = root.querySelector('.terra127__upload'); if (up0) { up0.addEventListener('pointerdown', preload); up0.addEventListener('click', preload); }
     file.addEventListener('change', function () {
       if (!file.files || !file.files[0]) return;
       emit('photo');

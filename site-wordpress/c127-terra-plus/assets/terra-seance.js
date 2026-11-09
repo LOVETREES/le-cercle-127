@@ -311,6 +311,14 @@
       }
     });
 
+    // Avec « ?diag » dans l'adresse : la voie de calcul et les temps de chaque étape (pour déboguer sur téléphone).
+    function diag() {
+      if (!/[?&#]diag/.test(location.href)) return '';
+      var I = window.__c127ScanInfo || {}, t = I.t || {}, d = function (a, b) { return t[a] && t[b] ? ((t[b] - t[a]) / 1000).toFixed(1) + ' s' : '–'; };
+      return '<p class="c127s-found__s" style="font-family:monospace;text-align:left">voie : ' + (I.path || '?') + '<br>photo → main : ' + d('photo', 'detected') +
+        '<br>photo → fin : ' + d('photo', 'done') + '<br>worker prêt en : ' + d('workerStart', 'workerReady') + (t.workerOff ? ' (refusé)' : '') +
+        '<br>image : ' + (D && D.W) + '×' + (D && D.H) + ' · écran ' + innerWidth + ' px<br>' + navigator.userAgent.replace(/[<>]/g, '').slice(0, 120) + '</p>';
+    }
     function trait(txt, cls) { return '<li class="' + (cls || '') + '">' + txt + '</li>'; }
     function showFound(d) {
       root.classList.add('c127s-ready');
@@ -328,6 +336,7 @@
       found.innerHTML = '<p class="c127s-found__t">' + (t && !d.geometric ? '✓ Terra a lu ta main' : '✓ Main repérée') + '</p>' +
         (list ? '<ul class="c127s-traits">' + list + '</ul>' : '') +
         (d.geometric || partial ? '<p class="c127s-found__s">Certaines lignes étaient peu visibles : leur tracé suit la forme de ta main. Tu peux les ajuster.</p>' : '<p class="c127s-found__s">Les tracés colorés suivent tes vrais plis.</p>') +
+        diag() +
         '<div class="c127s-actions"><button type="button" class="c127s-cta" data-c127s="read">Recevoir ma lecture ✦</button>' +
         '<button type="button" class="c127s-link" data-c127s="edit" aria-pressed="false">Ajuster les tracés</button></div>';
     }

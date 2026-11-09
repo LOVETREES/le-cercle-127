@@ -52,16 +52,20 @@
     } else {
       this.el = svg; svg.classList.add('is-over');
       if (o.wrap) o.wrap.appendChild(svg);
+      // Recalée dès que la photo change de taille (chargement, rotation, mise en page) : jamais figée trop petite.
       var self = this; this.place(); this._onR = function () { self.place(); }; window.addEventListener('resize', this._onR);
+      if (window.ResizeObserver) { this._ro = new ResizeObserver(this._onR); this._ro.observe(o.over); this._ro.observe(o.wrap); }
+      var n = 0; (function tick() { self.place(); if (++n < 40 && !self._dead) requestAnimationFrame(tick); })();
     }
   }
   // Posée exactement sur la photo de l'atelier (même cadrage que l'image)
   Scene.prototype.place = function () {
     var o = this.o; if (!o.over || !o.wrap) return;
     var r = o.over.getBoundingClientRect(), wr = o.wrap.getBoundingClientRect();
+    if (!r.width || !r.height) return;
     var s = this.svg.style; s.left = (r.left - wr.left) + 'px'; s.top = (r.top - wr.top) + 'px'; s.width = r.width + 'px'; s.height = r.height + 'px';
   };
-  Scene.prototype.destroy = function () { if (this._onR) window.removeEventListener('resize', this._onR); if (this.el.parentNode) this.el.parentNode.removeChild(this.el); this.run++; };
+  Scene.prototype.destroy = function () { this._dead = true; if (this._ro) this._ro.disconnect(); if (this._onR) window.removeEventListener('resize', this._onR); if (this.el.parentNode) this.el.parentNode.removeChild(this.el); this.run++; };
 
   Scene.prototype.setHand = function (P) {
     var k = this.k; this.P = P;
