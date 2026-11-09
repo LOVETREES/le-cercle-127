@@ -2,7 +2,7 @@
 (function () {
   var cfg = window.C127Ask || {};
   var NAMES = { oni: 'Oni', naia: 'Naïa', alka: 'Alka', ignis: 'Ignis', terra: 'Terra', astria: 'Astria', irma: 'Irma' };
-  var KIND_SISTER = { 'alka-motifs': 'Alka', 'terra-ancrage': 'Terra', 'naia-apaisement': 'Naïa', 'ignis-petit-pas': 'Ignis', 'irma-decision': 'Irma', 'astria-aspiration': 'Astria' };
+  var KIND_SISTER = { 'oni-perle': 'Oni', 'alka-motifs': 'Alka', 'terra-ancrage': 'Terra', 'naia-apaisement': 'Naïa', 'ignis-petit-pas': 'Ignis', 'irma-decision': 'Irma', 'astria-aspiration': 'Astria' };
   // Le chemin : après chaque Sœur, une ou deux suites naturelles.
   var NEXT = {
     'alka-motifs': [['terra-ancrage', 'Revenir au corps avec Terra'], ['ignis-petit-pas', 'Transformer ce motif en un petit pas avec Ignis']],
