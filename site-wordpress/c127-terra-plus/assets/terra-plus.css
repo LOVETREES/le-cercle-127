@@ -300,3 +300,8 @@
 .c127-relais{margin:0 0 10px;padding:10px 14px;border-radius:14px;font:500 .88rem/1.45 "Manrope",system-ui,sans-serif;color:#f3ead2;background:rgba(216,182,107,.12);border:1px solid rgba(216,182,107,.4)}
 .c127s-on .c127j-canvas{display:none!important}
 .c127sc-svg.is-light .c127sc-glow{opacity:.22}
+/* La photo occupe presque tout l'écran d'un téléphone : le calque du moteur (touch-action:none, pour déplacer
+   les points) bloquait le défilement. Pendant la séance, il laisse défiler ; seul « Ajuster les tracés » le réactive. */
+.terra127.c127s:not(.c127s-edit) .terra127__mapper,.terra127.c127s:not(.c127s-edit) [data-mapper]{touch-action:pan-x pan-y pinch-zoom!important;pointer-events:none!important}
+.terra127.c127s.c127s-edit .terra127__mapper{touch-action:none}
+.terra127.c127s:not(.c127s-edit) [data-mapper] *{pointer-events:none!important;touch-action:auto!important}

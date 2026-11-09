@@ -319,8 +319,25 @@
         '<br>photo → fin : ' + d('photo', 'done') + '<br>worker prêt en : ' + d('workerStart', 'workerReady') + (t.workerOff ? ' (refusé)' : '') +
         '<br>image : ' + (D && D.W) + '×' + (D && D.H) + ' · écran ' + innerWidth + ' px<br>' + navigator.userAgent.replace(/[<>]/g, '').slice(0, 120) + '</p>';
     }
+    // Avec « ?diag » : relevé en direct après le scan (page occupée ? défilement bloqué ?).
+    function diagLive() {
+      if (!/[?&#]diag/.test(location.href) || diagLive.on) return; diagLive.on = true;
+      var box = el('p', 'c127s-found__s'); box.style.cssText = 'font-family:monospace;text-align:left;border-top:1px dashed rgba(255,255,255,.2);padding-top:6px';
+      found.appendChild(box);
+      var maxGap = 0, last = performance.now(), touches = 0, moves = 0, scrolls = 0, prevented = 0;
+      document.addEventListener('touchstart', function () { touches++; }, { passive: true, capture: true });
+      document.addEventListener('touchmove', function (e) { moves++; setTimeout(function () { if (e.defaultPrevented) prevented++; }, 0); }, { passive: true, capture: true });
+      window.addEventListener('scroll', function () { scrolls++; }, { passive: true });
+      (function f(now) { var g = now - last; if (g > maxGap) maxGap = g; last = now; requestAnimationFrame(f); })(last);
+      var t0 = Date.now();
+      setInterval(function () {
+        box.textContent = 'après le scan (' + Math.round((Date.now() - t0) / 1000) + ' s) · plus longue pause : ' + Math.round(maxGap) + ' ms · touchers : ' + touches + ' · glissés : ' + moves + ' (bloqués : ' + prevented + ') · défilements : ' + scrolls;
+        if (!found.contains(box)) found.appendChild(box);
+      }, 1000);
+    }
     function trait(txt, cls) { return '<li class="' + (cls || '') + '">' + txt + '</li>'; }
     function showFound(d) {
+      setTimeout(diagLive, 50);
       root.classList.add('c127s-ready');
       found.hidden = false; found.className = 'c127s-found wp-exclude-emoji';
       var t = T, list = '';
