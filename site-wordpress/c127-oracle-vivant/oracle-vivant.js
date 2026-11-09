@@ -60,18 +60,19 @@
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr;
     var c = canvas.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var colors = ['#fff3c9', '#f0d68c', '#e2b55a', '#ffffff', '#c9a7f0'];
+    // Une poussière dorée qui monte lentement autour de la carte, rien de plus.
+    var colors = ['#fff3c9', '#f0d68c', '#e2b55a'];
+    n = Math.min(14, Math.round(n / 7));
     for (var i = 0; i < n; i++) {
-      var ang = Math.random() * Math.PI * 2, sp = 2 + Math.random() * 6;
-      parts.push({ x: x, y: y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 2.5, life: 1, r: 1.2 + Math.random() * 2.6, col: colors[i % colors.length], star: Math.random() < 0.25 });
+      parts.push({ x: x + (Math.random() - 0.5) * 120, y: y + (Math.random() - 0.2) * 90, vx: (Math.random() - 0.5) * 0.25, vy: -0.25 - Math.random() * 0.45, life: 1, r: 0.8 + Math.random() * 1.4, col: colors[i % colors.length], star: false });
     }
     if (!running) { running = true; requestAnimationFrame(step); }
     function step() {
       c.clearRect(0, 0, innerWidth, innerHeight);
       parts = parts.filter(function (p) { return p.life > 0; });
       parts.forEach(function (p) {
-        p.vy += 0.12; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.life -= 0.016;
-        c.globalAlpha = Math.max(0, p.life);
+        p.x += p.vx; p.y += p.vy; p.life -= 0.009;
+        c.globalAlpha = Math.max(0, Math.min(1, p.life * 1.6)) * 0.7;
         c.fillStyle = p.col;
         if (p.star) {
           c.save(); c.translate(p.x, p.y); c.rotate(p.life * 6);

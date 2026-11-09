@@ -86,7 +86,7 @@
       var dx = x - cx, dy = y - cy;
       return { x: dx * cos2 - dy * sin2 + cx, y: dx * sin2 + dy * cos2 + cy };
     }
-    return { canvas: c, ctx: g, back: back };
+    return { canvas: c, ctx: g, back: back, sx: SIZE / cw, sy: SIZE / ch };
   }
   function runLines(seg, crop) {
     var d = crop.ctx.getImageData(0, 0, SIZE, SIZE).data, plane = SIZE * SIZE, chw = new Float32Array(3 * plane);
@@ -186,6 +186,82 @@
     } finally { delete anchor.setPointerCapture; delete anchor.releasePointerCapture; }
   }
 
+
+  /* ---------- Mesures de chiromancie (repère de la paume, sans dépendre de l'orientation) ---------- */
+  function measure(P, groups, counts, crop) {
+    var len = function (a, b) { return Math.hypot(a.x - b.x, a.y - b.y); };
+    var chain = function (ids) { var t = 0; for (var i = 1; i < ids.length; i++) t += len(P[ids[i - 1]], P[ids[i]]); return t; };
+    var O = P[0], palmLen = len(P[0], P[9]), palmW = len(P[5], P[17]);
+    var U = { x: (P[9].x - O.x) / palmLen, y: (P[9].y - O.y) / palmLen };
+    var X = { x: P[5].x - P[17].x, y: P[5].y - P[17].y }, d = X.x * U.x + X.y * U.y;
+    X.x -= d * U.x; X.y -= d * U.y; var xl = Math.hypot(X.x, X.y) || 1; X.x /= xl; X.y /= xl;
+    // k : vers l'index et le pouce (+) ou vers l'auriculaire (−) ; s : du poignet (0) vers la base du majeur (1)
+    var fr = function (p) { var dx = p.x - O.x, dy = p.y - O.y; return { k: (dx * X.x + dy * X.y) / palmW, s: (dx * U.x + dy * U.y) / palmLen }; };
+    var area = 1 / (crop.sx * crop.sy); // un pixel du masque, en pixels de la photo
+    var deg = function (r) { return r * 180 / Math.PI; };
+    var f = {
+      ratio: palmLen / palmW,
+      fingers: chain([9, 10, 11, 12]) / palmLen,
+      index: chain([5, 6, 7, 8]), ring: chain([13, 14, 15, 16]),
+      thumbLen: chain([1, 2, 3, 4]) / palmLen,
+      thumbOpen: deg(Math.acos(Math.max(-1, Math.min(1, ((P[4].x - P[2].x) * (P[8].x - P[5].x) + (P[4].y - P[2].y) * (P[8].y - P[5].y)) / (len(P[2], P[4]) * len(P[5], P[8]) || 1))))),
+      pinky: fr(P[20]).s - fr(P[15]).s, // > 0 : l'auriculaire dépasse la dernière phalange de l'annulaire
+      kIndex: fr(P[5]).k, kMid: fr(P[9]).k, kRing: fr(P[13]).k, kPinky: fr(P[17]).k,
+      lines: {}
+    };
+    f.indexRing = (f.index - f.ring) / f.ring;
+    ['heart', 'head', 'life'].forEach(function (name) {
+      var pts = groups[CLASS[name]];
+      if (!pts || pts.length < 40) return;
+      var mx = 0, my = 0; pts.forEach(function (p) { mx += p.x; my += p.y; }); mx /= pts.length; my /= pts.length;
+      var sxx = 0, sxy = 0, syy = 0;
+      pts.forEach(function (p) { var dx = p.x - mx, dy = p.y - my; sxx += dx * dx; sxy += dx * dy; syy += dy * dy; });
+      var th = 0.5 * Math.atan2(2 * sxy, sxx - syy), ax = Math.cos(th), ay = Math.sin(th);
+      var pr = pts.map(function (p) { return { t: (p.x - mx) * ax + (p.y - my) * ay, n: -(p.x - mx) * ay + (p.y - my) * ax, p: p }; }).sort(function (a, b) { return a.t - b.t; });
+      var q = function (v) { return pr[Math.min(pr.length - 1, Math.max(0, Math.round(v * (pr.length - 1))))].t; };
+      var t0 = q(0.02), t1 = q(0.98), L = t1 - t0, gap = 0;
+      for (var i = 1; i < pr.length; i++) if (pr[i].t > t0 && pr[i].t < t1) gap = Math.max(gap, pr[i].t - pr[i - 1].t);
+      // dix tranches le long du pli : centre de chacune, pour la courbure et les extrémités
+      var B = 10, bins = [];
+      for (var b = 0; b < B; b++) bins.push({ x: 0, y: 0, n: 0, o: 0 });
+      pr.forEach(function (e) { if (e.t < t0 || e.t > t1) return; var b = Math.min(B - 1, Math.floor((e.t - t0) / (L || 1) * B)); bins[b].x += e.p.x; bins[b].y += e.p.y; bins[b].o += e.n; bins[b].n++; });
+      bins = bins.filter(function (b) { return b.n; }).map(function (b) { return { x: b.x / b.n, y: b.y / b.n, o: b.o / b.n }; });
+      var A = bins[0], Z = bins[bins.length - 1], ch = len(A, Z) || 1, sag = 0;
+      bins.forEach(function (b) { sag = Math.max(sag, Math.abs((Z.x - A.x) * (A.y - b.y) - (A.x - b.x) * (Z.y - A.y)) / ch); });
+      var fa = fr(A), fz = fr(Z), all = pts.map(fr);
+      f.lines[name] = {
+        length: L / palmW, gap: gap / palmW, curve: sag / ch,
+        thick: counts[CLASS[name]] * area / (L || 1) / palmW,
+        a: fa, z: fz, pts: all
+      };
+    });
+    var H = f.lines.heart, T = f.lines.head, V = f.lines.life;
+    if (H) {
+      var hi = H.a.k > H.z.k ? H.a : H.z, lo = H.a.k > H.z.k ? H.z : H.a; // côté index, côté auriculaire
+      H.endK = hi.k; H.rise = hi.s - lo.s;
+    }
+    if (T) {
+      var st = T.a.k > T.z.k ? T.a : T.z, en = T.a.k > T.z.k ? T.z : T.a; // naît côté index, file vers l'auriculaire
+      T.slope = deg(Math.atan2((st.s - en.s) * palmLen, (st.k - en.k) * palmW));
+      T.reach = en.k; T.startK = st.k; T.startS = st.s;
+    }
+    if (V) {
+      var ks = V.pts.map(function (p) { return p.k; }).sort(function (a, b) { return a - b; });
+      var ss = V.pts.map(function (p) { return p.s; }).sort(function (a, b) { return a - b; });
+      V.inner = ks[Math.round(ks.length * 0.03)]; V.low = ss[Math.round(ss.length * 0.02)]; V.top = ss[Math.round(ss.length * 0.98)];
+    }
+    if (T && V) { // tête et vie : nées ensemble, ou séparées par un espace ?
+      var start = T.pts.filter(function (p) { return p.k > T.startK - 0.18; }), top = V.pts.filter(function (p) { return p.s > V.top - 0.18; }), best = Infinity;
+      for (var i2 = 0; i2 < start.length; i2 += 3) for (var j = 0; j < top.length; j += 3) {
+        var dd = Math.hypot((start[i2].k - top[j].k) * palmW, (start[i2].s - top[j].s) * palmLen) / palmW;
+        if (dd < best) best = dd;
+      }
+      f.joint = best;
+    }
+    ['heart', 'head', 'life'].forEach(function (n) { if (f.lines[n]) delete f.lines[n].pts; });
+    return f;
+  }
+
   function setup(root) {
     if (root.getAttribute('data-c127-scan')) return;
     var file = root.querySelector('[data-file]'), img = root.querySelector('[data-preview]'), mapper = root.querySelector('[data-mapper]');
@@ -198,6 +274,12 @@
     var overlay = null;
 
     function say(kind, html) { status.hidden = false; status.className = 'c127-scan is-' + kind; status.innerHTML = html; }
+    // La séance (terra-seance.js) écoute ces étapes pour guider la personne.
+    function emit(stage, extra) {
+      var detail = extra || {}; detail.stage = stage;
+      if (stage === 'done') root.__c127Palm = detail;
+      try { root.dispatchEvent(new CustomEvent('c127:palm', { detail: detail })); } catch (e) {}
+    }
 
     function showMask(mask, crop, toScreen) {
       if (!wrap) return;
@@ -229,11 +311,13 @@
 
     function run() {
       say('busy', '<span class="c127-scan__dot" aria-hidden="true"></span> Terra repère ta main… <small>(la première fois, ses outils se chargent : quelques secondes)</small>');
+      emit('hand');
       var ready = img.complete && img.naturalWidth ? Promise.resolve() : new Promise(function (res, rej) { img.onload = res; img.onerror = rej; });
       ready.then(landmarker).then(function (lm) {
         var res = lm.detect(img), L = res && res.landmarks && res.landmarks[0];
         if (!L) {
           say('warn', '<b>Main non repérée.</b> Pose ta paume bien à plat, doigts légèrement écartés, face à l’objectif, avec une lumière douce, puis reprends la photo.');
+          emit('nohand');
           return null;
         }
         var W = img.naturalWidth, H = img.naturalHeight;
@@ -246,24 +330,28 @@
           return [a, m, c];
         };
         say('busy', '<span class="c127-scan__dot" aria-hidden="true"></span> Main repérée. Terra lit tes lignes…');
+        emit('lines');
         return segmenter().then(function (seg) {
           var crop = cropPalm(img, P, hand !== 'Left');
           return runLines(seg, crop).then(function (mask) {
             if (window.__c127ScanDebug) window.__c127ScanDebug = { crop: crop.canvas.toDataURL('image/png'), mask: mask, hand: hand };
-            var found = [], groups = { 1: [], 2: [], 3: [] };
-            for (var v = 0; v < SIZE; v++) for (var u = 0; u < SIZE; u++) { var k = mask[v * SIZE + u]; if (k) groups[k].push(crop.back(u, v)); }
+            var found = [], groups = { 1: [], 2: [], 3: [] }, counts = { 1: 0, 2: 0, 3: 0 };
+            for (var v = 0; v < SIZE; v++) for (var u = 0; u < SIZE; u++) { var k = mask[v * SIZE + u]; if (k) { groups[k].push(crop.back(u, v)); counts[k]++; } }
+            var feats = null;
+            try { feats = measure(P, groups, counts, crop); } catch (e) { feats = null; }
             ['heart', 'head', 'life'].forEach(function (name) {
               var three = threePoints(groups[CLASS[name]]);
               if (three) { place(name, three); found.push(name); } else place(name, geo(name));
             });
             place('fate', geo('fate'));
             showMask(mask, crop, imageToScreen(img));
-            return { found: found, L: L };
+            return { found: found, L: L, feats: feats };
           });
         }, function () {
           // Modèle indisponible : placement géométrique affiné, honnêtement annoncé.
           ['heart', 'head', 'life', 'fate'].forEach(function (n) { place(n, geo(n)); });
-          return { found: [], L: L, geometric: true };
+          var F0 = null; try { F0 = measure(P, {}, {}, { sx: 1, sy: 1 }); } catch (e) {}
+          return { found: [], L: L, geometric: true, feats: F0 };
         });
       }).then(function (r) {
         if (!r) return;
@@ -279,12 +367,15 @@
         else msg = '<b>Main repérée.</b> Tes lignes sont placées d’après la forme de ta main' + (r.geometric ? '' : ' (plis peu visibles sur la photo : essaie une lumière rasante)') + '.';
         say('ok', msg + ' Ajuste un point en le faisant glisser si besoin. <button type="button" class="c127-scan__redo">Relire</button>');
         var redo = status.querySelector('.c127-scan__redo'); if (redo) redo.addEventListener('click', run);
+        emit('done', { found: r.found, feats: r.feats, geometric: !!r.geometric });
       }).catch(function () {
         say('warn', 'La lecture automatique n’a pas pu se lancer sur cet appareil. Fais glisser les points pour suivre tes lignes.');
+        emit('fail');
       });
     }
     file.addEventListener('change', function () {
       if (!file.files || !file.files[0]) return;
+      emit('photo');
       setTimeout(function () { if (img.decode) img.decode().then(run, run); else run(); }, 60);
     });
   }

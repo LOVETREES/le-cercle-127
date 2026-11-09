@@ -19,8 +19,8 @@
 .c127t .c127t-tcard .c127t-inner{transition:transform .9s cubic-bezier(.2,.8,.2,1.15)!important}
 .c127t .c127t-tcard.c127ov-flipping{animation:c127ov-lift .9s cubic-bezier(.2,.8,.2,1) both!important;z-index:6}
 @keyframes c127ov-lift{0%{transform:scale(1)}35%{transform:translateY(-18px) scale(1.08)}100%{transform:scale(1)}}
-.c127ov-halo{position:absolute;inset:-18%;border-radius:50%;background:radial-gradient(circle,rgba(255,226,150,.55) 0%,rgba(255,200,120,.18) 38%,transparent 66%);pointer-events:none;animation:c127ov-halo 1.6s ease-out forwards;z-index:-1}
-@keyframes c127ov-halo{0%{opacity:0;transform:scale(.4)}25%{opacity:1}100%{opacity:0;transform:scale(1.35)}}
+.c127ov-halo{position:absolute;inset:-18%;border-radius:50%;background:radial-gradient(circle,rgba(255,226,150,.22) 0%,rgba(255,200,120,.07) 40%,transparent 66%);pointer-events:none;animation:c127ov-halo 1.6s ease-out forwards;z-index:-1}
+@keyframes c127ov-halo{0%{opacity:0;transform:scale(.8)}35%{opacity:1}100%{opacity:0;transform:scale(1.1)}}
 .c127t .c127t-tcard.is-open .c127t-front{box-shadow:0 0 0 3px #0e0614,0 0 28px rgba(240,214,140,.45),0 20px 44px rgba(0,0,0,.58)}
 .c127ov-canvas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:99990}
 

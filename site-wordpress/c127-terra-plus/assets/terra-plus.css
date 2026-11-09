@@ -149,3 +149,69 @@
 .c127-hub__tab:focus-visible{outline:2px solid #9fcf8f;outline-offset:2px}
 .c127-hub__panel > *{margin-top:0!important}
 .c127-hub .c127ask,.c127-hub .oschat,.c127-hub .c127d{width:100%!important;max-width:none!important;margin-left:0!important;margin-right:0!important}
+
+/* ===== Séance de lecture (terra-seance.js) : une photo, Terra lit, une vraie lecture ===== */
+.c127s-on .c127j-toast,.terra127.c127s .c127j-meter,.terra127.c127s .c127j-slot,.terra127.c127s .c127j-crest,.terra127.c127s .c127-finale{display:none!important}
+.terra127.c127s .terra127__mount-layer,.terra127.c127s .tx7-nm,.terra127.c127s .tx7-ln-name,.terra127.c127s .tx7-mt,.terra127.c127s .terra127__maplegend,
+.terra127.c127s .tx7-read,.terra127.c127s .terra127__map-help,.terra127.c127s .terra127__quality,.terra127.c127s .c127-scan,
+.terra127.c127s [data-step="2"] [data-next]{display:none!important}
+.terra127.c127s .terra127__anchors{opacity:0;pointer-events:none;transition:opacity .25s}
+.terra127.c127s.c127s-edit .terra127__anchors{opacity:1;pointer-events:auto}
+.terra127.c127s.c127s-edit .terra127__anchors circle{r:34px;stroke-width:6px}
+.terra127.c127s.c127s-auto [data-step-nav="3"],.terra127.c127s.c127s-auto [data-step-nav="4"],.terra127.c127s.c127s-auto [data-step-nav="5"]{display:none!important}
+.terra127.c127s [data-map-wrap]{position:relative;overflow:hidden}
+.c127s-sweep{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s}
+[data-map-wrap].is-scanning .c127s-sweep{opacity:1;background:linear-gradient(180deg,transparent 0,rgba(216,182,107,.0) 40%,rgba(216,182,107,.35) 50%,rgba(216,182,107,0) 60%,transparent 100%) 0 0/100% 220% no-repeat;animation:c127s-sweep 1.6s ease-in-out infinite}
+[data-map-wrap].is-scanning [data-preview]{filter:saturate(.7) brightness(.85)}
+@keyframes c127s-sweep{0%{background-position:0 100%}100%{background-position:0 -20%}}
+.c127s-steps{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0 0;padding:0;list-style:none;font:600 .8rem/1.2 "Manrope",system-ui,sans-serif;color:#a9a6bd}
+.c127s-steps li{white-space:nowrap;display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.c127s-steps li::before{content:"";width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.18)}
+.c127s-steps li.is-now{color:#f3ead2;border-color:rgba(216,182,107,.5)}
+.c127s-steps li.is-now::before{background:#d8b66b;animation:c127-scan-pulse 1s ease-in-out infinite}
+.c127s-steps li.is-done{color:#cfe8d3}
+.c127s-steps li.is-done::before{content:"✓";width:auto;height:auto;background:none;color:#69bd7d;font-weight:900}
+.c127s-found{margin:14px 0 4px;padding:16px;border-radius:18px;text-align:center;background:linear-gradient(180deg,rgba(105,189,125,.10),rgba(255,255,255,.02));border:1px solid rgba(105,189,125,.4);animation:c127s-in .45s ease both}
+.c127s-found.is-warn{background:rgba(231,179,173,.08);border-color:rgba(231,179,173,.5);text-align:left;font:500 .9rem/1.5 "Manrope",system-ui,sans-serif;color:#ece9f6}
+.c127s-found__t{margin:0 0 10px;font:700 1.05rem/1.3 "Manrope",system-ui,sans-serif;color:#f3ead2}
+.c127s-found__s{margin:10px 0 0;font:500 .82rem/1.45 "Manrope",system-ui,sans-serif;color:#a9a6bd}
+.c127s-traits{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0;padding:0;list-style:none}
+.c127s-traits li{padding:7px 12px;border-radius:999px;font:700 .82rem/1.2 "Manrope",system-ui,sans-serif;color:#f3ead2;background:rgba(216,182,107,.14);border:1px solid rgba(216,182,107,.4)}
+.c127s-traits li.is-heart{background:rgba(232,163,174,.14);border-color:rgba(232,163,174,.5)}
+.c127s-traits li.is-head{background:rgba(214,182,108,.14);border-color:rgba(214,182,108,.5)}
+.c127s-traits li.is-life{background:rgba(105,189,125,.14);border-color:rgba(105,189,125,.5)}
+.c127s-actions{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px}
+.c127s-cta{appearance:none;border:0;cursor:pointer;min-height:52px;padding:14px 26px;border-radius:999px;font:800 1rem/1.2 "Manrope",system-ui,sans-serif;color:#1a1530;background:linear-gradient(135deg,#f3ead2,#d8b66b 55%,#a9c98a);box-shadow:0 10px 30px rgba(216,182,107,.25)}
+.c127s-link{appearance:none;border:0;background:none;cursor:pointer;padding:8px 10px;font:600 .88rem/1.3 "Manrope",system-ui,sans-serif;color:#d8b66b;text-decoration:underline;text-underline-offset:3px}
+@keyframes c127s-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* La lecture */
+.c127s-reading{margin:0 0 26px;padding:22px 18px;border-radius:22px;text-align:left;background:linear-gradient(180deg,rgba(42,30,70,.55),rgba(13,18,38,.6));border:1px solid rgba(216,182,107,.3);color:#ece9f6;font:400 1rem/1.65 "Manrope",system-ui,sans-serif;animation:c127s-in .5s ease both}
+.c127s-eyebrow{margin:0 0 4px;font:800 .72rem/1.2 "Manrope",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#d8b66b}
+.c127s-title{margin:0 0 14px;font-family:inherit;font-size:1.45rem;line-height:1.25;color:#f3ead2}
+.c127s-lead{margin:12px 0 4px;color:#cfcbe2}
+.c127s-photo .c127s-thumb{position:relative;width:min(240px,70%);margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.12)}
+.c127s-thumb img,.c127s-thumb svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.c127s-thumb svg path{fill:none;stroke-width:16;stroke-linecap:round;opacity:.9}
+.c127s-thumb [data-line-path="heart"]{stroke:#e8a3ae}.c127s-thumb [data-line-path="head"]{stroke:#d6b66c}.c127s-thumb [data-line-path="life"]{stroke:#69bd7d}.c127s-thumb [data-line-path="fate"]{display:none}
+.c127s-sec{margin:16px 0 0;padding:14px 14px 12px;border-radius:16px;background:rgba(255,255,255,.035);border-left:3px solid #d8b66b}
+.c127s-sec h4{margin:0 0 6px;font:800 1rem/1.3 "Manrope",system-ui,sans-serif;color:#f3ead2}
+.c127s-sec h4 small{font-weight:600;color:#a9a6bd}
+.c127s-sec p{margin:0}
+.c127s-sec i{color:#a9a6bd}
+.c127s-sec.is-heart{border-left-color:#e8a3ae;background:rgba(232,163,174,.07)}
+.c127s-sec.is-head{border-left-color:#d6b66c}
+.c127s-sec.is-life{border-left-color:#69bd7d}
+.c127s-sec.is-fate{border-left-color:#8fc8e8}
+.c127s-fate-b{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.c127s-fate-b button{appearance:none;cursor:pointer;padding:9px 14px;border-radius:999px;font:700 .85rem/1.2 "Manrope",system-ui,sans-serif;color:#ece9f6;background:rgba(143,200,232,.1);border:1px solid rgba(143,200,232,.4)}
+.c127s-fate-b button[aria-pressed="true"]{background:#8fc8e8;color:#0d1226}
+.c127s-fate-a:not(:empty){margin-top:10px}
+.c127s-sum{margin:20px 0 0;padding:16px;border-radius:18px;background:linear-gradient(135deg,rgba(216,182,107,.16),rgba(169,201,138,.1));border:1px solid rgba(216,182,107,.4)}
+.c127s-sum h4{margin:0 0 8px;font:800 1.05rem/1.3 "Manrope",system-ui,sans-serif;color:#f3ead2}
+.c127s-sum p{margin:0}
+.c127s-q{margin-top:12px!important;padding-top:12px;border-top:1px dashed rgba(216,182,107,.35);font-style:italic;color:#f3ead2}
+.c127s-q span{display:block;font:800 .7rem/1.2 "Manrope",system-ui,sans-serif;font-style:normal;letter-spacing:.12em;text-transform:uppercase;color:#d8b66b;margin-bottom:4px}
+.c127s-note{margin:14px 0 0;font-size:.78rem;line-height:1.5;color:#a9a6bd}
+.c127s-after{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:10px}
+.c127s-bridge{margin:22px 0 0;text-align:center;font:700 .95rem/1.4 "Manrope",system-ui,sans-serif;color:#d8b66b}
+@media (prefers-reduced-motion:reduce){.c127s-found,.c127s-reading{animation:none}[data-map-wrap].is-scanning .c127s-sweep{animation:none}}
