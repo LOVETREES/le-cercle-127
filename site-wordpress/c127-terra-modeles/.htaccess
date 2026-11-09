@@ -1,0 +1,11 @@
+# Les modules WebAssembly doivent être servis en application/wasm :
+# le navigateur peut alors les compiler pendant le téléchargement (moins de mémoire, surtout sur iPhone).
+<IfModule mod_mime.c>
+  AddType application/wasm .wasm
+  AddType application/octet-stream .onnx .task
+</IfModule>
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType application/wasm "access plus 1 year"
+  ExpiresByType application/octet-stream "access plus 1 year"
+</IfModule>

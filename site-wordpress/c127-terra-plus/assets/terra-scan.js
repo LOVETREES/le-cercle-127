@@ -88,6 +88,76 @@
     }
     return { canvas: c, ctx: g, back: back, sx: SIZE / cw, sy: SIZE / ch };
   }
+  /* ---------- Lecture des lignes hors du fil principal (l'écran reste fluide) ---------- */
+  var WORKER_SRC = [
+    'var S = null, ready = null;',
+    'function init(d) {',
+    '  importScripts(d.ort + "/ort.wasm.min.js");',
+    '  ort.env.wasm.numThreads = 1;',
+    '  ort.env.wasm.wasmPaths = { mjs: d.ort + "/ort-wasm-simd-threaded.js", wasm: d.ort + "/ort-wasm-simd-threaded.wasm" };',
+    '  return ort.InferenceSession.create(d.model, { executionProviders: ["wasm"], graphOptimizationLevel: "all" }).then(function (s) { S = s; });',
+    '}',
+    'self.onmessage = function (e) {',
+    '  var d = e.data;',
+    '  if (d.init) { try { ready = init(d); ready.then(function () { postMessage({ ready: true }); }, function (err) { postMessage({ error: String(err) }); }); } catch (err) { postMessage({ error: String(err) }); } return; }',
+    '  var N = d.size, plane = N * N, px = new Uint8ClampedArray(d.px), chw = new Float32Array(3 * plane), M = d.mean, SD = d.std;',
+    '  for (var i = 0, p = 0; i < plane; i++, p += 4) { chw[i] = (px[p] / 255 - M[0]) / SD[0]; chw[plane + i] = (px[p + 1] / 255 - M[1]) / SD[1]; chw[2 * plane + i] = (px[p + 2] / 255 - M[2]) / SD[2]; }',
+    '  var feeds = {}; feeds[S.inputNames[0]] = new ort.Tensor("float32", chw, [1, 3, N, N]);',
+    '  S.run(feeds).then(function (out) {',
+    '    var L = out[S.outputNames[0]].data, mask = new Uint8Array(plane);',
+    '    for (var i = 0; i < plane; i++) { var best = 0, bv = L[i]; for (var k = 1; k < 4; k++) { var v = L[k * plane + i]; if (v > bv) { bv = v; best = k; } } mask[i] = best; }',
+    '    postMessage({ id: d.id, mask: mask }, [mask.buffer]);',
+    '  }, function (err) { postMessage({ id: d.id, error: String(err) }); });',
+    '};'
+  ].join('\n');
+  var workerP = null, jobs = {}, jobId = 0;
+  function lineWorker() {
+    if (!ORT_BASE || !LINES_MODEL || typeof Worker === 'undefined' || typeof Blob === 'undefined') return Promise.reject(new Error('no-worker'));
+    if (!workerP) {
+      workerP = new Promise(function (res, rej) {
+        var w, url;
+        try { url = URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' })); w = new Worker(url); } catch (e) { return rej(e); }
+        var abs = function (u) { return new URL(u, location.href).href; };
+        var t = setTimeout(function () { rej(new Error('worker-timeout')); try { w.terminate(); } catch (e) {} }, 45000);
+        w.onmessage = function (e) {
+          var d = e.data || {};
+          if (d.ready) { clearTimeout(t); res(w); return; }
+          if (d.error && d.id == null) { clearTimeout(t); rej(new Error(d.error)); try { w.terminate(); } catch (er) {} return; }
+          var j = jobs[d.id]; if (!j) return; delete jobs[d.id];
+          if (d.error) j.rej(new Error(d.error)); else j.res(d.mask);
+        };
+        w.onerror = function (e) { clearTimeout(t); rej(e); };
+        w.postMessage({ init: true, ort: abs(ORT_BASE), model: abs(LINES_MODEL) });
+      });
+      workerP.catch(function () { workerP = 'off'; });
+    }
+    return workerP === 'off' ? Promise.reject(new Error('worker-off')) : workerP;
+  }
+  function runLinesOff(w, crop) {
+    var px = crop.ctx.getImageData(0, 0, SIZE, SIZE).data.buffer, id = ++jobId;
+    return new Promise(function (res, rej) {
+      jobs[id] = { res: res, rej: rej };
+      w.postMessage({ id: id, px: px, size: SIZE, mean: MEAN, std: STD }, [px]);
+    });
+  }
+  // Le worker d'abord ; s'il est indisponible sur cet appareil, l'ancienne voie sur le fil principal.
+  function readLines(crop) {
+    return lineWorker().then(function (w) { return runLinesOff(w, crop); }, function () {
+      return segmenter().then(function (seg) { return runLines(seg, crop); });
+    });
+  }
+
+  // Une photo de téléphone (12 Mpx) est ramenée à 1280 px : assez pour les plis, bien plus léger.
+  function workImage(img) {
+    var W = img.naturalWidth, H = img.naturalHeight, sc = Math.min(1, 1280 / Math.max(W, H));
+    if (sc === 1) return img;
+    var c = document.createElement('canvas'); c.width = Math.round(W * sc); c.height = Math.round(H * sc);
+    var g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, c.width, c.height);
+    c.naturalWidth = c.width; c.naturalHeight = c.height;
+    return c;
+  }
+  function nextFrame() { return new Promise(function (r) { requestAnimationFrame(function () { setTimeout(r, 0); }); }); }
+
   function runLines(seg, crop) {
     var d = crop.ctx.getImageData(0, 0, SIZE, SIZE).data, plane = SIZE * SIZE, chw = new Float32Array(3 * plane);
     for (var i = 0, p = 0; i < plane; i++, p += 4) {
@@ -309,16 +379,18 @@
       var g = overlay.getContext('2d'); g.clearRect(0, 0, overlay.width, overlay.height);
       for (var v = 0; v < SIZE; v += 2) for (var u = 0; u < SIZE; u += 2) {
         var k = mask[v * SIZE + u]; if (!k) continue;
-        var q = toScreen.local(crop.back(u, v)), col = COLORS[k];
+        var q = toScreen.local(up(crop.back(u, v))), col = COLORS[k];
         g.fillStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',.85)';
         g.fillRect(q.x * dpr - 1.5 * dpr, q.y * dpr - 1.5 * dpr, 3 * dpr, 3 * dpr);
       }
       overlay.classList.remove('is-fading'); void overlay.offsetWidth; overlay.classList.add('is-fading');
     }
 
+    var K = 1; // rapport entre la photo affichée et l'image de travail réduite
+    function up(p) { return { x: p.x * K, y: p.y * K }; }
     function place(name, three) {
       var toScreen = imageToScreen(img); // position relue au dernier moment : la page a pu défiler
-      var a = three[0], m = three[1], c = three[2];
+      var a = up(three[0]), m = up(three[1]), c = up(three[2]);
       var ctrl = { x: 2 * m.x - (a.x + c.x) / 2, y: 2 * m.y - (a.y + c.y) / 2 }; // courbe quadratique du moteur
       [a, ctrl, c].forEach(function (p, i) {
         var anchor = root.querySelector('[data-anchor="' + name + ':' + i + '"]');
@@ -330,17 +402,18 @@
       say('busy', '<span class="c127-scan__dot" aria-hidden="true"></span> Terra repère ta main… <small>(la première fois, ses outils se chargent : quelques secondes)</small>');
       emit('hand');
       var ready = img.complete && img.naturalWidth ? Promise.resolve() : new Promise(function (res, rej) { img.onload = res; img.onerror = rej; });
-      ready.then(landmarker).then(function (lm) {
-        var res = lm.detect(img), L = res && res.landmarks && res.landmarks[0];
+      var work = null;
+      ready.then(nextFrame).then(function () { work = workImage(img); K = img.naturalWidth / work.naturalWidth; lineWorker().catch(function () {}); return landmarker(); }).then(function (lm) {
+        var res = lm.detect(work), L = res && res.landmarks && res.landmarks[0];
         if (!L) {
           say('warn', '<b>Main non repérée.</b> Pose ta paume bien à plat, doigts légèrement écartés, face à l’objectif, avec une lumière douce, puis reprends la photo.');
           emit('nohand');
           return null;
         }
-        var W = img.naturalWidth, H = img.naturalHeight;
+        var W = work.naturalWidth, H = work.naturalHeight;
         var P = L.map(function (p) { return { x: p.x * W, y: p.y * H }; });
         var hand = res.handednesses && res.handednesses[0] && res.handednesses[0][0] ? res.handednesses[0][0].categoryName : 'Left';
-        var frame = palmFrame(P), palmW = Math.hypot(P[5].x - P[17].x, P[5].y - P[17].y), G = grayCanvas(img);
+        var frame = palmFrame(P), palmW = Math.hypot(P[5].x - P[17].x, P[5].y - P[17].y), G = grayCanvas(work);
         var geo = function (name) {
           var pts = GEO[name].map(function (ks) { return frame(ks[0], ks[1]); }), a = pts[0], m = pts[1], c = pts[2];
           a = snap(G, a, normalOf(a, m), palmW * 0.05); m = snap(G, m, normalOf(a, c), palmW * 0.09); c = snap(G, c, normalOf(m, c), palmW * 0.05);
@@ -348,9 +421,9 @@
         };
         say('busy', '<span class="c127-scan__dot" aria-hidden="true"></span> Main repérée. Terra lit tes lignes…');
         emit('lines', { P: P.map(function (p) { return [p.x, p.y]; }), W: W, H: H });
-        return segmenter().then(function (seg) {
-          var crop = cropPalm(img, P, hand !== 'Left');
-          return runLines(seg, crop).then(function (mask) {
+        var crop = cropPalm(work, P, hand !== 'Left');
+        return nextFrame().then(function () { return readLines(crop); }).then(function (mask) {
+          return nextFrame().then(function () {
             if (window.__c127ScanDebug) window.__c127ScanDebug = { crop: crop.canvas.toDataURL('image/png'), mask: mask, hand: hand };
             var found = [], groups = { 1: [], 2: [], 3: [] }, counts = { 1: 0, 2: 0, 3: 0 };
             for (var v = 0; v < SIZE; v++) for (var u = 0; u < SIZE; u++) { var k = mask[v * SIZE + u]; if (k) { groups[k].push(crop.back(u, v)); counts[k]++; } }
@@ -384,7 +457,8 @@
         else msg = '<b>Main repérée.</b> Tes lignes sont placées d’après la forme de ta main' + (r.geometric ? '' : ' (plis peu visibles sur la photo : essaie une lumière rasante)') + '.';
         say('ok', msg + ' Ajuste un point en le faisant glisser si besoin. <button type="button" class="c127-scan__redo">Relire</button>');
         var redo = status.querySelector('.c127-scan__redo'); if (redo) redo.addEventListener('click', run);
-        emit('done', { found: r.found, feats: r.feats, geometric: !!r.geometric, P: r.L.map(function (p) { return [p.x * img.naturalWidth, p.y * img.naturalHeight]; }), W: img.naturalWidth, H: img.naturalHeight });
+        var WW = work ? work.naturalWidth : img.naturalWidth, WH = work ? work.naturalHeight : img.naturalHeight;
+        emit('done', { found: r.found, feats: r.feats, geometric: !!r.geometric, P: r.L.map(function (p) { return [p.x * WW, p.y * WH]; }), W: WW, H: WH });
       }).catch(function () {
         say('warn', 'La lecture automatique n’a pas pu se lancer sur cet appareil. Fais glisser les points pour suivre tes lignes.');
         emit('fail');
