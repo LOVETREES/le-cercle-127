@@ -171,6 +171,16 @@
 
     var intro = stage.querySelector('.terra127__muted');
     if (intro) intro.innerHTML = 'Photographie l’intérieur de ta main, bien à plat, doigts légèrement écartés, dans une lumière douce. <b>Terra fait le reste.</b>';
+    // Un exemple réel de lecture, avant de photographier sa propre main.
+    var EX = (window.C127TerraDetailed && window.C127TerraDetailed.example) || '/terra-lit-la-main/';
+    [root.querySelector('[data-step="1"]'), stage].forEach(function (panel) {
+      if (!panel || panel.querySelector('.c127s-example')) return;
+      var a = el('a', 'c127s-example', '<span aria-hidden="true">✦</span> Voir une lecture en exemple');
+      a.href = EX;
+      var h = panel.querySelector('h2,h3');
+      var after = panel === stage ? (intro || h) : h;
+      if (after && after.parentNode === panel) panel.insertBefore(a, after.nextSibling); else panel.insertBefore(a, panel.firstChild);
+    });
     var upLabel = stage.querySelector('.terra127__upload span');
     if (upLabel) upLabel.textContent = 'Photographier ma paume';
 

@@ -215,3 +215,6 @@
 .c127s-after{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:10px}
 .c127s-bridge{margin:22px 0 0;text-align:center;font:700 .95rem/1.4 "Manrope",system-ui,sans-serif;color:#d8b66b}
 @media (prefers-reduced-motion:reduce){.c127s-found,.c127s-reading{animation:none}[data-map-wrap].is-scanning .c127s-sweep{animation:none}}
+.terra127.c127s .c127s-example{display:inline-flex;align-items:center;gap:6px;margin:4px 0 10px;padding:7px 14px;border-radius:999px;font:700 .84rem/1.2 "Manrope",system-ui,sans-serif;color:#f3ead2;text-decoration:none;background:rgba(216,182,107,.12);border:1px solid rgba(216,182,107,.45)}
+.terra127.c127s .c127s-example:hover,.terra127.c127s .c127s-example:focus-visible{background:rgba(216,182,107,.22);outline:none}
+.terra127.c127s .c127s-example span{color:#d8b66b}
