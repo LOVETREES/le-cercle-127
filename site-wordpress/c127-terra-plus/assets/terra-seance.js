@@ -402,6 +402,7 @@
     function remember(t) {
       // L'application coche « Ta main » de son rituel du jour.
       try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'c127-terra-reading', element: t.element })); } catch (e) {}
+      try { if (window.C127Portes) window.C127Portes.mark('terra'); } catch (e) {}
       // Le rituel de l'accueil du site, et l'élément gardé pour l'Oracle et les Sœurs.
       try {
         var R = JSON.parse(localStorage.getItem('c127_rituel') || '{}') || {}, d = today(), y = new Date(Date.now() - 864e5);

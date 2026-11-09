@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cercle 127 - Terra Plus (mudras, schéma des lignes, lecture du jour)
  * Description: Complète l'atelier de Terra : vrai scan des lignes sur la photo (MediaPipe + modèle « Palm Line Reader », MIT, exécutés sur l'appareil, hébergés ici), espace à onglets (lire ma main, lecture détaillée, m'ancrer, parler à Terra), pastilles illustrées à la place des menus, arbre de progression (Graine → Canopée) et célébration de fin de lecture ; illustrations des quatre mudras et façon de faire chaque geste, schéma de la main dont les lignes s'allument, message clair en fin de lecture, une lecture de la main par jour, et la lecture détaillée sur photo (avec consentement, photo non conservée) avec l'évolution de la main dans le temps. Désactiver l'extension revient à l'état précédent.
- * Version: 1.9.4
+ * Version: 1.9.5
  * Author: Le Cercle 127
  */
 

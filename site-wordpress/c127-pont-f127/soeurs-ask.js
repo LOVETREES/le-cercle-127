@@ -74,6 +74,8 @@
     }
     out.appendChild(card);
     nextSteps(out, kind, body || {});
+    // Une réponse reçue ouvre la porte de cette Sœur dans le Grimoire.
+    try { if (window.C127Portes) window.C127Portes.mark(String(kind).split('-')[0]); } catch (e) {}
     out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
