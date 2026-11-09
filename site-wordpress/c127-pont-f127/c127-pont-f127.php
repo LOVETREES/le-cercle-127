@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cercle 127 - Pont Framework 127 (Terra, Naïa, app)
  * Description: Relie l'application et la lecture détaillée de Terra à Framework 127. Publie palm.reading.completed et emotion.submitted dans l'Event Bus (en interne, sans jeton exposé), laisse la Conscience choisir la Sœur, et propose des souvenirs (memory_candidate_emitted, à valider) uniquement avec l'accord explicite de la personne. Effacement : retirer une lecture ou supprimer son compte efface ses souvenirs. Sans Framework 127 actif, l'extension ne fait rien.
- * Version: 1.0.0
+ * Version: 1.0.2
  * Author: Le Cercle 127
  * Requires PHP: 7.4
  */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 final class C127_Pont_F127 {
-    const VERSION = '1.0.0';
+    const VERSION = '1.0.2';
     const NS = 'c127-f127/v1';
     const DAILY_LIMIT = 3;
 
@@ -265,25 +265,47 @@ final class C127_Pont_F127 {
             'constraints' => ['no_side_effects' => true, 'no_diagnosis' => true, 'max_support_sisters' => 2],
             'memory' => (object) [],
         ];
+        // Le Framework n'enregistre pas le texte de la Sœur (confidentialité) : on le capte
+        // au passage, en mémoire seulement, dans la réponse HTTP du Master Worker à NOTRE demande.
+        $captured = null;
+        $catch = function ($response, $args, $url) use ($corr, &$captured) {
+            $headers = array_change_key_case(is_array($args['headers'] ?? null) ? $args['headers'] : [], CASE_LOWER);
+            if ((string) ($headers['x-correlation-id'] ?? '') === $corr && !is_wp_error($response)) {
+                $captured = (string) wp_remote_retrieve_body($response);
+            }
+            return $response;
+        };
+        add_filter('http_response', $catch, 10, 3);
+
         $req = new WP_REST_Request('POST', '/f127/v1/conscience/ingest');
         $req->set_header('content-type', 'application/json');
         $req->set_header('x-f127-token', F127_Observability::token());
         $req->set_body(wp_json_encode($stimulus));
         $res = rest_do_request($req);
+        remove_filter('http_response', $catch, 10);
         $data = $res->get_data();
         $decision = is_array($data['decision'] ?? null) ? $data['decision']
             : (is_array($data['data']['details']['decision'] ?? null) ? $data['data']['details']['decision'] : []);
 
-        // Réponse de la Sœur, si le Worker l'a rendue (enveloppe F127P).
+        // Réponse de la Sœur (enveloppe F127_WORKER_RESULT : data.outputs.response).
         $answer = '';
-        foreach (F127_Observability::events_for_correlation($corr, 200) as $e) {
-            $r = $e['result_summary'] ?? null;
-            if (is_string($r)) {
-                $r = json_decode($r, true);
-            }
-            $w = is_array($r) ? ($r['worker_result'] ?? null) : null;
-            if (is_array($w)) {
-                $answer = (string) ($w['data']['outputs']['response'] ?? $w['outputs']['response'] ?? $w['response'] ?? $answer);
+        $actions = [];
+        $raw = is_string($captured) ? trim($captured) : '';
+        // Le modèle entoure parfois le JSON de ```json … ``` : on l'enlève.
+        $raw = preg_replace('/^```(?:json)?\s*|\s*```$/', '', $raw);
+        $worker = $raw !== '' ? json_decode($raw, true) : null;
+        if (!is_array($worker) && $raw !== '' && preg_match('/\{.*\}/s', $raw, $m)) {
+            $worker = json_decode($m[0], true);
+        }
+        if (is_array($worker)) {
+            $out = $worker['data']['outputs'] ?? $worker['outputs'] ?? [];
+            if (is_array($out)) {
+                $answer = (string) ($out['response'] ?? '');
+                foreach ((array) ($out['suggested_actions'] ?? []) as $a) {
+                    if (is_string($a) && trim($a) !== '') {
+                        $actions[] = mb_substr(wp_strip_all_tags($a), 0, 300);
+                    }
+                }
             }
         }
 
@@ -305,6 +327,14 @@ final class C127_Pont_F127 {
             'capability' => (string) ($decision['capability'] ?? ''),
             'reason' => (string) ($decision['reason'] ?? ''),
             'answer' => mb_substr(wp_strip_all_tags($answer), 0, 2000),
+            'suggestions' => array_slice($actions, 0, 3),
+            'diagnostic' => [
+                'worker_seen' => $captured !== null,
+                'worker_bytes' => is_string($captured) ? strlen($captured) : 0,
+                'worker_json' => is_array($worker),
+                'worker_keys' => is_array($worker) ? array_slice(array_keys($worker), 0, 6) : [],
+                'conscience_status' => $res->get_status(),
+            ],
         ]);
     }
 }
