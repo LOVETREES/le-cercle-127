@@ -51,6 +51,17 @@
         body.motifs = String(f.get('motifs') || '').split(/[,;\n]/).map(function (s) { return s.trim(); }).filter(Boolean);
         if (!body.motifs.length) { out.appendChild(el('p', 'c127ask__error', 'Indique au moins un élément qui revient.')); return; }
         body.frequency = f.get('frequency'); body.excerpt = f.get('excerpt') || '';
+      } else if (kind === 'naia-apaisement') {
+        body.emotion = f.get('emotion'); body.intensity = Number(f.get('intensity') || 3); body.body = f.get('body');
+      } else if (kind === 'ignis-petit-pas') {
+        body.insight = String(f.get('insight') || '').trim();
+        if (body.insight.length < 8) { out.appendChild(el('p', 'c127ask__error', 'Écris en une phrase ce que tu as compris ou ce que tu veux transformer.')); return; }
+        body.energy = f.get('energy'); body.horizon = f.get('horizon');
+      } else if (kind === 'irma-decision') {
+        body.question = String(f.get('question') || '').trim();
+        body.options = f.getAll('option').map(function (s) { return String(s).trim(); }).filter(Boolean);
+        if (body.question.length < 6 || body.options.length < 2) { out.appendChild(el('p', 'c127ask__error', 'Écris ta question et au moins deux options.')); return; }
+        body.matters = f.get('matters') || ''; body.deadline = f.get('deadline');
       } else {
         body.context = f.get('context'); body.intensity = Number(f.get('intensity') || 3); body.minutes = Number(f.get('minutes') || 3);
       }

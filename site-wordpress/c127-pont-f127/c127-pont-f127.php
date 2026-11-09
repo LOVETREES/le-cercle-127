@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Cercle 127 - Pont Framework 127 (Terra, Naïa, app)
- * Description: Relie l'application et la lecture détaillée de Terra à Framework 127. Publie palm.reading.completed et emotion.submitted dans l'Event Bus (en interne, sans jeton exposé), laisse la Conscience choisir la Sœur (Naïa, Alka pour les rêves récurrents, Terra pour l'ancrage), et propose des souvenirs (memory_candidate_emitted, à valider) uniquement avec l'accord explicite de la personne. Effacement : retirer une lecture ou supprimer son compte efface ses souvenirs. Sans Framework 127 actif, l'extension ne fait rien.
- * Version: 1.1.1
+ * Description: Relie l'application et la lecture détaillée de Terra à Framework 127. Publie palm.reading.completed et emotion.submitted dans l'Event Bus (en interne, sans jeton exposé), laisse la Conscience choisir la Sœur (Naïa pour les émotions et l'apaisement, Alka pour les rêves récurrents, Terra pour l'ancrage, Ignis pour un petit pas, Irma pour les choix), et propose des souvenirs (memory_candidate_emitted, à valider) uniquement avec l'accord explicite de la personne. Effacement : retirer une lecture ou supprimer son compte efface ses souvenirs. Sans Framework 127 actif, l'extension ne fait rien.
+ * Version: 1.2.0
  * Author: Le Cercle 127
  * Requires PHP: 7.4
  */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 final class C127_Pont_F127 {
-    const VERSION = '1.1.1';
+    const VERSION = '1.2.0';
     const NS = 'c127-f127/v1';
     const DAILY_LIMIT = 3;
 
@@ -229,7 +229,15 @@ final class C127_Pont_F127 {
     private const ASKS = [
         'alka-motifs' => ['event_type' => 'dream.recurring.submitted', 'source' => 'site.alka', 'limit' => 3, 'fallback' => ['alka', 'dream.pattern_analysis']],
         'terra-ancrage' => ['event_type' => 'grounding.requested', 'source' => 'site.terra', 'limit' => 5, 'fallback' => ['terra', 'grounding.exercise']],
+        'naia-apaisement' => ['event_type' => 'emotion.regulation.requested', 'source' => 'site.naia', 'limit' => 5, 'fallback' => ['naia', 'emotion.regulation']],
+        'ignis-petit-pas' => ['event_type' => 'action.requested', 'source' => 'site.ignis', 'limit' => 3, 'fallback' => ['ignis', 'action.suggestion']],
+        'irma-decision' => ['event_type' => 'decision.requested', 'source' => 'site.irma', 'limit' => 3, 'fallback' => ['irma', 'decision.analysis']],
     ];
+
+    private const BODY_PLACES = ['gorge' => 'la gorge', 'poitrine' => 'la poitrine', 'ventre' => 'le ventre', 'tete' => 'la tête', 'epaules' => 'les épaules', 'partout' => 'partout', 'nulle_part' => 'je ne sais pas'];
+    private const ENERGY = ['faible' => 'faible', 'moyenne' => 'moyenne', 'haute' => 'haute'];
+    private const HORIZONS = ['5min' => 'cinq minutes, aujourd’hui', 'jour' => 'dans la journée', 'semaine' => 'cette semaine'];
+    private const DEADLINES = ['aucune' => 'pas d’échéance', 'semaine' => 'dans la semaine', 'mois' => 'dans le mois', 'urgent' => 'très bientôt'];
 
     private const GROUNDING_CONTEXTS = [
         'cauchemar' => 'au réveil d’un cauchemar',
@@ -469,6 +477,47 @@ final class C127_Pont_F127 {
                 'feeling' => mb_substr(sanitize_text_field((string) ($p['feeling'] ?? '')), 0, 120),
                 'request' => 'Relier ces motifs récurrents entre eux et à la vie éveillée, sans imposer de vérité.',
             ];
+        } elseif ('naia-apaisement' === $kind) {
+            $key = sanitize_key((string) ($p['emotion'] ?? ''));
+            if (!isset(self::EMOTIONS[$key])) {
+                return new WP_Error('c127_f127_input', 'Choisis l’émotion que tu ressens.', ['status' => 400]);
+            }
+            $where = sanitize_key((string) ($p['body'] ?? 'nulle_part'));
+            $payload = [
+                'emotion' => self::EMOTIONS[$key],
+                'emotion_key' => $key,
+                'intensity' => max(1, min(5, (int) ($p['intensity'] ?? 3))),
+                'body_location' => self::BODY_PLACES[$where] ?? 'je ne sais pas',
+                'note' => mb_substr(sanitize_textarea_field((string) ($p['note'] ?? '')), 0, 400),
+                'request' => 'Aider à apaiser cette émotion maintenant : la reconnaître, la situer dans le corps, puis un geste ou une respiration simple. Tutoyer.',
+            ];
+        } elseif ('ignis-petit-pas' === $kind) {
+            $insight = trim(mb_substr(sanitize_textarea_field((string) ($p['insight'] ?? '')), 0, 600));
+            if (mb_strlen($insight) < 8) {
+                return new WP_Error('c127_f127_input', 'Écris en une phrase ce que tu as compris ou ce que tu veux transformer.', ['status' => 400]);
+            }
+            $energy = sanitize_key((string) ($p['energy'] ?? 'moyenne'));
+            $horizon = sanitize_key((string) ($p['horizon'] ?? 'jour'));
+            $payload = [
+                'insight' => $insight,
+                'energy' => self::ENERGY[$energy] ?? 'moyenne',
+                'horizon' => self::HORIZONS[$horizon] ?? 'dans la journée',
+                'request' => 'Proposer UN petit pas concret, réversible et adapté à cette énergie, avec un signal simple de réussite. Tutoyer.',
+            ];
+        } elseif ('irma-decision' === $kind) {
+            $question = trim(mb_substr(sanitize_text_field((string) ($p['question'] ?? '')), 0, 300));
+            $options = self::clean_list($p['options'] ?? [], 4, 160);
+            if (mb_strlen($question) < 6 || count($options) < 2) {
+                return new WP_Error('c127_f127_input', 'Écris ta question et au moins deux options.', ['status' => 400]);
+            }
+            $deadline = sanitize_key((string) ($p['deadline'] ?? 'aucune'));
+            $payload = [
+                'question' => $question,
+                'options' => $options,
+                'what_matters' => mb_substr(sanitize_textarea_field((string) ($p['matters'] ?? '')), 0, 400),
+                'deadline' => self::DEADLINES[$deadline] ?? 'pas d’échéance',
+                'request' => 'Éclairer le choix sans décider à la place : ce que chaque option protège et coûte, puis une étape réversible pour tester. Tutoyer.',
+            ];
         } else { // terra-ancrage
             $ctx = sanitize_key((string) ($p['context'] ?? ''));
             if (!isset(self::GROUNDING_CONTEXTS[$ctx])) {
@@ -500,6 +549,16 @@ final class C127_Pont_F127 {
             'memory' => (object) [],
         ]);
 
+        if (!empty($p['remember']) && 'naia-apaisement' === $kind) {
+            self::propose_memory($corr, (string) ($r['decision']['agent'] ?? 'naia'), (string) ($r['decision']['capability'] ?? 'emotion.regulation'), [
+                'type' => 'emotion_pattern',
+                'summary' => sprintf('Le %s : %s (intensité %d/5), ressentie dans %s.', wp_date('j F Y'), mb_strtolower($payload['emotion']), $payload['intensity'], $payload['body_location']),
+                'confidence' => 0.9,
+                'sensitivity' => 'medium',
+                'subject_ref' => $ref,
+                'retention' => 'until_user_deletes',
+            ]);
+        }
         if (!empty($p['remember']) && 'alka-motifs' === $kind) {
             self::propose_memory($corr, (string) ($r['decision']['agent'] ?? 'alka'), (string) ($r['decision']['capability'] ?? 'dream.pattern_analysis'), [
                 'type' => 'dream_pattern',
@@ -513,9 +572,9 @@ final class C127_Pont_F127 {
         return self::reply($corr, $r, $cfg['fallback']);
     }
 
-    /* ---------- 3. Widgets du site (pages Alka et Terra) ---------- */
+    /* ---------- 3. Widgets du site (pages Alka, Terra, Naïa, Ignis, Irma) ---------- */
 
-    const WIDGET_PAGES = [874 => 'alka-motifs', 878 => 'terra-ancrage'];
+    const WIDGET_PAGES = [874 => 'alka-motifs', 878 => 'terra-ancrage', 872 => 'naia-apaisement', 870 => 'ignis-petit-pas', 11913 => 'irma-decision'];
 
     public static function widget_content(string $content): string {
         if (!is_page() || !in_the_loop() || !is_main_query()) {
@@ -557,13 +616,13 @@ final class C127_Pont_F127 {
     </fieldset>
     <label class="c127ask__label" for="c127ask-excerpt">Un rêve où ils apparaissent <small>(facultatif)</small></label>
     <textarea class="c127ask__input" id="c127ask-excerpt" name="excerpt" rows="3" maxlength="1200" placeholder="Quelques lignes suffisent…"></textarea>
-    <?php self::consent_fields(true); ?>
+    <?php self::consent_fields('ces motifs'); ?>
     <button class="c127ask__send" type="submit">Demander à la Sœur la plus juste</button>
   </form>
   <div class="c127ask__out" aria-live="polite"></div>
 </section>
 <script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
-<?php } else { ?>
+<?php } elseif ('terra-ancrage' === $kind) { ?>
 <section class="c127ask c127ask--terra" data-c127-ask="terra-ancrage" style="--ask-accent:#9fcf8f">
   <p class="c127ask__eyebrow">Terra · Gardienne de l’ancrage</p>
   <h2 class="c127ask__title">Revenir dans ton corps, maintenant</h2>
@@ -582,20 +641,105 @@ final class C127_Pont_F127 {
       <label><input type="radio" name="minutes" value="3" checked> 3 minutes</label>
       <label><input type="radio" name="minutes" value="5"> 5 minutes</label>
     </fieldset>
-    <?php self::consent_fields(false); ?>
+    <?php self::consent_fields(''); ?>
     <button class="c127ask__send" type="submit">Recevoir mon exercice d’ancrage</button>
   </form>
   <div class="c127ask__out" aria-live="polite"></div>
   <p class="c127ask__notice">Un exercice de bien-être, pas un soin. En cas de détresse, appelle le 3114 (gratuit, 24 h/24).</p>
 </section>
 <script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
+<?php } elseif ('naia-apaisement' === $kind) { ?>
+<section class="c127ask c127ask--naia" data-c127-ask="naia-apaisement" style="--ask-accent:#8fdad3">
+  <p class="c127ask__eyebrow">Naïa · Gardienne des émotions</p>
+  <h2 class="c127ask__title">Apaiser une émotion qui déborde</h2>
+  <p class="c127ask__lead">Quand c’est trop fort pour en parler : choisis l’émotion, son intensité et où tu la sens. La Sœur la plus juste t’aide à la laisser redescendre.</p>
+  <form class="c127ask__form" novalidate>
+    <fieldset class="c127ask__chips"><legend class="c127ask__label">Ce que je ressens</legend>
+      <label><input type="radio" name="emotion" value="peur" checked> La peur</label>
+      <label><input type="radio" name="emotion" value="colere"> La colère</label>
+      <label><input type="radio" name="emotion" value="tristesse"> La tristesse</label>
+      <label><input type="radio" name="emotion" value="culpabilite"> La culpabilité</label>
+      <label><input type="radio" name="emotion" value="confusion"> La confusion</label>
+      <label><input type="radio" name="emotion" value="soulagement"> Le soulagement</label>
+    </fieldset>
+    <label class="c127ask__label" for="c127ask-naia-intensity">Intensité : <output data-intensity-out>3</output> / 5</label>
+    <input class="c127ask__range" id="c127ask-naia-intensity" name="intensity" type="range" min="1" max="5" value="3">
+    <fieldset class="c127ask__chips"><legend class="c127ask__label">Je la sens surtout dans…</legend>
+      <label><input type="radio" name="body" value="gorge"> Gorge</label>
+      <label><input type="radio" name="body" value="poitrine" checked> Poitrine</label>
+      <label><input type="radio" name="body" value="ventre"> Ventre</label>
+      <label><input type="radio" name="body" value="tete"> Tête</label>
+      <label><input type="radio" name="body" value="epaules"> Épaules</label>
+      <label><input type="radio" name="body" value="partout"> Partout</label>
+      <label><input type="radio" name="body" value="nulle_part"> Je ne sais pas</label>
+    </fieldset>
+    <?php self::consent_fields('cette émotion'); ?>
+    <button class="c127ask__send" type="submit">M’aider à m’apaiser</button>
+  </form>
+  <div class="c127ask__out" aria-live="polite"></div>
+  <p class="c127ask__notice">Un accompagnement de bien-être, pas un soin. En cas de détresse, appelle le 3114 (gratuit, 24 h/24).</p>
+</section>
+<script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
+<?php } elseif ('ignis-petit-pas' === $kind) { ?>
+<section class="c127ask c127ask--ignis" data-c127-ask="ignis-petit-pas" style="--ask-accent:#f0a66b">
+  <p class="c127ask__eyebrow">Ignis · Flamme de la transformation</p>
+  <h2 class="c127ask__title">Un petit pas pour aujourd’hui</h2>
+  <p class="c127ask__lead">Tu as compris quelque chose (un rêve, une émotion, une situation) ? Ignis le transforme en un geste concret, à ta mesure.</p>
+  <form class="c127ask__form" novalidate>
+    <label class="c127ask__label" for="c127ask-insight">Ce que j’ai compris, ou ce que je veux transformer</label>
+    <textarea class="c127ask__input" id="c127ask-insight" name="insight" rows="3" maxlength="600" placeholder="ex. Je repousse toujours la conversation avec ma sœur, et ça revient dans mes rêves." required></textarea>
+    <fieldset class="c127ask__chips"><legend class="c127ask__label">Mon énergie</legend>
+      <label><input type="radio" name="energy" value="faible"> Faible</label>
+      <label><input type="radio" name="energy" value="moyenne" checked> Moyenne</label>
+      <label><input type="radio" name="energy" value="haute"> Haute</label>
+    </fieldset>
+    <fieldset class="c127ask__chips"><legend class="c127ask__label">Je peux agir…</legend>
+      <label><input type="radio" name="horizon" value="5min"> En 5 minutes</label>
+      <label><input type="radio" name="horizon" value="jour" checked> Aujourd’hui</label>
+      <label><input type="radio" name="horizon" value="semaine"> Cette semaine</label>
+    </fieldset>
+    <?php self::consent_fields(''); ?>
+    <button class="c127ask__send" type="submit">Trouver mon petit pas</button>
+  </form>
+  <div class="c127ask__out" aria-live="polite"></div>
+</section>
+<script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
+<?php } elseif ('irma-decision' === $kind) { ?>
+<section class="c127ask c127ask--irma" data-c127-ask="irma-decision" style="--ask-accent:#e2c37a">
+  <p class="c127ask__eyebrow">Irma · Gardienne des choix</p>
+  <h2 class="c127ask__title">J’hésite entre…</h2>
+  <p class="c127ask__lead">Irma ne décide pas à ta place : elle éclaire ce que chaque option protège et coûte, puis te propose une étape réversible pour tester.</p>
+  <form class="c127ask__form" novalidate>
+    <label class="c127ask__label" for="c127ask-question">Ma question</label>
+    <input class="c127ask__input" id="c127ask-question" name="question" type="text" maxlength="300" placeholder="ex. Dois-je accepter ce nouveau poste ?" required>
+    <label class="c127ask__label" for="c127ask-opt1">Option 1</label>
+    <input class="c127ask__input" id="c127ask-opt1" name="option" type="text" maxlength="160" placeholder="ex. Accepter" required>
+    <label class="c127ask__label" for="c127ask-opt2">Option 2</label>
+    <input class="c127ask__input" id="c127ask-opt2" name="option" type="text" maxlength="160" placeholder="ex. Rester où je suis" required>
+    <label class="c127ask__label" for="c127ask-opt3">Option 3 <small>(facultatif)</small></label>
+    <input class="c127ask__input" id="c127ask-opt3" name="option" type="text" maxlength="160">
+    <label class="c127ask__label" for="c127ask-matters">Ce qui compte vraiment pour moi <small>(facultatif)</small></label>
+    <textarea class="c127ask__input" id="c127ask-matters" name="matters" rows="2" maxlength="400" placeholder="ex. du temps pour mes enfants, la sécurité financière"></textarea>
+    <fieldset class="c127ask__chips"><legend class="c127ask__label">Je dois décider…</legend>
+      <label><input type="radio" name="deadline" value="urgent"> Très bientôt</label>
+      <label><input type="radio" name="deadline" value="semaine"> Cette semaine</label>
+      <label><input type="radio" name="deadline" value="mois"> Ce mois-ci</label>
+      <label><input type="radio" name="deadline" value="aucune" checked> Pas d’échéance</label>
+    </fieldset>
+    <?php self::consent_fields(''); ?>
+    <button class="c127ask__send" type="submit">Éclairer mon choix</button>
+  </form>
+  <div class="c127ask__out" aria-live="polite"></div>
+  <p class="c127ask__notice">Un éclairage, jamais un verdict : la décision t’appartient.</p>
+</section>
+<script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
 <?php }
         return (string) ob_get_clean();
     }
 
-    private static function consent_fields(bool $memory): void { ?>
+    private static function consent_fields(string $memory): void { ?>
     <label class="c127ask__check"><input type="checkbox" name="consent" required> J’accepte que ma demande soit transmise à une Sœur (IA) pour me répondre. Rien n’est conservé sans mon accord.</label>
-    <?php if ($memory) { ?><label class="c127ask__check"><input type="checkbox" name="remember"> Proposer de garder ces motifs en mémoire (je pourrai les effacer).</label><?php } ?>
+    <?php if ($memory !== '') { ?><label class="c127ask__check"><input type="checkbox" name="remember"> Proposer de garder <?php echo esc_html($memory); ?> en mémoire (je pourrai l’effacer).</label><?php } ?>
 <?php }
 }
 
