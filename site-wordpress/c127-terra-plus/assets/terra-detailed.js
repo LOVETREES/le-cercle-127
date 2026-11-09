@@ -3,8 +3,10 @@
   'use strict';
   var CFG = window.C127TerraDetailed || {};
   var inApp = !!window.ReactNativeWebView || /Cercle127App/.test(navigator.userAgent);
-  var MP = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
-  var MODEL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+  var LOCAL = (window.C127TerraDetailed || {}).mp || '';
+  var MP = LOCAL ? LOCAL.replace(/\/$/, '') : 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+  var BUNDLE = LOCAL ? MP + '/vision_bundle.js' : MP + '/vision_bundle.mjs';
+  var MODEL = LOCAL ? MP + '/hand_landmarker.task' : 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
   var LINES = { heart: ['Ligne de cœur', '#e8a3ae'], head: ['Ligne de tête', '#d6b66c'], life: ['Ligne de vie', '#69bd7d'], fate: ['Ligne du destin', '#8fc8e8'], sun: ['Ligne du soleil', '#f2dea8'] };
   var SECTIONS = [['overview', 'Vue d’ensemble', '#d8b66b'], ['heart', 'Cœur · tes liens', '#e8a3ae'], ['head', 'Tête · tes choix', '#d6b66c'], ['life', 'Vie · ton énergie', '#69bd7d'], ['fate', 'Destin · ta direction', '#8fc8e8'], ['mounts', 'Monts et doigts · tes forces', '#d9cdfb'], ['month', 'Ce que ta main t’invite à vivre ce mois-ci', '#f2dea8']];
   var FIELD = { length: 'longueur', depth: 'profondeur', shape: 'forme', present: 'présence' };
@@ -25,7 +27,7 @@
   var landmarkerP = null;
   function landmarker() {
     if (!landmarkerP) {
-      landmarkerP = import(MP + '/vision_bundle.mjs').then(function (m) {
+      landmarkerP = import(BUNDLE).then(function (m) {
         return m.FilesetResolver.forVisionTasks(MP + '/wasm').then(function (files) {
           return m.HandLandmarker.createFromOptions(files, { baseOptions: { modelAssetPath: MODEL }, runningMode: 'IMAGE', numHands: 1 });
         });

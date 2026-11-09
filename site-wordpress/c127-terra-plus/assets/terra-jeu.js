@@ -137,18 +137,7 @@
     slot.className = 'c127j-slot';
     slot.appendChild(meter);
     (nav && nav.parentNode ? nav.parentNode : root).insertBefore(slot, nav ? nav.nextSibling : root.firstChild);
-    // L'atelier coupe ce qui dépasse (overflow) : la jauge flotte en haut de l'écran pendant qu'on le parcourt.
-    if ('IntersectionObserver' in window) {
-      var slotVisible = true, rootVisible = false;
-      var sync = function () {
-        var float = !slotVisible && rootVisible;
-        if (float && meter.parentNode !== document.body) { slot.style.height = slot.offsetHeight + 'px'; document.body.appendChild(meter); }
-        if (!float && meter.parentNode !== slot) { slot.appendChild(meter); slot.style.height = ''; }
-        meter.classList.toggle('c127j-float', float);
-      };
-      new IntersectionObserver(function (e) { slotVisible = e[0].isIntersecting; sync(); }, { rootMargin: '-70px 0px 0px 0px' }).observe(slot);
-      new IntersectionObserver(function (e) { rootVisible = e[0].isIntersecting; sync(); }, { rootMargin: '-140px 0px -160px 0px' }).observe(root);
-    }
+    // Jauge discrète, dans l'atelier seulement (elle ne flotte plus par-dessus la lecture).
     var lastLevel = null;
 
     function progress(celebrate, fromEl) {

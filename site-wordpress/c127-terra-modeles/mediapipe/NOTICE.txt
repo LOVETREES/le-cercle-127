@@ -1,0 +1,3 @@
+MediaPipe Tasks Vision 0.10.14 (@mediapipe/tasks-vision) et modèle hand_landmarker (float16/1)
+Copyright Google LLC — Apache License 2.0 : https://www.apache.org/licenses/LICENSE-2.0
+Fichiers hébergés ici pour éviter tout appel à un service tiers.

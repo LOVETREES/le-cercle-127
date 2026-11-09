@@ -1,0 +1,3 @@
+Modèle « Palm Line Reader » (student_fp16.onnx, UNet mit_b0) — Copyright (c) 2026 Sam Barber — MIT License
+https://github.com/samuelwbarber/palm-line-reader
+Trace les lignes de cœur, de tête et de vie dans le navigateur ; la photo ne quitte pas l’appareil.
