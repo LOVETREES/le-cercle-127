@@ -4,6 +4,7 @@ import { ApiError, api } from './api';
 import { mergeDreams, makeDraft, type Dream, type DreamInput, type User } from './model';
 import { clearPalmReadings, palmOwnerFor, setPalmOwner } from './palm';
 import { clearEmotions } from './naia';
+import { clearPortes } from './portes';
 import { clearRitual } from './rituel';
 import { KEYS, local, secure } from './storage';
 import { DEMO_USER, demoDreams } from './demo';
@@ -116,6 +117,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await clearPalmReadings('demo');
     await clearEmotions('demo');
     await clearRitual('demo');
+    await clearPortes('demo');
     demoRef.current = [];
     setDemoRecords([]);
     setIsDemo(false);
@@ -202,6 +204,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await clearPalmReadings(palmOwnerFor(false, user?.id));
         await clearEmotions(palmOwnerFor(false, user?.id));
         await clearRitual(palmOwnerFor(false, user?.id));
+        await clearPortes(palmOwnerFor(false, user?.id));
         setServer([]);
       },
       user: isDemo ? { ...DEMO_USER, name: t(DEMO_USER.name) } : user,
@@ -239,6 +242,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           await clearPalmReadings(deletedOwner);
           await clearEmotions(deletedOwner);
           await clearRitual(deletedOwner);
+          await clearPortes(deletedOwner);
           await saveReminder(DEFAULT_REMINDER);
           await Promise.all([clearLastError(), clearWebError()]);
         } catch {

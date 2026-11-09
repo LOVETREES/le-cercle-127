@@ -56,5 +56,6 @@ export const KEYS = {
   presenceDays: 'c127.presence-days',
   emotions: 'c127.emotions',
   rituel: 'c127.rituel',
+  portes: 'c127.portes',
   demoPendingTranscript: 'c127.demo-pending-transcript',
 } as const;

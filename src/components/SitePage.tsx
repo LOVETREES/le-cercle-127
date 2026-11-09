@@ -6,6 +6,7 @@ import { WebView as RNWebView } from 'react-native-webview';
 
 import { saveWebError } from '../lib/crash';
 import { lastPalmScript, storePalmMessage } from '../lib/palm';
+import { recordSister, sisterFromMessage } from '../lib/portes';
 import { isOracleReveal, isPalmSeance, recordGesture } from '../lib/rituel';
 import { decideNavigation, decidePageRequest, injectedScript, nativeRouteFor, siteUrl } from '../lib/webpage';
 import { colors, fonts, space } from '../lib/theme';
@@ -171,7 +172,10 @@ function SitePageContent({ path }: { path: string }) {
           // Une carte révélée dans l'Oracle coche « Ta carte » du rituel du jour.
           if (isOracleReveal(data)) { recordGesture('carte').catch(() => undefined); return; }
           // Une lecture de la main terminée dans l'atelier de Terra coche « Ta main ».
-          if (isPalmSeance(data)) { recordGesture('main').catch(() => undefined); return; }
+          if (isPalmSeance(data)) { recordGesture('main').catch(() => undefined); recordSister('terra').catch(() => undefined); return; }
+          // Une pratique avec une Sœur (conversation, demande) ouvre sa porte dans le Grimoire.
+          const sister = sisterFromMessage(data);
+          if (sister) { recordSister(sister).catch(() => undefined); return; }
           storePalmMessage(data).then((r) => { if (r === 'ignored') saveWebError(data); else if (r === 'new') setPalmSaved(true); }, () => saveWebError(data));
         }}
         allowsBackForwardNavigationGestures
