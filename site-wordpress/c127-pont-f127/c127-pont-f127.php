@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cercle 127 - Pont Framework 127 (Terra, Naïa, app)
  * Description: Relie l'application et la lecture détaillée de Terra à Framework 127. Publie palm.reading.completed et emotion.submitted dans l'Event Bus (en interne, sans jeton exposé), laisse la Conscience choisir la Sœur (Naïa pour les émotions et l'apaisement, Alka pour les rêves récurrents, Terra pour l'ancrage, Ignis pour un petit pas, Irma pour les choix), et propose des souvenirs (memory_candidate_emitted, à valider) uniquement avec l'accord explicite de la personne. Effacement : retirer une lecture ou supprimer son compte efface ses souvenirs. Sans Framework 127 actif, l'extension ne fait rien.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: Le Cercle 127
  * Requires PHP: 7.4
  */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 final class C127_Pont_F127 {
-    const VERSION = '1.2.0';
+    const VERSION = '1.2.1';
     const NS = 'c127-f127/v1';
     const DAILY_LIMIT = 3;
 
@@ -574,10 +574,11 @@ final class C127_Pont_F127 {
 
     /* ---------- 3. Widgets du site (pages Alka, Terra, Naïa, Ignis, Irma) ---------- */
 
-    const WIDGET_PAGES = [874 => 'alka-motifs', 878 => 'terra-ancrage', 872 => 'naia-apaisement', 870 => 'ignis-petit-pas', 11913 => 'irma-decision'];
+    /** Identifiants WordPress (pages ou articles) : Irma est un article (7556). */
+    const WIDGET_PAGES = [874 => 'alka-motifs', 878 => 'terra-ancrage', 872 => 'naia-apaisement', 870 => 'ignis-petit-pas', 7556 => 'irma-decision'];
 
     public static function widget_content(string $content): string {
-        if (!is_page() || !in_the_loop() || !is_main_query()) {
+        if (!is_singular() || !in_the_loop() || !is_main_query()) {
             return $content;
         }
         $kind = self::WIDGET_PAGES[get_the_ID()] ?? '';
