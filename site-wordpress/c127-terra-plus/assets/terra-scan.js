@@ -155,8 +155,17 @@
     });
   }
   // Le worker d'abord ; s'il est indisponible sur cet appareil, l'ancienne voie sur le fil principal.
+  // Après la lecture, le moteur des lignes est libéré (sur iPhone, la mémoire est comptée).
+  function releaseWorker() {
+    var p = workerP; workerP = null;
+    if (p && p !== 'off' && p.then) p.then(function (w) { try { w.terminate(); } catch (e) {} }, function () {});
+  }
+  function releaseHand() {
+    var p = window.__c127HandLandmarker; window.__c127HandLandmarker = null;
+    if (p && p.then) p.then(function (lm) { try { lm.close(); } catch (e) {} }, function () {});
+  }
   function readLines(crop) {
-    return lineWorker().then(function (w) { return runLinesOff(w, crop); }, function () {
+    return lineWorker().then(function (w) { return runLinesOff(w, crop).then(function (m) { if (IOS) releaseWorker(); return m; }); }, function () {
       // Sur iPhone, le calcul sur le fil principal fige l'écran : on garde la lecture géométrique.
       if (IOS) { INFO.path = 'geometrie (iPhone sans worker)'; return Promise.reject(new Error('ios-main')); }
       INFO.path = 'fil principal';
@@ -429,6 +438,7 @@
       var work = null; mark('photo');
       ready.then(nextFrame).then(function () { work = workImage(img); K = img.naturalWidth / work.naturalWidth; lineWorker().catch(function () {}); return landmarker(); }).then(function (lm) {
         mark('detect'); var res = lm.detect(work), L = res && res.landmarks && res.landmarks[0]; mark('detected');
+        if (IOS) { releaseHand(); preloaded = false; } // rechargé au besoin (« Relire » ou nouvelle photo)
         if (!L) {
           say('warn', '<b>Main non repérée.</b> Pose ta paume bien à plat, doigts légèrement écartés, face à l’objectif, avec une lumière douce, puis reprends la photo.');
           emit('nohand');

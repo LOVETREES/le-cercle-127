@@ -6,6 +6,8 @@
   'use strict';
   var NS = 'http://www.w3.org/2000/svg', uid = 0;
   var REDUCED = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // Sur iPhone, les flous SVG coûtent très cher (recalculés à chaque défilement) : lueur sans filtre.
+  var LIGHT = /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
   var BONES = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [17, 18], [18, 19], [19, 20], [0, 17]];
   var NAMES = { heart: 'Cœur', head: 'Tête', life: 'Vie' };
 
@@ -43,7 +45,7 @@
     this.sweepG = mk('g', { class: 'c127sc-sweep' }, svg); mk('rect', { x: 0, y: -0.2 * H, width: W, height: 0.2 * H, fill: 'url(#c127sc-sw' + id + ')' }, this.sweepG);
     this.frameG = mk('g', {}, svg); this.bonesG = mk('g', {}, svg); this.linesG = mk('g', { class: 'c127sc-lines' }, svg);
     this.jointsG = mk('g', {}, svg); this.mountsG = mk('g', {}, svg);
-    this.svg = svg;
+    this.svg = svg; if (LIGHT) svg.classList.add('is-light');
     if (o.src) {
       var fig = document.createElement('figure'); fig.className = 'c127sc-fig';
       fig.style.aspectRatio = W + ' / ' + H;
@@ -92,11 +94,13 @@
     ['heart', 'head', 'life'].forEach(function (n) {
       var pts = polys && polys[n]; if (!pts || pts.length < 3) return;
       var d = pathOf(pts), g = mk('g', { class: 'c127sc-lg', 'data-k': n }, self.linesG);
-      var glow = mk('path', { class: 'c127sc-pl c127sc-glow', d: d, 'stroke-width': 22 * k, filter: self.soft }, g);
+      var ga = { class: 'c127sc-pl c127sc-glow', d: d, 'stroke-width': (LIGHT ? 16 : 22) * k }; if (!LIGHT) ga.filter = self.soft;
+      var glow = mk('path', ga, g);
       var core = mk('path', { class: 'c127sc-pl', d: d, 'stroke-width': 7 * k }, g);
       var len = core.getTotalLength();
       [glow, core].forEach(function (p) { p.style.strokeDasharray = len; p.style.strokeDashoffset = len; });
-      var tip = mk('circle', { class: 'c127sc-tip', r: 10 * k, filter: self.soft }, g); tip.style.opacity = 0;
+      var ta = { class: 'c127sc-tip', r: (LIGHT ? 7 : 10) * k }; if (!LIGHT) ta.filter = self.soft;
+      var tip = mk('circle', ta, g); tip.style.opacity = 0;
       var spot = core.getPointAtLength(len * (n === 'heart' ? 0.12 : n === 'head' ? 0.2 : 0.55));
       var lbl = mk('text', { class: 'c127sc-name', x: spot.x + (n === 'life' ? 18 : -14) * k, y: spot.y + (n === 'life' ? 0 : 34) * k, 'text-anchor': n === 'life' ? 'start' : 'end', 'font-size': 24 * k, 'stroke-width': 6 * k }, g);
       lbl.textContent = NAMES[n];
