@@ -48,3 +48,5 @@
 @media (prefers-reduced-motion:reduce){
   .c127t .c127t-fan.c127ov-ready span,.c127t .c127t-tcard.c127ov-dealt:not(.is-open),.c127t .c127t-tcard:not(.is-open) .c127t-back::after,.c127t .c127t-tcard:not(.is-open)::after,.c127t .c127t-tcard.c127ov-flipping,.c127ov-halo{animation:none!important}
 }
+.c127ov-hand{margin:0 0 14px;padding:12px 14px;border-radius:14px;font:500 .92rem/1.5 "Manrope",system-ui,sans-serif;color:#f3ead2;background:rgba(127,194,143,.1);border:1px solid rgba(127,194,143,.4)}
+.c127ov-hand span{display:block;margin-bottom:2px;font:800 .66rem/1.2 "Manrope",system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#7fc28f}

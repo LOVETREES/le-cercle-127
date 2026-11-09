@@ -189,6 +189,28 @@
     else if (firstToday && S.streak > 1) setTimeout(function () { toast('🔥 ' + S.streak + ' jours de tirage de suite', 'Le Cercle te reconnaît.'); }, 1200);
   }
 
+  /* ---------- La carte lue avec l'élément de la main (lecture de Terra) ---------- */
+  var LENS = {
+    feu: ['main de Feu', 'y lit un appel à agir : quel premier geste cette carte te suggère-t-elle aujourd’hui ?'],
+    eau: ['main d’Eau', 'y lit d’abord une émotion : que ressens-tu en la regardant, avant de chercher à la comprendre ?'],
+    air: ['main d’Air', 'y lit une idée : quelle phrase de cette carte voudrais-tu garder en tête toute la journée ?'],
+    terre: ['main de Terre', 'y lit quelque chose de concret : que te demande-t-elle de faire de tes mains aujourd’hui ?']
+  };
+  function handLens() {
+    var m = null;
+    try { m = JSON.parse(localStorage.getItem('c127_main') || 'null'); } catch (e) {}
+    if (!m || !LENS[m.element] || Date.now() - (m.at || 0) > 60 * 864e5) return;
+    var open = document.querySelector('#c127t .c127t-tcard.is-open, #c127t .c127t-rcard.is-open');
+    if (!open || document.querySelector('#c127t .c127ov-hand')) return;
+    var p = document.createElement('p'); p.className = 'c127ov-hand';
+    p.innerHTML = '<span>Avec ta lecture de la main</span>Ta ' + LENS[m.element][0] + ' ' + LENS[m.element][1];
+    // Dans la lecture du moteur quand elle existe, sinon juste sous la rangée de cartes.
+    var host = document.getElementById('c127t-lecture');
+    if (host && host.textContent.trim()) { host.insertBefore(p, host.firstChild); return; }
+    var row = open.closest('.c127ov-host') ? open.closest('.c127ov-host').parentNode : open.parentNode;
+    if (row && row.parentNode) row.parentNode.insertBefore(p, row.nextSibling);
+  }
+
   /* ---------- Observation du moteur ---------- */
   var result = document.getElementById('c127t-result');
   function scan() {
@@ -197,11 +219,12 @@
     if (fresh.length) requestAnimationFrame(function () { deal(fresh); });
     var lec = document.getElementById('c127t-lecture');
     if (lec && !lec.classList.contains('c127ov-in')) lec.classList.add('c127ov-in');
+    handLens(); // le moteur réécrit sa lecture : la ligne de la main revient à chaque fois
   }
   new MutationObserver(function (muts) {
     muts.forEach(function (m) {
       if (m.type === 'attributes' && m.target.classList && m.target.classList.contains('is-open')) {
-        if (m.target.matches('.c127t-tcard, .c127t-rcard')) onReveal(m.target);
+        if (m.target.matches('.c127t-tcard, .c127t-rcard')) { onReveal(m.target); setTimeout(handLens, 900); }
       }
     });
     scan();

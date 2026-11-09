@@ -44,3 +44,10 @@
 .oschat .oschat-message{width:auto!important;max-width:min(80%,680px)!important;align-self:flex-start}
 .oschat .oschat-message--user{align-self:flex-end!important}
 @media(max-width:430px){.oschat .oschat-message{max-width:90%!important}}
+/* La zone de texte prend toute la place : « Ajouter une image » devient une icône (son libellé reste lu par les lecteurs d'écran). */
+.oschat .oschat-composer textarea{flex:1 1 0;min-width:0;width:auto}
+.oschat .oschat-composer__bar .oschat-tools{gap:4px}
+.oschat .oschat-composer__bar .oschat-tools small{display:none}
+.oschat .oschat-attach{position:relative;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0!important;border-radius:50%;font-size:0!important;color:transparent;overflow:hidden;cursor:pointer}
+.oschat .oschat-attach span{font-size:18px;color:#d8b66b}
+.oschat .oschat-attach:hover,.oschat .oschat-attach:focus-within{background:rgb(255 255 255 / .06)}

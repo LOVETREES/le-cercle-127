@@ -291,3 +291,11 @@
 .c127s-scenebox,.c127sc-fig{box-sizing:border-box;max-width:100%}
 @media (max-width:480px){.c127s-reading{padding:16px 12px}.c127s-sec{padding:12px 12px 10px}}
 .c127s-reading .c127s-elem p,.c127s-reading .c127s-sec p,.c127s-reading .c127s-sum p{font-size:.95rem;line-height:1.6}
+
+.c127s-talk{display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-top:14px}
+.c127s-talk .c127s-cta{min-height:46px;padding:12px 22px;font-size:.92rem}
+.c127s-talk .c127s-link{padding-left:4px}
+.c127s-mantra{margin:10px 0 0;font:italic 500 1.05rem/1.4 "Cormorant Garamond",Georgia,serif;color:#f3ead2}
+.c127s-mantra span{display:block;font:800 .66rem/1.2 "Manrope",system-ui,sans-serif;font-style:normal;letter-spacing:.12em;text-transform:uppercase;color:#d8b66b;margin-bottom:2px}
+.c127-relais{margin:0 0 10px;padding:10px 14px;border-radius:14px;font:500 .88rem/1.45 "Manrope",system-ui,sans-serif;color:#f3ead2;background:rgba(216,182,107,.12);border:1px solid rgba(216,182,107,.4)}
+.c127s-on .c127j-canvas{display:none!important}

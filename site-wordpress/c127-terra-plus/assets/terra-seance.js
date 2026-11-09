@@ -141,6 +141,7 @@
     if (t.indexRing === 'index') return t.head && t.head.slope === 'droite' ? 'Avec ta tête droite, c’est la main de quelqu’un qui sait organiser et mener.' : 'Tu sais prendre ta place quand il le faut.';
     return '';
   }
+  var MANTRA = { feu: 'J’avance avec élan, et je garde du souffle pour durer.', eau: 'Je ressens tout, et je choisis ce que je garde.', air: 'Mes idées prennent racine quand je respire.', terre: 'Je bâtis pas à pas, et je laisse de la place à l’imprévu.' };
   var L_END = { jupiter: 'sous l’index', entre: 'entre index et majeur', saturne: 'sous le majeur' };
   var L_SHAPE = { carree: 'paume carrée', rect: 'paume rectangulaire', longue: 'paume allongée' };
   var L_FING = { courts: 'doigts plus courts que la paume', prop: 'doigts proportionnés', longs: 'doigts longs' };
@@ -202,7 +203,9 @@
       'Une ' + E.name + ', ' + (t.heart ? HEART_KEY[t.heart.end] : 'un cœur à écouter') + ', ' + (t.head ? HEAD_KEY[t.head.slope] : 'une pensée à découvrir') + (t.life ? ' et ' + LIFE_KEY[t.life.arc] : '') + '. ' +
       (t.head ? HEAD_COMBO[t.element][t.head.slope] + ' ' : '') + VERB[t.element] + ', et ' + HEART_CLAUSE[end] + '.</p>' +
       '<p>Ta force du moment, c’est <b>' + E.force + '</b>. Ce que ta main t’invite à travailler : <b>' + E.defi + '</b>.</p>' +
-      '<p class="c127s-q"><span>Question pour ton Grimoire</span>' + QUESTION[end] + '</p></section>';
+      '<p class="c127s-q"><span>Question pour ton Grimoire</span>' + QUESTION[end] + '</p>' +
+      '<div class="c127s-talk"><button type="button" class="c127s-cta" data-c127s="talk-terra">En parler avec Terra</button>' +
+      '<button type="button" class="c127s-link" data-c127s="talk-naia">Ou avec Naïa, si ton cœur a été touché</button></div></section>';
     h += '<p class="c127s-note">Lecture symbolique inspirée de la chiromancie traditionnelle, à partir des proportions et des lignes mesurées sur ta photo, directement sur ton appareil. C’est un miroir pour réfléchir, jamais une prédiction ni un avis médical.</p>';
     return h + '</div></div>';
   }
@@ -359,7 +362,49 @@
         setTimeout(function () { replay(); }, 500);
       }
       try { sessionStorage.setItem('c127_palm_reading', JSON.stringify({ at: Date.now(), t: T })); } catch (e) {}
+      remember(T);
+      // Le mantra du jour se teinte de l'élément de la main (le moteur vient de remplir le sien).
+      setTimeout(function () {
+        var q = finalP.querySelector('[data-mantra]'); if (!q || !q.parentNode) return;
+        var old = q.parentNode.querySelector('.c127s-mantra'); if (old) old.remove();
+        var m = el('p', 'c127s-mantra', '<span>Pour ta ' + ELEMENT[T.element].name + '</span>« ' + MANTRA[T.element] + ' »');
+        q.parentNode.insertBefore(m, q.nextSibling);
+      }, 80);
       setTimeout(function () { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120);
+    }
+    function today() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+    function remember(t) {
+      // L'application coche « Ta main » de son rituel du jour.
+      try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'c127-terra-reading', element: t.element })); } catch (e) {}
+      // Le rituel de l'accueil du site, et l'élément gardé pour l'Oracle et les Sœurs.
+      try {
+        var R = JSON.parse(localStorage.getItem('c127_rituel') || '{}') || {}, d = today(), y = new Date(Date.now() - 864e5);
+        R.main = d;
+        if (R.lastDay !== d) { R.streak = R.lastDay === (y.getFullYear() + '-' + (y.getMonth() + 1) + '-' + y.getDate()) ? (R.streak || 1) + 1 : 1; R.lastDay = d; }
+        localStorage.setItem('c127_rituel', JSON.stringify(R));
+        localStorage.setItem('c127_main', JSON.stringify({ element: t.element, heart: t.heart && t.heart.end, head: t.head && t.head.slope, at: Date.now() }));
+      } catch (e) {}
+    }
+    function talkText(who) {
+      var E = ELEMENT[T.element], end = T.heart ? T.heart.end : 'entre';
+      var seen = 'une ' + E.name + ', ' + (T.heart ? HEART_KEY[T.heart.end] : 'un cœur à écouter') + (T.head ? ', ' + HEAD_KEY[T.head.slope] : '');
+      return who === 'naia'
+        ? 'Terra vient de lire ma main : ' + seen + '. Sa question m’a touché·e : « ' + QUESTION[end] + ' » Ce que je ressens en la lisant : '
+        : 'Tu viens de lire ma main : ' + seen + '. Ta question : « ' + QUESTION[end] + ' » Voici ce que j’en pense : ';
+    }
+    function talk(who) {
+      if (!T) return;
+      var text = talkText(who);
+      if (who === 'naia') {
+        try { sessionStorage.setItem('c127_palm_talk', JSON.stringify({ to: 'naia', text: text, at: Date.now() })); } catch (e) {}
+        location.href = ((window.C127TerraDetailed && window.C127TerraDetailed.naia) || '/naia-gardienne-des-emotions/') + '#parler-a-naia';
+        return;
+      }
+      var tab = document.getElementById('c127-hub-tab-parler'); if (tab) tab.click();
+      var chat = document.querySelector('.oschat--terra'), ta = chat && chat.querySelector('textarea');
+      if (!ta) return;
+      ta.value = text; ta.dispatchEvent(new Event('input', { bubbles: true }));
+      setTimeout(function () { chat.scrollIntoView({ behavior: 'smooth', block: 'start' }); ta.focus({ preventScroll: true }); try { ta.setSelectionRange(ta.value.length, ta.value.length); } catch (e) {} }, 150);
     }
     function live(k) {
       var sec = finalP.querySelector('.c127s-sec[data-k="' + k + '"]');
@@ -397,6 +442,7 @@
       }
       var a = b.getAttribute('data-c127s');
       if (a === 'replay') { replay(); return; }
+      if (a === 'talk-terra' || a === 'talk-naia') { talk(a === 'talk-naia' ? 'naia' : 'terra'); return; }
       if (a === 'fix') { root.classList.remove('c127s-auto'); go(3); root.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
       if (a === 'deep') { var tab = document.getElementById('c127-hub-tab-photo'); if (tab) { tab.click(); tab.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }
     });
