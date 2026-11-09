@@ -10,6 +10,7 @@ const item = (id: string, at: string, head: object) => ({ id, at, hand: 'droite'
 describe('lecture détaillée de la main', () => {
   it('reste fermée dans la version en revue', () => {
     expect(FEATURES.palmDetailed).toBe(false);
+    expect(FEATURES.sisters).toBe(false);
   });
 
   it('lit prudemment la réponse du site', () => {

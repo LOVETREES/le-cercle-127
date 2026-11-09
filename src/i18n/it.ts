@@ -557,4 +557,12 @@ export const it: Record<string, string> = {
   "À accueillir avec douceur": "Da accogliere con dolcezza",
   "✦ Lecture détaillée sur photo ›": "✦ Lettura dettagliata da foto ›",
   "📷 Photographier": "📷 Fotografa",
+  "Les Sœurs peuvent se souvenir de cette lecture pour suivre mon chemin : seules les observations de mes lignes, jamais la photo ni le texte. Je peux l’effacer en supprimant la lecture.": "Le Sorelle possono ricordare questa lettura per seguire il mio cammino: solo le osservazioni delle mie linee, mai la foto né il testo. Posso cancellarlo eliminando la lettura.",
+  "La Sœur a bien reçu ton émotion. Sa réponse arrive dans ton Grimoire.": "La Sorella ha ricevuto la tua emozione. La sua risposta arriverà nel tuo Grimorio.",
+  "Les Sœurs se reposent un instant. Réessaie plus tard.": "Le Sorelle riposano un attimo. Riprova più tardi.",
+  "LA RÉPONSE DE {s}": "LA RISPOSTA DI {s}",
+  "J’accepte que mon émotion soit confiée aux Sœurs (service d’IA) pour recevoir une réponse.": "Accetto che la mia emozione sia affidata alle Sorelle (servizio di IA) per ricevere una risposta.",
+  "Les Sœurs peuvent s’en souvenir pour suivre mon chemin (effaçable à tout moment).": "Le Sorelle possono ricordarlo per seguire il mio cammino (cancellabile in qualsiasi momento).",
+  "La Conscience choisit la Sœur…": "La Coscienza sceglie la Sorella…",
+  "Demander à la Sœur la plus juste ›": "Chiedi alla Sorella più adatta ›",
 };

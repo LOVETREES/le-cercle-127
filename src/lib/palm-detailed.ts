@@ -77,8 +77,8 @@ export async function listDetailed(token: string) {
   return parseList(await api.palmDetailedList(token));
 }
 
-export async function createDetailed(token: string, image: string, hand: string, lang: string) {
-  const res = (await api.palmDetailedCreate(token, { image, hand, lang, consent: true })) as Record<string, unknown> | undefined;
+export async function createDetailed(token: string, image: string, hand: string, lang: string, remember = false) {
+  const res = (await api.palmDetailedCreate(token, { image, hand, lang, consent: true, remember })) as Record<string, unknown> | undefined;
   const item = parseDetailed(res?.item);
   if (!item) throw new Error('Terra n’a pas pu lire ta main pour le moment. Réessaie dans quelques minutes.');
   return { item, quota: parseList({ quota: res?.quota }).quota };

@@ -69,6 +69,7 @@ export default function LectureMain() {
   const [photo, setPhoto] = useState<{ uri: string; base64: string } | null>(null);
   const [hand, setHand] = useState<'droite' | 'gauche'>('droite');
   const [consent, setConsent] = useState(false);
+  const [remember, setRemember] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ tone: 'info' | 'error' | 'success'; text: string } | null>(null);
 
@@ -108,7 +109,7 @@ export default function LectureMain() {
     setBusy(true);
     setNotice({ tone: 'info', text: t('Terra lit ta main… cela peut prendre une minute.') });
     try {
-      const r = await createDetailed(token, `data:image/jpeg;base64,${photo.base64}`, hand, getLang());
+      const r = await createDetailed(token, `data:image/jpeg;base64,${photo.base64}`, hand, getLang(), remember);
       setPhoto(null);
       setConsent(false);
       setItems((l) => [r.item, ...l]);
@@ -185,6 +186,12 @@ export default function LectureMain() {
             <View style={[st.box, consent && st.boxOn]}>{consent ? <Text style={st.tick}>✓</Text> : null}</View>
             <Text style={[st.text, { flex: 1, fontSize: 13 }]}>
               {t('J’accepte que Terra analyse cette photo pour ma lecture. Elle est transmise de façon sécurisée à un service d’analyse d’image (OpenAI), puis n’est pas conservée : seules les observations de mes lignes sont gardées dans mon compte, et je peux les effacer.')}
+            </Text>
+          </Pressable>
+          <Pressable style={st.consent} onPress={() => setRemember((c) => !c)} accessibilityRole="checkbox" accessibilityState={{ checked: remember }}>
+            <View style={[st.box, remember && st.boxOn]}>{remember ? <Text style={st.tick}>✓</Text> : null}</View>
+            <Text style={[st.text, { flex: 1, fontSize: 13 }]}>
+              {t('Les Sœurs peuvent se souvenir de cette lecture pour suivre mon chemin : seules les observations de mes lignes, jamais la photo ni le texte. Je peux l’effacer en supprimant la lecture.')}
             </Text>
           </Pressable>
           <GoldButton label={t('Recevoir ma lecture')} onPress={send} loading={busy} disabled={!photo || !consent || busy} />

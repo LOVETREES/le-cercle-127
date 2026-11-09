@@ -91,8 +91,12 @@ export const api = {
   async palmDetailedList(token: string): Promise<unknown> {
     return request(PALM_DETAILED, { token });
   },
-  async palmDetailedCreate(token: string, body: { image: string; hand: string; lang: string; consent: true; metrics?: Record<string, number> }): Promise<unknown> {
+  async palmDetailedCreate(token: string, body: { image: string; hand: string; lang: string; consent: true; remember?: boolean; metrics?: Record<string, number> }): Promise<unknown> {
     return request(PALM_DETAILED, { method: 'POST', token, body, timeoutMs: 190000 });
+  },
+  // Framework 127 : la Conscience choisit la Sœur qui répond à l'émotion du jour (avec accord).
+  async sisterForEmotion(token: string, body: { emotion: string; recent: Record<string, number>; consent: true; remember: boolean; lang: string }): Promise<unknown> {
+    return request(`${BASE}/c127-f127/v1/emotion`, { method: 'POST', token, body, timeoutMs: 90000 });
   },
   async palmDetailedDelete(token: string, id: string): Promise<void> {
     await request(`${PALM_DETAILED}/${encodeURIComponent(id)}`, { method: 'DELETE', token });

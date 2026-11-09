@@ -172,6 +172,7 @@
       '<label class="c127d-pick">📷 Prendre ou choisir la photo<input type="file" accept="image/*" capture="environment" hidden></label>' +
       '<div class="c127d-preview" hidden><canvas></canvas><p class="c127d-check"></p></div>' +
       '<label class="c127d-consent"><input type="checkbox"> J’accepte que Terra analyse cette photo pour ma lecture. La photo est transmise de façon sécurisée à un service d’analyse d’image (OpenAI), puis <b>n’est pas conservée</b> : seules les observations de mes lignes sont gardées dans mon compte, et je peux les effacer.</label>' +
+      '<label class="c127d-consent"><input type="checkbox" class="c127d-remember"> Les Sœurs peuvent <b>se souvenir</b> de cette lecture pour suivre mon chemin : seules les observations de mes lignes, jamais la photo ni le texte. Je peux l’effacer en supprimant la lecture.</label>' +
       '<button type="button" class="c127d-go" disabled>Recevoir ma lecture</button>' +
       '<p class="c127d-status" role="status"></p>' +
       (quota.plus ? '' : '<p class="c127d-muted">' + (quota.free_left > 0 ? 'Ta première lecture détaillée est offerte.' : '') + '</p>');
@@ -211,7 +212,8 @@
       status.textContent = msgs[0];
       var timer = setInterval(function () { k = Math.min(k + 1, msgs.length - 1); status.textContent = msgs[k] + ' (cela peut prendre une minute)'; }, 9000);
       var hand = (f.querySelector('input[name=c127d-hand]:checked') || {}).value || 'inconnue';
-      api('detailed', { method: 'POST', body: { image: photo, hand: hand, metrics: metrics, consent: true, lang: (document.documentElement.lang || 'fr').slice(0, 2) } }).then(function (r) {
+      var remember = !!(f.querySelector('.c127d-remember') || {}).checked;
+      api('detailed', { method: 'POST', body: { image: photo, hand: hand, metrics: metrics, consent: true, remember: remember, lang: (document.documentElement.lang || 'fr').slice(0, 2) } }).then(function (r) {
         clearInterval(timer);
         photo = null;
         if (r.ok && r.data.item) { status.textContent = '✓ Ta lecture est prête. La photo n’a pas été conservée.'; load(r.data.item); return; }

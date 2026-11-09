@@ -5,16 +5,71 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { FEATURES } from '../lib/features';
+import { api } from '../lib/api';
 import { dayKey } from '../lib/insights';
+import { useSession } from '../lib/session';
 import { EMOTIONS, emotionOf, lastSevenDays, listEmotions, recordEmotion, type EmotionEntry, type EmotionKey } from '../lib/naia';
 import { listPalmReadings, type PalmReading } from '../lib/palm';
 import { colors, fonts, radius, space } from '../lib/theme';
-import { locale, quote, t } from '../i18n';
+import { getLang, locale, quote, t } from '../i18n';
 
 const NAIA = '#8fdad3';
 const TERRA = '#a9c98a';
 
 const openSister = (path: string, title: string) => router.push({ pathname: '/page', params: { path, title } });
+
+const SISTER_NAMES: Record<string, string> = { oni: 'Oni', alka: 'Alka', naia: 'Naïa', terra: 'Terra', ignis: 'Ignis', astria: 'Astria', irma: 'Irma' };
+
+/** Framework 127 : la Conscience choisit la Sœur qui répond (avec l'accord de la personne). */
+function AskSister({ emotion, entries }: { emotion: EmotionKey; entries: EmotionEntry[] }) {
+  const { token, isDemo } = useSession();
+  const [consent, setConsent] = useState(false);
+  const [remember, setRemember] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [answer, setAnswer] = useState<{ sister: string; text: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  if (!FEATURES.sisters || !token || isDemo) return null;
+
+  const ask = async () => {
+    setBusy(true);
+    setError(null);
+    const recent: Record<string, number> = {};
+    for (const d of lastSevenDays(entries)) if (d.key) recent[d.key] = (recent[d.key] ?? 0) + 1;
+    try {
+      const r = (await api.sisterForEmotion(token, { emotion, recent, consent: true, remember, lang: getLang() })) as { sister?: string; answer?: string };
+      setAnswer({ sister: SISTER_NAMES[r?.sister ?? ''] ?? 'Naïa', text: r?.answer || t('La Sœur a bien reçu ton émotion. Sa réponse arrive dans ton Grimoire.') });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t('Les Sœurs se reposent un instant. Réessaie plus tard.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (answer) {
+    return (
+      <View style={st.ritual}>
+        <Text style={[st.label, { color: NAIA }]}>{t('LA RÉPONSE DE {s}', { s: answer.sister.toUpperCase() })}</Text>
+        <Text style={st.text}>{answer.text}</Text>
+      </View>
+    );
+  }
+  return (
+    <View style={{ gap: 8 }}>
+      <Pressable onPress={() => setConsent((c) => !c)} accessibilityRole="checkbox" accessibilityState={{ checked: consent }} style={st.check}>
+        <Text style={st.box}>{consent ? '☑' : '☐'}</Text>
+        <Text style={[st.text, { flex: 1, fontSize: 13 }]}>{t('J’accepte que mon émotion soit confiée aux Sœurs (service d’IA) pour recevoir une réponse.')}</Text>
+      </Pressable>
+      <Pressable onPress={() => setRemember((c) => !c)} accessibilityRole="checkbox" accessibilityState={{ checked: remember }} style={st.check}>
+        <Text style={st.box}>{remember ? '☑' : '☐'}</Text>
+        <Text style={[st.text, { flex: 1, fontSize: 13 }]}>{t('Les Sœurs peuvent s’en souvenir pour suivre mon chemin (effaçable à tout moment).')}</Text>
+      </Pressable>
+      <Pressable disabled={!consent || busy} onPress={ask} accessibilityRole="button" style={[st.askBtn, (!consent || busy) && { opacity: 0.45 }]}>
+        <Text style={st.askText}>{busy ? t('La Conscience choisit la Sœur…') : t('Demander à la Sœur la plus juste ›')}</Text>
+      </Pressable>
+      {error ? <Text style={[st.text, { color: '#eb9a68' }]}>{error}</Text> : null}
+    </View>
+  );
+}
 
 export function NaiaCard() {
   const [entries, setEntries] = useState<EmotionEntry[]>([]);
@@ -76,6 +131,7 @@ export function NaiaCard() {
             </View>
           ))}
           <Text style={st.phrase}>{quote(t(shown.phrase))}</Text>
+          <AskSister emotion={shown.key} entries={entries} />
         </View>
       )}
 
@@ -198,4 +254,8 @@ const st = StyleSheet.create({
   legend: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   legendItem: { fontFamily: fonts.bodyMedium, fontSize: 12.5 },
   chevron: { color: colors.gold, fontSize: 24 },
+  check: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
+  box: { fontSize: 18, color: NAIA, lineHeight: 20 },
+  askBtn: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: NAIA, alignSelf: 'flex-start' },
+  askText: { fontFamily: fonts.bodyBold, fontSize: 14, color: NAIA },
 });

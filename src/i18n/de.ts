@@ -557,4 +557,12 @@ export const de: Record<string, string> = {
   "À accueillir avec douceur": "Sanft anzunehmen",
   "✦ Lecture détaillée sur photo ›": "✦ Ausführliche Deutung per Foto ›",
   "📷 Photographier": "📷 Fotografieren",
+  "Les Sœurs peuvent se souvenir de cette lecture pour suivre mon chemin : seules les observations de mes lignes, jamais la photo ni le texte. Je peux l’effacer en supprimant la lecture.": "Die Schwestern dürfen sich an diese Deutung erinnern, um meinen Weg zu begleiten: nur die Beobachtungen meiner Linien, nie das Foto oder der Text. Ich kann es löschen, indem ich die Deutung entferne.",
+  "La Sœur a bien reçu ton émotion. Sa réponse arrive dans ton Grimoire.": "Die Schwester hat dein Gefühl empfangen. Ihre Antwort kommt in dein Grimoire.",
+  "Les Sœurs se reposent un instant. Réessaie plus tard.": "Die Schwestern ruhen gerade. Versuche es später noch einmal.",
+  "LA RÉPONSE DE {s}": "DIE ANTWORT VON {s}",
+  "J’accepte que mon émotion soit confiée aux Sœurs (service d’IA) pour recevoir une réponse.": "Ich bin einverstanden, dass mein Gefühl den Schwestern (KI-Dienst) anvertraut wird, um eine Antwort zu erhalten.",
+  "Les Sœurs peuvent s’en souvenir pour suivre mon chemin (effaçable à tout moment).": "Die Schwestern dürfen sich daran erinnern, um meinen Weg zu begleiten (jederzeit löschbar).",
+  "La Conscience choisit la Sœur…": "Das Bewusstsein wählt die Schwester …",
+  "Demander à la Sœur la plus juste ›": "Die passendste Schwester fragen ›",
 };

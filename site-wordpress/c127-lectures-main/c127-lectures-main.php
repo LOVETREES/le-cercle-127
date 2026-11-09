@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cercle 127 - Lectures de la main (compte)
  * Description: Sauvegarde dans le compte de la personne les lectures de la main faites avec Terra, et propose la lecture détaillée de la main sur photo (analyse par Terra, photo jamais conservée, première lecture offerte) avec son évolution dans le temps. Authentification identique à l'application (jeton Bearer vérifié par /cercle127/v1/me). Désactiver l'extension n'efface aucune donnée.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Le Cercle 127
  * License: GPL-2.0-or-later
  */
@@ -184,11 +184,19 @@ function c127_palm_detailed_delete( WP_REST_Request $request ) {
 	if ( ! $user_id ) {
 		return c127_palm_unauthorized();
 	}
-	$id   = (string) $request['id'];
-	$list = array_values( array_filter( c127_palm_detailed_items( $user_id ), function ( $x ) use ( $id ) {
+	$id      = (string) $request['id'];
+	$all     = c127_palm_detailed_items( $user_id );
+	$removed = array_values( array_filter( $all, function ( $x ) use ( $id ) {
+		return ( $x['id'] ?? '' ) === $id;
+	} ) );
+	$list    = array_values( array_filter( $all, function ( $x ) use ( $id ) {
 		return ( $x['id'] ?? '' ) !== $id;
 	} ) );
 	update_user_meta( $user_id, C127_PALM_DETAILED_META, $list );
+	foreach ( $removed as $entry ) {
+		// Retirer une lecture efface aussi le souvenir proposé aux Sœurs.
+		do_action( 'c127_palm_detailed_deleted', (int) $user_id, $entry );
+	}
 	return rest_ensure_response( array( 'ok' => true ) );
 }
 
@@ -317,6 +325,7 @@ function c127_palm_detailed_create( WP_REST_Request $request ) {
 	}
 
 	$observations = c127_palm_sanitize_tree( $data['observations'] );
+	$remember     = true === ( $request->get_json_params()['remember'] ?? false );
 	$entry        = array(
 		'id'           => 'pd-' . time() . '-' . wp_rand( 100, 999 ),
 		'at'           => gmdate( 'c' ),
@@ -327,9 +336,13 @@ function c127_palm_detailed_create( WP_REST_Request $request ) {
 		'evolution'    => mb_substr( sanitize_textarea_field( (string) ( $data['evolution'] ?? '' ) ), 0, 2500 ),
 		'changes'      => c127_palm_changes( $previous, $observations ),
 		'confidence'   => max( 0, min( 1, (float) ( $data['confidence'] ?? 0 ) ) ),
+		// Corrélation Framework 127 (trace et, avec accord, souvenir des Sœurs).
+		'f127_correlation_id' => 'palm-' . wp_generate_uuid4(),
+		'remember'     => $remember,
 	);
 	array_unshift( $items, $entry );
 	update_user_meta( $user_id, C127_PALM_DETAILED_META, array_slice( $items, 0, C127_PALM_DETAILED_MAX ) );
 	update_user_meta( $user_id, C127_PALM_DETAILED_COUNT, (int) get_user_meta( $user_id, C127_PALM_DETAILED_COUNT, true ) + 1 );
+	do_action( 'c127_palm_detailed_saved', (int) $user_id, $entry, $remember );
 	return rest_ensure_response( array( 'item' => $entry, 'quota' => c127_palm_quota( $user_id ) ) );
 }
