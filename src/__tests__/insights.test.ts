@@ -62,3 +62,18 @@ describe('compteur de motifs récurrents (audit N02)', () => {
     expect(j.recurring[0][0]).toBe('Motif 1');
   });
 });
+
+describe('salutation', () => {
+  it('dit bonsoir dès 17 h et bonne nuit à partir de 22 h', async () => {
+    const { greetingKey } = await import('../lib/insights');
+    const at = (h: number, m = 0) => new Date(2026, 10, 9, h, m);
+    expect(greetingKey(at(4, 59))).toBe('Bonne nuit');
+    expect(greetingKey(at(5))).toBe('Bonjour');
+    expect(greetingKey(at(11, 59))).toBe('Bonjour');
+    expect(greetingKey(at(12))).toBe('Bon après-midi');
+    expect(greetingKey(at(16, 59))).toBe('Bon après-midi');
+    expect(greetingKey(at(17, 55))).toBe('Bonsoir');
+    expect(greetingKey(at(21, 59))).toBe('Bonsoir');
+    expect(greetingKey(at(22))).toBe('Bonne nuit');
+  });
+});

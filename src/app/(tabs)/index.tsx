@@ -1,12 +1,12 @@
-import { router } from 'expo-router';
-import { type ComponentRef, useEffect, useMemo, useRef, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { type ComponentRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { NaiaCard, TerraCard } from '../../components/HomeSisters';
 import { RituelDuJour } from '../../components/RituelDuJour';
 import { GoldButton, Screen, SiteFooter } from '../../components/ui';
 import { IMAGES, SISTERS } from '../../lib/content';
-import { addPresence, dailyThought, journey } from '../../lib/insights';
+import { addPresence, dailyThought, greetingKey, journey } from '../../lib/insights';
 import { useSession } from '../../lib/session';
 import { KEYS, local } from '../../lib/storage';
 import { colors, fonts, radius, space } from '../../lib/theme';
@@ -16,14 +16,6 @@ const PICTO_GRIMOIRE = require('../../../assets/images/nav-grimoire.png');
 
 // Couleurs des Sœurs, reprises du site (--sister-accent).
 const SISTER_COLORS = ['#d9cdfb', '#a9c2f7', '#8fdad3', '#a9c98a', '#eb9a68', '#f2dea8', '#f3f1fb'];
-
-function greeting(now: Date): string {
-  const h = now.getHours();
-  if (h < 5 || h >= 21) return t('Bonne nuit');
-  if (h < 12) return t('Bonjour');
-  if (h < 18) return t('Bon après-midi');
-  return t('Bonsoir');
-}
 
 function formatDate(iso: string) {
   const [y, m, d] = iso.split('-').map(Number);
@@ -37,7 +29,9 @@ export default function Home() {
   const [ritualTick, setRitualTick] = useState(0);
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const naiaY = useRef(0);
-  const now = useMemo(() => new Date(), []);
+  // L'heure est relue à chaque retour sur l'accueil : l'onglet reste ouvert des heures.
+  const [now, setNow] = useState(() => new Date());
+  useFocusEffect(useCallback(() => setNow(new Date()), []));
   const thought = useMemo(() => t(dailyThought(now)), [now]);
   const j = useMemo(() => journey(dreams, now), [dreams, now]);
   const last = useMemo(() => [...dreams].sort((a, b) => b.dreamDate.localeCompare(a.dreamDate))[0], [dreams]);
@@ -75,7 +69,7 @@ export default function Home() {
       <View style={{ gap: 4 }}>
         <Text style={st.date}>{now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}</Text>
         <Text style={st.hello}>
-          {greeting(now)}
+          {t(greetingKey(now))}
           {firstName ? `, ${firstName}` : ''}
         </Text>
         <Text style={st.progress}>{progress}</Text>

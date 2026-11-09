@@ -18,6 +18,15 @@ export type Journey = {
 const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
 const CALM = new Set(['joie', 'serenite', 'emerveillement']);
 
+/** Salutation selon l'heure : bonsoir dès 17 h (en hiver il fait déjà nuit), bonne nuit de 22 h à 5 h. */
+export function greetingKey(now: Date): 'Bonne nuit' | 'Bonjour' | 'Bon après-midi' | 'Bonsoir' {
+  const h = now.getHours();
+  if (h < 5 || h >= 22) return 'Bonne nuit';
+  if (h < 12) return 'Bonjour';
+  if (h < 17) return 'Bon après-midi';
+  return 'Bonsoir';
+}
+
 export function dayKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
