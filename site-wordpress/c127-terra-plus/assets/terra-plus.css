@@ -76,3 +76,52 @@
 .c127d-hist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .c127d-histbtn { padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(216,182,107,.35); background: none; color: #ece9f6; font-size: 13px; cursor: pointer; }
 .c127d-del { margin-top: 6px; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.2); background: none; color: #a9a6bd; font-size: 13px; cursor: pointer; }
+
+/* ===== Terra, version jeu (terra-jeu.js) ===== */
+.terra127 .c127j-sr{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;white-space:nowrap!important;border:0!important;padding:0!important;margin:-1px!important}
+.terra127 .c127j-picks{--c127j-accent:#d8b66b;display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 6px!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;min-height:0!important;width:auto!important}
+.terra127 .c127j-pick{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:74px;min-height:66px;padding:8px 10px;border:1px solid rgba(255,255,255,.14);border-radius:16px;background:rgba(255,255,255,.035);color:#d8dce8;font:600 .78rem/1.15 "Manrope",system-ui,sans-serif;text-align:center;cursor:pointer;transition:transform .18s ease,border-color .2s,background .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
+.terra127 .c127j-pick svg{width:44px;height:28px;color:rgba(216,182,107,.75)}
+.terra127 .c127j-pick:hover{border-color:color-mix(in srgb,var(--c127j-accent) 60%,transparent)}
+.terra127 .c127j-pick:active{transform:scale(.95)}
+.terra127 .c127j-pick.is-on{border-color:var(--c127j-accent);background:color-mix(in srgb,var(--c127j-accent) 18%,transparent);color:#fff;box-shadow:0 0 0 1px var(--c127j-accent),0 8px 22px color-mix(in srgb,var(--c127j-accent) 25%,transparent)}
+.terra127 .c127j-pick.is-on svg{color:var(--c127j-accent)}
+.terra127 .c127j-pick:focus-visible{outline:2px solid var(--c127j-accent);outline-offset:2px}
+.terra127 .c127j-pop{animation:c127j-pop .42s cubic-bezier(.2,1.6,.4,1)}
+@keyframes c127j-pop{0%{transform:scale(.9)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+
+.terra127 .c127j-meter,.c127j-meter.c127j-float{position:relative;z-index:20;display:flex;align-items:center;gap:12px;margin:10px 0 16px;padding:10px 14px;border:1px solid rgba(216,182,107,.3);border-radius:18px;background:rgba(10,14,28,.92);backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.c127j-meter.c127j-float{position:fixed;top:72px;left:50%;width:min(92vw,440px);margin:0;transform:translateX(-50%);z-index:9990;animation:c127j-drop .35s cubic-bezier(.2,1.2,.3,1) both}
+@keyframes c127j-drop{from{opacity:0;transform:translate(-50%,-14px)}to{opacity:1;transform:translateX(-50%)}}
+.c127j-meter{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid rgba(216,182,107,.3);border-radius:18px;background:rgba(10,14,28,.94);backdrop-filter:blur(8px);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.c127j-meter .c127j-tree{font-size:1.7rem;line-height:1;filter:drop-shadow(0 0 8px rgba(105,189,125,.45))}
+.c127j-meter .c127j-meter__txt{flex:1;min-width:0;color:#cfd5e2;font:500 .8rem/1.3 "Manrope",system-ui,sans-serif}
+.c127j-meter .c127j-lvl{color:#f3eddf;font-weight:800}
+.c127j-meter .c127j-bar{height:7px;margin-top:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.c127j-meter .c127j-bar i{display:block;height:100%;width:3%;border-radius:inherit;background:linear-gradient(90deg,#3f8f55,#69bd7d,#d8b66b);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.c127j-meter .c127j-pct{color:#d8b66b;font:800 .95rem/1 "Manrope",system-ui,sans-serif}
+.c127j-meter.c127j-levelup{animation:c127j-lvl 1s ease}
+@keyframes c127j-lvl{0%{box-shadow:0 0 0 0 rgba(105,189,125,.7)}100%{box-shadow:0 0 0 18px rgba(105,189,125,0)}}
+.terra127 [data-step-nav].c127j-done{border-color:#69bd7d!important;color:#dff3e3!important}
+.terra127 [data-step-nav].c127j-done::after{content:" ✓";color:#69bd7d}
+
+.terra127 .c127j-enter{animation:c127j-enter .55s cubic-bezier(.2,.8,.2,1) both}
+@keyframes c127j-enter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.terra127 .c127j-crest{display:flex;align-items:center;gap:14px;margin:0 0 16px;padding:16px;border-radius:20px;background:linear-gradient(135deg,rgba(105,189,125,.18),rgba(216,182,107,.14));border:1px solid rgba(216,182,107,.45);animation:c127j-enter .7s cubic-bezier(.2,1.3,.3,1) both}
+.terra127 .c127j-crest__icon{font-size:2.6rem;line-height:1;animation:c127j-grow 1.2s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes c127j-grow{0%{transform:scale(.2) rotate(-20deg)}100%{transform:scale(1)}}
+.terra127 .c127j-crest p{margin:0}
+.terra127 .c127j-crest__k{color:#d8b66b;font:800 .72rem/1.3 "Manrope",system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.terra127 .c127j-crest__t{margin-top:3px!important;color:#f3eddf;font:600 1rem/1.35 "Manrope",system-ui,sans-serif}
+.terra127 .c127j-crest__s{margin-top:4px!important;color:#aeb5c8;font:500 .8rem/1.4 "Manrope",system-ui,sans-serif}
+.terra127 .c127j-flipin{animation:c127j-flip 1s cubic-bezier(.2,.8,.2,1) both;transform-origin:center}
+@keyframes c127j-flip{0%{opacity:0;transform:perspective(900px) rotateY(-90deg) scale(.9)}100%{opacity:1;transform:none}}
+.c127j-canvas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:99990}
+.c127j-toast{position:fixed;left:50%;bottom:110px;z-index:99991;transform:translate(-50%,30px);opacity:0;padding:12px 18px;border-radius:16px;background:linear-gradient(135deg,#16301f,#0d1622);border:1px solid rgba(105,189,125,.6);color:#effbe9;font:700 1rem/1.3 "Manrope",system-ui,sans-serif;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.5);transition:all .45s cubic-bezier(.2,1.2,.3,1)}
+.c127j-toast.is-on{transform:translate(-50%,0);opacity:1}
+.c127j-toast small{display:block;margin-top:3px;color:#cfe3cf;font-weight:500;font-size:.8rem}
+@media (prefers-reduced-motion:reduce){.terra127 .c127j-pop,.terra127 .c127j-enter,.terra127 .c127j-crest,.terra127 .c127j-crest__icon,.terra127 .c127j-flipin,.c127j-meter.c127j-levelup{animation:none!important}}
+/* Étape 2 « Pose ta paume » : visible seulement quand elle est active (sinon elle restait affichée partout, texte d'aide écrasé). */
+.terra127 .terra127__photo-stage:not(.is-active){display:none!important}
+.terra127 .terra127__photo-stage.is-active{display:flex!important;flex-direction:column}
+.terra127 .terra127__photo-stage .terra127__map-help{width:auto!important;max-width:none!important;writing-mode:horizontal-tb}
