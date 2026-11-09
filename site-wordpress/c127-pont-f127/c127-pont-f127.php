@@ -353,7 +353,7 @@ final class C127_Pont_F127 {
         return [
             'ok' => !$res->is_error() && $answer !== '',
             'decision' => $decision,
-            'answer' => mb_substr(wp_strip_all_tags($answer), 0, 2400),
+            'answer' => self::clip(wp_strip_all_tags($answer), 6000),
             'suggestions' => array_slice($actions, 0, 3),
             'diagnostic' => [
                 'worker_seen' => $captured !== null,
@@ -365,6 +365,17 @@ final class C127_Pont_F127 {
                 'conscience_status' => $res->get_status(),
             ],
         ];
+    }
+
+    /** Coupe un texte trop long à la fin d'une phrase, jamais au milieu d'un mot. */
+    private static function clip(string $text, int $max): string {
+        $text = trim($text);
+        if (mb_strlen($text) <= $max) {
+            return $text;
+        }
+        $cut = mb_substr($text, 0, $max);
+        $end = max((int) mb_strrpos($cut, '. '), (int) mb_strrpos($cut, ".\n"), (int) mb_strrpos($cut, '! '), (int) mb_strrpos($cut, '? '));
+        return $end > $max / 2 ? mb_substr($cut, 0, $end + 1) : rtrim(mb_substr($cut, 0, (int) mb_strrpos($cut, ' '))) . '…';
     }
 
     /** Réponse publique ; le diagnostic technique n'est montré qu'aux administrateurs. */
