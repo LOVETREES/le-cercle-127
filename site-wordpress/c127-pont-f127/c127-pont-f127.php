@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Cercle 127 - Pont Framework 127 (Terra, Naïa, app)
- * Description: Relie l'application et la lecture détaillée de Terra à Framework 127. Publie palm.reading.completed et emotion.submitted dans l'Event Bus (en interne, sans jeton exposé), laisse la Conscience choisir la Sœur (Naïa pour les émotions et l'apaisement, Alka pour les rêves récurrents, Terra pour l'ancrage, Ignis pour un petit pas, Irma pour les choix), et propose des souvenirs (memory_candidate_emitted, à valider) uniquement avec l'accord explicite de la personne. Effacement : retirer une lecture ou supprimer son compte efface ses souvenirs. Sans Framework 127 actif, l'extension ne fait rien.
- * Version: 1.2.1
+ * Description: Relie l'application et la lecture détaillée de Terra à Framework 127. Publie palm.reading.completed et emotion.submitted dans l'Event Bus (en interne, sans jeton exposé), laisse la Conscience choisir la Sœur (Naïa pour les émotions et l'apaisement, Alka pour les rêves récurrents, Terra pour l'ancrage, Ignis pour un petit pas, Irma pour les choix, Astria pour les aspirations). « Ce que le Cercle retient de moi » dans Mon Grimoire : garder ou oublier chaque souvenir ; seuls les souvenirs gardés sont transmis aux Sœurs., et propose des souvenirs (memory_candidate_emitted, à valider) uniquement avec l'accord explicite de la personne. Effacement : retirer une lecture ou supprimer son compte efface ses souvenirs. Sans Framework 127 actif, l'extension ne fait rien.
+ * Version: 1.3.4
  * Author: Le Cercle 127
  * Requires PHP: 7.4
  */
@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 final class C127_Pont_F127 {
-    const VERSION = '1.2.1';
+    const VERSION = '1.3.4';
     const NS = 'c127-f127/v1';
     const DAILY_LIMIT = 3;
 
@@ -79,6 +79,15 @@ final class C127_Pont_F127 {
             return 0;
         }
         $count = 0;
+        $c = F127_Runtime::candidates_table();
+        $m = F127_Runtime::memories_table();
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $m)) === $m && $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $c)) === $c) {
+            // Les souvenirs gardés sont rattachés à la personne par leur proposition d'origine.
+            $like0 = '%' . $wpdb->esc_like('"subject_ref":"' . $subject_ref . '"') . '%';
+            $count += (int) ($corr !== ''
+                ? $wpdb->query($wpdb->prepare("DELETE m FROM {$m} m INNER JOIN {$c} k ON k.candidate_id = m.candidate_id WHERE k.metadata LIKE %s AND k.correlation_id = %s", $like0, $corr))
+                : $wpdb->query($wpdb->prepare("DELETE m FROM {$m} m INNER JOIN {$c} k ON k.candidate_id = m.candidate_id WHERE k.metadata LIKE %s", $like0)));
+        }
         foreach ([F127_Runtime::candidates_table(), F127_Runtime::memories_table()] as $table) {
             if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
                 continue;
@@ -192,6 +201,24 @@ final class C127_Pont_F127 {
             'callback' => [__CLASS__, 'rest_ask'],
             'permission_callback' => '__return_true',
         ]);
+        register_rest_route(self::NS, '/memories', [
+            'methods' => 'GET',
+            'callback' => [__CLASS__, 'rest_memories_list'],
+            'permission_callback' => '__return_true',
+        ]);
+        register_rest_route(self::NS, '/memories/(?P<id>\\d+)', [
+            'methods' => 'POST',
+            'callback' => [__CLASS__, 'rest_memories_act'],
+            'permission_callback' => '__return_true',
+        ]);
+        register_rest_route(self::NS, '/memories/all', [
+            'methods' => 'DELETE',
+            'callback' => function (WP_REST_Request $r) {
+                $r->set_param('action', 'forget_all');
+                return self::rest_memories_act($r);
+            },
+            'permission_callback' => '__return_true',
+        ]);
         register_rest_route(self::NS, '/health', [
             'methods' => 'GET',
             'callback' => function () {
@@ -232,12 +259,16 @@ final class C127_Pont_F127 {
         'naia-apaisement' => ['event_type' => 'emotion.regulation.requested', 'source' => 'site.naia', 'limit' => 5, 'fallback' => ['naia', 'emotion.regulation']],
         'ignis-petit-pas' => ['event_type' => 'action.requested', 'source' => 'site.ignis', 'limit' => 3, 'fallback' => ['ignis', 'action.suggestion']],
         'irma-decision' => ['event_type' => 'decision.requested', 'source' => 'site.irma', 'limit' => 3, 'fallback' => ['irma', 'decision.analysis']],
+        'astria-aspiration' => ['event_type' => 'aspiration.submitted', 'source' => 'site.astria', 'limit' => 3, 'fallback' => ['astria', 'aspiration.clarification']],
     ];
 
     private const BODY_PLACES = ['gorge' => 'la gorge', 'poitrine' => 'la poitrine', 'ventre' => 'le ventre', 'tete' => 'la tête', 'epaules' => 'les épaules', 'partout' => 'partout', 'nulle_part' => 'je ne sais pas'];
     private const ENERGY = ['faible' => 'faible', 'moyenne' => 'moyenne', 'haute' => 'haute'];
     private const HORIZONS = ['5min' => 'cinq minutes, aujourd’hui', 'jour' => 'dans la journée', 'semaine' => 'cette semaine'];
     private const DEADLINES = ['aucune' => 'pas d’échéance', 'semaine' => 'dans la semaine', 'mois' => 'dans le mois', 'urgent' => 'très bientôt'];
+
+    private const DOMAINS = ['lieu' => 'un lieu de vie, une maison, un jardin', 'travail' => 'le travail, la vocation', 'liens' => 'les relations, la famille', 'corps' => 'le corps, la santé, l’énergie', 'creation' => 'la création, un projet personnel', 'communaute' => 'l’engagement, la communauté, la nature'];
+    private const ASPIRATION_HORIZONS = ['6mois' => 'dans six mois', '1an' => 'dans un an', '3ans' => 'dans trois ans'];
 
     private const GROUNDING_CONTEXTS = [
         'cauchemar' => 'au réveil d’un cauchemar',
@@ -438,7 +469,7 @@ final class C127_Pont_F127 {
             ],
             'context' => ['source' => 'app.naia', 'actor' => $ref, 'sensitivity' => 'personal'],
             'constraints' => ['no_side_effects' => true, 'no_diagnosis' => true, 'max_support_sisters' => 2],
-            'memory' => (object) [],
+            'memory' => self::kept_memories($ref) ?: (object) [],
         ]);
         if (!empty($p['remember'])) {
             self::propose_memory($corr, (string) ($r['decision']['agent'] ?? 'naia'), (string) ($r['decision']['capability'] ?? 'emotion.identification'), [
@@ -475,7 +506,7 @@ final class C127_Pont_F127 {
                 'frequency' => $freq,
                 'dream_excerpt' => mb_substr(sanitize_textarea_field((string) ($p['excerpt'] ?? '')), 0, 1200),
                 'feeling' => mb_substr(sanitize_text_field((string) ($p['feeling'] ?? '')), 0, 120),
-                'request' => 'Relier ces motifs récurrents entre eux et à la vie éveillée, sans imposer de vérité.',
+                'request' => 'Relier ces motifs récurrents entre eux et à la vie éveillée, sans imposer de vérité. Tutoyer.',
             ];
         } elseif ('naia-apaisement' === $kind) {
             $key = sanitize_key((string) ($p['emotion'] ?? ''));
@@ -518,6 +549,20 @@ final class C127_Pont_F127 {
                 'deadline' => self::DEADLINES[$deadline] ?? 'pas d’échéance',
                 'request' => 'Éclairer le choix sans décider à la place : ce que chaque option protège et coûte, puis une étape réversible pour tester. Tutoyer.',
             ];
+        } elseif ('astria-aspiration' === $kind) {
+            $grow = trim(mb_substr(sanitize_textarea_field((string) ($p['grow'] ?? '')), 0, 600));
+            if (mb_strlen($grow) < 8) {
+                return new WP_Error('c127_f127_input', 'Écris en une phrase ce que tu veux faire grandir.', ['status' => 400]);
+            }
+            $domain = sanitize_key((string) ($p['domain'] ?? 'lieu'));
+            $horizon = sanitize_key((string) ($p['horizon'] ?? '1an'));
+            $payload = [
+                'aspiration' => $grow,
+                'domain' => self::DOMAINS[$domain] ?? self::DOMAINS['lieu'],
+                'why' => mb_substr(sanitize_textarea_field((string) ($p['why'] ?? '')), 0, 400),
+                'horizon' => self::ASPIRATION_HORIZONS[$horizon] ?? 'dans un an',
+                'request' => 'Clarifier cette aspiration : les valeurs qu’elle sert, une image concrète de l’horizon, ce qui est déjà là, et une première direction (pas une promesse). Tutoyer.',
+            ];
         } else { // terra-ancrage
             $ctx = sanitize_key((string) ($p['context'] ?? ''));
             if (!isset(self::GROUNDING_CONTEXTS[$ctx])) {
@@ -529,7 +574,7 @@ final class C127_Pont_F127 {
                 'intensity' => max(1, min(5, (int) ($p['intensity'] ?? 3))),
                 'minutes' => in_array((int) ($p['minutes'] ?? 3), [1, 3, 5], true) ? (int) $p['minutes'] : 3,
                 'note' => mb_substr(sanitize_textarea_field((string) ($p['note'] ?? '')), 0, 400),
-                'request' => 'Un exercice d’ancrage corporel simple, guidé pas à pas, réalisable maintenant.',
+                'request' => 'Un exercice d’ancrage corporel simple, guidé pas à pas, réalisable maintenant. Tutoyer.',
             ];
         }
 
@@ -546,9 +591,19 @@ final class C127_Pont_F127 {
             'payload' => $payload,
             'context' => ['source' => $cfg['source'], 'actor' => $ref, 'sensitivity' => 'personal'],
             'constraints' => ['no_side_effects' => true, 'no_diagnosis' => true, 'max_support_sisters' => 2],
-            'memory' => (object) [],
+            'memory' => self::kept_memories($ref) ?: (object) [],
         ]);
 
+        if (!empty($p['remember']) && 'astria-aspiration' === $kind) {
+            self::propose_memory($corr, (string) ($r['decision']['agent'] ?? 'astria'), (string) ($r['decision']['capability'] ?? 'aspiration.clarification'), [
+                'type' => 'goal',
+                'summary' => sprintf('Ce que je veux faire grandir (%s, %s) : %s', $payload['domain'], $payload['horizon'], $payload['aspiration']),
+                'confidence' => 0.95,
+                'sensitivity' => 'medium',
+                'subject_ref' => $ref,
+                'retention' => 'until_user_deletes',
+            ]);
+        }
         if (!empty($p['remember']) && 'naia-apaisement' === $kind) {
             self::propose_memory($corr, (string) ($r['decision']['agent'] ?? 'naia'), (string) ($r['decision']['capability'] ?? 'emotion.regulation'), [
                 'type' => 'emotion_pattern',
@@ -575,11 +630,15 @@ final class C127_Pont_F127 {
     /* ---------- 3. Widgets du site (pages Alka, Terra, Naïa, Ignis, Irma) ---------- */
 
     /** Identifiants WordPress (pages ou articles) : Irma est un article (7556). */
-    const WIDGET_PAGES = [874 => 'alka-motifs', 878 => 'terra-ancrage', 872 => 'naia-apaisement', 870 => 'ignis-petit-pas', 7556 => 'irma-decision'];
+    const WIDGET_PAGES = [874 => 'alka-motifs', 878 => 'terra-ancrage', 872 => 'naia-apaisement', 870 => 'ignis-petit-pas', 7556 => 'irma-decision', 876 => 'astria-aspiration'];
+    const MEMORY_PAGE = 8354; // Mon Grimoire (« Mon espace » y redirige)
 
     public static function widget_content(string $content): string {
         if (!is_singular() || !in_the_loop() || !is_main_query()) {
             return $content;
+        }
+        if ((int) get_the_ID() === self::MEMORY_PAGE) {
+            return $content . self::memory_html();
         }
         $kind = self::WIDGET_PAGES[get_the_ID()] ?? '';
         return $kind ? $content . self::widget_html($kind) : $content;
@@ -587,22 +646,35 @@ final class C127_Pont_F127 {
 
     public static function shortcode($atts): string {
         $kind = sanitize_key((string) (shortcode_atts(['type' => ''], (array) $atts)['type']));
+        if ('memoire' === $kind) {
+            return self::memory_html();
+        }
         return isset(self::ASKS[$kind]) ? self::widget_html($kind) : '';
     }
 
-    private static function widget_html(string $kind): string {
+    private static function assets(): void {
         $base = plugin_dir_url(__FILE__);
         wp_enqueue_style('c127-soeurs-ask', $base . 'soeurs-ask.css', [], self::VERSION);
         wp_enqueue_script('c127-soeurs-ask', $base . 'soeurs-ask.js', [], self::VERSION, true);
+        $pages = [];
+        foreach (self::WIDGET_PAGES as $id => $k) {
+            $pages[$k] = (string) get_permalink($id);
+        }
         wp_localize_script('c127-soeurs-ask', 'C127Ask', [
             'rest' => esc_url_raw(rest_url(self::NS . '/ask')),
+            'memories' => esc_url_raw(rest_url(self::NS . '/memories')),
             'nonce' => wp_create_nonce('wp_rest'),
             'loggedIn' => is_user_logged_in(),
             'login' => esc_url_raw(wp_login_url(get_permalink())),
+            'pages' => $pages,
         ]);
+    }
+
+    private static function widget_html(string $kind): string {
+        self::assets();
         ob_start();
         if ('alka-motifs' === $kind) { ?>
-<section class="c127ask c127ask--alka" data-c127-ask="alka-motifs" style="--ask-accent:#c8a6f0">
+<section class="c127ask c127ask--alka" id="c127-ask-alka-motifs" data-c127-ask="alka-motifs" style="--ask-accent:#c8a6f0">
   <p class="c127ask__eyebrow">Alka · Tisseuse des connexions</p>
   <h2 class="c127ask__title">Ce qui revient dans tes rêves</h2>
   <p class="c127ask__lead">Un lieu, une personne, un animal, une sensation qui reviennent ? Alka cherche le fil qui les relie, et ce qu’il dit peut-être de ta vie éveillée.</p>
@@ -624,7 +696,7 @@ final class C127_Pont_F127 {
 </section>
 <script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
 <?php } elseif ('terra-ancrage' === $kind) { ?>
-<section class="c127ask c127ask--terra" data-c127-ask="terra-ancrage" style="--ask-accent:#9fcf8f">
+<section class="c127ask c127ask--terra" id="c127-ask-terra-ancrage" data-c127-ask="terra-ancrage" style="--ask-accent:#9fcf8f">
   <p class="c127ask__eyebrow">Terra · Gardienne de l’ancrage</p>
   <h2 class="c127ask__title">Revenir dans ton corps, maintenant</h2>
   <p class="c127ask__lead">Dis ce que tu traverses : la Sœur la plus juste te guide pas à pas dans un exercice d’ancrage court.</p>
@@ -650,7 +722,7 @@ final class C127_Pont_F127 {
 </section>
 <script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
 <?php } elseif ('naia-apaisement' === $kind) { ?>
-<section class="c127ask c127ask--naia" data-c127-ask="naia-apaisement" style="--ask-accent:#8fdad3">
+<section class="c127ask c127ask--naia" id="c127-ask-naia-apaisement" data-c127-ask="naia-apaisement" style="--ask-accent:#8fdad3">
   <p class="c127ask__eyebrow">Naïa · Gardienne des émotions</p>
   <h2 class="c127ask__title">Apaiser une émotion qui déborde</h2>
   <p class="c127ask__lead">Quand c’est trop fort pour en parler : choisis l’émotion, son intensité et où tu la sens. La Sœur la plus juste t’aide à la laisser redescendre.</p>
@@ -682,7 +754,7 @@ final class C127_Pont_F127 {
 </section>
 <script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
 <?php } elseif ('ignis-petit-pas' === $kind) { ?>
-<section class="c127ask c127ask--ignis" data-c127-ask="ignis-petit-pas" style="--ask-accent:#f0a66b">
+<section class="c127ask c127ask--ignis" id="c127-ask-ignis-petit-pas" data-c127-ask="ignis-petit-pas" style="--ask-accent:#f0a66b">
   <p class="c127ask__eyebrow">Ignis · Flamme de la transformation</p>
   <h2 class="c127ask__title">Un petit pas pour aujourd’hui</h2>
   <p class="c127ask__lead">Tu as compris quelque chose (un rêve, une émotion, une situation) ? Ignis le transforme en un geste concret, à ta mesure.</p>
@@ -706,7 +778,7 @@ final class C127_Pont_F127 {
 </section>
 <script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
 <?php } elseif ('irma-decision' === $kind) { ?>
-<section class="c127ask c127ask--irma" data-c127-ask="irma-decision" style="--ask-accent:#e2c37a">
+<section class="c127ask c127ask--irma" id="c127-ask-irma-decision" data-c127-ask="irma-decision" style="--ask-accent:#e2c37a">
   <p class="c127ask__eyebrow">Irma · Gardienne des choix</p>
   <h2 class="c127ask__title">J’hésite entre…</h2>
   <p class="c127ask__lead">Irma ne décide pas à ta place : elle éclaire ce que chaque option protège et coûte, puis te propose une étape réversible pour tester.</p>
@@ -734,8 +806,189 @@ final class C127_Pont_F127 {
   <p class="c127ask__notice">Un éclairage, jamais un verdict : la décision t’appartient.</p>
 </section>
 <script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
+<?php } elseif ('astria-aspiration' === $kind) { ?>
+<section class="c127ask c127ask--astria" id="c127-ask-astria-aspiration" data-c127-ask="astria-aspiration" style="--ask-accent:#b9b3f5">
+  <p class="c127ask__eyebrow">Astria · Étoile des aspirations</p>
+  <h2 class="c127ask__title">Ce que je veux faire grandir</h2>
+  <p class="c127ask__lead">Une maison avec un jardin, un métier qui a du sens, plus de temps pour toi… Astria t’aide à clarifier ce qui compte, sans promesse ni prédiction.</p>
+  <form class="c127ask__form" novalidate>
+    <fieldset class="c127ask__chips"><legend class="c127ask__label">Dans quel domaine ?</legend>
+      <label><input type="radio" name="domain" value="lieu" checked> Lieu de vie, maison, jardin</label>
+      <label><input type="radio" name="domain" value="travail"> Travail, vocation</label>
+      <label><input type="radio" name="domain" value="liens"> Relations, famille</label>
+      <label><input type="radio" name="domain" value="corps"> Corps, énergie</label>
+      <label><input type="radio" name="domain" value="creation"> Création, projet</label>
+      <label><input type="radio" name="domain" value="communaute"> Engagement, nature</label>
+    </fieldset>
+    <label class="c127ask__label" for="c127ask-grow">Ce que je veux faire grandir</label>
+    <textarea class="c127ask__input" id="c127ask-grow" name="grow" rows="3" maxlength="600" placeholder="ex. Vivre dans une maison avec un jardin où je cultive mes légumes, près d’une association locale." required></textarea>
+    <label class="c127ask__label" for="c127ask-why">Pourquoi c’est important pour moi <small>(facultatif)</small></label>
+    <textarea class="c127ask__input" id="c127ask-why" name="why" rows="2" maxlength="400"></textarea>
+    <fieldset class="c127ask__chips"><legend class="c127ask__label">Mon horizon</legend>
+      <label><input type="radio" name="horizon" value="6mois"> 6 mois</label>
+      <label><input type="radio" name="horizon" value="1an" checked> 1 an</label>
+      <label><input type="radio" name="horizon" value="3ans"> 3 ans</label>
+    </fieldset>
+    <?php self::consent_fields('cette aspiration'); ?>
+    <button class="c127ask__send" type="submit">Clarifier mon aspiration</button>
+  </form>
+  <div class="c127ask__out" aria-live="polite"></div>
+</section>
+<script>/* Dans l'application, ces demandes passeront par le compte de l'app (version 1.1) : on masque ici. */(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>
 <?php }
         return (string) ob_get_clean();
+    }
+
+    private static function memory_html(): string {
+        self::assets();
+        ob_start(); ?>
+<section class="c127ask c127ask--memoire" id="c127-memoire" data-c127-memoire style="--ask-accent:#dfc27d">
+  <p class="c127ask__eyebrow">Mémoire du Cercle</p>
+  <h2 class="c127ask__title">Ce que le Cercle retient de moi</h2>
+  <p class="c127ask__lead">Rien n’est retenu sans toi. Quand tu coches « garder en mémoire », la Sœur te <em>propose</em> un souvenir. Il n’est utilisé que si tu le gardes ici, et tu peux l’oublier à tout moment.</p>
+  <div class="c127mem" aria-live="polite"><p class="c127ask__wait">Chargement…</p></div>
+</section>
+<?php echo "<script>(function(s){if(window.ReactNativeWebView&&s){s.hidden=true;s.style.display='none';}})(document.currentScript&&document.currentScript.previousElementSibling);</script>\n";
+        return (string) ob_get_clean();
+    }
+
+    /* ---------- 4. Mémoire : voir, garder, oublier ---------- */
+
+    private static function mem_tables(): array {
+        global $wpdb;
+        if (!class_exists('F127_Runtime')) {
+            return [];
+        }
+        $c = F127_Runtime::candidates_table();
+        $m = F127_Runtime::memories_table();
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $c)) !== $c) {
+            return [];
+        }
+        return [$c, $m];
+    }
+
+    private static function like_ref(string $ref): string {
+        global $wpdb;
+        return '%' . $wpdb->esc_like('"subject_ref":"' . $ref . '"') . '%';
+    }
+
+    /** Souvenirs que la personne a choisi de garder : seuls ceux-là sont donnés aux Sœurs. */
+    public static function kept_memories(string $ref): array {
+        global $wpdb;
+        $t = self::mem_tables();
+        if (!$t) {
+            return [];
+        }
+        $rows = $wpdb->get_results($wpdb->prepare("SELECT m.memory_type, m.content, m.created_at FROM {$t[1]} m INNER JOIN {$t[0]} c ON c.candidate_id = m.candidate_id WHERE c.metadata LIKE %s ORDER BY m.id DESC LIMIT 8", self::like_ref($ref)), ARRAY_A);
+        return array_map(function ($r) {
+            return ['type' => $r['memory_type'], 'summary' => $r['content'], 'kept_on' => substr((string) $r['created_at'], 0, 10), 'origin' => 'user_validated'];
+        }, (array) $rows);
+    }
+
+    public static function rest_memories_list(WP_REST_Request $request) {
+        $user_id = self::user_id($request);
+        if (!$user_id) {
+            return new WP_Error('c127_f127_auth', 'Connexion requise.', ['status' => 401]);
+        }
+        global $wpdb;
+        $t = self::mem_tables();
+        if (!$t) {
+            return rest_ensure_response(['pending' => [], 'kept' => []]);
+        }
+        $like = self::like_ref(self::subject_ref($user_id));
+        $pending = $wpdb->get_results($wpdb->prepare("SELECT id, agent, memory_type, content, created_at FROM {$t[0]} WHERE status = 'pending' AND metadata LIKE %s ORDER BY id DESC LIMIT 50", $like), ARRAY_A);
+        $kept = $wpdb->get_results($wpdb->prepare("SELECT c.id, m.agent, m.memory_type, m.content, m.created_at FROM {$t[1]} m INNER JOIN {$t[0]} c ON c.candidate_id = m.candidate_id WHERE c.metadata LIKE %s ORDER BY m.id DESC LIMIT 50", $like), ARRAY_A);
+        $fmt = function ($r) {
+            return ['id' => (int) $r['id'], 'sister' => (string) $r['agent'], 'type' => (string) $r['memory_type'], 'text' => (string) $r['content'], 'date' => substr((string) $r['created_at'], 0, 10)];
+        };
+        return rest_ensure_response(['pending' => array_map($fmt, (array) $pending), 'kept' => array_map($fmt, (array) $kept)]);
+    }
+
+    /**
+     * Garde un souvenir proposé : même écriture que la validation de l'admin Framework 127
+     * (ligne dans la table des mémoires, proposition « accepted », événement memory_written),
+     * adaptée aux colonnes réellement présentes sur le serveur.
+     */
+    private static function ref_from_metadata(string $json): string {
+        $m = json_decode($json, true);
+        return is_array($m) ? (string) ($m['subject_ref'] ?? '') : '';
+    }
+
+    private static function keep_candidate(array $row, array $t) {
+        global $wpdb;
+        $memory_id = 'MEM:' . $row['candidate_id'];
+        $now = gmdate('Y-m-d H:i:s');
+        $already = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$t[1]} WHERE candidate_id = %s", $row['candidate_id']));
+        if (!$already) {
+            $cols = array_flip((array) $wpdb->get_col("DESCRIBE {$t[1]}", 0));
+            $data = array_intersect_key([
+                'memory_id' => $memory_id,
+                'candidate_id' => (string) $row['candidate_id'],
+                'correlation_id' => (string) $row['correlation_id'],
+                'agent' => (string) $row['agent'],
+                'memory_type' => (string) $row['memory_type'],
+                'content' => (string) $row['content'],
+                'confidence' => $row['confidence'] === null ? null : (float) $row['confidence'],
+                'metadata' => (string) $row['metadata'],
+                'created_at' => $now,
+                // Colonnes de l'ancien schéma encore présentes sur le serveur (uuid unique obligatoire).
+                'uuid' => wp_generate_uuid4(),
+                'subject_uuid' => self::ref_from_metadata((string) $row['metadata']),
+                'consent_scope' => 'user_explicit',
+                'updated_at' => $now,
+            ], $cols);
+            if (array_key_exists('confidence', $data) && $data['confidence'] === null) {
+                unset($data['confidence']);
+            }
+            if (false === $wpdb->insert($t[1], $data)) {
+                return new WP_Error('c127_f127_memory_write', 'Le souvenir n’a pas pu être gardé pour le moment.', ['status' => 500, 'db' => mb_substr((string) $wpdb->last_error, 0, 200), 'columns' => array_keys($cols)]);
+            }
+        }
+        $wpdb->update($t[0], ['status' => 'accepted', 'updated_at' => $now], ['id' => (int) $row['id']], ['%s', '%s'], ['%d']);
+        self::publish([
+            'event_id' => $row['correlation_id'] . ':memory:' . $row['candidate_id'] . ':memory_written',
+            'event_type' => 'memory_written',
+            'correlation_id' => (string) $row['correlation_id'],
+            'agent' => (string) $row['agent'],
+            'capability' => (string) $row['capability'],
+            'status' => 'success',
+            'result_summary' => ['memory_id' => $memory_id, 'candidate_id' => $row['candidate_id'], 'memory_type' => $row['memory_type'], 'validated_by' => 'user'],
+        ]);
+        return rest_ensure_response(['ok' => true]);
+    }
+
+    public static function rest_memories_act(WP_REST_Request $request) {
+        $user_id = self::user_id($request);
+        if (!$user_id) {
+            return new WP_Error('c127_f127_auth', 'Connexion requise.', ['status' => 401]);
+        }
+        $t = self::mem_tables();
+        if (!$t) {
+            return new WP_Error('c127_f127_unavailable', 'Mémoire indisponible.', ['status' => 503]);
+        }
+        global $wpdb;
+        $ref = self::subject_ref($user_id);
+        $action = sanitize_key((string) ($request->get_param('action') ?? ''));
+        if ('forget_all' === $action) {
+            return rest_ensure_response(['ok' => true, 'erased' => self::erase($ref)]);
+        }
+        $id = absint($request['id']);
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$t[0]} WHERE id = %d AND metadata LIKE %s", $id, self::like_ref($ref)), ARRAY_A);
+        if (!$row) {
+            return new WP_Error('c127_f127_memory', 'Souvenir introuvable.', ['status' => 404]);
+        }
+        if ('keep' === $action) {
+            if ('pending' !== $row['status']) {
+                return rest_ensure_response(['ok' => true]);
+            }
+            return self::keep_candidate($row, $t);
+        }
+        if ('reject' === $action || 'forget' === $action) {
+            $wpdb->delete($t[1], ['candidate_id' => $row['candidate_id']], ['%s']);
+            $wpdb->delete($t[0], ['id' => $id], ['%d']);
+            return rest_ensure_response(['ok' => true]);
+        }
+        return new WP_Error('c127_f127_memory', 'Action inconnue.', ['status' => 400]);
     }
 
     private static function consent_fields(string $memory): void { ?>
