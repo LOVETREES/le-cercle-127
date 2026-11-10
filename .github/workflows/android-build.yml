@@ -1,0 +1,55 @@
+name: Android – APK de test
+
+# Construit l'APK Android (profil « preview ») sur une machine Linux de GitHub, avec la clé de signature
+# gardée par Expo. L'APK est joint à l'exécution (onglet Actions > l'exécution > « LeCercle127-apk »).
+# Déclenchement : bouton « Run workflow » (onglet Actions) ou un envoi dont le message contient [android-build].
+on:
+  workflow_dispatch:
+  push:
+
+concurrency:
+  group: android-build
+  cancel-in-progress: false
+
+jobs:
+  android:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[android-build]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Vérifier le jeton Expo
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::Le secret EXPO_TOKEN est absent (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Dépendances
+        run: npm ci
+
+      - name: Construire l'APK
+        run: npx --yes eas-cli@latest build --platform android --profile preview --local --non-interactive --output "$RUNNER_TEMP/LeCercle127.apk"
+
+      - name: Joindre l'APK à l'exécution
+        uses: actions/upload-artifact@v4
+        with:
+          name: LeCercle127-apk
+          path: ${{ runner.temp }}/LeCercle127.apk
+          if-no-files-found: ignore
+          retention-days: 14
