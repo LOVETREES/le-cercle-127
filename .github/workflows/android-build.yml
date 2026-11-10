@@ -7,13 +7,14 @@ on:
   workflow_dispatch:
   push:
 
-concurrency:
-  group: android-build
-  cancel-in-progress: false
-
 jobs:
   android:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[android-build]')
+    # File d'attente au niveau du travail : un envoi sans [android-build] (travail sauté) n'y entre pas
+    # et ne peut plus annuler une construction en attente.
+    concurrency:
+      group: android-build
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:

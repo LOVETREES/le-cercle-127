@@ -8,13 +8,13 @@ on:
   workflow_dispatch:
   push:
 
-concurrency:
-  group: ios-build
-  cancel-in-progress: false
-
 jobs:
   ios:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[ios-build]')
+    # File d'attente au niveau du travail : un envoi sans [ios-build] n'annule plus une construction en attente.
+    concurrency:
+      group: ios-build
+      cancel-in-progress: false
     runs-on: macos-26
     timeout-minutes: 90
     env:
