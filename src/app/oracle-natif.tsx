@@ -3,12 +3,19 @@
 // la lame apparaît en grand et ses Sœurs s'allument sur le cercle. Même moteur que le site.
 import * as Crypto from 'expo-crypto';
 import * as Haptics from 'expo-haptics';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, Image, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Svg, { Circle, Defs, G, RadialGradient, Stop, Text as SvgText } from 'react-native-svg';
 
 import { Screen } from '../components/ui';
 import { dayCard, drawFrom, makeSeal, sealLabel, sistersOfMask, SISTERS, type Draw, type Lame, type Mode } from '../lib/oracle/engine';
+import { saveDraw } from '../lib/oracle/history';
+import { LAME_IMAGES } from '../lib/oracle/images';
+import { lameText } from '../lib/oracle/localize';
+import { QRNG_LABEL, quantumBytes } from '../lib/oracle/qrng';
+import { recordGesture } from '../lib/rituel';
+import { KEYS, local } from '../lib/storage';
 import { colors, fonts, radius, space } from '../lib/theme';
 import { t } from '../i18n';
 
@@ -101,25 +108,21 @@ function Cercle({ lit, progress, onIn, onOut, onA11y, opened }: { lit: number; p
 /* ---------- Une lame : l'illustration seule, en grand ---------- */
 function LameView({ card, position, onZoom }: { card: Lame; position: string; onZoom: () => void }) {
   const [w, setW] = useState(0);
-  const edition = /edition-127\/card-/.test(card.image);
+  const txt = lameText(card);
   return (
     <View style={st.lame}>
       <Text style={st.kicker}>{t(position).toUpperCase()}</Text>
-      <Pressable onPress={onZoom} accessibilityRole="imagebutton" accessibilityLabel={t('Voir la lame entière : {n}', { n: card.name })} style={st.artBox} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+      <Pressable onPress={onZoom} accessibilityRole="imagebutton" accessibilityLabel={t('Voir la lame entière : {n}', { n: txt.name })} style={st.artBox} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
         {w ? (
-          edition ? (
-            // La lame d'édition porte un cadre chargé : on ne garde que son illustration.
-            <View style={{ width: w * 1.136, height: w * 1.136 * (12 / 7), marginLeft: -w * 0.068, marginTop: -w * 0.33 }}>
-              <Image source={{ uri: card.image }} style={{ width: '100%', height: '100%' }} resizeMode="stretch" />
-            </View>
-          ) : (
-            <Image source={{ uri: card.image }} style={StyleSheet.absoluteFill} resizeMode="cover" />
-          )
+          // La lame d'édition porte un cadre chargé : on ne garde que son illustration.
+          <View style={{ width: w * 1.136, height: w * 1.136 * (12 / 7), marginLeft: -w * 0.068, marginTop: -w * 0.33 }}>
+            <Image source={LAME_IMAGES[card.n]} style={{ width: '100%', height: '100%' }} resizeMode="stretch" />
+          </View>
         ) : null}
       </Pressable>
       <Text style={st.num}>{t('Lame {n}', { n: String(card.n).padStart(3, '0') })}</Text>
-      <Text style={st.name}>{card.name}</Text>
-      <Text style={st.def}>{card.definition}</Text>
+      <Text style={st.name}>{txt.name}</Text>
+      <Text style={st.def}>{txt.definition}</Text>
       <Text style={st.sisters}>{sistersOfMask(card.mask).map((s) => s.name).join(' · ')}</Text>
     </View>
   );
@@ -132,6 +135,20 @@ export default function OracleNatif() {
   const [draw, setDraw] = useState<Draw | null>(null);
   const [more, setMore] = useState(false);
   const [zoom, setZoom] = useState<Lame | null>(null);
+  const [quantum, setQuantum] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const qPromise = useRef<Promise<Uint8Array | undefined> | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      local.getJson<boolean>(KEYS.oracleQuantum, false).then((v) => setQuantum(v === true), () => undefined);
+    }, []),
+  );
+  const toggleQuantum = () => {
+    const v = !quantum;
+    setQuantum(v);
+    local.setJson(KEYS.oracleQuantum, v).catch(() => undefined);
+  };
   const [progress] = useState(() => new Animated.Value(0));
   const [reveal] = useState(() => new Animated.Value(0));
   const started = useRef(0);
@@ -150,16 +167,22 @@ export default function OracleNatif() {
     if (mode === 'jour') {
       setDraw(drawFrom('jour', undefined, ''));
     } else {
-      const { seal, source } = await makeSeal(crypto, intent, holdMs);
-      setDraw(drawFrom(mode, seal, source));
+      // Les octets quantiques ont été demandés dès le début du geste : l'attente est déjà passée.
+      const q = quantum ? await (qPromise.current ?? quantumBytes(8)) : undefined;
+      const { seal, source } = await makeSeal(crypto, intent, holdMs, new Date(), q ? { bytes: q, label: QRNG_LABEL } : undefined);
+      setDraw(drawFrom(mode, seal, quantum && !q ? `${source} (${t('service quantique injoignable')})` : source));
     }
+    qPromise.current = null;
     setMore(false);
+    setSaved(false);
+    recordGesture('carte').catch(() => undefined);
     AccessibilityInfo.announceForAccessibility?.(t('Le tirage est ouvert.'));
   };
 
   const pressIn = () => {
     if (draw) return;
     started.current = Date.now();
+    if (quantum && mode !== 'jour') qPromise.current = quantumBytes(8);
     if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
     anim.current = Animated.timing(progress, { toValue: 1, duration: HOLD_MS, easing: Easing.linear, useNativeDriver: false });
     anim.current.start(({ finished }) => {
@@ -171,8 +194,14 @@ export default function OracleNatif() {
     anim.current?.stop();
     Animated.timing(progress, { toValue: 0, duration: 250, useNativeDriver: false }).start();
   };
+  const keep = async () => {
+    if (!draw) return;
+    await saveDraw({ at: new Date().toISOString(), mode: draw.mode, cards: draw.cards.map((c) => c.n), seal: draw.seal, source: draw.source, intent: intent.trim() || undefined });
+    setSaved(true);
+  };
   const again = () => {
     setDraw(null);
+    setSaved(false);
     progress.setValue(0);
   };
 
@@ -208,6 +237,16 @@ export default function OracleNatif() {
                 : t('Une lame, et le regard de chacune des Sept Sœurs.')}
           </Text>
           {mode !== 'jour' ? (
+            <Pressable onPress={toggleQuantum} style={[st.qchip, quantum && st.qchipOn]} accessibilityRole="switch" accessibilityState={{ checked: quantum }}>
+              <Text style={[st.qchipT, quantum && { color: GOLD2 }]}>{quantum ? '✦ ' : '○ '}{t('Hasard quantique')}</Text>
+              <Text style={st.qchipS}>
+                {quantum
+                  ? t('Quelques octets d’un générateur quantique public (université Humboldt de Berlin) sont mêlés au hasard du téléphone. La requête est anonyme ; sans réponse, le tirage continue sans eux.')
+                  : t('Facultatif : mêler au tirage le hasard d’un générateur quantique public.')}
+              </Text>
+            </Pressable>
+          ) : null}
+          {mode !== 'jour' ? (
             askOpen ? (
               <TextInput value={intent} onChangeText={(v) => setIntent(v.slice(0, 280))} placeholder={t('Quelle question souhaitez-vous éclairer ?')} placeholderTextColor={colors.muted} multiline style={st.input} />
             ) : (
@@ -217,7 +256,7 @@ export default function OracleNatif() {
             )
           ) : null}
           <View style={st.peek}>
-            <Text style={st.peekT}>{t('Carte du jour : {n}', { n: today.name })}</Text>
+            <Text style={st.peekT}>{t('Carte du jour : {n}', { n: lameText(today).name })}</Text>
           </View>
         </>
       ) : (
@@ -235,7 +274,7 @@ export default function OracleNatif() {
                   return (
                     <View key={s.name} style={[st.regard, !on && { opacity: 0.45 }]}>
                       <Text style={st.regardName}>{s.glyph} {s.name}</Text>
-                      <Text style={st.text}>{on ? s.light : t('Reste en retrait pour cette lame.')}</Text>
+                      <Text style={st.text}>{on ? t(s.light) : t('Reste en retrait pour cette lame.')}</Text>
                     </View>
                   );
                 })}
@@ -243,13 +282,13 @@ export default function OracleNatif() {
             ) : (
               <>
                 <Text style={st.kicker}>{t('TON GESTE')}</Text>
-                {lead ? <Text style={st.text}>{lead.gesture}</Text> : null}
+                {lead ? <Text style={st.text}>{t(lead.gesture)}</Text> : null}
                 {more ? (
                   sisters.map((s) => (
                     <View key={s.name} style={st.regard}>
-                      <Text style={st.regardName}>{s.glyph} {s.name} · {s.verb}</Text>
-                      <Text style={st.text}>{t('Ce qui s’éclaire :')} {s.light}</Text>
-                      <Text style={st.text}>{t('Ce qui freine :')} {s.shadow}</Text>
+                      <Text style={st.regardName}>{s.glyph} {s.name} · {t(s.verb)}</Text>
+                      <Text style={st.text}>{t('Ce qui s’éclaire :')} {t(s.light)}</Text>
+                      <Text style={st.text}>{t('Ce qui freine :')} {t(s.shadow)}</Text>
                     </View>
                   ))
                 ) : (
@@ -257,13 +296,16 @@ export default function OracleNatif() {
                     <Text style={st.link}>{t('Lire la suite ›')}</Text>
                   </Pressable>
                 )}
-                {lead ? <Text style={st.question}>{lead.question}</Text> : null}
+                {lead ? <Text style={st.question}>{t(lead.question)}</Text> : null}
               </>
             )}
           </View>
 
-          <Pressable onPress={again} style={st.cta} accessibilityRole="button">
-            <Text style={st.ctaT}>{t('Nouveau tirage')}</Text>
+          <Pressable onPress={() => void keep()} disabled={saved} style={[st.cta, saved && { opacity: 0.6 }]} accessibilityRole="button">
+            <Text style={st.ctaT}>{saved ? t('Gardé dans mon Grimoire ✓') : t('Garder dans mon Grimoire')}</Text>
+          </Pressable>
+          <Pressable onPress={again} style={st.ghost} accessibilityRole="button">
+            <Text style={st.ghostT}>{t('Nouveau tirage')}</Text>
           </Pressable>
           <Text style={st.source}>
             {t('Source du tirage : {s}', { s: draw.source })}
@@ -272,11 +314,14 @@ export default function OracleNatif() {
         </Animated.View>
       )}
 
+      <Pressable onPress={() => router.push('/oracle-labo')} accessibilityRole="link" style={{ alignSelf: 'center' }} hitSlop={8}>
+        <Text style={st.link}>{t('Laboratoire des sept qubits ›')}</Text>
+      </Pressable>
       <Text style={st.veil}>{t('L’Oracle n’annonce pas ce qui va arriver. Il éclaire ce qui cherche à être vécu.')}</Text>
 
       <Modal visible={!!zoom} transparent animationType="fade" onRequestClose={() => setZoom(null)}>
         <Pressable style={st.zoomBg} onPress={() => setZoom(null)} accessibilityRole="button" accessibilityLabel={t('Fermer')}>
-          {zoom ? <Image source={{ uri: zoom.image }} style={st.zoomImg} resizeMode="contain" accessibilityLabel={zoom.name} /> : null}
+          {zoom ? <Image source={LAME_IMAGES[zoom.n]} style={st.zoomImg} resizeMode="contain" accessibilityLabel={lameText(zoom).name} /> : null}
           <Text style={st.zoomClose}>×</Text>
         </Pressable>
       </Modal>
@@ -312,6 +357,12 @@ const st = StyleSheet.create({
   question: { fontFamily: fonts.titleItalic, fontSize: 18, lineHeight: 24, color: GOLD2, marginTop: space.xs },
   cta: { backgroundColor: '#e8cf8f', borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' },
   ctaT: { fontFamily: fonts.title, fontSize: 20, color: '#1b1730' },
+  ghost: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingVertical: 13, alignItems: 'center' },
+  ghostT: { fontFamily: fonts.bodyBold, fontSize: 15, color: colors.gold },
+  qchip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 12, gap: 4 },
+  qchipOn: { borderColor: 'rgba(243,220,160,0.7)', backgroundColor: '#15142c' },
+  qchipT: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.text },
+  qchipS: { fontFamily: fonts.body, fontSize: 12.5, lineHeight: 18, color: colors.muted },
   source: { fontFamily: fonts.body, fontSize: 12, lineHeight: 18, color: colors.muted, textAlign: 'center' },
   veil: { fontFamily: fonts.body, fontSize: 12, color: colors.muted, textAlign: 'center', opacity: 0.8 },
   zoomBg: { flex: 1, backgroundColor: 'rgba(5,4,12,0.94)', alignItems: 'center', justifyContent: 'center', padding: space.md },

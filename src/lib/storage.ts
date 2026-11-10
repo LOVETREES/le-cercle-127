@@ -59,5 +59,7 @@ export const KEYS = {
   portes: 'c127.portes',
   dreamer: 'c127.dreamer',
   welcomed: 'c127.oni-rencontre',
+  oracleDraws: 'c127.oracle-tirages',
+  oracleQuantum: 'c127.oracle-quantique',
   demoPendingTranscript: 'c127.demo-pending-transcript',
 } as const;

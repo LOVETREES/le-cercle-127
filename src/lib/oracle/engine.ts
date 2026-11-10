@@ -74,13 +74,23 @@ export const toHex = (bytes: Uint8Array) => Array.from(bytes, (b) => b.toString(
 export type Crypto = { randomBytes: (n: number) => Uint8Array; sha256Hex: (s: string) => Promise<string> };
 
 /** Le sceau : SHA-256 (intention + instant + durée du geste + 8 octets aléatoires), 4 premiers octets. */
-export async function makeSeal(c: Crypto, intent: string, holdMs: number, now = new Date()): Promise<{ seal: string; source: string }> {
-  const salt = toHex(c.randomBytes(8));
+export async function makeSeal(
+  c: Crypto,
+  intent: string,
+  holdMs: number,
+  now = new Date(),
+  extra?: { bytes: Uint8Array; label: string },
+): Promise<{ seal: string; source: string }> {
+  // Le hasard de l'appareil, éventuellement mêlé (OU exclusif) à des octets quantiques : jamais remplacé.
+  const own = c.randomBytes(8);
+  const mixed = extra?.bytes.length ? Uint8Array.from(own, (x, i) => x ^ extra.bytes[i % extra.bytes.length]) : own;
+  const salt = toHex(mixed);
+  const base = extra?.bytes.length ? `${extra.label} + aléa cryptographique de l’appareil` : 'aléa cryptographique de l’appareil';
   try {
     const digest = await c.sha256Hex([intent.trim(), now.toISOString(), String(Math.round(holdMs)), salt].join('|'));
-    return { seal: digest.slice(0, 8).toUpperCase(), source: 'aléa cryptographique de l’appareil + SHA-256' };
+    return { seal: digest.slice(0, 8).toUpperCase(), source: `${base} + SHA-256` };
   } catch {
-    return { seal: salt.slice(0, 8), source: 'aléa cryptographique de l’appareil' };
+    return { seal: salt.slice(0, 8), source: base };
   }
 }
 

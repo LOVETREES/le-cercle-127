@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, Ellipse, G, Line, LinearGradient, Path, Polyline, RadialGradient, Rect, Stop, Text as SvgText } from 'react-native-svg';
 
@@ -17,6 +17,10 @@ import { useSession } from '../../lib/session';
 import { colors, fonts, radius, space } from '../../lib/theme';
 import { listVoiceNotes } from '../../lib/voice-notes';
 import { splitContext } from '../../lib/oni-questions';
+import { lameByNumber } from '../../lib/oracle/engine';
+import { listDraws, type SavedDraw } from '../../lib/oracle/history';
+import { LAME_IMAGES } from '../../lib/oracle/images';
+import { lameText } from '../../lib/oracle/localize';
 import { ICON, iconKey, SymbolIcon } from '../../components/SymbolIcon';
 
 /* ---------- Petits outils ---------- */
@@ -153,8 +157,8 @@ function DreamThumb({ k }: { k: string }) {
 }
 
 /* ---------- L'écran ---------- */
-type Extra = { emotions: EmotionEntry[]; palms: PalmReading[]; ritual: RitualStore; portes: PortesStore; notes: number };
-const EMPTY: Extra = { emotions: [], palms: [], ritual: {}, portes: {}, notes: 0 };
+type Extra = { emotions: EmotionEntry[]; palms: PalmReading[]; ritual: RitualStore; portes: PortesStore; notes: number; draws: SavedDraw[] };
+const EMPTY: Extra = { emotions: [], palms: [], ritual: {}, portes: {}, notes: 0, draws: [] };
 
 export default function Grimoire() {
   const { user, dreams, syncing, lastError, refresh, isDemo } = useSession();
@@ -165,9 +169,9 @@ export default function Grimoire() {
   useFocusEffect(
     useCallback(() => {
       let alive = true;
-      Promise.all([listEmotions(), listPalmReadings(), readRitual(), readPortes(), loadRealityChecks(isDemo), listVoiceNotes(isDemo)]).then(
-        ([emotions, palms, ritual, portes, checks, voice]) => {
-          if (alive) setExtra({ emotions, palms, ritual, portes, notes: (checks?.length ?? 0) + (voice?.length ?? 0) });
+      Promise.all([listEmotions(), listPalmReadings(), readRitual(), readPortes(), loadRealityChecks(isDemo), listVoiceNotes(isDemo), listDraws()]).then(
+        ([emotions, palms, ritual, portes, checks, voice, draws]) => {
+          if (alive) setExtra({ emotions, palms, ritual, portes, notes: (checks?.length ?? 0) + (voice?.length ?? 0), draws });
         },
         () => undefined,
       );
@@ -348,6 +352,41 @@ export default function Grimoire() {
           )}
         </View>
 
+        {/* Tirages de l'Oracle gardés */}
+        <View style={st.card}>
+          <Text style={st.h}>{t('MES TIRAGES DE L’ORACLE')}</Text>
+          {extra.draws.length === 0 ? (
+            <Body muted>{t('Les lames que tu gardes après un tirage de l’Oracle se rangent ici.')}</Body>
+          ) : (
+            extra.draws.slice(0, 5).map((d) => {
+              const cards = d.cards.map((n) => lameByNumber(n)).filter((c): c is NonNullable<typeof c> => !!c);
+              const when = new Date(d.at);
+              return (
+                <View key={d.at} style={st.drawRow}>
+                  <View style={st.drawThumbs}>
+                    {cards.slice(0, 3).map((c) => (
+                      <View key={c.n} style={st.drawThumb}>
+                        <Image source={LAME_IMAGES[c.n]} style={st.drawImg} resizeMode="stretch" />
+                      </View>
+                    ))}
+                  </View>
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Text style={st.dTitle} numberOfLines={2}>{cards.map((c) => lameText(c).name).join(' · ')}</Text>
+                    <Text style={st.dMotifs} numberOfLines={1}>
+                      {when.toLocaleDateString(locale(), { day: 'numeric', month: 'long' })}
+                      {d.mode === 'trois' ? ` · ${t('Trois portes')}` : d.mode === 'sept' ? ` · ${t('Sept regards')}` : ` · ${t('Carte du jour')}`}
+                    </Text>
+                    {d.intent ? <Text style={st.dExcerpt} numberOfLines={1}>« {d.intent} »</Text> : null}
+                  </View>
+                </View>
+              );
+            })
+          )}
+          <Pressable onPress={() => router.push('/oracle-natif')} style={({ pressed }) => [st.ghost, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+            <Text style={st.ghostT}>{t('TIRER UNE LAME')}</Text>
+          </Pressable>
+        </View>
+
         {/* Journal intime */}
         <View style={st.card}>
           <Text style={st.h}>{t('JOURNAL INTIME')}</Text>
@@ -428,6 +467,10 @@ export default function Grimoire() {
 }
 
 const st = StyleSheet.create({
+  drawRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: 6 },
+  drawThumbs: { flexDirection: 'row', gap: 4 },
+  drawThumb: { width: 40, height: 40, borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(240,214,140,0.45)' },
+  drawImg: { width: 45, height: 78, marginLeft: -3, marginTop: -13 },
   hero: { flexDirection: 'row', alignItems: 'center', gap: space.sm, padding: space.lg, minHeight: 170, borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(216,182,107,0.22)', backgroundColor: '#0e0f23', overflow: 'hidden' },
   hello: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.text },
   heroTitle: { fontFamily: fonts.title, fontSize: 40, lineHeight: 46, letterSpacing: 2, color: colors.gold },
