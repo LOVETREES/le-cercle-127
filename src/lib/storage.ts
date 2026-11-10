@@ -58,5 +58,6 @@ export const KEYS = {
   rituel: 'c127.rituel',
   portes: 'c127.portes',
   dreamer: 'c127.dreamer',
+  welcomed: 'c127.oni-rencontre',
   demoPendingTranscript: 'c127.demo-pending-transcript',
 } as const;

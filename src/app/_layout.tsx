@@ -13,6 +13,7 @@ import { installCrashGuard } from '../lib/crash';
 import { I18nProvider } from '../i18n/provider';
 import { SessionProvider, useSession } from '../lib/session';
 import { colors, fonts } from '../lib/theme';
+import { wasWelcomed } from '../lib/welcome';
 import { t } from '../i18n';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
@@ -60,6 +61,18 @@ function Root() {
     return () => sub.remove();
   }, []);
 
+  // Premier lancement : Oni se présente (une seule fois, on peut la passer).
+  useEffect(() => {
+    if (!loaded) return;
+    let active = true;
+    wasWelcomed().then((w) => {
+      if (active && !w) setTimeout(() => router.push('/rencontre'), 50);
+    }, () => undefined);
+    return () => {
+      active = false;
+    };
+  }, [loaded]);
+
   if (!loaded) return null;
 
   return (
@@ -84,6 +97,7 @@ function Root() {
         <Stack.Screen name="mes-lectures" options={{ title: 'Mes lectures', headerShown: false }} />
         <Stack.Screen name="parametres" options={{ title: 'Paramètres', headerShown: false }} />
         <Stack.Screen name="lecture-main" options={{ title: 'Lecture de la main', headerShown: false }} />
+        <Stack.Screen name="rencontre" options={{ headerShown: false, presentation: 'fullScreenModal', gestureEnabled: false }} />
         <Stack.Screen name="connaissance" options={{ title: 'Faisons connaissance', headerShown: false }} />
         <Stack.Screen name="parcours" options={{ title: 'Mon parcours onirique', headerShown: false }} />
         <Stack.Screen name="soeurs" options={{ title: 'Le Cercle des 7 Sœurs', headerShown: false }} />
