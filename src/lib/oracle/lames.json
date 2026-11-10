@@ -1,0 +1,1593 @@
+[
+ {
+  "n": 1,
+  "name": "Le Seuil",
+  "mask": 64,
+  "sisters": [
+   "Irma"
+  ],
+  "definition": "Un seuil s’ouvre : ce qui se présente demande un choix et un premier pas.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2025-02-23-10.42.19-A-mystical-dreamlike-scene-inspired-by-Onis-world_-A-celestial-figure-with-heterochromatic-eyes-dressed-in-a-starry-cloak-stands-in-a-surreal-labyr.webp"
+ },
+ {
+  "n": 2,
+  "name": "L’Étoile intérieure",
+  "mask": 32,
+  "sisters": [
+   "Astria"
+  ],
+  "definition": "Une lumière intérieure se fait entendre quand le bruit extérieur se tait.",
+  "image": "https://lecercle127.com/wp-content/uploads/2026/10/DDF4DB4B-0730-4B26-9B92-9703BA619EC8.png"
+ },
+ {
+  "n": 3,
+  "name": "L’Étoile au carrefour",
+  "mask": 96,
+  "sisters": [
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Une étoile se pose au croisement : regarder deux chemins avant de choisir.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2025-02-20-19.26.12-A-serene-and-introspective-digital-artwork-depicting-a-person-standing-in-an-open-foggy-landscape-their-silhouette-slightly-dissolving-into-the-mist.webp"
+ },
+ {
+  "n": 4,
+  "name": "La Première Flamme",
+  "mask": 16,
+  "sisters": [
+   "Ignis"
+  ],
+  "definition": "Une première flamme naît, petite mais suffisante pour commencer.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/IMG_9686.webp"
+ },
+ {
+  "n": 5,
+  "name": "Le Feu du passage",
+  "mask": 80,
+  "sisters": [
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "Le feu traverse un passage : ce qui change demande d’être accompagné.",
+  "image": "https://lecercle127.com/wp-content/uploads/2026/08/DALL·E-2025-01-15-15.13.56-A-mystical-representation-of-Ignis-the-Guardian-of-Inner-Transformation.-She-stands-surrounded-by-gently-dancing-flames-her-attire-shimmering-with-s.webp"
+ },
+ {
+  "n": 6,
+  "name": "La Flamme qui montre le nord",
+  "mask": 48,
+  "sisters": [
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "Une flamme indique le nord : une direction claire émerge de l’élan.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2024-12-21-00.11.37-A-hyper-realistic-portrayal-of-Ignis-one-of-the-seven-sisters-dancing-gracefully-in-the-vastness-of-space.-Her-movements-radiate-fiery-energy-with-.webp"
+ },
+ {
+  "n": 7,
+  "name": "Le Triangle vivant",
+  "mask": 112,
+  "sisters": [
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Un triangle vivant relie l’intuition, l’action et le choix.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2025-01-30-20.35.16-A-surreal-and-magical-scene-featuring-Oni-in-a-glowing-meadow-under-a-night-sky-standing-in-place-of-the-child.-Oni-is-portrayed-as-a-mystical-figure.webp"
+ },
+ {
+  "n": 8,
+  "name": "La Racine",
+  "mask": 8,
+  "sisters": [
+   "Terra"
+  ],
+  "definition": "Une racine s’enfonce : revenir au sol avant de se projeter.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2025-01-16-13.52.10-A-surreal-illustration-of-a-thin-twisted-tree-with-intricate-gnarled-branches-and-roots.-The-roots-fuse-with-thousands-of-ethereal-filament-like-hu.webp"
+ },
+ {
+  "n": 9,
+  "name": "Le Pas sur la terre",
+  "mask": 72,
+  "sisters": [
+   "Terra",
+   "Irma"
+  ],
+  "definition": "Un pas posé sur la terre : une décision qui prend appui sur le réel.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2025-01-16-11.53.07-An-empowering-and-thought-provoking-Facebook-post-image-addressing-financial-control-in-toxic-relationships.-The-scene-features-a-symbolic-visual_-a-w.webp"
+ },
+ {
+  "n": 10,
+  "name": "La Racine & horizon",
+  "mask": 40,
+  "sisters": [
+   "Terra",
+   "Astria"
+  ],
+  "definition": "Une racine tendue vers l’horizon : tenir ses appuis tout en regardant plus loin.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2023-10-17-14.27.45-Illustration-dun-masque-brillant-flottant-dans-lair-avec-un-visage-sombre-et-ombrage-en-dessous-le-tout-entoure-dune-foret-dense-darbres-mysterie.png"
+ },
+ {
+  "n": 11,
+  "name": "Le Triangle vivant",
+  "mask": 104,
+  "sisters": [
+   "Terra",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Un triangle vivant ancre une aspiration dans le concret.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2024-06-29-13.46.53-A-scene-inspired-by-the-text-about-the-Larmes-de-Lune-project.-It-features-a-crescent-moon-and-an-Arabic-dancer-gracefully-spinning-without-a-veil.-.webp"
+ },
+ {
+  "n": 12,
+  "name": "La Forge",
+  "mask": 24,
+  "sisters": [
+   "Terra",
+   "Ignis"
+  ],
+  "definition": "La forge chauffe ce qui doit être façonné : un travail patient et concret.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-012.jpg"
+ },
+ {
+  "n": 13,
+  "name": "Le Franchissement",
+  "mask": 88,
+  "sisters": [
+   "Terra",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "Un franchissement demande de traverser une limite en gardant ses appuis.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-013.jpg"
+ },
+ {
+  "n": 14,
+  "name": "L’Ascension",
+  "mask": 56,
+  "sisters": [
+   "Terra",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "Une ascension lente : chaque marche compte, même petite.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-014.jpg"
+ },
+ {
+  "n": 15,
+  "name": "Songe",
+  "mask": 120,
+  "sisters": [
+   "Terra",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Le songe tisse ensemble l’appui, le geste et la vision : un rêve qui prend corps.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2025-01-20-10.16.28-A-close-up-portrait-of-Oni-the-mystical-dream-guardian-with-her-face-partially-obscured-by-a-flowing-veil-of-black-hair-that-glimmers-with-star-like.webp"
+ },
+ {
+  "n": 16,
+  "name": "La Source sensible",
+  "mask": 4,
+  "sisters": [
+   "Naïa"
+  ],
+  "definition": "Une source sensible : écouter ce qui se ressent avant de chercher à comprendre.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2025-02-22-10.54.30-A-calming-and-peaceful-illustration-of-a-person-practicing-deep-breathing-in-nature.-The-person-sits-cross-legged-on-a-wooden-deck-overlooking-a-seren.webp"
+ },
+ {
+  "n": 17,
+  "name": "Le Gué",
+  "mask": 68,
+  "sisters": [
+   "Naïa",
+   "Irma"
+  ],
+  "definition": "Un gué se traverse là où l’eau est basse : chercher le passage praticable.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-017.jpg"
+ },
+ {
+  "n": 18,
+  "name": "Le Courant",
+  "mask": 36,
+  "sisters": [
+   "Naïa",
+   "Astria"
+  ],
+  "definition": "Un courant porte : laisser une émotion mener, sans s’y noyer.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-018.jpg"
+ },
+ {
+  "n": 19,
+  "name": "La Navigation",
+  "mask": 100,
+  "sisters": [
+   "Naïa",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "La navigation demande de lire les signes et d’ajuster son cap.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-019.jpg"
+ },
+ {
+  "n": 20,
+  "name": "L’Alchimie",
+  "mask": 20,
+  "sisters": [
+   "Naïa",
+   "Ignis"
+  ],
+  "definition": "L’alchimie transforme une émotion en force d’action.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-020.jpg"
+ },
+ {
+  "n": 21,
+  "name": "La Traversée",
+  "mask": 84,
+  "sisters": [
+   "Naïa",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "La traversée se fait pas à pas, entre émotion, choix et passage.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-021.jpg"
+ },
+ {
+  "n": 22,
+  "name": "La Transmutation",
+  "mask": 52,
+  "sisters": [
+   "Naïa",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "Une transmutation : ce qui semblait lourd prend une autre forme.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-022.jpg"
+ },
+ {
+  "n": 23,
+  "name": "L’Antichambre",
+  "mask": 116,
+  "sisters": [
+   "Naïa",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Une antichambre : un moment d’attente avant l’entrée dans ce qui vient.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-023.jpg"
+ },
+ {
+  "n": 24,
+  "name": "La Rive",
+  "mask": 12,
+  "sisters": [
+   "Naïa",
+   "Terra"
+  ],
+  "definition": "Une rive atteinte : arriver à un bord, avec la possibilité de se poser.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-024.jpg"
+ },
+ {
+  "n": 25,
+  "name": "La Passe",
+  "mask": 76,
+  "sisters": [
+   "Naïa",
+   "Terra",
+   "Irma"
+  ],
+  "definition": "La passe étroite demande de se faire petit pour avancer.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-025.jpg"
+ },
+ {
+  "n": 26,
+  "name": "La Vallée",
+  "mask": 44,
+  "sisters": [
+   "Naïa",
+   "Terra",
+   "Astria"
+  ],
+  "definition": "Une vallée s’ouvre entre deux hauteurs : un espace pour respirer et apprendre.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-026.jpg"
+ },
+ {
+  "n": 27,
+  "name": "La Chambre",
+  "mask": 108,
+  "sisters": [
+   "Naïa",
+   "Terra",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Une chambre intérieure : un lieu où l’on peut se retirer et se préparer.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-027.jpg"
+ },
+ {
+  "n": 28,
+  "name": "Le Creuset",
+  "mask": 28,
+  "sisters": [
+   "Naïa",
+   "Terra",
+   "Ignis"
+  ],
+  "definition": "Le creuset rassemble ce qui doit fondre pour devenir autre chose.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-028.jpg"
+ },
+ {
+  "n": 29,
+  "name": "Le Portique",
+  "mask": 92,
+  "sisters": [
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "Un portique ouvre un passage symbolique entre deux temps.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-029.jpg"
+ },
+ {
+  "n": 30,
+  "name": "Le Cloître",
+  "mask": 60,
+  "sisters": [
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "Un cloître invite au silence et à la discipline d’une pratique régulière.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-030.jpg"
+ },
+ {
+  "n": 31,
+  "name": "La Veille",
+  "mask": 124,
+  "sisters": [
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "La veille : rester attentif à ce qui s’annonce sans le forcer.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-031.jpg"
+ },
+ {
+  "n": 32,
+  "name": "Le Lien",
+  "mask": 2,
+  "sisters": [
+   "Alka"
+  ],
+  "definition": "Un lien se noue : un fil simple qui relie deux éléments.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-032.jpg"
+ },
+ {
+  "n": 33,
+  "name": "La Clef",
+  "mask": 66,
+  "sisters": [
+   "Alka",
+   "Irma"
+  ],
+  "definition": "La clef ouvre une porte déjà présente : un moyen d’accès à ce qui attend.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-033.jpg"
+ },
+ {
+  "n": 34,
+  "name": "Le Fil d’Ariane",
+  "mask": 34,
+  "sisters": [
+   "Alka",
+   "Astria"
+  ],
+  "definition": "Un fil d’Ariane permet de revenir sur ses pas sans se perdre.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/ChatGPT-Image-16-dec.-2025-20_11_39.png"
+ },
+ {
+  "n": 35,
+  "name": "Le Carrefour",
+  "mask": 98,
+  "sisters": [
+   "Alka",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Un carrefour où plusieurs liens se croisent : choisir la voie qui relie le mieux.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-035.jpg"
+ },
+ {
+  "n": 36,
+  "name": "Le Nœud",
+  "mask": 18,
+  "sisters": [
+   "Alka",
+   "Ignis"
+  ],
+  "definition": "Un nœud se forme : ce qui est noué demande attention et patience pour être défait.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-036.jpg"
+ },
+ {
+  "n": 37,
+  "name": "Le Dénouement",
+  "mask": 82,
+  "sisters": [
+   "Alka",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "Un dénouement approche : ce qui était emmêlé commence à se démêler.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-037.jpg"
+ },
+ {
+  "n": 38,
+  "name": "La Quête",
+  "mask": 50,
+  "sisters": [
+   "Alka",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "La quête suit un fil qui mène vers quelque chose de plus large.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-038.jpg"
+ },
+ {
+  "n": 39,
+  "name": "La Galerie",
+  "mask": 114,
+  "sisters": [
+   "Alka",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Une galerie relie plusieurs salles : voir les connexions entre des expériences.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-039.jpg"
+ },
+ {
+  "n": 40,
+  "name": "Le Pont",
+  "mask": 10,
+  "sisters": [
+   "Alka",
+   "Terra"
+  ],
+  "definition": "Un pont relie deux rives : construire un lien entre ce qui était séparé.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-040.jpg"
+ },
+ {
+  "n": 41,
+  "name": "La Jonction",
+  "mask": 74,
+  "sisters": [
+   "Alka",
+   "Terra",
+   "Irma"
+  ],
+  "definition": "Une jonction où les chemins se rejoignent : un point de rencontre.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-041.jpg"
+ },
+ {
+  "n": 42,
+  "name": "L’Itinéraire",
+  "mask": 42,
+  "sisters": [
+   "Alka",
+   "Terra",
+   "Astria"
+  ],
+  "definition": "L’itinéraire se dessine étape par étape, selon ce qui est déjà parcouru.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-042.jpg"
+ },
+ {
+  "n": 43,
+  "name": "Le Corridor",
+  "mask": 106,
+  "sisters": [
+   "Alka",
+   "Terra",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Un corridor qui relie plusieurs espaces : un passage à traverser avec attention.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-043.jpg"
+ },
+ {
+  "n": 44,
+  "name": "Le Façonnage",
+  "mask": 26,
+  "sisters": [
+   "Alka",
+   "Terra",
+   "Ignis"
+  ],
+  "definition": "Le façonnage transforme la matière par gestes répétés et soins.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-044.jpg"
+ },
+ {
+  "n": 45,
+  "name": "L’Escalier",
+  "mask": 90,
+  "sisters": [
+   "Alka",
+   "Terra",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "L’escalier monte par degrés : chaque marche est une étape à reconnaître.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/canon-v2/card-045.webp"
+ },
+ {
+  "n": 46,
+  "name": "La Rampe",
+  "mask": 58,
+  "sisters": [
+   "Alka",
+   "Terra",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "Une rampe soutient la montée : s’appuyer sur ce qui aide à avancer.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-046.jpg"
+ },
+ {
+  "n": 47,
+  "name": "L’Attente",
+  "mask": 122,
+  "sisters": [
+   "Alka",
+   "Terra",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "L’attente s’étend : un temps de maturation avant que le fruit ne mûrisse.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-047.jpg"
+ },
+ {
+  "n": 48,
+  "name": "La Confluence",
+  "mask": 6,
+  "sisters": [
+   "Alka",
+   "Naïa"
+  ],
+  "definition": "Une confluence : deux courants se rejoignent et gagnent en force.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-048.jpg"
+ },
+ {
+  "n": 49,
+  "name": "L’Alliance",
+  "mask": 70,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Irma"
+  ],
+  "definition": "Une alliance se scelle : ce qui est partagé devient plus solide.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-049.jpg"
+ },
+ {
+  "n": 50,
+  "name": "La Constellation",
+  "mask": 38,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Astria"
+  ],
+  "definition": "La constellation relie des points épars en une figure qui guide.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-050.jpg"
+ },
+ {
+  "n": 51,
+  "name": "Le Couloir",
+  "mask": 102,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Le couloir mène d’une salle à l’autre : un passage entre deux étapes.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-051.jpg"
+ },
+ {
+  "n": 52,
+  "name": "La Métamorphose",
+  "mask": 22,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Ignis"
+  ],
+  "definition": "La métamorphose transforme une forme ancienne en une forme nouvelle.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-052.jpg"
+ },
+ {
+  "n": 53,
+  "name": "L’Arche",
+  "mask": 86,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "L’arche tient par l’équilibre de ses pierres : une structure qui protège un passage.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/8b254db8-97ee-46b7-99ba-7c1562a896bb.png"
+ },
+ {
+  "n": 54,
+  "name": "La Voûte",
+  "mask": 54,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "La voûte abrite : un espace où les forces se soutiennent mutuellement.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-054.jpg"
+ },
+ {
+  "n": 55,
+  "name": "Le Silence",
+  "mask": 118,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Le silence écoute : laisser une réponse venir sans la précipiter.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-055.jpg"
+ },
+ {
+  "n": 56,
+  "name": "L’Entrelacs",
+  "mask": 14,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Terra"
+  ],
+  "definition": "Un entrelacs : des liens multiples qui se tiennent les uns aux autres.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-056.jpg"
+ },
+ {
+  "n": 57,
+  "name": "Le Parvis",
+  "mask": 78,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Irma"
+  ],
+  "definition": "Le parvis précède le lieu sacré : un espace de préparation avant d’entrer.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-057.jpg"
+ },
+ {
+  "n": 58,
+  "name": "Le Porche",
+  "mask": 46,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Astria"
+  ],
+  "definition": "Le porche marque le seuil : une entrée qui invite à ralentir.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-058.jpg"
+ },
+ {
+  "n": 59,
+  "name": "L’Obscurité",
+  "mask": 110,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "L’obscurité n’est pas vide : elle contient ce qui n’est pas encore vu.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-059.jpg"
+ },
+ {
+  "n": 60,
+  "name": "L’Enceinte",
+  "mask": 30,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Ignis"
+  ],
+  "definition": "L’enceinte protège un espace intérieur : une limite qui permet de se recentrer.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/ignis-carre.webp"
+ },
+ {
+  "n": 61,
+  "name": "La Nuit",
+  "mask": 94,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "La nuit invite au repos et à l’intériorité, loin du regard extérieur.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-061.jpg"
+ },
+ {
+  "n": 62,
+  "name": "L’Immobilité",
+  "mask": 62,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "L’immobilité permet de sentir ce qui bouge en dedans.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-062.jpg"
+ },
+ {
+  "n": 63,
+  "name": "La Lucidité",
+  "mask": 126,
+  "sisters": [
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "La lucidité voit ce qui est là, sans fard et sans illusion.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-063.jpg"
+ },
+ {
+  "n": 64,
+  "name": "L’Entrée",
+  "mask": 1,
+  "sisters": [
+   "Oni"
+  ],
+  "definition": "Une entrée s’ouvre : le début d’un chemin, à peine esquissé.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-064.jpg"
+ },
+ {
+  "n": 65,
+  "name": "La Porte",
+  "mask": 65,
+  "sisters": [
+   "Oni",
+   "Irma"
+  ],
+  "definition": "Une porte se présente : une possibilité de passer, à condition de choisir.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-065.jpg"
+ },
+ {
+  "n": 66,
+  "name": "Le Signe",
+  "mask": 33,
+  "sisters": [
+   "Oni",
+   "Astria"
+  ],
+  "definition": "Un signe apparaît : une indication à lire avec attention, sans la forcer.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-066.jpg"
+ },
+ {
+  "n": 67,
+  "name": "La Vision",
+  "mask": 97,
+  "sisters": [
+   "Oni",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Une vision éclaire un horizon : ce qui se dessine demande d’être regardé.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-067.jpg"
+ },
+ {
+  "n": 68,
+  "name": "Le Réveil",
+  "mask": 17,
+  "sisters": [
+   "Oni",
+   "Ignis"
+  ],
+  "definition": "Un réveil : une conscience qui se dégage de l’engourdissement.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-068.jpg"
+ },
+ {
+  "n": 69,
+  "name": "L’Initiation",
+  "mask": 81,
+  "sisters": [
+   "Oni",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "L’initiation commence par un passage : ce qui était inconnu devient accessible.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-069.jpg"
+ },
+ {
+  "n": 70,
+  "name": "L’Éveil",
+  "mask": 49,
+  "sisters": [
+   "Oni",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "Un éveil progressif : ce qui sommeillait commence à se montrer.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-070.jpg"
+ },
+ {
+  "n": 71,
+  "name": "Le Souterrain",
+  "mask": 113,
+  "sisters": [
+   "Oni",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Le souterrain traverse l’ombre : un chemin caché qui mène ailleurs.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-071.jpg"
+ },
+ {
+  "n": 72,
+  "name": "La Descente",
+  "mask": 9,
+  "sisters": [
+   "Oni",
+   "Terra"
+  ],
+  "definition": "La descente invite à aller vers les profondeurs pour y trouver un appui.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-072.jpg"
+ },
+ {
+  "n": 73,
+  "name": "La Crypte",
+  "mask": 73,
+  "sisters": [
+   "Oni",
+   "Terra",
+   "Irma"
+  ],
+  "definition": "La crypte garde ce qui a été enfoui : une mémoire à reconnaître.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-073.jpg"
+ },
+ {
+  "n": 74,
+  "name": "Le Sanctuaire",
+  "mask": 41,
+  "sisters": [
+   "Oni",
+   "Terra",
+   "Astria"
+  ],
+  "definition": "Un sanctuaire intérieur : un lieu de recueillement et de protection.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-074.jpg"
+ },
+ {
+  "n": 75,
+  "name": "Le Caveau",
+  "mask": 105,
+  "sisters": [
+   "Oni",
+   "Terra",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Le caveau conserve : ce qui a été mis de côté peut encore servir.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-075.jpg"
+ },
+ {
+  "n": 76,
+  "name": "La Caverne",
+  "mask": 25,
+  "sisters": [
+   "Oni",
+   "Terra",
+   "Ignis"
+  ],
+  "definition": "La caverne abrite une part non éclairée : l’explorer doucement.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-076.jpg"
+ },
+ {
+  "n": 77,
+  "name": "La Faille",
+  "mask": 89,
+  "sisters": [
+   "Oni",
+   "Terra",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "Une faille s’ouvre : une fragilité devient un passage possible.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-077.jpg"
+ },
+ {
+  "n": 78,
+  "name": "Le Puits",
+  "mask": 57,
+  "sisters": [
+   "Oni",
+   "Terra",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "Le puits descend profondément : ce qu’il contient demande de la patience pour être remonté.",
+  "image": "https://lecercle127.com/wp-content/uploads/2026/08/DALL·E-2025-02-15-12.05.49-Un-visuel-inspirant-et-apaisant-de-resilience-et-de-croissance-personnelle.-Un-chemin-forestier-baigne-de-lumiere-matinale-avec-des-tons-verts-et-dor.webp"
+ },
+ {
+  "n": 79,
+  "name": "L’Enracinement",
+  "mask": 121,
+  "sisters": [
+   "Oni",
+   "Terra",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "L’enracinement prend du temps : ce qui pousse en profondeur tient mieux.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-079.jpg"
+ },
+ {
+  "n": 80,
+  "name": "L’Immersion",
+  "mask": 5,
+  "sisters": [
+   "Oni",
+   "Naïa"
+  ],
+  "definition": "L’immersion plonge dans une expérience entière, sans rester à la surface.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-080.jpg"
+ },
+ {
+  "n": 81,
+  "name": "Le Plongeon",
+  "mask": 69,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Irma"
+  ],
+  "definition": "Le plongeon est un saut décidé : se lancer en acceptant l’inconnu.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-081.jpg"
+ },
+ {
+  "n": 82,
+  "name": "L’Intuition",
+  "mask": 37,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Astria"
+  ],
+  "definition": "L’intuition perçoit ce qui n’est pas encore dit : écouter cette voix discrète.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-082.jpg"
+ },
+ {
+  "n": 83,
+  "name": "La Nef",
+  "mask": 101,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "La nef avance sur l’eau : un moyen de traverser en gardant le cap.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-083.jpg"
+ },
+ {
+  "n": 84,
+  "name": "La Purification",
+  "mask": 21,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Ignis"
+  ],
+  "definition": "La purification nettoie ce qui encombre, pour retrouver de la clarté.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-084.jpg"
+ },
+ {
+  "n": 85,
+  "name": "Le Temple",
+  "mask": 85,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "Le temple rassemble un espace d’attention et de recueillement.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-085.jpg"
+ },
+ {
+  "n": 86,
+  "name": "L’Autel",
+  "mask": 53,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "L’autel est le lieu d’un engagement : ce qui y est posé prend un poids.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-086.jpg"
+ },
+ {
+  "n": 87,
+  "name": "L’Absence",
+  "mask": 117,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "L’absence révèle ce qui manque : le vide indique parfois ce qui compte.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-087.jpg"
+ },
+ {
+  "n": 88,
+  "name": "La Source",
+  "mask": 13,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Terra"
+  ],
+  "definition": "Une source jaillit : ce qui nourrit revient quand on sait où se tourner.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-088.jpg"
+ },
+ {
+  "n": 89,
+  "name": "Le Refuge",
+  "mask": 77,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Terra",
+   "Irma"
+  ],
+  "definition": "Le refuge protège le temps d’une pause : un abri pour reprendre des forces.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-089.jpg"
+ },
+ {
+  "n": 90,
+  "name": "L’Abri",
+  "mask": 45,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Terra",
+   "Astria"
+  ],
+  "definition": "L’abri offre un lieu sûr : se mettre à l’écart pour se restaurer.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-090.jpg"
+ },
+ {
+  "n": 91,
+  "name": "La Retraite",
+  "mask": 109,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Terra",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "La retraite éloigne du bruit : un temps de recul pour mieux revenir.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-091.jpg"
+ },
+ {
+  "n": 92,
+  "name": "L’Atelier",
+  "mask": 29,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Terra",
+   "Ignis"
+  ],
+  "definition": "L’atelier est le lieu du travail patient : ce qui se fabrique par l’exercice.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-092.jpg"
+ },
+ {
+  "n": 93,
+  "name": "L’Hésitation",
+  "mask": 93,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "L’hésitation s’installe devant un choix : prendre le temps, sans rester bloqué.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-093.jpg"
+ },
+ {
+  "n": 94,
+  "name": "La Contemplation",
+  "mask": 61,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "La contemplation regarde longuement : laisser le sens se révéler.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-094.jpg"
+ },
+ {
+  "n": 95,
+  "name": "La Solitude",
+  "mask": 125,
+  "sisters": [
+   "Oni",
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "La solitude apprend à se tenir seul : une étape de présence à soi.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-095.jpg"
+ },
+ {
+  "n": 96,
+  "name": "Le Fil",
+  "mask": 3,
+  "sisters": [
+   "Oni",
+   "Alka"
+  ],
+  "definition": "Un fil relie deux éléments : ce qui se répète peut signaler un lien.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-096.jpg"
+ },
+ {
+  "n": 97,
+  "name": "L’Indice",
+  "mask": 67,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Irma"
+  ],
+  "definition": "Un indice se présente : une piste à vérifier avant d’en tirer une conclusion.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-097.jpg"
+ },
+ {
+  "n": 98,
+  "name": "La Carte",
+  "mask": 35,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Astria"
+  ],
+  "definition": "Une carte donne des repères : se situer avant de choisir la route.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-098.jpg"
+ },
+ {
+  "n": 99,
+  "name": "Le Défilé",
+  "mask": 99,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Le défilé est un passage étroit : avancer avec précaution, sans se presser.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-099.jpg"
+ },
+ {
+  "n": 100,
+  "name": "Le Déchiffrement",
+  "mask": 19,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Ignis"
+  ],
+  "definition": "Le déchiffrement demande de lire ce qui est écrit entre les lignes.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-100.jpg"
+ },
+ {
+  "n": 101,
+  "name": "La Brèche",
+  "mask": 83,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "Une brèche s’ouvre dans un mur : une possibilité nouvelle apparaît.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-101.jpg"
+ },
+ {
+  "n": 102,
+  "name": "L’Ouverture",
+  "mask": 51,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "L’ouverture laisse entrer l’air : une possibilité qui se dégage.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-102.jpg"
+ },
+ {
+  "n": 103,
+  "name": "Le Repli",
+  "mask": 115,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "Le repli permet de se mettre à l’abri pour mieux repartir.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-103.jpg"
+ },
+ {
+  "n": 104,
+  "name": "L’Inscription",
+  "mask": 11,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Terra"
+  ],
+  "definition": "Une inscription marque ce qui compte : quelque chose est désormais gravé.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-104.jpg"
+ },
+ {
+  "n": 105,
+  "name": "Le Portail",
+  "mask": 75,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Terra",
+   "Irma"
+  ],
+  "definition": "Le portail ouvre sur un autre espace : un passage à franchir avec conscience.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-105.jpg"
+ },
+ {
+  "n": 106,
+  "name": "La Passerelle",
+  "mask": 43,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Terra",
+   "Astria"
+  ],
+  "definition": "La passerelle relie deux côtés : un chemin fragile mais utile.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-106.jpg"
+ },
+ {
+  "n": 107,
+  "name": "La Suspension",
+  "mask": 107,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Terra",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "La suspension met en attente : rester entre deux rives avant de décider.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-107.jpg"
+ },
+ {
+  "n": 108,
+  "name": "Le Tunnel",
+  "mask": 27,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Terra",
+   "Ignis"
+  ],
+  "definition": "Le tunnel traverse l’obscurité : avancer en gardant la direction.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-108.jpg"
+ },
+ {
+  "n": 109,
+  "name": "L’Égarement",
+  "mask": 91,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Terra",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "L’égarement arrive quand le chemin se brouille : se rappeler où l’on voulait aller.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2025-02-03-18.51.33-A-deeply-expressive-and-artistic-scene_-An-adult-woman-depicted-as-a-marionette-her-limbs-dangling-loosely-as-if-controlled-by-invisible-strings.-Abo.webp"
+ },
+ {
+  "n": 110,
+  "name": "Le Doute",
+  "mask": 59,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Terra",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "Le doute surgit devant l’incertain : une question à examiner sans se figer.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-110.jpg"
+ },
+ {
+  "n": 111,
+  "name": "La Sécheresse",
+  "mask": 123,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Terra",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "La sécheresse montre le manque : un signal à entendre pour réajuster.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-111.jpg"
+ },
+ {
+  "n": 112,
+  "name": "Le Miroir",
+  "mask": 7,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa"
+  ],
+  "definition": "Le miroir renvoie une image : observer ce qui se reflète, sans s’y perdre.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-112.jpg"
+ },
+ {
+  "n": 113,
+  "name": "Le Dédale",
+  "mask": 71,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Irma"
+  ],
+  "definition": "Le dédale est un labyrinthe complexe : avancer en gardant un fil conducteur.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-113.jpg"
+ },
+ {
+  "n": 114,
+  "name": "Le Labyrinthe",
+  "mask": 39,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Astria"
+  ],
+  "definition": "Le labyrinthe demande de la patience : chaque détour enseigne une direction.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-114.jpg"
+ },
+ {
+  "n": 115,
+  "name": "La Dépouille",
+  "mask": 103,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "La dépouille laisse tomber ce qui n’est plus utile : une forme ancienne qui se quitte.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-115.jpg"
+ },
+ {
+  "n": 116,
+  "name": "Le Méandre",
+  "mask": 23,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Ignis"
+  ],
+  "definition": "Le méandre suit une route sinueuse : le chemin n’est pas droit, mais il avance.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-116.jpg"
+ },
+ {
+  "n": 117,
+  "name": "Le Désert",
+  "mask": 87,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "Le désert est un espace de dépouillement : ce qui reste quand tout est simplifié.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-117.jpg"
+ },
+ {
+  "n": 118,
+  "name": "La Clairière",
+  "mask": 55,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "La clairière s’ouvre dans la forêt : un lieu où la lumière revient.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-118.jpg"
+ },
+ {
+  "n": 119,
+  "name": "L’Ailleurs",
+  "mask": 119,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "L’ailleurs évoque un horizon hors de portée : une aspiration à laisser ouverte.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-119.jpg"
+ },
+ {
+  "n": 120,
+  "name": "Le Cercle",
+  "mask": 15,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Terra"
+  ],
+  "definition": "Le cercle relie tous les éléments : une totalité qui se referme sur elle-même.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-120.jpg"
+ },
+ {
+  "n": 121,
+  "name": "Le Repos",
+  "mask": 79,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Irma"
+  ],
+  "definition": "Le repos permet de reprendre souffle : ce qui se régénère sans se forcer.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-121.jpg"
+ },
+ {
+  "n": 122,
+  "name": "Le Belvédère",
+  "mask": 47,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Astria"
+  ],
+  "definition": "Le belvédère offre une vue large : prendre du recul pour voir l’ensemble.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-122.jpg"
+ },
+ {
+  "n": 123,
+  "name": "L’Inertie",
+  "mask": 111,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "L’inertie retient le mouvement : ce qui ne bouge pas peut être un signal à regarder.",
+  "image": "https://onirologue.shop/wp-content/uploads/2026/08/DALL·E-2025-02-11-12.16.14-A-dark-and-moody-digital-painting-depicting-the-concept-of-emotional-abuse-and-impunity.-The-image-shows-a-shadowy-figure-standing-behind-a-distressed.webp"
+ },
+ {
+  "n": 124,
+  "name": "L’Avant-seuil",
+  "mask": 31,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Ignis"
+  ],
+  "definition": "L’avant-seuil précède le passage : une préparation avant le franchissement.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-124.jpg"
+ },
+ {
+  "n": 125,
+  "name": "L’Errance",
+  "mask": 95,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Irma"
+  ],
+  "definition": "L’errance avance sans destination fixe : ce qui se découvre en chemin.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-125.jpg"
+ },
+ {
+  "n": 126,
+  "name": "L’Indécision",
+  "mask": 63,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Astria"
+  ],
+  "definition": "L’indécision ouvre plusieurs options : garder la question vivante sans la trancher trop vite.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-126.jpg"
+ },
+ {
+  "n": 127,
+  "name": "La Sortie",
+  "mask": 127,
+  "sisters": [
+   "Oni",
+   "Alka",
+   "Naïa",
+   "Terra",
+   "Ignis",
+   "Astria",
+   "Irma"
+  ],
+  "definition": "La sortie termine un cycle : ce qui se referme laisse la place à un nouveau départ.",
+  "image": "https://lecercle127.com/wp-content/plugins/oracle-127-2.9.1-images/assets/images/edition-127/card-127.jpg"
+ }
+]

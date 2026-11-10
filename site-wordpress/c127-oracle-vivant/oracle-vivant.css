@@ -50,3 +50,39 @@
 }
 .c127ov-hand{margin:0 0 14px;padding:12px 14px;border-radius:14px;font:500 .92rem/1.5 "Manrope",system-ui,sans-serif;color:#f3ead2;background:rgba(127,194,143,.1);border:1px solid rgba(127,194,143,.4)}
 .c127ov-hand span{display:block;margin-bottom:2px;font:800 .66rem/1.2 "Manrope",system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#7fc28f}
+
+/* ---------- 1.2 · Lisibilité (mobile d'abord) ---------- */
+.c127ov-stat[hidden]{display:none!important}
+/* Les trois moments : l'illustration seule, sans le cadre chargé de la lame */
+.c127t .c127t-moments{align-items:start}
+.c127t .c127t-moments .c127t-tcard{aspect-ratio:17/16!important;height:auto!important}
+.c127t .c127t-moments .c127t-tcard .c127t-front{overflow:hidden;border-radius:14px}
+.c127t .c127t-moments .c127t-tcard .c127t-front img{position:absolute;max-width:none!important;width:113.6%!important;height:auto!important;left:-6.8%;top:-31%;object-fit:fill}
+.c127t .c127t-moments .c127t-tcard.is-open .c127t-front{box-shadow:0 0 0 1px rgba(240,214,140,.55),0 12px 28px rgba(0,0,0,.5)}
+.c127t .c127t-moments .c127t-tcard:not(.is-open)::after{bottom:-22px}
+.c127t .c127t-moment .c127t-mtitle{margin:.45em 0 0;font-size:clamp(.95rem,3.8vw,1.15rem);line-height:1.2}
+.c127t .c127t-moment .c127t-cap{font-size:.62rem;letter-spacing:.14em;line-height:1.35;margin-bottom:.5em}
+.c127t .c127t-moment .c127ov-seal{left:6px;transform:scale(.6);transform-origin:left center;padding:3px 7px;font-size:9.5px;letter-spacing:.02em}
+.c127t .c127t-moment .c127ov-seal.is-on{transform:scale(1)}
+.c127t .c127t-moment .c127ov-seal.is-known{background:rgba(8,6,18,.78)!important}
+.c127ov-zoom{display:inline-block;margin-top:4px;padding:3px 0;background:none!important;border:0!important;color:rgba(240,214,140,.85)!important;font:600 11px/1.2 system-ui,sans-serif;letter-spacing:.04em;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.c127t .c127t-moment.c127ov-active .c127t-front{box-shadow:0 0 0 2px #f0d68c,0 0 22px rgba(240,214,140,.45),0 12px 28px rgba(0,0,0,.5)!important}
+.c127t .c127t-moment.c127ov-active .c127t-mtitle{color:#f6dda7}
+/* La lecture du moment, allégée */
+.c127t .c127t-mdetail .c127t-block{margin:0 0 .9em}
+.c127t .c127t-mdetail .c127t-block h3{font-size:.7rem;letter-spacing:.16em}
+.c127ov-more{margin:.2em 0 1em;border-top:1px solid rgba(240,214,140,.2);padding-top:.7em}
+.c127ov-more>summary{cursor:pointer;color:#f0d68c;font:600 .9rem/1.4 system-ui,sans-serif;list-style:none}
+.c127ov-more>summary::-webkit-details-marker{display:none}
+.c127ov-more>summary::after{content:" ›";display:inline-block;transition:transform .2s}
+.c127ov-more[open]>summary::after{transform:rotate(90deg)}
+.c127ov-more[open]>summary{margin-bottom:.8em}
+/* Plus de doublon : la définition de l'arche se tait quand la lecture du moment est ouverte */
+.c127t.c127ov-hasdetail .c127t-def{display:none!important}
+.c127t .c127t-shuffle{margin:14px auto 12px!important;position:relative;z-index:1}
+.c127t .c127t-archcap{margin-top:0!important;clear:both}
+/* La lame en grand */
+.c127ov-box{position:fixed;inset:0;z-index:99995;display:flex;align-items:center;justify-content:center;padding:56px 16px 24px;background:rgba(5,4,12,.9);opacity:0;pointer-events:none;transition:opacity .3s}
+.c127ov-box.is-on{opacity:1;pointer-events:auto}
+.c127ov-box img{max-width:min(92vw,460px);max-height:calc(100vh - 90px);width:auto;height:auto;border-radius:14px;box-shadow:0 0 0 1px rgba(240,214,140,.5),0 30px 80px rgba(0,0,0,.7)}
+.c127ov-boxx{position:absolute;top:14px;right:16px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(240,214,140,.5)!important;background:rgba(20,14,34,.9)!important;color:#f0d68c!important;font:400 26px/1 system-ui,sans-serif;cursor:pointer}
