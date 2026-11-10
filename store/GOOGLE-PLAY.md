@@ -78,6 +78,12 @@ Le téléphone est facultatif ici.
 Ne rien déclarer pour la localisation, les contacts, les photos, l'audio, les données financières, la santé, les
 identifiants d'appareil ou l'historique web.
 
+**Version 1.0.4 :** les **bilans de la semaine du Labyrinthe vivant** (semaine + 7 réponses de 0 à 4) peuvent être
+gardés dans le compte **si la personne coche la synchronisation** : les ranger dans « Autre contenu généré par
+l'utilisateur » (collecté, non partagé, facultatif, fonctionnement de l'application). Le hasard quantique de l'Oracle
+(facultatif) est une requête anonyme sans donnée de l'utilisateur : rien à déclarer. Journal intime, naissance,
+profil, tirages et gestes restent sur l'appareil.
+
 ## 5. Test fermé obligatoire (nouveaux comptes personnels)
 
 Google exige qu'un **test fermé** tourne avec **au moins 12 testeurs inscrits pendant 14 jours d'affilée** avant

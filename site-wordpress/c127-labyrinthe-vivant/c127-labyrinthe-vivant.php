@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Le Cercle 127 — Labyrinthe vivant
  * Description: Sur la page du Grand Labyrinthe, confronte l'ACQUIS (ciel de naissance, lecture symbolique, calculé dans le navigateur avec Astronomy Engine) au VÉCU (bilan de la semaine, et rêves du Grimoire pour les personnes connectées). Heptagone des Sept Sœurs, porte de naissance, porte du moment. La naissance reste dans le navigateur ; les bilans de la semaine peuvent, sur accord explicite, être gardés dans le compte pour être retrouvés entre le site et l'application (REST c127-lv/v1/bilans, chiffres de 0 à 4 seulement, effaçables).
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Le Cercle 127
  */
 if (!defined('ABSPATH')) { exit; }
@@ -116,4 +116,35 @@ add_action('rest_api_init', function () {
             },
         ],
     ]);
+});
+
+/* ---------- RGPD : export et effacement par les outils de confidentialité de WordPress ---------- */
+add_filter('wp_privacy_personal_data_exporters', function ($ex) {
+    $ex['c127-labyrinthe-vivant'] = [
+        'exporter_friendly_name' => 'Le Cercle 127 — bilans du Labyrinthe vivant',
+        'callback' => function ($email, $page = 1) {
+            $u = get_user_by('email', $email);
+            $items = [];
+            if ($u) {
+                foreach (c127lv_list((int) $u->ID) as $b) {
+                    $items[] = ['group_id' => 'c127-lv-bilans', 'group_label' => 'Bilans du Labyrinthe vivant', 'item_id' => 'bilan-' . $b['week'],
+                        'data' => [['name' => 'Semaine', 'value' => $b['week']], ['name' => 'Réponses (Oni, Alka, Naïa, Terra, Ignis, Astria, Irma)', 'value' => implode(', ', $b['answers'])], ['name' => 'Date', 'value' => $b['at']]]];
+                }
+            }
+            return ['data' => $items, 'done' => true];
+        },
+    ];
+    return $ex;
+});
+add_filter('wp_privacy_personal_data_erasers', function ($er) {
+    $er['c127-labyrinthe-vivant'] = [
+        'eraser_friendly_name' => 'Le Cercle 127 — bilans du Labyrinthe vivant',
+        'callback' => function ($email, $page = 1) {
+            $u = get_user_by('email', $email);
+            $had = $u && c127lv_list((int) $u->ID);
+            if ($u) { delete_user_meta((int) $u->ID, C127LV_META); }
+            return ['items_removed' => (bool) $had, 'items_retained' => false, 'messages' => [], 'done' => true];
+        },
+    ];
+    return $er;
 });

@@ -74,6 +74,23 @@ The local demonstration remains accessible from Menu > Se connecter > Explorer l
 | Images éventuelles dans les pages du site | Fonctions externes du site, distinctes du carnet | Contrôler leurs destinataires et leur consentement avant de déclarer leur absence |
 | Mesures d’usage, journaux et ressources du site | Le chargement mobile retire les scripts de suivi connus | Vérifier la configuration effective du serveur et des prestataires ; ne pas choisir « aucune collecte » par défaut |
 
+### Réponses App Privacy pour la 1.0.4 (App Store Connect → Confidentialité de l’app)
+
+À saisir dans App Store Connect (je n’y ai pas accès depuis cet environnement). Elles reprennent le manifeste `app.json` (`NSPrivacyCollectedDataTypes`), qui n’a pas besoin de changer pour la 1.0.4.
+
+| Type Apple | Collecté ? | Lié à l’identité | Suivi | Finalité | Ce que c’est dans l’app |
+|---|---|---|---|---|---|
+| Coordonnées → **Adresse e-mail** | Oui | Oui | Non | Fonctionnalité de l’app | Compte lecercle127.com |
+| Identifiants → **Identifiant utilisateur** | Oui | Oui | Non | Fonctionnalité de l’app | Compte, synchronisation |
+| Contenu utilisateur → **Autre contenu de l’utilisateur** | Oui | Oui | Non | Fonctionnalité de l’app | Récits de rêves (avec, s’ils sont ajoutés, les « Précisions pour Oni » et les lignes de profil choisies) ; **nouveau : bilans de la semaine du Labyrinthe vivant, seulement si la synchronisation est cochée** (semaine + 7 réponses de 0 à 4) |
+| Contenu utilisateur → **Données audio** | Oui | Non | Non | Fonctionnalité de l’app | Transcription vocale par le service du système, sur accord ; audios gardés sur l’appareil |
+
+Ne **pas** cocher : Santé et forme (les bilans sont une auto-réflexion, pas des données de santé), Localisation (le lieu de naissance est choisi dans une liste, gardé sur l’appareil, jamais envoyé), Contacts, Historique de navigation, Données d’utilisation, Diagnostics, Identifiants d’appareil, Achats.
+
+Rien de nouveau à déclarer pour :
+- **le hasard quantique de l’Oracle** (facultatif, désactivé par défaut) : requête anonyme à un service public (lfdr.de) qui ne reçoit aucune donnée de l’utilisateur ni identifiant ; l’adresse IP n’est pas collectée par l’éditeur. À mentionner dans la politique (fait), pas dans App Privacy ;
+- **le journal intime, le profil « Faisons connaissance », la naissance, les tirages et gestes** : gardés sur l’appareil, jamais transmis (Apple ne demande pas de déclarer les données qui ne quittent pas l’appareil).
+
 Le manifeste `app.json` ne remplace pas les réponses App Privacy. La politique publique doit mentionner Make, OpenAI, les audios locaux, la suppression et les durées réelles de conservation. Voir `store/CONFIDENTIALITE-APP.md` pour le complément à relire avant publication. Le serveur et les paramètres de conservation n’ont pas été modifiés ici.
 
 ## Classement par âge

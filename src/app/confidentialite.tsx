@@ -25,6 +25,22 @@ export default function Confidentialite() {
         <Body>{t('Selon les conditions standard de l’API OpenAI, les données ne servent pas à entraîner les modèles par défaut. Des journaux techniques peuvent être conservés selon les réglages et conditions du prestataire. Vous pouvez refuser sans perdre l’accès à votre journal.')}</Body>
       </Card>
       <Card>
+        <Title size={24}>{t('Ce qui reste sur le téléphone')}</Title>
+        <Body>{t('Le journal intime, le profil « Faisons connaissance », la date, l’heure et le lieu de naissance du Labyrinthe vivant, les tirages de l’Oracle gardés, les gestes accomplis et les émotions de Naïa sont gardés sur cet appareil et ne sont pas envoyés. Le ciel de naissance est calculé sur le téléphone. Chaque élément peut être modifié ou effacé depuis son écran.')}</Body>
+      </Card>
+      <Card>
+        <Title size={24}>{t('Ce que vous joignez à un rêve')}</Title>
+        <Body>{t('Les réponses facultatives aux questions d’Oni et, si vous l’avez accepté, quelques lignes de votre profil (prénom choisi, tranche d’âge, domaines de vie, ce qui compte en ce moment) sont ajoutées au récit sous « Précisions pour Oni ». Elles suivent alors le rêve : synchronisées avec votre Grimoire si vous êtes connecté·e, et lues par Oni seulement si vous demandez une lecture.')}</Body>
+      </Card>
+      <Card>
+        <Title size={24}>{t('Bilans du Labyrinthe dans votre compte (sur accord)')}</Title>
+        <Body>{t('Si vous cochez « Retrouver mes bilans entre l’application et le site », vos bilans de la semaine sont gardés dans votre compte lecercle127.com : uniquement la semaine et vos sept réponses de 0 à 4, jamais votre naissance ni un texte. Décochez pour arrêter ; « Effacer mes bilans de mon compte » les supprime du serveur, et la suppression du compte les efface aussi.')}</Body>
+      </Card>
+      <Card>
+        <Title size={24}>{t('Oracle : hasard quantique (facultatif)')}</Title>
+        <Body>{t('Désactivée par défaut, cette option demande quelques octets aléatoires au générateur quantique public de l’université Humboldt de Berlin (lfdr.de). La requête ne contient ni votre question, ni vos lames, ni aucun identifiant ; comme toute connexion, elle laisse voir l’adresse IP au serveur. Sans réponse, le tirage se fait avec le hasard du téléphone seul. La simulation des sept qubits est entièrement locale.')}</Body>
+      </Card>
+      <Card>
         <Title size={24}>{t('Micro, notifications et pages du site')}</Title>
         <Body>{t('Le micro est demandé au démarrage d’un enregistrement. Les rappels sont facultatifs et programmés localement. Les pages intégrées retirent le bandeau cookies et les scripts de suivi connus : les mesures facultatives ne sont pas acceptées automatiquement. Les ressources du site nécessitent Internet. La politique complète reste accessible ci-dessous.')}</Body>
       </Card>
