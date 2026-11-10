@@ -7,6 +7,7 @@ import { clearEmotions } from './naia';
 import { clearPortes } from './portes';
 import { clearDreamer } from './dreamer';
 import { clearDraws } from './oracle/history';
+import { clearTodaysDraw } from './oracle/daily';
 import { clearRitual } from './rituel';
 import { KEYS, local, secure } from './storage';
 import { DEMO_USER, demoDreams } from './demo';
@@ -122,6 +123,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await clearPortes('demo');
     await clearDreamer('demo');
     await clearDraws('demo');
+    await clearTodaysDraw('demo');
     demoRef.current = [];
     setDemoRecords([]);
     setIsDemo(false);
@@ -211,6 +213,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await clearPortes(palmOwnerFor(false, user?.id));
         await clearDreamer(palmOwnerFor(false, user?.id));
         await clearDraws(palmOwnerFor(false, user?.id));
+        await clearTodaysDraw(palmOwnerFor(false, user?.id));
         setServer([]);
       },
       user: isDemo ? { ...DEMO_USER, name: t(DEMO_USER.name) } : user,
@@ -251,6 +254,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           await clearPortes(deletedOwner);
           await clearDreamer(deletedOwner);
           await clearDraws(deletedOwner);
+          await clearTodaysDraw(deletedOwner);
           await saveReminder(DEFAULT_REMINDER);
           await Promise.all([clearLastError(), clearWebError()]);
         } catch {

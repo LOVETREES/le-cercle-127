@@ -843,4 +843,7 @@ export const de: Record<string, string> = {
   "MES TIRAGES DE L’ORACLE": "MEINE ORAKEL-ZIEHUNGEN",
   "Les lames que tu gardes après un tirage de l’Oracle se rangent ici.": "Die Karten, die du nach einer Orakel-Ziehung behältst, landen hier.",
   "TIRER UNE LAME": "EINE KARTE ZIEHEN",
+  "Ton tirage du jour": "Deine Ziehung des Tages",
+  "Un tirage par jour. Le prochain s’ouvrira demain, à minuit (heure de Paris).": "Eine Ziehung pro Tag. Die nächste öffnet sich morgen um Mitternacht (Pariser Zeit).",
+  "D’ici là, laisse cette lame faire son chemin.": "Bis dahin lass diese Karte ihren Weg gehen.",
 };

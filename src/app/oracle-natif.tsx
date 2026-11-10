@@ -10,6 +10,7 @@ import Svg, { Circle, Defs, G, RadialGradient, Stop, Text as SvgText } from 'rea
 
 import { Screen } from '../components/ui';
 import { dayCard, drawFrom, makeSeal, sealLabel, sistersOfMask, SISTERS, type Draw, type Lame, type Mode } from '../lib/oracle/engine';
+import { recordTodaysDraw, todaysDraw } from '../lib/oracle/daily';
 import { saveDraw } from '../lib/oracle/history';
 import { LAME_IMAGES } from '../lib/oracle/images';
 import { lameText } from '../lib/oracle/localize';
@@ -135,22 +136,31 @@ export default function OracleNatif() {
   const [draw, setDraw] = useState<Draw | null>(null);
   const [more, setMore] = useState(false);
   const [zoom, setZoom] = useState<Lame | null>(null);
+  const [progress] = useState(() => new Animated.Value(0));
+  const [reveal] = useState(() => new Animated.Value(0));
   const [quantum, setQuantum] = useState(false);
   const [saved, setSaved] = useState(false);
   const qPromise = useRef<Promise<Uint8Array | undefined> | null>(null);
 
+  const [doneToday, setDoneToday] = useState(false);
   useFocusEffect(
     useCallback(() => {
       local.getJson<boolean>(KEYS.oracleQuantum, false).then((v) => setQuantum(v === true), () => undefined);
-    }, []),
+      // Un tirage par jour : celui d'aujourd'hui revient tel quel jusqu'à minuit (heure de Paris).
+      todaysDraw().then((d) => {
+        if (!d) return setDoneToday(false);
+        setDoneToday(true);
+        setDraw(d);
+        if (d.intent) setIntent(d.intent);
+        progress.setValue(1);
+      }, () => undefined);
+    }, [progress]),
   );
   const toggleQuantum = () => {
     const v = !quantum;
     setQuantum(v);
     local.setJson(KEYS.oracleQuantum, v).catch(() => undefined);
   };
-  const [progress] = useState(() => new Animated.Value(0));
-  const [reveal] = useState(() => new Animated.Value(0));
   const started = useRef(0);
   const anim = useRef<Animated.CompositeAnimation | null>(null);
 
@@ -163,15 +173,20 @@ export default function OracleNatif() {
   }, [draw, reveal]);
 
   const open = async (holdMs: number) => {
+    if (doneToday || draw) return;
     if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
+    let d: Draw;
     if (mode === 'jour') {
-      setDraw(drawFrom('jour', undefined, ''));
+      d = drawFrom('jour', undefined, '');
     } else {
       // Les octets quantiques ont été demandés dès le début du geste : l'attente est déjà passée.
       const q = quantum ? await (qPromise.current ?? quantumBytes(8)) : undefined;
       const { seal, source } = await makeSeal(crypto, intent, holdMs, new Date(), q ? { bytes: q, label: QRNG_LABEL } : undefined);
-      setDraw(drawFrom(mode, seal, quantum && !q ? `${source} (${t('service quantique injoignable')})` : source));
+      d = drawFrom(mode, seal, quantum && !q ? `${source} (${t('service quantique injoignable')})` : source);
     }
+    setDraw(d);
+    setDoneToday(true);
+    recordTodaysDraw(d, intent).catch(() => undefined);
     qPromise.current = null;
     setMore(false);
     setSaved(false);
@@ -199,11 +214,7 @@ export default function OracleNatif() {
     await saveDraw({ at: new Date().toISOString(), mode: draw.mode, cards: draw.cards.map((c) => c.n), seal: draw.seal, source: draw.source, intent: intent.trim() || undefined });
     setSaved(true);
   };
-  const again = () => {
-    setDraw(null);
-    setSaved(false);
-    progress.setValue(0);
-  };
+
 
   const sisters = draw ? sistersOfMask(lit) : [];
   const lead = sisters[0];
@@ -212,7 +223,7 @@ export default function OracleNatif() {
     <Screen>
       <View style={st.head}>
         <Text style={st.kicker}>{t('ORACLE 127 · ESSAI')}</Text>
-        <Text style={st.title}>{draw ? t('Le cercle a parlé') : t('Gardez le doigt sur le cercle')}</Text>
+        <Text style={st.title}>{draw ? (doneToday ? t('Ton tirage du jour') : t('Le cercle a parlé')) : t('Gardez le doigt sur le cercle')}</Text>
       </View>
 
       <Cercle lit={lit} progress={progress} onIn={pressIn} onOut={pressOut} onA11y={() => void open(HOLD_MS)} opened={!!draw} />
@@ -304,9 +315,10 @@ export default function OracleNatif() {
           <Pressable onPress={() => void keep()} disabled={saved} style={[st.cta, saved && { opacity: 0.6 }]} accessibilityRole="button">
             <Text style={st.ctaT}>{saved ? t('Gardé dans mon Grimoire ✓') : t('Garder dans mon Grimoire')}</Text>
           </Pressable>
-          <Pressable onPress={again} style={st.ghost} accessibilityRole="button">
-            <Text style={st.ghostT}>{t('Nouveau tirage')}</Text>
-          </Pressable>
+          <View style={st.daily}>
+            <Text style={st.dailyT}>{t('Un tirage par jour. Le prochain s’ouvrira demain, à minuit (heure de Paris).')}</Text>
+            <Text style={st.dailyS}>{t('D’ici là, laisse cette lame faire son chemin.')}</Text>
+          </View>
           <Text style={st.source}>
             {t('Source du tirage : {s}', { s: draw.source })}
             {draw.seal ? `\n${t('Sceau')} ${sealLabel(draw)}` : ''}
@@ -357,6 +369,9 @@ const st = StyleSheet.create({
   question: { fontFamily: fonts.titleItalic, fontSize: 18, lineHeight: 24, color: GOLD2, marginTop: space.xs },
   cta: { backgroundColor: '#e8cf8f', borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' },
   ctaT: { fontFamily: fonts.title, fontSize: 20, color: '#1b1730' },
+  daily: { borderTopWidth: 1, borderTopColor: 'rgba(216,182,107,0.2)', paddingTop: space.sm, gap: 2, alignItems: 'center' },
+  dailyT: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.text, textAlign: 'center' },
+  dailyS: { fontFamily: fonts.titleItalic, fontSize: 16, color: GOLD2, textAlign: 'center' },
   ghost: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingVertical: 13, alignItems: 'center' },
   ghostT: { fontFamily: fonts.bodyBold, fontSize: 15, color: colors.gold },
   qchip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 12, gap: 4 },

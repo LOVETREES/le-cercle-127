@@ -843,4 +843,7 @@ export const it: Record<string, string> = {
   "MES TIRAGES DE L’ORACLE": "LE MIE ESTRAZIONI DELL’ORACOLO",
   "Les lames que tu gardes après un tirage de l’Oracle se rangent ici.": "Le lame che conservi dopo un’estrazione dell’Oracolo si raccolgono qui.",
   "TIRER UNE LAME": "ESTRAI UNA LAMA",
+  "Ton tirage du jour": "La tua estrazione del giorno",
+  "Un tirage par jour. Le prochain s’ouvrira demain, à minuit (heure de Paris).": "Un’estrazione al giorno. La prossima si aprirà domani, a mezzanotte (ora di Parigi).",
+  "D’ici là, laisse cette lame faire son chemin.": "Fino ad allora, lascia che questa lama faccia il suo cammino.",
 };
