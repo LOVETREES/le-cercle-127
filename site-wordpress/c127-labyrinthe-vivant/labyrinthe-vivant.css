@@ -1,0 +1,43 @@
+/* Le Cercle 127 — Labyrinthe vivant (portée .c127lv) */
+.c127lv-old{display:none!important}
+.c127lv{--g:#d8b66b;--g2:#f3dca0;--ink:#f2ede2;--mut:#a9a4b8;--card:#11122a;margin:28px auto;max-width:720px;padding:22px 18px;border:1px solid rgba(216,182,107,.45);border-radius:22px;background:radial-gradient(120% 80% at 50% 0%,#1a1838 0%,#0b0d1e 70%);color:var(--ink);font:400 16px/1.55 "Manrope",system-ui,sans-serif}
+.c127lv h2{margin:.1em 0 .4em;font:500 clamp(1.6rem,6vw,2.2rem)/1.15 "Cormorant Garamond",Georgia,serif;color:var(--ink);text-align:center}
+.c127lv h3{margin:0 0 .6em;font:700 .72rem/1.3 "Manrope",system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--g)}
+.c127lv-k{margin:0;text-align:center;font:700 .72rem/1.3 "Manrope",system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--g)}
+.c127lv-fig{max-width:380px;margin:0 auto}
+.c127lv-fig svg{display:block;width:100%;height:auto}
+.c127lv-ax{font:500 11px "Manrope",system-ui,sans-serif;fill:var(--mut)}
+.c127lv-v{transition:d .9s cubic-bezier(.2,.8,.2,1)}
+.c127lv-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin:.2em 0 1em;font:500 .8rem/1.3 "Manrope",system-ui,sans-serif}
+.c127lv-legend .a{color:var(--g)}.c127lv-legend .v{color:var(--g2)}.c127lv-legend .t{color:#a99cf0}
+.c127lv-lead{margin:.3em 0;font:italic 500 1.25rem/1.45 "Cormorant Garamond",Georgia,serif;color:var(--ink)}
+.c127lv-p{margin:.3em 0;color:var(--ink)}
+.c127lv-small{margin:.4em 0;font-size:.82rem;line-height:1.45;color:var(--mut)}
+.c127lv-doors{display:flex;align-items:center;justify-content:center;gap:10px;margin:1.2em 0 .4em}
+.c127lv-door{flex:1;max-width:180px;margin:0;text-align:center}
+.c127lv-door figcaption{font:700 .64rem/1.3 "Manrope",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.c127lv-art{display:block;position:relative;width:100%;aspect-ratio:17/16;overflow:hidden;border-radius:14px;border:1px solid rgba(240,214,140,.55);background:#0b0d1e}
+.c127lv-art img{position:absolute;max-width:none!important;width:113.6%!important;height:auto!important;left:-6.8%;top:-31%;margin:0!important}
+.c127lv-door b{display:block;margin-top:6px;font:500 1.2rem/1.2 "Cormorant Garamond",Georgia,serif;color:var(--ink)}
+.c127lv-door small{display:block;font-size:.72rem;color:var(--mut)}
+.c127lv-arrow{font:500 1.8rem "Cormorant Garamond",Georgia,serif;color:var(--g)}
+.c127lv-path{text-align:center;font-weight:500;font-size:.9rem;color:var(--g2)}
+.c127lv-box{margin-top:18px;padding:16px;border:1px solid rgba(216,182,107,.28);border-radius:16px;background:var(--card)}
+.c127lv-q{margin:0;padding:10px 0 8px;border:0;border-top:1px solid rgba(216,182,107,.15)}
+.c127lv-q legend{padding:0;font-size:.95rem;line-height:1.4}
+.c127lv-q legend b{color:var(--g)}
+.c127lv-q div{display:flex;gap:8px;margin-top:8px}
+.c127lv .c127lv-q button{width:42px;height:38px;padding:0;border-radius:10px;border:1px solid rgba(216,182,107,.35);background:transparent;color:var(--ink);font:700 .9rem "Manrope",system-ui,sans-serif;cursor:pointer}
+.c127lv .c127lv-q button[aria-pressed="true"]{background:#e8cf8f;border-color:#e8cf8f;color:#1b1730}
+.c127lv .c127lv-cta{display:block;width:100%;margin-top:12px;padding:14px;border:0;border-radius:999px;background:#e8cf8f;color:#1b1730;font:500 1.2rem "Cormorant Garamond",Georgia,serif;cursor:pointer}
+.c127lv .c127lv-cta:disabled{opacity:.45;cursor:default}
+.c127lv .c127lv-link{padding:0;border:0;background:none;color:var(--g);font:700 .9rem "Manrope",system-ui,sans-serif;cursor:pointer}
+.c127lv-pl{margin:0;padding:0;list-style:none}
+.c127lv-pl li{padding:3px 0;font-size:.92rem}
+.c127lv-pl b{color:var(--g)}
+.c127lv-form{display:grid;gap:10px}
+.c127lv-form label{display:grid;gap:4px;font-size:.8rem;color:var(--mut)}
+.c127lv-form input{padding:11px 12px;border-radius:12px;border:1px solid rgba(216,182,107,.35);background:#0b0d1e;color:var(--ink);font:400 1rem "Manrope",system-ui,sans-serif}
+.c127lv-msg{min-height:1.2em;margin:.4em 0 0;font-size:.85rem;color:#eb9a68}
+.c127lv-app{margin-top:14px;text-align:center}
+@media (prefers-reduced-motion:reduce){.c127lv-v{transition:none}}
