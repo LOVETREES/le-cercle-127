@@ -161,6 +161,7 @@ describe('pages du site dans l’application', () => {
     expect(nativeRouteFor('https://lecercle127.com/parcours-reve-127/')).toBe('/reve');
     expect(nativeRouteFor('https://www.lecercle127.com/grimoire/?x=1')).toBe('/grimoire');
     expect(nativeRouteFor('https://lecercle127.com/creer-un-compte/')).toBe('/connexion?mode=register');
+    expect(nativeRouteFor('https://lecercle127.com/labyrinthe-du-grimoire/')).toBe('/labyrinthe');
     expect(nativeRouteFor('cercle127://reve')).toBe('/reve');
     expect(nativeRouteFor('https://lecercle127.com/')).toBe('/');
     expect(nativeRouteFor('https://lecercle127.com')).toBe('/');

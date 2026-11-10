@@ -8,7 +8,8 @@ import Svg, { Circle, Defs, G, Line, Path, RadialGradient, Stop, Text as SvgText
 import { Screen } from '../components/ui';
 import { allRecurringMotifs } from '../lib/insights';
 import { listEntries } from '../lib/journal-intime';
-import { acquis, acquisLevels, ORDER, type Birth, type Placement } from '../lib/labyrinthe/acquis';
+import { acquis, acquisLevels, birthAngles, ORDER, type Birth, type Placement } from '../lib/labyrinthe/acquis';
+import { searchVilles, villeByName } from '../lib/labyrinthe/villes';
 import { listBilans, listGestes, readBirth, saveBilan, saveBirth, type Bilan } from '../lib/labyrinthe/store';
 import { doorOf, isoWeek, maskOf, QUESTIONS, readMeeting, SOURCES, vecuLevels, type Counts, type Levels } from '../lib/labyrinthe/vecu';
 import { listEmotions } from '../lib/naia';
@@ -97,7 +98,8 @@ function Door({ label, mask }: { label: string; mask: number }) {
 export default function Labyrinthe() {
   const { dreams } = useSession();
   const [birth, setBirth] = useState<Birth | undefined>();
-  const [form, setForm] = useState<Birth>({ date: '', time: '' });
+  const [form, setForm] = useState<Birth>({ date: '', time: '', place: '' });
+  const [placeQ, setPlaceQ] = useState('');
   const [editBirth, setEditBirth] = useState(false);
   const [counts, setCounts] = useState<Counts>({ Oni: 0, Alka: 0, Naïa: 0, Terra: 0, Ignis: 0, Astria: 0, Irma: 0 });
   const [bilans, setBilans] = useState<Bilan[]>([]);
@@ -114,7 +116,7 @@ export default function Labyrinthe() {
         ([b, emotions, palms, draws, journal, gestes, bl]) => {
           if (!alive) return;
           setBirth(b);
-          if (b) setForm({ date: b.date, time: b.time ?? '' });
+          if (b) { setForm({ date: b.date, time: b.time ?? '', place: b.place ?? '' }); setPlaceQ(b.place ?? ''); }
           const dreams30 = dreams.filter((d) => recent(d.dreamDate ? `${d.dreamDate.slice(0, 10)}T12:00:00` : d.createdAt));
           setCounts({
             Oni: dreams30.length,
@@ -138,6 +140,8 @@ export default function Labyrinthe() {
   );
 
   const placements: Placement[] | undefined = useMemo(() => (birth ? acquis(birth) : undefined), [birth]);
+  const angs = useMemo(() => (birth ? birthAngles(birth) : undefined), [birth]);
+  const suggestions = placeQ && !villeByName(placeQ) ? searchVilles(placeQ) : [];
   const a = placements ? acquisLevels(placements) : undefined;
   const week = isoWeek();
   const thisWeek = bilans.find((b) => b.week === week);
@@ -148,7 +152,7 @@ export default function Labyrinthe() {
   const aMask = a ? maskOf(a) : 0;
 
   const saveSky = async () => {
-    const b: Birth = { date: form.date.trim(), time: form.time?.trim() || undefined };
+    const b: Birth = { date: form.date.trim(), time: form.time?.trim() || undefined, place: villeByName(form.place) ? form.place : undefined };
     if (!acquis(b)) return;
     await saveBirth(b);
     setBirth(b);
@@ -261,15 +265,42 @@ export default function Labyrinthe() {
                   <Text style={st.qS}>{p.sister}</Text> · {t(p.astre)} {t('en')} {t(p.sign)} {p.degree}°{p.reasons.length ? ` · ${p.reasons.map((r) => t(r)).join(', ')}` : ''}
                 </Text>
               ))}
+              {angs ? (
+                <Text style={st.place}>
+                  <Text style={st.qS}>{t('Ascendant')}</Text> {t('en')} {t(angs.ascSign)} {Math.floor(angs.asc % 30)}° · <Text style={st.qS}>{t('Milieu du ciel')}</Text> {t('en')} {t(angs.mcSign)} {Math.floor(angs.mc % 30)}°
+                </Text>
+              ) : (
+                <Text style={st.small}>{t('Ajoute l’heure et le lieu de naissance pour l’ascendant et le milieu du ciel.')}</Text>
+              )}
+              {birth?.place ? <Text style={st.small}>{t('Né·e à {p}', { p: birth.place })}{birth.time ? ` · ${birth.time}` : ''}</Text> : null}
               <Pressable onPress={() => setEditBirth(true)} accessibilityRole="button" hitSlop={8}>
                 <Text style={st.link}>{t('Modifier ma date de naissance ›')}</Text>
               </Pressable>
             </>
           ) : (
             <>
-              <Text style={st.small}>{t('Ta date de naissance (et l’heure si tu la connais). Le calcul se fait sur ton téléphone : rien n’est envoyé.')}</Text>
+              <Text style={st.small}>{t('Ta date de naissance, et si tu les connais l’heure et le lieu. Le calcul se fait sur ton téléphone : rien n’est envoyé.')}</Text>
               <TextInput value={form.date} onChangeText={(d) => setForm((f) => ({ ...f, date: d.slice(0, 10) }))} placeholder="AAAA-MM-JJ" placeholderTextColor={colors.muted} keyboardType="numbers-and-punctuation" style={st.input} accessibilityLabel={t('Date de naissance')} />
               <TextInput value={form.time} onChangeText={(h) => setForm((f) => ({ ...f, time: h.slice(0, 5) }))} placeholder={t('HH:MM (facultatif)')} placeholderTextColor={colors.muted} keyboardType="numbers-and-punctuation" style={st.input} accessibilityLabel={t('Heure de naissance')} />
+              <TextInput
+                value={placeQ}
+                onChangeText={(q) => { setPlaceQ(q); setForm((f) => ({ ...f, place: villeByName(q) ? q : '' })); }}
+                placeholder={t('Lieu de naissance (facultatif)')}
+                placeholderTextColor={colors.muted}
+                style={st.input}
+                accessibilityLabel={t('Lieu de naissance')}
+              />
+              {suggestions.length ? (
+                <View style={st.sugg}>
+                  {suggestions.map((v) => (
+                    <Pressable key={v.name} onPress={() => { setPlaceQ(v.name); setForm((f) => ({ ...f, place: v.name })); }} style={st.suggI} accessibilityRole="button">
+                      <Text style={st.suggT}>{v.name}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              ) : placeQ && !villeByName(placeQ) && placeQ.length >= 2 ? (
+                <Text style={st.small}>{t('Ville absente de la liste : choisis la grande ville la plus proche.')}</Text>
+              ) : null}
               <Pressable onPress={() => void saveSky()} disabled={!skyValid} style={[st.cta, !skyValid && { opacity: 0.45 }]} accessibilityRole="button">
                 <Text style={st.ctaT}>{t('Lire mon ciel')}</Text>
               </Pressable>
@@ -318,5 +349,8 @@ const st = StyleSheet.create({
   tick: { position: 'absolute', top: -3, width: 2, height: 14, marginLeft: -1, backgroundColor: colors.gold },
   rowN: { width: 22, textAlign: 'right', fontFamily: fonts.body, fontSize: 12, color: colors.muted },
   place: { fontFamily: fonts.body, fontSize: 14, lineHeight: 21, color: colors.text },
+  sugg: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, overflow: 'hidden' },
+  suggI: { paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(216,182,107,0.12)' },
+  suggT: { fontFamily: fonts.body, fontSize: 15, color: colors.text },
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12, color: colors.text, fontFamily: fonts.body, fontSize: 16 },
 });

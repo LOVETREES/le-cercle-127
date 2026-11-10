@@ -67,6 +67,7 @@ const NATIVE_ROUTES: [RegExp, string][] = [
   [/^\/(verification-des-reves|mon-journal-de-verification|journal-de-verification|journal)(\/|$)/, '/journal'],
   [/^\/(✦-le-cercle-des-soeurs-✦|le-cercle-des-7-soeurs|les-7-soeurs|soeurs)(\/|$)/, '/soeurs'],
   [/^\/oracle-127(\/|$)/, '/oracle'],
+  [/^\/labyrinthe-du-grimoire(\/|$)/, '/labyrinthe'],
   [/^\/carnet-vocal(\/|$)/, '/carnet-vocal'],
   [/^\/confidentialite(\/|$)/, '/confidentialite'],
 ];
