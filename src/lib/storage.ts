@@ -57,5 +57,6 @@ export const KEYS = {
   emotions: 'c127.emotions',
   rituel: 'c127.rituel',
   portes: 'c127.portes',
+  dreamer: 'c127.dreamer',
   demoPendingTranscript: 'c127.demo-pending-transcript',
 } as const;

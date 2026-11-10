@@ -17,9 +17,10 @@ type Props = {
   onBack: () => void;
   busy?: boolean;
   error?: string | null;
+  name?: string;
 };
 
-export function OniAsk({ questions, answers, onChange, onSave, onSkip, onBack, busy, error }: Props) {
+export function OniAsk({ questions, answers, onChange, onSave, onSkip, onBack, busy, error, name }: Props) {
   const get = (id: string): OniAnswer => answers.find((a) => a.id === id) ?? { id, choices: [], text: '' };
   const set = (next: OniAnswer) => onChange([...answers.filter((a) => a.id !== next.id), next]);
   const toggle = (q: OniQuestion, opt: string) => {
@@ -32,7 +33,7 @@ export function OniAsk({ questions, answers, onChange, onSave, onSkip, onBack, b
   return (
     <View style={st.card}>
       <Text style={st.kicker}>{t('ONI A LU VOTRE RÊVE')}</Text>
-      <Text style={st.title}>{t('Quelques questions, si vous le voulez')}</Text>
+      <Text style={st.title}>{name ? t('{n}, quelques questions, si vous le voulez', { n: name }) : t('Quelques questions, si vous le voulez')}</Text>
       <Text style={st.vow}>{t('« Je ne cherche pas à tout savoir de vous. Je cherche à comprendre ce que votre rêve signifie pour vous. »')}</Text>
       <Body muted style={{ fontSize: 13 }}>{t('Chaque question est facultative. Vos réponses rejoignent votre rêve, et ce que vous dites prévaut toujours sur les hypothèses d’Oni.')}</Body>
 

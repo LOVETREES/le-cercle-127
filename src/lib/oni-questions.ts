@@ -101,8 +101,8 @@ export const CONTEXT_MARK = '— Précisions pour Oni —';
  * Le récit contextualisé : les réponses sont jointes au rêve, à part, pour qu'Oni les lise avec lui.
  * Les questions passées sont simplement omises. `tr` traduit les libellés (les réponses restent telles quelles).
  */
-export function withContext(story: string, questions: OniQuestion[], answers: OniAnswer[], tr: (s: string) => string = (s) => s): string {
-  const lines: string[] = [];
+export function withContext(story: string, questions: OniQuestion[], answers: OniAnswer[], tr: (s: string) => string = (s) => s, about: string[] = []): string {
+  const lines: string[] = [...about];
   for (const q of questions) {
     const a = answers.find((x) => x.id === q.id);
     if (!a) continue;

@@ -34,6 +34,15 @@ export default function Menu() {
             router.push('/mes-lectures');
           }}
         />
+        <LinkRow
+          icon="☾"
+          title={t('Faisons connaissance')}
+          subtitle={t('Ce qu’Oni sait de vous, pour mieux lire vos rêves')}
+          onPress={() => {
+            router.back();
+            router.push('/connaissance');
+          }}
+        />
         {!user && (
           <LinkRow
             icon="◐"

@@ -12,6 +12,7 @@ import { appendTranscript } from '../../lib/dictation';
 import { KEYS, local } from '../../lib/storage';
 import { emotionFromAnswer, oniQuestions, withContext, type OniAnswer, type OniQuestion } from '../../lib/oni-questions';
 import { OniAsk } from '../../components/OniAsk';
+import { dreamerLines, isEmptyProfile, readDreamer, type DreamerProfile } from '../../lib/dreamer';
 import { t } from '../../i18n';
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -28,6 +29,12 @@ export default function Reve() {
   const [busy, setBusy] = useState(false);
   const [questions, setQuestions] = useState<OniQuestion[] | null>(null);
   const [answers, setAnswers] = useState<OniAnswer[]>([]);
+  const [dreamer, setDreamer] = useState<DreamerProfile | undefined>();
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    readDreamer().then((d) => active && setDreamer(d), () => undefined);
+    return () => { active = false; };
+  }, []));
   const dictationBase = useRef('');
   const speech = useDictation({ onTranscript: useCallback((text: string) => {
     setStory(appendTranscript(dictationBase.current, text).slice(0, 20000)); setSaved(false);
@@ -60,7 +67,7 @@ export default function Reve() {
     const qs = questions ?? [];
     const given = withAnswers ? answers : [];
     const feeling = qs.map((q) => emotionFromAnswer(q, given.find((a) => a.id === q.id))).find(Boolean);
-    const input = { title, story: withContext(story, qs, given, t).slice(0, 20000), dreamDate, emotion: emotion ?? feeling, intensity };
+    const input = { title, story: withContext(story, qs, given, t, dreamerLines(dreamer, t)).slice(0, 20000), dreamDate, emotion: emotion ?? feeling, intensity };
     setBusy(true);
     setError(null);
     try {
@@ -115,8 +122,17 @@ export default function Reve() {
             onSave={() => save(true)}
             onSkip={() => save(false)}
             onBack={() => setQuestions(null)}
+            name={dreamer?.use === 'lectures' ? dreamer.name : undefined}
           />
         ) : (
+        <>
+        {dreamer && isEmptyProfile(dreamer) && !dreamer.updatedAt ? (
+          <Pressable onPress={() => router.push('/connaissance')} style={st.meet} accessibilityRole="link">
+            <Text style={st.meetKicker}>{t('ONI NE VOUS CONNAÎT PAS ENCORE')}</Text>
+            <Text style={st.meetTitle}>{t('Faisons connaissance ›')}</Text>
+            <Body muted style={{ fontSize: 13 }}>{t('Quelques mots sur vous, et Oni pourra relier vos rêves à votre vie. Tout est facultatif.')}</Body>
+          </Pressable>
+        ) : null}
         <Card style={{ gap: space.lg }}>
           <Text style={st.oniListens}>{t('Oni vous écoute.')}</Text>
           <OutlineButton label={t('Ouvrir mon carnet vocal')} onPress={() => router.push('/carnet-vocal')} />
@@ -201,6 +217,7 @@ export default function Reve() {
             {t('Votre récit reste sur cet appareil tant que vous n’êtes pas connecté·e. Il n’est jamais envoyé à Oni sans votre accord.')}
           </Body>
         </Card>
+        </>
         )}
 
         {saved && (
@@ -227,6 +244,9 @@ const st = StyleSheet.create({
   chipOn: { backgroundColor: '#e8cf8f', borderColor: '#e8cf8f' },
   chipText: { fontFamily: fonts.body, fontSize: 13, color: colors.text },
   chipTextOn: { color: '#1b1730', fontFamily: fonts.bodyBold },
+  meet: { borderWidth: 1, borderColor: 'rgba(216,182,107,0.5)', backgroundColor: '#11122a', borderRadius: radius.lg, padding: space.md, gap: 4 },
+  meetKicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8, color: colors.gold },
+  meetTitle: { fontFamily: fonts.title, fontSize: 24, color: colors.text },
   frame: { borderLeftWidth: 3, borderLeftColor: '#7fd1c4', backgroundColor: colors.surface, borderRadius: radius.md, padding: space.lg, gap: space.sm },
   frameTitle: { fontFamily: fonts.bodyBold, fontSize: 16, color: '#cfeee8' },
 });
