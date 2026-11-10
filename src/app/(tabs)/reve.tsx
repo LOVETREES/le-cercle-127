@@ -10,6 +10,8 @@ import { colors, fonts, radius, space } from '../../lib/theme';
 import { useDictation } from '../../lib/use-dictation';
 import { appendTranscript } from '../../lib/dictation';
 import { KEYS, local } from '../../lib/storage';
+import { emotionFromAnswer, oniQuestions, withContext, type OniAnswer, type OniQuestion } from '../../lib/oni-questions';
+import { OniAsk } from '../../components/OniAsk';
 import { t } from '../../i18n';
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -24,6 +26,8 @@ export default function Reve() {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [questions, setQuestions] = useState<OniQuestion[] | null>(null);
+  const [answers, setAnswers] = useState<OniAnswer[]>([]);
   const dictationBase = useRef('');
   const speech = useDictation({ onTranscript: useCallback((text: string) => {
     setStory(appendTranscript(dictationBase.current, text).slice(0, 20000)); setSaved(false);
@@ -39,19 +43,32 @@ export default function Reve() {
     return () => { active = false; };
   }, [isDemo]));
 
-  const submit = async () => {
-    const input = { title, story, dreamDate, emotion, intensity };
-    const problem = validateDream(input);
+  // Étape 1 : le récit. Oni le lit et choisit au plus trois questions facultatives.
+  const submit = () => {
+    const problem = validateDream({ title, story, dreamDate, emotion, intensity });
     if (problem) {
       setError(problem);
       return;
     }
+    setError(null);
+    setAnswers([]);
+    setQuestions(oniQuestions(story, emotion));
+  };
+
+  // Étape 2 : garder le rêve, avec les précisions données (ou sans, si la personne passe).
+  const save = async (withAnswers: boolean) => {
+    const qs = questions ?? [];
+    const given = withAnswers ? answers : [];
+    const feeling = qs.map((q) => emotionFromAnswer(q, given.find((a) => a.id === q.id))).find(Boolean);
+    const input = { title, story: withContext(story, qs, given, t).slice(0, 20000), dreamDate, emotion: emotion ?? feeling, intensity };
     setBusy(true);
     setError(null);
     try {
       await addDream(input);
       if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
       setSaved(true);
+      setQuestions(null);
+      setAnswers([]);
       setTitle('');
       setStory('');
       setEmotion(undefined);
@@ -88,6 +105,18 @@ export default function Reve() {
           />
         )}
 
+        {questions && !saved ? (
+          <OniAsk
+            questions={questions}
+            answers={answers}
+            onChange={setAnswers}
+            busy={busy}
+            error={error}
+            onSave={() => save(true)}
+            onSkip={() => save(false)}
+            onBack={() => setQuestions(null)}
+          />
+        ) : (
         <Card style={{ gap: space.lg }}>
           <Text style={st.oniListens}>{t('Oni vous écoute.')}</Text>
           <OutlineButton label={t('Ouvrir mon carnet vocal')} onPress={() => router.push('/carnet-vocal')} />
@@ -167,11 +196,12 @@ export default function Reve() {
           </View>
 
           {error && <Notice tone="error" text={error} />}
-          <GoldButton label={t('Garder dans mon Grimoire')} onPress={submit} loading={busy} disabled={speech.active} />
+          <GoldButton label={t('Continuer avec Oni')} onPress={submit} disabled={speech.active} />
           <Body muted style={{ fontSize: 13 }}>
             {t('Votre récit reste sur cet appareil tant que vous n’êtes pas connecté·e. Il n’est jamais envoyé à Oni sans votre accord.')}
           </Body>
         </Card>
+        )}
 
         {saved && (
           <View style={{ gap: space.sm }}>

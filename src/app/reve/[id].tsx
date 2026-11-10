@@ -4,6 +4,7 @@ import { Alert, Platform, ScrollView, StyleSheet, Text, View } from 'react-nativ
 
 import { Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Title } from '../../components/ui';
 import { EMOTIONS, readingSections } from '../../lib/model';
+import { splitContext } from '../../lib/oni-questions';
 import { useSession } from '../../lib/session';
 import { colors, fonts, space } from '../../lib/theme';
 import { t } from '../../i18n';
@@ -69,8 +70,15 @@ export default function DreamDetail() {
       </View>
 
       <Text style={st.story} selectable>
-        {dream.story}
+        {splitContext(dream.story).story}
       </Text>
+
+      {splitContext(dream.story).context ? (
+        <Card>
+          <Eyebrow>{t('Vos précisions pour Oni')}</Eyebrow>
+          <Text style={st.symbols} selectable>{splitContext(dream.story).context?.split('\n').slice(1).join('\n')}</Text>
+        </Card>
+      ) : null}
 
       {dream.symbols && dream.symbols.length > 0 && (
         <Card>

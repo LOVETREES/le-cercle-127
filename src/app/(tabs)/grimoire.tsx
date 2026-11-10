@@ -16,6 +16,7 @@ import { readRitual, type RitualStore } from '../../lib/rituel';
 import { useSession } from '../../lib/session';
 import { colors, fonts, radius, space } from '../../lib/theme';
 import { listVoiceNotes } from '../../lib/voice-notes';
+import { splitContext } from '../../lib/oni-questions';
 import { ICON, iconKey, SymbolIcon } from '../../components/SymbolIcon';
 
 /* ---------- Petits outils ---------- */
@@ -340,7 +341,7 @@ export default function Grimoire() {
                   {(d.symbols?.length || d.emotion) ? (
                     <Text style={st.dMotifs} numberOfLines={1}>{[...(d.symbols ?? []).slice(0, 3), d.emotion && d.emotion !== 'aucune' ? emotionLabel(d.emotion) : undefined].filter(Boolean).join(' · ')}</Text>
                   ) : null}
-                  {d.story ? <Text style={st.dExcerpt} numberOfLines={2}>« {d.story} »</Text> : null}
+                  {d.story ? <Text style={st.dExcerpt} numberOfLines={2}>« {splitContext(d.story).story} »</Text> : null}
                 </View>
               </Pressable>
             ))
