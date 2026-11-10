@@ -5,4 +5,6 @@ export const FEATURES = {
   palmDetailed: false,
   // Réponse d'une Sœur choisie par la Conscience de Framework 127 (IA) : 1.1 également.
   sisters: false,
+  // Oracle 127 natif (essai) : bandeau en haut de l'onglet Oracle ; l'Oracle du site reste en place.
+  oracleNatif: true,
 } as const;
