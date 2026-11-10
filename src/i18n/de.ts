@@ -976,4 +976,11 @@ export const de: Record<string, string> = {
   "au descendant": "auf dem Deszendenten",
   "au milieu du ciel": "an der Himmelsmitte",
   "au fond du ciel": "am Himmelstief",
+  "Synchronisation…": "Synchronisierung …",
+  "Bilans à jour avec ton compte.": "Rückblicke mit deinem Konto abgeglichen.",
+  "Synchronisation impossible pour le moment.": "Synchronisierung gerade nicht möglich.",
+  "Bilans effacés de ton compte. Ceux du téléphone restent ici.": "Rückblicke aus deinem Konto gelöscht. Die auf dem Telefon bleiben hier.",
+  "Effacement impossible pour le moment.": "Löschen gerade nicht möglich.",
+  "Retrouver mes bilans entre l’application et le site. Ils sont alors gardés dans mon compte : seulement mes réponses de 0 à 4, jamais ma naissance.": "Meine Rückblicke in App und Website wiederfinden. Sie werden dann in meinem Konto gespeichert: nur meine Antworten von 0 bis 4, nie meine Geburtsdaten.",
+  "Effacer mes bilans de mon compte": "Meine Rückblicke aus dem Konto löschen",
 };

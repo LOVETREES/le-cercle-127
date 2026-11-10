@@ -10,7 +10,8 @@ import { allRecurringMotifs } from '../lib/insights';
 import { listEntries } from '../lib/journal-intime';
 import { acquis, acquisLevels, birthAngles, ORDER, type Birth, type Placement } from '../lib/labyrinthe/acquis';
 import { searchVilles, villeByName } from '../lib/labyrinthe/villes';
-import { listBilans, listGestes, readBirth, saveBilan, saveBirth, type Bilan } from '../lib/labyrinthe/store';
+import { api } from '../lib/api';
+import { listBilans, listGestes, mergeBilans, readBilansSync, readBirth, replaceBilans, saveBilan, saveBilansSync, saveBirth, type Bilan } from '../lib/labyrinthe/store';
 import { doorOf, isoWeek, maskOf, QUESTIONS, readMeeting, SOURCES, vecuLevels, type Counts, type Levels } from '../lib/labyrinthe/vecu';
 import { listEmotions } from '../lib/naia';
 import { listDraws } from '../lib/oracle/history';
@@ -96,7 +97,10 @@ function Door({ label, mask }: { label: string; mask: number }) {
 }
 
 export default function Labyrinthe() {
-  const { dreams } = useSession();
+  const { dreams, token, isDemo } = useSession();
+  const canSync = !!token && !isDemo;
+  const [sync, setSync] = useState(false);
+  const [syncMsg, setSyncMsg] = useState('');
   const [birth, setBirth] = useState<Birth | undefined>();
   const [form, setForm] = useState<Birth>({ date: '', time: '', place: '' });
   const [placeQ, setPlaceQ] = useState('');
@@ -107,6 +111,19 @@ export default function Labyrinthe() {
   const [editBilan, setEditBilan] = useState(false);
   const [fade] = useState(() => new Animated.Value(0));
 
+  // Bilans retrouvés entre l'app et le site : fusion par semaine (le plus récent l'emporte), puis envoi.
+  const syncNow = useCallback(async (local: Bilan[]) => {
+    if (!canSync || !token) return;
+    try {
+      setSyncMsg(t('Synchronisation…'));
+      const merged = mergeBilans(local, await api.lvBilans(token));
+      setBilans(await replaceBilans(merged));
+      await api.lvPushBilans(token, merged);
+      setSyncMsg(t('Bilans à jour avec ton compte.'));
+    } catch {
+      setSyncMsg(t('Synchronisation impossible pour le moment.'));
+    }
+  }, [canSync, token]);
   useFocusEffect(
     useCallback(() => {
       let alive = true;
@@ -128,6 +145,7 @@ export default function Labyrinthe() {
             Irma: draws.filter((d) => recent(d.at)).length,
           });
           setBilans(bl);
+          readBilansSync().then((v) => { if (alive) { setSync(v); if (v) void syncNow(bl); } }, () => undefined);
           fade.setValue(0);
           Animated.timing(fade, { toValue: 1, duration: 700, useNativeDriver: true }).start();
         },
@@ -136,8 +154,25 @@ export default function Labyrinthe() {
       return () => {
         alive = false;
       };
-    }, [dreams, fade]),
+    }, [dreams, fade, syncNow]),
   );
+
+  const toggleSync = async () => {
+    const v = !sync;
+    setSync(v);
+    await saveBilansSync(v);
+    setSyncMsg('');
+    if (v) await syncNow(bilans);
+  };
+  const eraseAccount = async () => {
+    if (!token) return;
+    try {
+      await api.lvDeleteBilans(token);
+      setSyncMsg(t('Bilans effacés de ton compte. Ceux du téléphone restent ici.'));
+    } catch {
+      setSyncMsg(t('Effacement impossible pour le moment.'));
+    }
+  };
 
   const placements: Placement[] | undefined = useMemo(() => (birth ? acquis(birth) : undefined), [birth]);
   const angs = useMemo(() => (birth ? birthAngles(birth) : undefined), [birth]);
@@ -161,8 +196,10 @@ export default function Labyrinthe() {
   const ready = answers.every((x) => x >= 0);
   const saveWeek = async () => {
     if (!ready) return;
-    setBilans(await saveBilan(answers, vecuLevels(counts, answers)));
+    const next = await saveBilan(answers, vecuLevels(counts, answers));
+    setBilans(next);
     setEditBilan(false);
+    if (sync && canSync && token) api.lvPushBilans(token, next.slice(0, 1)).catch(() => undefined);
   };
   const skyValid = !!acquis({ date: form.date.trim(), time: form.time?.trim() || undefined });
 
@@ -233,6 +270,21 @@ export default function Labyrinthe() {
             </>
           )}
         </View>
+
+        {canSync ? (
+          <View style={st.card}>
+            <Pressable onPress={() => void toggleSync()} style={st.syncRow} accessibilityRole="switch" accessibilityState={{ checked: sync }}>
+              <Text style={st.syncBox}>{sync ? '☑' : '☐'}</Text>
+              <Text style={[st.read, { flex: 1, fontSize: 14 }]}>{t('Retrouver mes bilans entre l’application et le site. Ils sont alors gardés dans mon compte : seulement mes réponses de 0 à 4, jamais ma naissance.')}</Text>
+            </Pressable>
+            {syncMsg ? <Text style={st.small}>{syncMsg}</Text> : null}
+            {!sync ? (
+              <Pressable onPress={() => void eraseAccount()} accessibilityRole="button" hitSlop={6}>
+                <Text style={[st.link, { color: colors.danger, fontSize: 13 }]}>{t('Effacer mes bilans de mon compte')}</Text>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
 
         {/* Le vécu, Sœur par Sœur */}
         <View style={st.card}>
@@ -343,6 +395,8 @@ const st = StyleSheet.create({
   cta: { backgroundColor: '#e8cf8f', borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', marginTop: 4 },
   ctaT: { fontFamily: fonts.title, fontSize: 19, color: '#1b1730' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  syncRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  syncBox: { fontSize: 20, color: colors.gold, lineHeight: 22 },
   rowS: { width: 52, fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.text },
   track: { flex: 1, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.08)' },
   fill: { height: 8, borderRadius: 4, backgroundColor: GOLD2, opacity: 0.85 },

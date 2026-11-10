@@ -33,5 +33,25 @@ export async function recordGeste(now = new Date()): Promise<string[]> {
 }
 
 export async function clearLabyrinthe(owner?: string): Promise<void> {
-  await local.remove([k(KEYS.naissance, owner), k(KEYS.bilans, owner), k(KEYS.gestes, owner)]);
+  await local.remove([k(KEYS.naissance, owner), k(KEYS.bilans, owner), k(KEYS.gestes, owner), k(KEYS.bilansSync, owner)]);
 }
+
+/** Fusion des bilans de l'appareil et du compte : par semaine, le plus récent l'emporte (52 au plus). */
+export function mergeBilans(a: Bilan[], b: unknown[]): Bilan[] {
+  const ok = (x: unknown): x is Bilan => {
+    const v = x as Bilan;
+    return !!v && typeof v.week === 'string' && /^\d{4}-W\d{2}$/.test(v.week) && Array.isArray(v.answers) && v.answers.length === 7 && v.answers.every((n) => Number.isInteger(n) && n >= 0 && n <= 4);
+  };
+  const by = new Map<string, Bilan>();
+  for (const x of [...a, ...b].filter(ok)) {
+    const cur = by.get(x.week);
+    if (!cur || Date.parse(x.at) >= Date.parse(cur.at)) by.set(x.week, x);
+  }
+  return [...by.values()].sort((x, y) => y.week.localeCompare(x.week)).slice(0, 52);
+}
+export async function replaceBilans(l: Bilan[]): Promise<Bilan[]> {
+  await local.setJson(k(KEYS.bilans), l);
+  return l;
+}
+export const readBilansSync = async () => (await local.getJson<boolean>(k(KEYS.bilansSync), false)) === true;
+export const saveBilansSync = (v: boolean) => local.setJson(k(KEYS.bilansSync), v);

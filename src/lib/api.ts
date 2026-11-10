@@ -22,6 +22,7 @@ const BASE: string =
 const NS = `${BASE}/cercle127/v1`;
 const PALM = `${BASE}/c127-palm/v1/readings`;
 const PALM_DETAILED = `${BASE}/c127-palm/v1/detailed`;
+const LV_BILANS = `${BASE}/c127-lv/v1/bilans`;
 
 export class ApiError extends Error {
   constructor(
@@ -98,6 +99,18 @@ export const api = {
   async sisterForEmotion(token: string, body: { emotion: string; recent: Record<string, number>; consent: true; remember: boolean; lang: string }): Promise<unknown> {
     return request(`${BASE}/c127-f127/v1/emotion`, { method: 'POST', token, body, timeoutMs: 90000 });
   },
+  // Bilans de la semaine du Labyrinthe vivant, gardés dans le compte sur accord (chiffres de 0 à 4 seulement).
+  async lvBilans(token: string): Promise<unknown[]> {
+    const body = (await request(LV_BILANS, { token })) as { bilans?: unknown[] } | undefined;
+    return Array.isArray(body?.bilans) ? body.bilans : [];
+  },
+  async lvPushBilans(token: string, bilans: object[]): Promise<void> {
+    await request(LV_BILANS, { method: 'POST', token, body: { bilans } });
+  },
+  async lvDeleteBilans(token: string): Promise<void> {
+    await request(LV_BILANS, { method: 'DELETE', token });
+  },
+
   async palmDetailedDelete(token: string, id: string): Promise<void> {
     await request(`${PALM_DETAILED}/${encodeURIComponent(id)}`, { method: 'DELETE', token });
   },

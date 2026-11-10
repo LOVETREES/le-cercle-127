@@ -976,4 +976,11 @@ export const en: Record<string, string> = {
   "au descendant": "on the descendant",
   "au milieu du ciel": "at the midheaven",
   "au fond du ciel": "at the nadir",
+  "Synchronisation…": "Syncing…",
+  "Bilans à jour avec ton compte.": "Check-ins up to date with your account.",
+  "Synchronisation impossible pour le moment.": "Sync not possible right now.",
+  "Bilans effacés de ton compte. Ceux du téléphone restent ici.": "Check-ins erased from your account. Those on your phone stay here.",
+  "Effacement impossible pour le moment.": "Erasing not possible right now.",
+  "Retrouver mes bilans entre l’application et le site. Ils sont alors gardés dans mon compte : seulement mes réponses de 0 à 4, jamais ma naissance.": "Find my check-ins in both the app and the website. They are then kept in my account: only my 0–4 answers, never my birth details.",
+  "Effacer mes bilans de mon compte": "Erase my check-ins from my account",
 };

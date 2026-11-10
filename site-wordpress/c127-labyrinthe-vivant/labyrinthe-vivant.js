@@ -153,6 +153,28 @@
       '<b>' + esc(l.name) + '</b><small>' + ORDER.filter(function (_, i) { return (mask >> i) & 1; }).join(' · ') + '</small></figure>';
   }
 
+  /* ---------- Bilans retrouvés entre le site et l'application (sur accord, personnes connectées) ---------- */
+  var canSync = !!(C.loggedIn && C.bilans);
+  function api(method, body) {
+    return fetch(C.bilans, { method: method, credentials: 'same-origin', headers: { 'X-WP-Nonce': C.nonce || '', 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+  function merge(a, b) {
+    var by = {};
+    a.concat(b).forEach(function (x) { if (x && x.week && (!by[x.week] || Date.parse(x.at) >= Date.parse(by[x.week].at))) by[x.week] = x; });
+    return Object.keys(by).sort().reverse().map(function (k) { return by[k]; }).slice(0, 52);
+  }
+  var syncState = '';
+  function syncNow() {
+    if (!canSync || !S.sync) return;
+    syncState = 'Synchronisation…'; render();
+    api('GET').then(function (r) {
+      S.bilans = merge(S.bilans, (r && r.bilans) || []); save(S);
+      return api('POST', { bilans: S.bilans });
+    }).then(function () { syncState = 'Bilans à jour avec ton compte.'; render(); })
+      .catch(function () { syncState = 'Synchronisation impossible pour le moment.'; render(); });
+  }
+
   /* ---------- Interface ---------- */
   var root = document.createElement('section');
   root.id = 'c127lv'; root.className = 'c127lv';
@@ -189,6 +211,11 @@
       });
       h += '<button type="button" class="c127lv-cta" data-act="bilan"' + (draft.every(function (x) { return x >= 0; }) ? '' : ' disabled') + '>Garder mon bilan</button>';
     }
+    if (canSync) {
+      h += '<label class="c127lv-sync"><input type="checkbox" data-act="sync"' + (S.sync ? ' checked' : '') + '> <span>Retrouver mes bilans entre le site et l’application. Ils sont alors gardés dans mon compte : seulement mes réponses de 0 à 4, jamais ma naissance.</span></label>';
+      if (syncState) h += '<p class="c127lv-small">' + esc(syncState) + '</p>';
+      if (!S.sync) h += '<button type="button" class="c127lv-link c127lv-del" data-act="unsync">Effacer mes bilans de mon compte</button>';
+    }
     h += '</div>';
     // Ciel de naissance
     h += '<div class="c127lv-box"><h3>Ton ciel de naissance</h3>';
@@ -209,6 +236,9 @@
     root.innerHTML = h;
   }
 
+  root.addEventListener('change', function (e) {
+    if (e.target && e.target.getAttribute('data-act') === 'sync') { S.sync = !!e.target.checked; save(S); syncState = ''; if (S.sync) syncNow(); else render(); }
+  });
   root.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
     if (b.hasAttribute('data-q')) { draft[+b.getAttribute('data-q')] = +b.getAttribute('data-n'); return render(); }
@@ -217,9 +247,16 @@
     if (act === 'bilan') {
       var tmp = { week: WEEK, at: new Date().toISOString(), answers: draft.slice() };
       S.bilans = [tmp].concat(S.bilans.filter(function (x) { return x.week !== WEEK; })).slice(0, 52);
-      tmp.levels = vecu(); save(S); editBilan = false; return render();
+      tmp.levels = vecu(); save(S); editBilan = false;
+      if (canSync && S.sync) api('POST', tmp).catch(function () {});
+      return render();
     }
     if (act === 'resky') { editSky = true; return render(); }
+    if (act === 'unsync') {
+      if (!window.confirm('Effacer de ton compte les bilans gardés ? Ceux de ce navigateur restent ici.')) return;
+      api('DELETE').then(function () { syncState = 'Bilans effacés de ton compte.'; render(); }).catch(function () { syncState = 'Effacement impossible pour le moment.'; render(); });
+      return;
+    }
     if (act === 'sky') {
       var d = document.getElementById('c127lv-d').value, t = document.getElementById('c127lv-t').value, p = document.getElementById('c127lv-p').value.trim();
       var nb = { date: d, time: t || undefined, place: ville(p) ? p : undefined };
@@ -231,6 +268,7 @@
   });
 
   render();
+  if (S.sync) syncNow();
   // Les rêves du Grimoire (personnes connectées) nourrissent Oni et Alka.
   if (C.loggedIn && C.dreams) {
     fetch(C.dreams, { credentials: 'same-origin', headers: { 'X-WP-Nonce': C.nonce || '' } }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }).then(function (l) {

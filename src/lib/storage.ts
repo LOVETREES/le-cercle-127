@@ -64,6 +64,7 @@ export const KEYS = {
   journalIntime: 'c127.journal-intime',
   naissance: 'c127.naissance',
   bilans: 'c127.labyrinthe-bilans',
+  bilansSync: 'c127.labyrinthe-bilans-compte',
   gestes: 'c127.gestes-faits',
   oracleQuantum: 'c127.oracle-quantique',
   demoPendingTranscript: 'c127.demo-pending-transcript',

@@ -976,4 +976,11 @@ export const it: Record<string, string> = {
   "au descendant": "sul discendente",
   "au milieu du ciel": "al medio cielo",
   "au fond du ciel": "al fondo cielo",
+  "Synchronisation…": "Sincronizzazione…",
+  "Bilans à jour avec ton compte.": "Bilanci aggiornati con il tuo account.",
+  "Synchronisation impossible pour le moment.": "Sincronizzazione impossibile per il momento.",
+  "Bilans effacés de ton compte. Ceux du téléphone restent ici.": "Bilanci cancellati dal tuo account. Quelli del telefono restano qui.",
+  "Effacement impossible pour le moment.": "Cancellazione impossibile per il momento.",
+  "Retrouver mes bilans entre l’application et le site. Ils sont alors gardés dans mon compte : seulement mes réponses de 0 à 4, jamais ma naissance.": "Ritrovare i miei bilanci tra l’app e il sito. Vengono allora conservati nel mio account: solo le mie risposte da 0 a 4, mai la mia nascita.",
+  "Effacer mes bilans de mon compte": "Cancella i miei bilanci dal mio account",
 };
