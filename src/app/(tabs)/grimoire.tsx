@@ -19,6 +19,7 @@ import { listVoiceNotes } from '../../lib/voice-notes';
 import { splitContext } from '../../lib/oni-questions';
 import { lameByNumber } from '../../lib/oracle/engine';
 import { listDraws, type SavedDraw } from '../../lib/oracle/history';
+import { listEntries, type JournalEntry } from '../../lib/journal-intime';
 import { LAME_IMAGES } from '../../lib/oracle/images';
 import { lameText } from '../../lib/oracle/localize';
 import { ICON, iconKey, SymbolIcon } from '../../components/SymbolIcon';
@@ -157,8 +158,8 @@ function DreamThumb({ k }: { k: string }) {
 }
 
 /* ---------- L'écran ---------- */
-type Extra = { emotions: EmotionEntry[]; palms: PalmReading[]; ritual: RitualStore; portes: PortesStore; notes: number; draws: SavedDraw[] };
-const EMPTY: Extra = { emotions: [], palms: [], ritual: {}, portes: {}, notes: 0, draws: [] };
+type Extra = { emotions: EmotionEntry[]; palms: PalmReading[]; ritual: RitualStore; portes: PortesStore; notes: number; draws: SavedDraw[]; journal: JournalEntry[] };
+const EMPTY: Extra = { emotions: [], palms: [], ritual: {}, portes: {}, notes: 0, draws: [], journal: [] };
 
 export default function Grimoire() {
   const { user, dreams, syncing, lastError, refresh, isDemo } = useSession();
@@ -169,9 +170,9 @@ export default function Grimoire() {
   useFocusEffect(
     useCallback(() => {
       let alive = true;
-      Promise.all([listEmotions(), listPalmReadings(), readRitual(), readPortes(), loadRealityChecks(isDemo), listVoiceNotes(isDemo), listDraws()]).then(
-        ([emotions, palms, ritual, portes, checks, voice, draws]) => {
-          if (alive) setExtra({ emotions, palms, ritual, portes, notes: (checks?.length ?? 0) + (voice?.length ?? 0), draws });
+      Promise.all([listEmotions(), listPalmReadings(), readRitual(), readPortes(), loadRealityChecks(isDemo), listVoiceNotes(isDemo), listDraws(), listEntries()]).then(
+        ([emotions, palms, ritual, portes, checks, voice, draws, journal]) => {
+          if (alive) setExtra({ emotions, palms, ritual, portes, notes: (checks?.length ?? 0) + (voice?.length ?? 0), draws, journal });
         },
         () => undefined,
       );
@@ -390,8 +391,18 @@ export default function Grimoire() {
         {/* Journal intime */}
         <View style={st.card}>
           <Text style={st.h}>{t('JOURNAL INTIME')}</Text>
-          <Body muted>{t('Note ici tes réflexions, tes ressentis et tes prises de conscience, à voix haute ou par écrit.')}</Body>
-          <Pressable onPress={() => router.push('/carnet-vocal')} style={({ pressed }) => [st.ghost, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+          {extra.journal[0] ? (
+            <View style={{ gap: 2 }}>
+              <Text style={st.dMotifs}>
+                {new Date(extra.journal[0].at).toLocaleDateString(locale(), { day: 'numeric', month: 'long' })}
+                {extra.journal.length > 1 ? ` · ${t('{n} pages', { n: extra.journal.length })}` : ''}
+              </Text>
+              <Text style={st.dExcerpt} numberOfLines={2}>« {extra.journal[0].text} »</Text>
+            </View>
+          ) : (
+            <Body muted>{t('Note ici tes réflexions, tes ressentis et tes prises de conscience, à voix haute ou par écrit.')}</Body>
+          )}
+          <Pressable onPress={() => router.push('/journal-intime')} style={({ pressed }) => [st.ghost, pressed && { opacity: 0.7 }]} accessibilityRole="button">
             <Text style={st.ghostT}>{t('ÉCRIRE')}</Text>
           </Pressable>
         </View>

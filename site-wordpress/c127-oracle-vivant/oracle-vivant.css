@@ -65,3 +65,7 @@
   .c127t .c127t-shuffle{margin:14px auto 12px!important;position:relative;z-index:1}
   .c127t .c127t-archcap{margin-top:0!important;clear:both}
 }
+
+/* 1.1.4 · Un tirage par jour : le paquet se repose une fois le tirage fait */
+.c127t .c127t-fan.c127ov-rest{opacity:.45;pointer-events:none;filter:saturate(.6)}
+.c127t .c127t-fan.c127ov-rest span{animation:none!important}

@@ -97,6 +97,7 @@ function Root() {
         <Stack.Screen name="mes-lectures" options={{ title: 'Mes lectures', headerShown: false }} />
         <Stack.Screen name="parametres" options={{ title: 'Paramètres', headerShown: false }} />
         <Stack.Screen name="lecture-main" options={{ title: 'Lecture de la main', headerShown: false }} />
+        <Stack.Screen name="journal-intime" options={{ title: 'Journal intime', headerShown: false }} />
         <Stack.Screen name="oracle-labo" options={{ title: 'Laboratoire', headerShown: false }} />
         <Stack.Screen name="oracle-natif" options={{ title: 'Oracle 127', headerShown: false }} />
         <Stack.Screen name="rencontre" options={{ headerShown: false, presentation: 'fullScreenModal', gestureEnabled: false }} />

@@ -2,7 +2,8 @@
 (function () {
   'use strict';
   var root = document.getElementById('c127t');
-  if (!root) return;
+  if (!root || window.__c127ov) return;
+  window.__c127ov = 1;
 
   var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var TOTAL = 127;
@@ -211,6 +212,33 @@
     if (row && row.parentNode) row.parentNode.insertBefore(p, row.nextSibling);
   }
 
+  /* ---------- Un tirage par jour (le moteur en autorise trois) ---------- */
+  // Le moteur compte ses tirages dans « c127_tirages_v1 » et s'arrête à 3 : dès le premier tirage
+  // du jour, le compteur est porté au plafond ; le moteur refuse alors lui-même tout autre tirage.
+  var DRAWS_KEY = 'c127_tirages_v1', ENGINE_LIMIT = 3;
+  function parisDay() {
+    try {
+      var p = new Intl.DateTimeFormat('fr-CA', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      var g = function (t) { var x = p.filter(function (y) { return y.type === t; })[0]; return x ? x.value : ''; };
+      return g('year') + '-' + g('month') + '-' + g('day');
+    } catch (e) { return today(); }
+  }
+  function drawsUsed() {
+    try { var v = JSON.parse(localStorage.getItem(DRAWS_KEY) || '{}'); return v.day === parisDay() ? (v.n || 0) : 0; } catch (e) { return 0; }
+  }
+  function setText(el, txt) { if (el && el.textContent !== txt) el.textContent = txt; }
+  function oneDrawPerDay() {
+    var used = drawsUsed();
+    if (used >= 1 && used < ENGINE_LIMIT) { try { localStorage.setItem(DRAWS_KEY, JSON.stringify({ day: parisDay(), n: ENGINE_LIMIT })); } catch (e) {} }
+    var done = used >= 1;
+    var count = document.getElementById('c127t-count'), btn = document.getElementById('c127t-draw');
+    setText(count, done ? 'Tu as fait ton tirage du jour. Le Cercle se repose jusqu’à demain.' : 'Un tirage par jour.');
+    if (btn && done) { btn.disabled = true; setText(btn, 'Reviens demain'); }
+    var cap = document.getElementById('c127t-archcap');
+    if (done) setText(cap, 'Ton tirage du jour est fait. Reviens demain.');
+    if (fan) fan.classList.toggle('c127ov-rest', done);
+  }
+
   /* ---------- Observation du moteur ---------- */
   var result = document.getElementById('c127t-result');
   function scan() {
@@ -220,6 +248,7 @@
     var lec = document.getElementById('c127t-lecture');
     if (lec && !lec.classList.contains('c127ov-in')) lec.classList.add('c127ov-in');
     handLens(); // le moteur réécrit sa lecture : la ligne de la main revient à chaque fois
+    oneDrawPerDay();
   }
   new MutationObserver(function (muts) {
     muts.forEach(function (m) {

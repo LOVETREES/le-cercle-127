@@ -61,6 +61,7 @@ export const KEYS = {
   welcomed: 'c127.oni-rencontre',
   oracleDraws: 'c127.oracle-tirages',
   oracleToday: 'c127.oracle-du-jour',
+  journalIntime: 'c127.journal-intime',
   oracleQuantum: 'c127.oracle-quantique',
   demoPendingTranscript: 'c127.demo-pending-transcript',
 } as const;

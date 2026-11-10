@@ -8,6 +8,7 @@ import { clearPortes } from './portes';
 import { clearDreamer } from './dreamer';
 import { clearDraws } from './oracle/history';
 import { clearTodaysDraw } from './oracle/daily';
+import { clearJournal } from './journal-intime';
 import { clearRitual } from './rituel';
 import { KEYS, local, secure } from './storage';
 import { DEMO_USER, demoDreams } from './demo';
@@ -124,6 +125,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await clearDreamer('demo');
     await clearDraws('demo');
     await clearTodaysDraw('demo');
+    await clearJournal('demo');
     demoRef.current = [];
     setDemoRecords([]);
     setIsDemo(false);
@@ -255,6 +257,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           await clearDreamer(deletedOwner);
           await clearDraws(deletedOwner);
           await clearTodaysDraw(deletedOwner);
+          await clearJournal(deletedOwner);
           await saveReminder(DEFAULT_REMINDER);
           await Promise.all([clearLastError(), clearWebError()]);
         } catch {
