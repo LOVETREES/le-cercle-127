@@ -353,6 +353,14 @@ export default function Grimoire() {
           )}
         </View>
 
+        {/* Le Labyrinthe vivant : l'acquis face au vécu */}
+        <Pressable onPress={() => router.push('/labyrinthe')} style={({ pressed }) => [st.card, st.laby, pressed && { opacity: 0.85 }]} accessibilityRole="link">
+          <Text style={st.h}>{t('LE LABYRINTHE VIVANT')}</Text>
+          <Text style={st.labyT}>{t('Ce que tu portes, ce que tu vis')}</Text>
+          <Body muted>{t('Ton ciel de naissance face à ce que tu pratiques vraiment, Sœur par Sœur ; ta porte du moment et le bilan de la semaine.')}</Body>
+          <Text style={st.ghostT}>{t('ENTRER ›')}</Text>
+        </Pressable>
+
         {/* Tirages de l'Oracle gardés */}
         <View style={st.card}>
           <Text style={st.h}>{t('MES TIRAGES DE L’ORACLE')}</Text>
@@ -478,6 +486,8 @@ export default function Grimoire() {
 }
 
 const st = StyleSheet.create({
+  laby: { borderColor: 'rgba(216,182,107,0.6)', backgroundColor: '#14132b' },
+  labyT: { fontFamily: fonts.title, fontSize: 24, color: colors.text },
   drawRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: 6 },
   drawThumbs: { flexDirection: 'row', gap: 4 },
   drawThumb: { width: 40, height: 40, borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(240,214,140,0.45)' },

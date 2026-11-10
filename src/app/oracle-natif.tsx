@@ -16,6 +16,8 @@ import { LAME_IMAGES } from '../lib/oracle/images';
 import { lameText } from '../lib/oracle/localize';
 import { QRNG_LABEL, quantumBytes } from '../lib/oracle/qrng';
 import { recordGesture } from '../lib/rituel';
+import { listGestes, recordGeste } from '../lib/labyrinthe/store';
+import { parisDayKey } from '../lib/oracle/engine';
 import { KEYS, local } from '../lib/storage';
 import { colors, fonts, radius, space } from '../lib/theme';
 import { t } from '../i18n';
@@ -143,10 +145,12 @@ export default function OracleNatif() {
   const qPromise = useRef<Promise<Uint8Array | undefined> | null>(null);
 
   const [doneToday, setDoneToday] = useState(false);
+  const [gesteFait, setGesteFait] = useState(false);
   useFocusEffect(
     useCallback(() => {
       local.getJson<boolean>(KEYS.oracleQuantum, false).then((v) => setQuantum(v === true), () => undefined);
       // Un tirage par jour : celui d'aujourd'hui revient tel quel jusqu'à minuit (heure de Paris).
+      listGestes().then((l) => setGesteFait(l.some((iso) => parisDayKey(new Date(iso)) === parisDayKey())), () => undefined);
       todaysDraw().then((d) => {
         if (!d) return setDoneToday(false);
         setDoneToday(true);
@@ -294,6 +298,17 @@ export default function OracleNatif() {
               <>
                 <Text style={st.kicker}>{t('TON GESTE')}</Text>
                 {lead ? <Text style={st.text}>{t(lead.gesture)}</Text> : null}
+                {lead ? (
+                  <Pressable
+                    onPress={() => { if (!gesteFait) recordGeste().then(() => setGesteFait(true), () => undefined); }}
+                    disabled={gesteFait}
+                    style={[st.geste, gesteFait && st.gesteOn]}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: gesteFait }}
+                  >
+                    <Text style={[st.gesteT, gesteFait && { color: '#1b1730' }]}>{gesteFait ? t('Geste accompli ✓ · Ignis s’en souvient') : t('J’ai fait ce geste')}</Text>
+                  </Pressable>
+                ) : null}
                 {more ? (
                   sisters.map((s) => (
                     <View key={s.name} style={st.regard}>
@@ -369,6 +384,9 @@ const st = StyleSheet.create({
   question: { fontFamily: fonts.titleItalic, fontSize: 18, lineHeight: 24, color: GOLD2, marginTop: space.xs },
   cta: { backgroundColor: '#e8cf8f', borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' },
   ctaT: { fontFamily: fonts.title, fontSize: 20, color: '#1b1730' },
+  geste: { alignSelf: 'flex-start', borderWidth: 1, borderColor: colors.gold, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 8 },
+  gesteOn: { backgroundColor: '#e8cf8f', borderColor: '#e8cf8f' },
+  gesteT: { fontFamily: fonts.bodyBold, fontSize: 13.5, color: colors.gold },
   daily: { borderTopWidth: 1, borderTopColor: 'rgba(216,182,107,0.2)', paddingTop: space.sm, gap: 2, alignItems: 'center' },
   dailyT: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.text, textAlign: 'center' },
   dailyS: { fontFamily: fonts.titleItalic, fontSize: 16, color: GOLD2, textAlign: 'center' },
