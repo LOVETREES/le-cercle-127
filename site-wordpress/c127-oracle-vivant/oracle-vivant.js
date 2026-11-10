@@ -177,12 +177,10 @@
     save(S);
     var badge = document.createElement('span');
     badge.className = 'c127ov-seal ' + (isNew ? 'is-new' : 'is-known');
-    badge.textContent = isNew ? '✦ Nouvelle' : 'Revue ×' + S.seen[n];
-    badge.title = isNew ? 'Nouvelle lame dans ta collection' : 'Déjà rencontrée ' + S.seen[n] + ' fois';
-    // Hors de la carte (le plan 3D retourné le masquerait) : posé dans son coin haut.
+    badge.textContent = isNew ? '✦ Nouvelle lame' : 'Déjà rencontrée · ×' + S.seen[n];
+    // Hors de la carte (le plan 3D retourné le masquerait) : posé sur son emplacement.
     var host = card.parentNode || card;
-    if (host !== card) { host.classList.add('c127ov-host'); badge.style.top = (card.offsetTop + 6) + 'px'; }
-    if (card.closest('.c127t-moments')) zoomButton(card);
+    if (host !== card) { host.classList.add('c127ov-host'); badge.style.top = (card.offsetTop - 12) + 'px'; }
     host.appendChild(badge);
     setTimeout(function () { badge.classList.add('is-on'); }, 650);
     paintHud();
@@ -213,51 +211,6 @@
     if (row && row.parentNode) row.parentNode.insertBefore(p, row.nextSibling);
   }
 
-  /* ---------- Lisibilité : la lame en grand, la lecture allégée ---------- */
-  var box = null;
-  function openBox(card) {
-    var img = card.querySelector('.c127t-front img'); if (!img) return;
-    if (!box) {
-      box = document.createElement('div'); box.className = 'c127ov-box'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true');
-      box.innerHTML = '<button type="button" class="c127ov-boxx" aria-label="Fermer">×</button><img alt="">';
-      box.addEventListener('click', function (e) { if (e.target === box || e.target.classList.contains('c127ov-boxx')) box.classList.remove('is-on'); });
-      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box) box.classList.remove('is-on'); });
-      document.body.appendChild(box);
-    }
-    var big = box.querySelector('img'); big.src = img.currentSrc || img.src; big.alt = img.alt || '';
-    box.classList.add('is-on'); box.querySelector('.c127ov-boxx').focus();
-  }
-  function zoomButton(card) {
-    var host = card.parentNode; if (!host || host.querySelector('.c127ov-zoom')) return;
-    var z = document.createElement('button'); z.type = 'button'; z.className = 'c127ov-zoom'; z.textContent = 'Voir la lame';
-    z.setAttribute('aria-label', 'Voir la lame en grand');
-    z.addEventListener('click', function () { openBox(card); });
-    var title = host.querySelector('.c127t-mtitle');
-    if (title && title.nextSibling) host.insertBefore(z, title.nextSibling); else host.appendChild(z);
-  }
-  // La lecture du moment : l'essentiel visible (la lame, ton geste), le reste sous « Lire la suite ».
-  function tidyDetail() {
-    var d = document.getElementById('c127t-mdetail');
-    var shown = d && getComputedStyle(d).display !== 'none' && d.textContent.trim();
-    root.classList.toggle('c127ov-hasdetail', !!shown);
-    if (!shown) return;
-    var cap = (d.querySelector('.c127t-dtitle') || {}).textContent || '';
-    Array.prototype.forEach.call(root.querySelectorAll('.c127t-moment'), function (m) {
-      var k = (m.querySelector('.c127t-cap strong') || {}).textContent || '';
-      m.classList.toggle('c127ov-active', !!k && cap.indexOf(k) === 0);
-    });
-    if (d.querySelector('.c127ov-more')) return;
-    var blocks = Array.prototype.slice.call(d.querySelectorAll(':scope > .c127t-block'));
-    var keep = function (b) { var h = (b.querySelector('h3') || {}).textContent || ''; return /^La lame|^Ton geste/i.test(h); };
-    var extra = blocks.filter(function (b) { return !keep(b); });
-    if (extra.length < 2) return;
-    var more = document.createElement('details'); more.className = 'c127ov-more';
-    more.innerHTML = '<summary>Lire la suite</summary>';
-    var veil = d.querySelector('.c127t-veil');
-    d.insertBefore(more, veil || null);
-    extra.forEach(function (b) { more.appendChild(b); });
-  }
-
   /* ---------- Observation du moteur ---------- */
   var result = document.getElementById('c127t-result');
   function scan() {
@@ -267,8 +220,6 @@
     var lec = document.getElementById('c127t-lecture');
     if (lec && !lec.classList.contains('c127ov-in')) lec.classList.add('c127ov-in');
     handLens(); // le moteur réécrit sa lecture : la ligne de la main revient à chaque fois
-    tidyDetail();
-    Array.prototype.forEach.call(root.querySelectorAll('.c127t-moments .c127t-tcard.is-open'), zoomButton);
   }
   new MutationObserver(function (muts) {
     muts.forEach(function (m) {

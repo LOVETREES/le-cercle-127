@@ -1,0 +1,282 @@
+/* Le Cercle 127 — Oracle vivant : animations et collection, posées sur le moteur de l'Oracle sans le modifier. */
+(function () {
+  'use strict';
+  var root = document.getElementById('c127t');
+  if (!root) return;
+
+  var REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var TOTAL = 127;
+  var MILESTONES = { 7: 'Les sept Sœurs te saluent', 21: 'Trois cercles parcourus', 49: 'Sept fois sept', 77: 'Le Labyrinthe s’ouvre', 127: 'Toutes les lames du Cercle' };
+
+  /* ---------- Mémoire locale (propre à cet appareil) ---------- */
+  function load() { try { return JSON.parse(localStorage.getItem('c127ov') || '{}'); } catch (e) { return {}; } }
+  function save(s) { try { localStorage.setItem('c127ov', JSON.stringify(s)); } catch (e) {} }
+  var S = load();
+  S.seen = S.seen || {};
+  function today() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  function yesterday() { var d = new Date(Date.now() - 864e5); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  function seenCount() { return Object.keys(S.seen).length; }
+  function soundOn() { return S.sound !== false; }
+
+  /* ---------- Son (Web Audio, très doux, coupable) ---------- */
+  var AC = null;
+  function ctx() {
+    if (!soundOn()) return null;
+    try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; }
+    return AC;
+  }
+  function chime(rank) {
+    var a = ctx(); if (!a) return;
+    var base = [523.25, 587.33, 659.25, 783.99, 880][rank % 5];
+    [1, 2.01, 3.02].forEach(function (m, i) {
+      var o = a.createOscillator(), g = a.createGain();
+      o.type = 'sine'; o.frequency.value = base * m;
+      g.gain.setValueAtTime(0.0001, a.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.12 / (i + 1), a.currentTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 1.6 - i * 0.3);
+      o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + 1.7);
+    });
+  }
+  function swish(delay) {
+    var a = ctx(); if (!a) return;
+    var t = a.currentTime + (delay || 0) / 1000;
+    var buf = a.createBuffer(1, a.sampleRate * 0.25, a.sampleRate), d = buf.getChannelData(0);
+    for (var i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    var src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+    src.buffer = buf; f.type = 'bandpass'; f.frequency.setValueAtTime(900, t); f.frequency.exponentialRampToValueAtTime(3200, t + 0.2);
+    g.gain.setValueAtTime(0.05, t);
+    src.connect(f); f.connect(g); g.connect(a.destination); src.start(t);
+  }
+  function buzz(ms) { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
+
+  /* ---------- Particules dorées ---------- */
+  var canvas = null, parts = [], running = false;
+  function burst(x, y, n) {
+    if (REDUCED) return;
+    if (!canvas) {
+      canvas = document.createElement('canvas'); canvas.className = 'c127ov-canvas'; canvas.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(canvas);
+    }
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = innerWidth * dpr; canvas.height = innerHeight * dpr;
+    var c = canvas.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Une poussière dorée qui monte lentement autour de la carte, rien de plus.
+    var colors = ['#fff3c9', '#f0d68c', '#e2b55a'];
+    n = Math.min(14, Math.round(n / 7));
+    for (var i = 0; i < n; i++) {
+      parts.push({ x: x + (Math.random() - 0.5) * 120, y: y + (Math.random() - 0.2) * 90, vx: (Math.random() - 0.5) * 0.25, vy: -0.25 - Math.random() * 0.45, life: 1, r: 0.8 + Math.random() * 1.4, col: colors[i % colors.length], star: false });
+    }
+    if (!running) { running = true; requestAnimationFrame(step); }
+    function step() {
+      c.clearRect(0, 0, innerWidth, innerHeight);
+      parts = parts.filter(function (p) { return p.life > 0; });
+      parts.forEach(function (p) {
+        p.x += p.vx; p.y += p.vy; p.life -= 0.009;
+        c.globalAlpha = Math.max(0, Math.min(1, p.life * 1.6)) * 0.7;
+        c.fillStyle = p.col;
+        if (p.star) {
+          c.save(); c.translate(p.x, p.y); c.rotate(p.life * 6);
+          c.fillRect(-p.r * 2, -0.6, p.r * 4, 1.2); c.fillRect(-0.6, -p.r * 2, 1.2, p.r * 4); c.restore();
+        } else { c.beginPath(); c.arc(p.x, p.y, p.r, 0, 7); c.fill(); }
+      });
+      c.globalAlpha = 1;
+      if (parts.length) requestAnimationFrame(step); else { running = false; c.clearRect(0, 0, innerWidth, innerHeight); }
+    }
+  }
+
+  /* ---------- Bandeau de collection ---------- */
+  var hud = document.createElement('div');
+  hud.className = 'c127ov-hud wp-exclude-emoji';
+  hud.innerHTML =
+    '<div class="c127ov-coll"><span>Lames découvertes : <b data-ov-count>0</b> / ' + TOTAL + '</span><div class="c127ov-bar"><i data-ov-bar></i></div></div>' +
+    '<span class="c127ov-stat" data-ov-streak hidden></span>' +
+    '<button type="button" class="c127ov-stat c127ov-sound" data-ov-sound></button>';
+  var anchor = root.querySelector('.c127t-arch') || root.querySelector('.c127t-stage') || root.firstElementChild;
+  if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(hud, anchor.nextSibling); else root.insertBefore(hud, root.firstChild);
+  function paintHud() {
+    var n = seenCount();
+    hud.querySelector('[data-ov-count]').textContent = n;
+    hud.querySelector('[data-ov-bar]').style.width = Math.max(2, n / TOTAL * 100) + '%';
+    var st = hud.querySelector('[data-ov-streak]');
+    if (S.streak > 1 && (S.last === today() || S.last === yesterday())) { st.hidden = false; st.textContent = '🔥 ' + S.streak + ' jours de suite'; } else st.hidden = true;
+    var snd = hud.querySelector('[data-ov-sound]');
+    snd.textContent = soundOn() ? '🔊 Son' : '🔇 Son coupé';
+    snd.setAttribute('aria-pressed', soundOn() ? 'true' : 'false');
+  }
+  hud.querySelector('[data-ov-sound]').addEventListener('click', function () { S.sound = !soundOn(); save(S); paintHud(); if (soundOn()) chime(2); });
+  paintHud();
+
+  var toastEl = null, toastTimer = null;
+  function toast(title, sub) {
+    if (!toastEl) { toastEl = document.createElement('div'); toastEl.className = 'c127ov-toast wp-exclude-emoji'; toastEl.setAttribute('role', 'status'); document.body.appendChild(toastEl); }
+    toastEl.innerHTML = title + (sub ? '<small>' + sub + '</small>' : '');
+    toastEl.classList.add('is-on');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastEl.classList.remove('is-on'); }, 3600);
+  }
+
+  /* ---------- Paquet : respiration et appui ---------- */
+  var fan = document.getElementById('c127t-fan');
+  if (fan) {
+    if (!REDUCED) fan.classList.add('c127ov-ready');
+    fan.addEventListener('pointerdown', function () { fan.classList.add('c127ov-press'); buzz(8); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (ev) { fan.addEventListener(ev, function () { fan.classList.remove('c127ov-press'); }); });
+  }
+  var shuffleBtn = document.getElementById('c127t-shuffle');
+  if (shuffleBtn) shuffleBtn.addEventListener('click', function () { for (var i = 0; i < 6; i++) swish(i * 260); buzz([10, 60, 10, 60, 10]); });
+
+  /* ---------- Distribution depuis le paquet ---------- */
+  function origin() {
+    var r = fan && fan.querySelector('span') ? fan.querySelector('span').getBoundingClientRect() : null;
+    return r && r.width ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : { x: innerWidth / 2, y: -120 };
+  }
+  function deal(cards) {
+    var o = origin();
+    cards.forEach(function (card, i) {
+      card.setAttribute('data-ov', '1');
+      if (REDUCED || !card.animate) { card.classList.add('c127ov-dealt'); return; }
+      var r = card.getBoundingClientRect();
+      var dx = o.x - (r.left + r.width / 2), dy = o.y - (r.top + r.height / 2);
+      card.classList.add('c127ov-dealing');
+      swish(i * 170);
+      var anim = card.animate([
+        { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + (-18 + i * 9) + 'deg) scale(.32)', opacity: 0 },
+        { opacity: 1, offset: 0.12 },
+        { transform: 'translate(' + (dx * 0.25) + 'px,' + (Math.min(dy, 0) * 0.25 - 40) + 'px) rotate(' + (8 - i * 4) + 'deg) scale(1.06)', offset: 0.7 },
+        { transform: 'none', opacity: 1 }
+      ], { duration: 950, delay: i * 170, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+      anim.onfinish = function () { card.classList.remove('c127ov-dealing'); card.classList.add('c127ov-dealt'); };
+    });
+  }
+
+  /* ---------- Révélation ---------- */
+  var revealRank = 0;
+  function onReveal(card) {
+    if (card.getAttribute('data-ov-open')) return;
+    card.setAttribute('data-ov-open', '1');
+    card.classList.remove('c127ov-dealt');
+    if (!REDUCED) {
+      card.classList.add('c127ov-flipping');
+      setTimeout(function () { card.classList.remove('c127ov-flipping'); }, 950);
+      var halo = document.createElement('span'); halo.className = 'c127ov-halo'; halo.setAttribute('aria-hidden', 'true');
+      card.appendChild(halo); setTimeout(function () { halo.remove(); }, 1700);
+    }
+    var n = card.getAttribute('data-n');
+    // Dans l'application : « Ta carte » du rituel du jour est cochée.
+    try { if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'c127-oracle-reveal', n: n || '' })); } catch (e) {}
+    var isNew = n && !S.seen[n];
+    setTimeout(function () {
+      var r = card.getBoundingClientRect();
+      burst(r.left + r.width / 2, r.top + r.height / 2, isNew ? 90 : 46);
+      chime(revealRank++);
+      buzz(isNew ? [18, 40, 28] : 14);
+    }, 380);
+    if (!n) return;
+    var day = today(), firstToday = S.last !== day;
+    if (firstToday) { S.streak = S.last === yesterday() ? (S.streak || 1) + 1 : 1; S.last = day; }
+    S.seen[n] = (S.seen[n] || 0) + 1;
+    save(S);
+    var badge = document.createElement('span');
+    badge.className = 'c127ov-seal ' + (isNew ? 'is-new' : 'is-known');
+    badge.textContent = isNew ? '✦ Nouvelle' : 'Revue ×' + S.seen[n];
+    badge.title = isNew ? 'Nouvelle lame dans ta collection' : 'Déjà rencontrée ' + S.seen[n] + ' fois';
+    // Hors de la carte (le plan 3D retourné le masquerait) : posé dans son coin haut.
+    var host = card.parentNode || card;
+    if (host !== card) { host.classList.add('c127ov-host'); badge.style.top = (card.offsetTop + 6) + 'px'; }
+    if (card.closest('.c127t-moments')) zoomButton(card);
+    host.appendChild(badge);
+    setTimeout(function () { badge.classList.add('is-on'); }, 650);
+    paintHud();
+    var count = seenCount();
+    if (isNew && MILESTONES[count]) setTimeout(function () { toast('✦ ' + count + ' lames découvertes', MILESTONES[count]); burst(innerWidth / 2, innerHeight * 0.4, 140); chime(4); }, 1200);
+    else if (firstToday && S.streak > 1) setTimeout(function () { toast('🔥 ' + S.streak + ' jours de tirage de suite', 'Le Cercle te reconnaît.'); }, 1200);
+  }
+
+  /* ---------- La carte lue avec l'élément de la main (lecture de Terra) ---------- */
+  var LENS = {
+    feu: ['main de Feu', 'y lit un appel à agir : quel premier geste cette carte te suggère-t-elle aujourd’hui ?'],
+    eau: ['main d’Eau', 'y lit d’abord une émotion : que ressens-tu en la regardant, avant de chercher à la comprendre ?'],
+    air: ['main d’Air', 'y lit une idée : quelle phrase de cette carte voudrais-tu garder en tête toute la journée ?'],
+    terre: ['main de Terre', 'y lit quelque chose de concret : que te demande-t-elle de faire de tes mains aujourd’hui ?']
+  };
+  function handLens() {
+    var m = null;
+    try { m = JSON.parse(localStorage.getItem('c127_main') || 'null'); } catch (e) {}
+    if (!m || !LENS[m.element] || Date.now() - (m.at || 0) > 60 * 864e5) return;
+    var open = document.querySelector('#c127t .c127t-tcard.is-open, #c127t .c127t-rcard.is-open');
+    if (!open || document.querySelector('#c127t .c127ov-hand')) return;
+    var p = document.createElement('p'); p.className = 'c127ov-hand';
+    p.innerHTML = '<span>Avec ta lecture de la main</span>Ta ' + LENS[m.element][0] + ' ' + LENS[m.element][1];
+    // Dans la lecture du moteur quand elle existe, sinon juste sous la rangée de cartes.
+    var host = document.getElementById('c127t-lecture');
+    if (host && host.textContent.trim()) { host.insertBefore(p, host.firstChild); return; }
+    var row = open.closest('.c127ov-host') ? open.closest('.c127ov-host').parentNode : open.parentNode;
+    if (row && row.parentNode) row.parentNode.insertBefore(p, row.nextSibling);
+  }
+
+  /* ---------- Lisibilité : la lame en grand, la lecture allégée ---------- */
+  var box = null;
+  function openBox(card) {
+    var img = card.querySelector('.c127t-front img'); if (!img) return;
+    if (!box) {
+      box = document.createElement('div'); box.className = 'c127ov-box'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true');
+      box.innerHTML = '<button type="button" class="c127ov-boxx" aria-label="Fermer">×</button><img alt="">';
+      box.addEventListener('click', function (e) { if (e.target === box || e.target.classList.contains('c127ov-boxx')) box.classList.remove('is-on'); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box) box.classList.remove('is-on'); });
+      document.body.appendChild(box);
+    }
+    var big = box.querySelector('img'); big.src = img.currentSrc || img.src; big.alt = img.alt || '';
+    box.classList.add('is-on'); box.querySelector('.c127ov-boxx').focus();
+  }
+  function zoomButton(card) {
+    var host = card.parentNode; if (!host || host.querySelector('.c127ov-zoom')) return;
+    var z = document.createElement('button'); z.type = 'button'; z.className = 'c127ov-zoom'; z.textContent = 'Voir la lame';
+    z.setAttribute('aria-label', 'Voir la lame en grand');
+    z.addEventListener('click', function () { openBox(card); });
+    var title = host.querySelector('.c127t-mtitle');
+    if (title && title.nextSibling) host.insertBefore(z, title.nextSibling); else host.appendChild(z);
+  }
+  // La lecture du moment : l'essentiel visible (la lame, ton geste), le reste sous « Lire la suite ».
+  function tidyDetail() {
+    var d = document.getElementById('c127t-mdetail');
+    var shown = d && getComputedStyle(d).display !== 'none' && d.textContent.trim();
+    root.classList.toggle('c127ov-hasdetail', !!shown);
+    if (!shown) return;
+    var cap = (d.querySelector('.c127t-dtitle') || {}).textContent || '';
+    Array.prototype.forEach.call(root.querySelectorAll('.c127t-moment'), function (m) {
+      var k = (m.querySelector('.c127t-cap strong') || {}).textContent || '';
+      m.classList.toggle('c127ov-active', !!k && cap.indexOf(k) === 0);
+    });
+    if (d.querySelector('.c127ov-more')) return;
+    var blocks = Array.prototype.slice.call(d.querySelectorAll(':scope > .c127t-block'));
+    var keep = function (b) { var h = (b.querySelector('h3') || {}).textContent || ''; return /^La lame|^Ton geste/i.test(h); };
+    var extra = blocks.filter(function (b) { return !keep(b); });
+    if (extra.length < 2) return;
+    var more = document.createElement('details'); more.className = 'c127ov-more';
+    more.innerHTML = '<summary>Lire la suite</summary>';
+    var veil = d.querySelector('.c127t-veil');
+    d.insertBefore(more, veil || null);
+    extra.forEach(function (b) { more.appendChild(b); });
+  }
+
+  /* ---------- Observation du moteur ---------- */
+  var result = document.getElementById('c127t-result');
+  function scan() {
+    if (!result) return;
+    var fresh = Array.prototype.filter.call(result.querySelectorAll('.c127t-tcard'), function (c) { return !c.getAttribute('data-ov'); });
+    if (fresh.length) requestAnimationFrame(function () { deal(fresh); });
+    var lec = document.getElementById('c127t-lecture');
+    if (lec && !lec.classList.contains('c127ov-in')) lec.classList.add('c127ov-in');
+    handLens(); // le moteur réécrit sa lecture : la ligne de la main revient à chaque fois
+    tidyDetail();
+    Array.prototype.forEach.call(root.querySelectorAll('.c127t-moments .c127t-tcard.is-open'), zoomButton);
+  }
+  new MutationObserver(function (muts) {
+    muts.forEach(function (m) {
+      if (m.type === 'attributes' && m.target.classList && m.target.classList.contains('is-open')) {
+        if (m.target.matches('.c127t-tcard, .c127t-rcard')) { onReveal(m.target); setTimeout(handLens, 900); }
+      }
+    });
+    scan();
+  }).observe(root, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
+  scan();
+})();
