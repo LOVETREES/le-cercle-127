@@ -2,6 +2,8 @@ name: Android – APK de test
 
 # Construit l'APK Android (profil « preview ») sur une machine Linux de GitHub, avec la clé de signature
 # gardée par Expo. L'APK est joint à l'exécution (onglet Actions > l'exécution > « LeCercle127-apk »).
+# L'APK est aussi publié à une adresse fixe, celle du bouton « Télécharger pour Android » du site :
+#   https://github.com/LOVETREES/le-cercle-127/releases/download/android-test/LeCercle127.apk
 # Déclenchement : bouton « Run workflow » (onglet Actions) ou un envoi dont le message contient [android-build].
 on:
   workflow_dispatch:
@@ -17,6 +19,9 @@ jobs:
       cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    # Écriture du dépôt : seulement pour remplacer l'APK de la publication « android-test ».
+    permissions:
+      contents: write
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
     steps:
@@ -58,3 +63,18 @@ jobs:
           path: ${{ runner.temp }}/LeCercle127.apk
           if-no-files-found: ignore
           retention-days: 14
+
+      - name: Publier l'APK à l'adresse fixe (publication « android-test »)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK="$RUNNER_TEMP/LeCercle127.apk"
+          [ -f "$APK" ] || { echo "::error::APK absent"; exit 1; }
+          VERSION=$(node -p "require('./app.json').expo.version")
+          NOTES="Version de test Android ${VERSION} — construite le $(date -u +%Y-%m-%d) depuis ${GITHUB_SHA::7}. Installer : ouvrir le fichier sur le téléphone et autoriser l'installation."
+          if gh release view android-test >/dev/null 2>&1; then
+            gh release edit android-test --title "Le Cercle 127 — Android ${VERSION} (test)" --notes "$NOTES" --prerelease
+          else
+            gh release create android-test --target "$GITHUB_SHA" --title "Le Cercle 127 — Android ${VERSION} (test)" --notes "$NOTES" --prerelease
+          fi
+          gh release upload android-test "$APK" --clobber
