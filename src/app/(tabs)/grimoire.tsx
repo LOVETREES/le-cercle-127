@@ -16,6 +16,7 @@ import { readRitual, type RitualStore } from '../../lib/rituel';
 import { useSession } from '../../lib/session';
 import { colors, fonts, radius, space } from '../../lib/theme';
 import { listVoiceNotes } from '../../lib/voice-notes';
+import { ICON, iconKey, SymbolIcon } from '../../components/SymbolIcon';
 
 /* ---------- Petits outils ---------- */
 const VIOLET = '#7a68c9';
@@ -29,7 +30,6 @@ const emotionLabel = (v?: string) => {
 };
 const NAIA_LABEL: Record<EmotionKey, string> = { peur: 'Peur', colere: 'Colère', tristesse: 'Tristesse', culpabilite: 'Culpabilité', confusion: 'Confusion', soulagement: 'Soulagement' };
 const naiaLabel = (k: EmotionKey) => t(NAIA_LABEL[k]);
-const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 function formatDate(iso: string) {
   const [y, m, d] = iso.split('-').map(Number);
   if (!y || !m || !d) return iso;
@@ -46,35 +46,6 @@ const VALENCE: Record<string, number> = {
   joie: 1, serenite: 0.8, emerveillement: 0.9, soulagement: 0.7, surprise: 0.3, aucune: 0, autre: 0,
   confusion: -0.4, culpabilite: -0.7, tristesse: -0.8, colere: -0.9, peur: -1,
 };
-
-/* ---------- Symboles : icônes au trait ---------- */
-const ICON: Record<string, string> = {
-  eau: 'M3 8c3-2 5 2 8 0s5-2 8 0M3 13c3-2 5 2 8 0s5-2 8 0M3 18c3-2 5 2 8 0s5-2 8 0',
-  porte: 'M6 21V9a6 6 0 0 1 12 0v12M6 21h12M10 21v-7a2 2 0 0 1 4 0v7',
-  chute: 'M12 3v12M8 11l4 4 4-4M5 21l3-3M19 21l-3-3M12 21v-2',
-  maison: 'M4 11 12 4l8 7v9H4zM10 20v-5h4v5',
-  foret: 'M12 3 7 11h3l-4 6h12l-4-6h3zM12 17v4',
-  lune: 'M15 4a8 8 0 1 0 5 13A7 7 0 0 1 15 4z',
-  feu: 'M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-6 1 1 2 2 2 3 1-2 1-4 1-7z',
-  oiseau: 'M3 12c4-1 6-5 9-5s3 3 3 3l5-1-4 4c-1 4-5 6-9 6l2-3c-3 0-5-2-6-4z',
-  serpent: 'M4 18c3 0 3-4 6-4s3 4 6 4 3-4 3-7-2-5-5-5',
-  etoile: 'M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z',
-};
-const SYN: [RegExp, string][] = [
-  [/eau|mer|lac|riviere|ocean|pluie|vague|fleuve|bain|nag/, 'eau'], [/porte|seuil|passage|couloir|cle/, 'porte'],
-  [/chute|tomb|vide|falaise|precipice/, 'chute'], [/maison|chambre|enfance|demeure|ecole/, 'maison'],
-  [/foret|arbre|bois|jardin|racine/, 'foret'], [/lune|nuit|ciel|etoile/, 'lune'], [/feu|flamme|incendie|soleil/, 'feu'],
-  [/vol|oiseau|aile|envol/, 'oiseau'], [/serpent|animal|loup|chat|chien/, 'serpent'],
-];
-const iconKey = (s: string) => SYN.find(([re]) => re.test(norm(s)))?.[1] ?? 'etoile';
-
-function SymbolIcon({ name, size = 28, color = colors.gold }: { name: string; size?: number; color?: string }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24">
-      <Path d={ICON[name]} fill="none" stroke={color} strokeWidth={1.3} strokeLinecap="round" strokeLinejoin="round" />
-    </Svg>
-  );
-}
 
 /* ---------- La porte en arche de l'en-tête ---------- */
 function Arch() {
