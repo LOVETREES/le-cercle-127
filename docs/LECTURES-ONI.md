@@ -10,7 +10,9 @@ App : « Qu'en dit Oni ? Lecture immédiate » (accord demandé à chaque envoi)
   ▼
 Make « Cercle 127 — Lecture du jour d'Oni (immédiate, relue après coup) »  (scénario 10140399,
 webhook …epuxbt8jq6of4mux15crbkph88rcb59j)
-  1. GET /cercle127/v1/me (compte) puis /dreams → le rêve doit lui appartenir, avoir un récit, pas de lecture ;
+  1. GET /wp-json/c127-oni/v1/reve?dream_id=… (extension « c127-oni-du-jour ») : le site identifie le compte
+     (jeton Bearer de l'app, ou billet signé du site, 5 min, en-tête X-C127-Ticket) et rend le rêve ;
+     il doit lui appartenir, avoir un récit et pas encore de lecture ;
   2. déjà demandé (clé app-<id> du store de relecture) → « deja_demandee » ;
   3. quota : store « Oni — lecture du jour (quota) » (208307), clé <compte>-<AAAA-MM-JJ Paris>
      → déjà utilisée : « quota » (l'app bascule alors sur le circuit relu ci-dessous) ;
@@ -21,6 +23,14 @@ webhook …epuxbt8jq6of4mux15crbkph88rcb59j)
   6. sinon : quota noté, lecture envoyée au site (/f127/v1/dream-reading-result), enregistrement au statut
      « lecture du jour publiée — à relire après coup », et réponse { status: "lue", reading, questions, closing }.
 ```
+
+**Sur le site** (depuis le 11 novembre 2026) : l'extension « Le Cercle 127 — Lecture du jour d'Oni »
+(`site-wordpress/c127-oni-du-jour`) ajoute au Grimoire (connecté·e) un formulaire « Qu'en dit Oni ? ».
+Le rêve est gardé (POST /cercle127/v1/dreams), le site délivre un billet (POST /c127-oni/v1/billet, session +
+nonce), puis le navigateur appelle lui-même le webhook Make en formulaire simple (pas de pré-vol CORS ; Make
+répond avec `Access-Control-Allow-Origin: https://lecercle127.com`). Une requête PHP de 30 s était coupée
+(502) par l'hébergeur : d'où cet appel direct. Quota commun app + site. Testé de bout en bout dans un
+navigateur (29 s). Les statuts du store indiquent la source : « (app) » ou « (site) ».
 
 **Relecture après coup** : dans Make → Data stores → « Oni — Lectures de l'app à relire », filtrer les statuts
 « lecture du jour publiée » et surtout « PRIORITÉ ». Une lecture à corriger se signale aussi par courriel depuis

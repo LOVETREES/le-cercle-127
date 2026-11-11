@@ -1,0 +1,30 @@
+/* Le Cercle 127 — Lecture du jour d'Oni (portée .c127od) */
+.c127od{scroll-margin-top:96px;--g:#dfc27d;--g2:#f2dea8;--ink:#f2eadc;--mut:#aab2c6;box-sizing:border-box;max-width:760px;width:calc(100% - 32px);margin:26px auto;padding:22px 20px;border:1px solid rgba(223,194,125,.45);border-radius:22px;background:radial-gradient(120% 80% at 50% 0%,#1a1838 0%,#0b0d1e 70%);color:var(--ink);font:400 16px/1.6 "Manrope",system-ui,sans-serif}
+.c127od *{box-sizing:border-box}
+.c127od .c127od-k{margin:0!important;font:700 .72rem/1.3 "Manrope",system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--g)!important}
+.c127od h2{margin:.2em 0 .4em;font:500 clamp(1.6rem,6vw,2.1rem)/1.15 "Cormorant Garamond",Georgia,serif;color:var(--ink)}
+.c127od h3{margin:1em 0 .4em;font:700 .72rem/1.3 "Manrope",system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--g)}
+.c127od p{margin:.5em 0;color:var(--ink)}
+.c127od a{color:var(--g2)}
+.c127od-lead{color:var(--mut)!important}
+.c127od-form{display:grid;gap:12px;margin-top:10px}
+.c127od-form label{display:grid;gap:5px;font-size:.85rem;color:var(--mut)}
+.c127od-form input:not([type=checkbox]),.c127od-form textarea,.c127od-form select{width:100%;padding:11px 12px;border-radius:12px;border:1px solid rgba(223,194,125,.35);background:#0b0d1e;color:var(--ink);font:400 1rem "Manrope",system-ui,sans-serif}
+.c127od-form textarea{resize:vertical;min-height:130px}
+.c127od-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:520px){.c127od-row{grid-template-columns:1fr}}
+.c127od .c127od-ok{display:flex;gap:10px;align-items:flex-start;font-size:.82rem;line-height:1.45;color:var(--ink)}
+.c127od-ok input{margin-top:3px;accent-color:#e8cf8f;flex:0 0 auto}
+#c127od .c127od-go,#c127od .c127od-go.c127-force-soft-primary{display:block;width:100%;margin-top:6px;padding:14px;border:0!important;border-radius:999px!important;background:#e8cf8f!important;color:#1b1730!important;box-shadow:none!important;text-align:center;text-decoration:none;font:500 1.2rem "Cormorant Garamond",Georgia,serif;cursor:pointer}
+#c127od .c127od-go:disabled{opacity:.55;cursor:default}
+.c127od-msg{min-height:1.2em;font-size:.86rem;color:#eb9a68!important}
+.c127od-read{font:italic 500 1.22rem/1.55 "Cormorant Garamond",Georgia,serif}
+.c127od-qs{margin:0;padding-left:1.1em}
+.c127od-qs li{margin:.3em 0}
+.c127od-close{font:italic 500 1.1rem/1.4 "Cormorant Garamond",Georgia,serif;color:var(--g2)!important}
+.c127od-small{font-size:.82rem;line-height:1.5;color:var(--mut)!important}
+#c127od .c127od-link,#c127od .c127od-link.c127-force-soft-primary{margin-top:10px;padding:0!important;border:0!important;background:none!important;color:var(--g)!important;font:700 .9rem "Manrope",system-ui,sans-serif;cursor:pointer}
+.c127od-wait{display:flex;gap:14px;align-items:center;padding:18px 0}
+.c127od-moon{flex:0 0 34px;height:34px;border-radius:50%;box-shadow:inset -9px 0 0 0 #e8cf8f;animation:c127od-turn 2.4s ease-in-out infinite}
+@keyframes c127od-turn{0%,100%{transform:rotate(-20deg);opacity:.6}50%{transform:rotate(25deg);opacity:1}}
+@media (prefers-reduced-motion:reduce){.c127od-moon{animation:none}}
