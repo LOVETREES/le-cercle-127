@@ -8,6 +8,7 @@ import { clearPortes } from './portes';
 import { clearDreamer } from './dreamer';
 import { clearDraws } from './oracle/history';
 import { clearTodaysDraw } from './oracle/daily';
+import { clearDailyReading, dailyReadingUsed, markDailyReadingUsed } from './oni-daily';
 import { clearJournal } from './journal-intime';
 import { clearLabyrinthe } from './labyrinthe/store';
 import { clearRitual } from './rituel';
@@ -36,9 +37,17 @@ type SessionState = {
   refresh: () => Promise<void>;
   addDream: (input: DreamInput) => Promise<Dream>;
   removeDream: (id: string) => Promise<void>;
-  exploreWithOni: (id: string, consent: boolean) => Promise<'en_attente' | 'deja_demandee'>;
+  exploreWithOni: (id: string, consent: boolean) => Promise<OniOutcome>;
+  /** Identifiant en ligne d'un rêve juste gardé (brouillon), une fois la synchronisation faite. */
+  resolveDreamId: (id: string) => Promise<string | undefined>;
   oniRequested: string[];
 };
+
+/** Résultat d'une demande à Oni : lecture du jour immédiate, accompagnement (détresse), ou lecture relue plus tard. */
+export type OniOutcome =
+  | { status: 'lue'; reading: string; questions: string[]; closing?: string; saved: boolean }
+  | { status: 'accompagnement'; reading: string }
+  | { status: 'en_attente' | 'deja_demandee'; afterDaily?: boolean };
 
 const Ctx = createContext<SessionState | null>(null);
 
@@ -59,6 +68,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const sessionEpoch = useRef(0);
   const activeToken = useRef<string | null>(null);
   const syncQueue = useRef<Promise<void>>(Promise.resolve());
+  const syncedIds = useRef<Record<string, string>>({});
 
   useEffect(() => {
     let active = true;
@@ -155,6 +165,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           const saved = await api.createDream(tk, d);
           if (epoch !== sessionEpoch.current) return;
           if (!saved?.id) throw new Error(t('Le serveur n’a pas confirmé l’enregistrement. Votre brouillon est conservé sur cet appareil.'));
+          syncedIds.current[d.id] = String(saved.id);
           await persistDrafts(draftsRef.current.filter((x) => x.id !== d.id));
         }
         const list = await api.listDreams(tk);
@@ -259,6 +270,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           await clearDreamer(deletedOwner);
           await clearDraws(deletedOwner);
           await clearTodaysDraw(deletedOwner);
+          await clearDailyReading(deletedOwner);
           await clearJournal(deletedOwner);
           await clearLabyrinthe(deletedOwner);
           await saveReminder(DEFAULT_REMINDER);
@@ -299,11 +311,33 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (!consent) throw new Error(t('Votre accord est nécessaire avant chaque envoi à Oni.'));
         if (!oniEnabled) throw new Error(t('Les nouvelles demandes de lecture sont actuellement indisponibles.'));
         if (!token) throw new ApiError(t('Connectez-vous pour demander une lecture à Oni.'), 401);
-        const status = await api.requestOniReading(token, id, consent);
-        const next = oniRequested.includes(id) ? oniRequested : [...oniRequested, id];
-        setOniRequested(next);
-        await local.setJson(KEYS.oniRequested, next);
-        return status;
+        const deferred = async (afterDaily = false): Promise<OniOutcome> => {
+          const status = await api.requestOniReading(token, id, consent);
+          const next = oniRequested.includes(id) ? oniRequested : [...oniRequested, id];
+          setOniRequested(next);
+          await local.setJson(KEYS.oniRequested, next);
+          return { status, afterDaily };
+        };
+        // Une lecture immédiate par jour ; ensuite, la lecture relue avant envoi (sous 48 h).
+        if (await dailyReadingUsed()) return deferred(true);
+        const daily = await api.requestDailyReading(token, id, consent);
+        if (daily.status === 'lue') {
+          await markDailyReadingUsed();
+          void sync(token);
+          return daily;
+        }
+        if (daily.status === 'accompagnement') return daily;
+        if (daily.status === 'deja_demandee') return { status: 'deja_demandee' };
+        if (daily.status === 'quota') {
+          await markDailyReadingUsed();
+          return deferred(true);
+        }
+        return deferred(false);
+      },
+      async resolveDreamId(id) {
+        if (!id.startsWith('draft-')) return id;
+        await syncQueue.current.catch(() => undefined);
+        return syncedIds.current[id];
       },
       oniRequested,
     }),

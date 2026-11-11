@@ -53,7 +53,7 @@ export default function Lectures() {
             <Text style={st.step}>
               3. {oniEnabled ? t('Ouvrez-le et touchez « Demander une lecture à Oni ».') : t('Quand Oni l’aura lu, sa lecture apparaîtra ici.')}
             </Text>
-            <Text style={st.step}>{t('4. La lecture est relue par une personne du Cercle, puis elle arrive ici.')}
+            <Text style={st.step}>{t('4. Votre lecture du jour arrive tout de suite, puis une personne du Cercle la relit ; les suivantes sont relues avant d’arriver ici.')}
             </Text>
             {!oniEnabled && (
               <Notice text={isDemo ? t('La démonstration utilise une lecture déjà préparée dans un rêve d’exemple.') : t('Les nouvelles demandes de lecture sont actuellement indisponibles. Votre Grimoire reste accessible.')} />

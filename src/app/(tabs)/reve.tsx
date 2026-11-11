@@ -12,13 +12,17 @@ import { appendTranscript } from '../../lib/dictation';
 import { KEYS, local } from '../../lib/storage';
 import { emotionFromAnswer, oniQuestions, withContext, type OniAnswer, type OniQuestion } from '../../lib/oni-questions';
 import { OniAsk } from '../../components/OniAsk';
+import { dailyReadingUsed } from '../../lib/oni-daily';
 import { dreamerLines, isEmptyProfile, readDreamer, type DreamerProfile } from '../../lib/dreamer';
 import { t } from '../../i18n';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function Reve() {
-  const { addDream, user, oniEnabled, isDemo } = useSession();
+  const { addDream, user, oniEnabled, isDemo, resolveDreamId } = useSession();
+  const [lastId, setLastId] = useState<string | null>(null);
+  const [opening, setOpening] = useState(false);
+  const [dailyUsed, setDailyUsed] = useState(false);
   const [title, setTitle] = useState('');
   const [story, setStory] = useState('');
   const [dreamDate, setDreamDate] = useState(today());
@@ -71,7 +75,9 @@ export default function Reve() {
     setBusy(true);
     setError(null);
     try {
-      await addDream(input);
+      const kept = await addDream(input);
+      setLastId(kept.id);
+      setDailyUsed(await dailyReadingUsed().catch(() => false));
       if (Platform.OS !== 'web') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
       setSaved(true);
       setQuestions(null);
@@ -99,7 +105,35 @@ export default function Reve() {
           </Body>
         </View>
 
-        {saved && (
+        {saved && user && oniEnabled && !isDemo && lastId ? (
+          <Card style={{ gap: space.sm }}>
+            <Eyebrow>{dailyUsed ? t('Votre rêve est dans votre Grimoire') : t('Lecture du jour d’Oni')}</Eyebrow>
+            <Body muted>
+              {dailyUsed
+                ? t('Votre lecture immédiate du jour est déjà utilisée. Oni peut quand même lire ce rêve : sa lecture sera relue avant de vous parvenir, en général sous 48 heures.')
+                : t('Votre rêve est gardé. Oni peut vous répondre tout de suite, une fois par jour : votre accord vous sera demandé avant l’envoi.')}
+            </Body>
+            <GoldButton
+              label={dailyUsed ? t('Ouvrir mon rêve') : t('Qu’en dit Oni ? Lecture immédiate')}
+              loading={opening}
+              onPress={async () => {
+                setOpening(true);
+                setError(null);
+                try {
+                  const id = await resolveDreamId(lastId);
+                  if (!id) {
+                    setError(t('Votre rêve n’est pas encore arrivé dans votre Grimoire en ligne. Vérifiez votre réseau, puis ouvrez-le depuis le Grimoire.'));
+                    return;
+                  }
+                  router.push({ pathname: '/reve/[id]', params: { id, lire: dailyUsed ? undefined : '1' } });
+                  setSaved(false);
+                } finally {
+                  setOpening(false);
+                }
+              }}
+            />
+          </Card>
+        ) : saved && (
           <Notice
             tone="success"
             text={

@@ -7,7 +7,7 @@ import { SessionProvider, useSession } from '../lib/session';
 const mocks = vi.hoisted(() => ({
   data: new Map<string, unknown>(),
   getSecret: vi.fn(),
-  api: { privacy: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn(), createDream: vi.fn(), listDreams: vi.fn(), deleteDream: vi.fn(), deleteAccount: vi.fn(), requestOniReading: vi.fn() },
+  api: { privacy: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn(), createDream: vi.fn(), listDreams: vi.fn(), deleteDream: vi.fn(), deleteAccount: vi.fn(), requestOniReading: vi.fn(), requestDailyReading: vi.fn() },
   clearVoice: vi.fn(),
 }));
 vi.mock('../lib/api', () => ({ api: mocks.api, ApiError: class extends Error { constructor(message: string, public status: number) { super(message); } } }));
@@ -49,6 +49,7 @@ beforeEach(() => {
   mocks.api.deleteAccount.mockResolvedValue(undefined);
   mocks.api.createDream.mockResolvedValue({ id: 'saved-1' });
   mocks.api.requestOniReading.mockResolvedValue('en_attente');
+  mocks.api.requestDailyReading.mockResolvedValue({ status: 'quota' });
   mocks.clearVoice.mockResolvedValue(undefined);
 });
 afterEach(async () => { if (root) await act(async () => root.unmount()); });
@@ -97,6 +98,32 @@ describe('Grimoire, démonstration et effacement', () => {
     expect(mocks.api.requestOniReading).toHaveBeenCalledWith('test-session', '1', true);
     await expect(session.exploreWithOni('2', false)).rejects.toThrow('accord');
     expect(mocks.api.requestOniReading).toHaveBeenCalledTimes(1);
+    expect(mocks.api.requestDailyReading).toHaveBeenCalledTimes(1);
+  });
+  it('lecture du jour : immédiate une fois, puis lecture relue le reste de la journée', async () => {
+    mocks.api.requestDailyReading.mockResolvedValue({ status: 'lue', reading: 'Une porte.', questions: [], saved: true });
+    await mount();
+    await act(async () => session.signIn('test', 'not-a-real-password'));
+    let first: unknown;
+    await act(async () => { first = await session.exploreWithOni('1', true); });
+    expect(first).toMatchObject({ status: 'lue', reading: 'Une porte.' });
+    expect(mocks.api.requestOniReading).not.toHaveBeenCalled();
+    let second: unknown;
+    await act(async () => { second = await session.exploreWithOni('2', true); });
+    expect(second).toEqual({ status: 'en_attente', afterDaily: true });
+    expect(mocks.api.requestDailyReading).toHaveBeenCalledTimes(1);
+    expect(mocks.api.requestOniReading).toHaveBeenCalledWith('test-session', '2', true);
+  });
+  it('détresse : accompagnement, sans lecture relue automatique ni quota consommé', async () => {
+    mocks.api.requestDailyReading.mockResolvedValue({ status: 'accompagnement', reading: '3114' });
+    await mount();
+    await act(async () => session.signIn('test', 'not-a-real-password'));
+    let r: unknown;
+    await act(async () => { r = await session.exploreWithOni('1', true); });
+    expect(r).toEqual({ status: 'accompagnement', reading: '3114' });
+    expect(mocks.api.requestOniReading).not.toHaveBeenCalled();
+    await act(async () => { await session.exploreWithOni('2', true); });
+    expect(mocks.api.requestDailyReading).toHaveBeenCalledTimes(2);
   });
   it('respecte la fermeture du service déclarée par le serveur', async () => {
     mocks.api.privacy.mockResolvedValue({ oniEnabled: false });

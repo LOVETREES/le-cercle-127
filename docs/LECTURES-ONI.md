@@ -1,7 +1,38 @@
 # Lectures d'Oni depuis l'application
 
-Une lecture demandée dans l'application est **toujours relue par une personne** avant d'arriver dans le
-Grimoire. Le circuit passe par Make (équipe « My Team ») et ne touche pas au Master Worker du site.
+**Depuis le 11 novembre 2026 : une lecture du jour immédiate.** Une fois par jour et par compte (heure de Paris),
+la lecture arrive tout de suite (≈ 30 s) et une personne la relit **après coup**. Les demandes suivantes du même
+jour suivent le circuit relu avant envoi décrit plus bas.
+
+```
+App : « Qu'en dit Oni ? Lecture immédiate » (accord demandé à chaque envoi)
+  │  POST { dream_id, token, consent: true }
+  ▼
+Make « Cercle 127 — Lecture du jour d'Oni (immédiate, relue après coup) »  (scénario 10140399,
+webhook …epuxbt8jq6of4mux15crbkph88rcb59j)
+  1. GET /cercle127/v1/me (compte) puis /dreams → le rêve doit lui appartenir, avoir un récit, pas de lecture ;
+  2. déjà demandé (clé app-<id> du store de relecture) → « deja_demandee » ;
+  3. quota : store « Oni — lecture du jour (quota) » (208307), clé <compte>-<AAAA-MM-JJ Paris>
+     → déjà utilisée : « quota » (l'app bascule alors sur le circuit relu ci-dessous) ;
+  4. Oni (gpt-5-mini, même enveloppe F127 que d'habitude, lecture courte) ;
+  5. GARDE-FOU : si le récit laisse paraître une détresse réelle (règle 14 du prompt, outputs.safety = "crisis"),
+     pas d'interprétation : message d'orientation (3114, 112), rien publié, quota non consommé, et l'enregistrement
+     du store de relecture passe au statut « PRIORITÉ — détresse possible, à relire vite » ;
+  6. sinon : quota noté, lecture envoyée au site (/f127/v1/dream-reading-result), enregistrement au statut
+     « lecture du jour publiée — à relire après coup », et réponse { status: "lue", reading, questions, closing }.
+```
+
+**Relecture après coup** : dans Make → Data stores → « Oni — Lectures de l'app à relire », filtrer les statuts
+« lecture du jour publiée » et surtout « PRIORITÉ ». Une lecture à corriger se signale aussi par courriel depuis
+l'app (« Signaler cette lecture ou demander une relecture » → contact@lecercle127.com).
+
+Testé de bout en bout le 10 novembre 2026 avec le compte de démo : lecture en 28 s enregistrée sur le site,
+2ᵉ demande du jour → « quota » en 2,5 s, récit de détresse → « accompagnement » sans publication. Rêves et
+enregistrements de test effacés ensuite.
+
+## Lecture relue avant envoi (au-delà de la lecture du jour)
+
+Les autres demandes sont **relues par une personne** avant d'arriver dans le Grimoire. Le circuit passe par Make (équipe « My Team ») et ne touche pas au Master Worker du site.
 
 ```
 App : « Demander une lecture à Oni » (accord demandé à chaque envoi)

@@ -1,11 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Title } from '../../components/ui';
 import { EMOTIONS, readingSections } from '../../lib/model';
 import { splitContext } from '../../lib/oni-questions';
-import { useSession } from '../../lib/session';
+import { useSession, type OniOutcome } from '../../lib/session';
+import { dailyReadingUsed } from '../../lib/oni-daily';
 import { colors, fonts, space } from '../../lib/theme';
 import { t } from '../../i18n';
 
@@ -19,12 +20,55 @@ function ask(title: string, message: string, action: string): Promise<boolean> {
   );
 }
 
+function report(title: string) {
+  const body = t('Rêve : « {v0} »\n\nCe qui ne va pas dans cette lecture :\n', { v0: title });
+  Linking.openURL(`mailto:contact@lecercle127.com?subject=${encodeURIComponent(t('Signaler une lecture d’Oni'))}&body=${encodeURIComponent(body)}`).catch(() => undefined);
+}
+
 export default function DreamDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, lire } = useLocalSearchParams<{ id: string; lire?: string }>();
   const { dreams, removeDream, exploreWithOni, oniEnabled, oniRequested, user, isDemo } = useSession();
   const dream = dreams.find((d) => d.id === id);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [outcome, setOutcome] = useState<OniOutcome | null>(null);
+  const [dailyUsed, setDailyUsed] = useState(false);
+  const autoAsked = useRef(false);
+  useEffect(() => {
+    let active = true;
+    dailyReadingUsed().then((u) => active && setDailyUsed(u), () => undefined);
+    return () => { active = false; };
+  }, [outcome]);
+  const canAsk = !!dream && oniEnabled && !!user && !isDemo && !dream.pending && !dream.oniReading && !oniRequested.includes(dream.id);
+
+  async function explore() {
+    if (!dream) return;
+    // Consentement explicite à chaque envoi au service d'IA (politique de confidentialité).
+    const ok = await ask(
+      t('Demander une lecture à Oni ?'),
+      t('La demande passe par Make, qui reçoit votre identifiant de rêve et votre jeton de session pour retrouver le récit. Le titre, le récit et son contexte sont ensuite traités par OpenAI pour préparer une lecture. Votre lecture du jour s’affiche tout de suite et une personne du Cercle la relit ensuite ; les suivantes sont relues avant de vous parvenir. Les données de l’API OpenAI ne servent pas à entraîner les modèles par défaut ; des journaux techniques peuvent être conservés selon les réglages du prestataire. Aucun enregistrement audio n’est envoyé. Acceptez-vous cet envoi pour ce rêve ?'),
+      t('Envoyer à Oni'),
+    );
+    if (!ok) return;
+    setBusy(true);
+    setError(null);
+    try {
+      setOutcome(await exploreWithOni(dream.id, ok));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : t('Oni n’a pas pu répondre pour le moment.'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Venu du formulaire (« Qu'en dit Oni ? ») : l'accord est demandé tout de suite, une seule fois.
+  useEffect(() => {
+    if (lire === '1' && canAsk && !autoAsked.current && !outcome) {
+      autoAsked.current = true;
+      void explore();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lire, canAsk]);
 
   if (!dream) {
     return (
@@ -37,24 +81,6 @@ export default function DreamDetail() {
   const emotionRaw = EMOTIONS.find((e) => e.value === dream.emotion)?.label;
   const emotion = emotionRaw ? t(emotionRaw) : undefined;
 
-  const explore = async () => {
-    // Consentement explicite à chaque envoi au service d'IA (politique de confidentialité).
-    const ok = await ask(
-      t('Demander une lecture à Oni ?'),
-      t('La demande passe par Make, qui reçoit votre identifiant de rêve et votre jeton de session pour retrouver le récit. Le titre, le récit et son contexte sont ensuite traités par OpenAI pour préparer une lecture, relue par une personne du Cercle. Les données de l’API OpenAI ne servent pas à entraîner les modèles par défaut ; des journaux techniques peuvent être conservés selon les réglages du prestataire. Aucun enregistrement audio n’est envoyé. Acceptez-vous cet envoi pour ce rêve ?'),
-      t('Envoyer à Oni'),
-    );
-    if (!ok) return;
-    setBusy(true);
-    setError(null);
-    try {
-      await exploreWithOni(dream.id, ok);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : t('Oni n’a pas pu répondre pour le moment.'));
-    } finally {
-      setBusy(false);
-    }
-  };
 
   return (
     <ScrollView style={{ backgroundColor: colors.night }} contentContainerStyle={st.content}>
@@ -109,21 +135,62 @@ export default function DreamDetail() {
           <Body muted style={{ fontSize: 12 }}>
             {t('Des pistes, pas des vérités : vous gardez la main sur le sens. Réponse préparée avec l’aide d’une intelligence artificielle.')}
           </Body>
+          <Pressable onPress={() => report(dream.title)} accessibilityRole="link">
+            <Text style={st.report}>{t('Signaler cette lecture ou demander une relecture')}</Text>
+          </Pressable>
+        </Card>
+      ) : outcome?.status === 'lue' ? (
+        <Card>
+          <Eyebrow>{t('Lecture du jour d’Oni')}</Eyebrow>
+          {outcome.reading.split(/\n+/).map((p, i) => (
+            <Text key={i} style={st.reading} selectable>{p}</Text>
+          ))}
+          {outcome.questions.length > 0 && (
+            <View style={{ gap: 6 }}>
+              <Text style={st.readingHeading}>{t('Ce que le rêve laisse ouvert')}</Text>
+              {outcome.questions.map((q, i) => <Text key={i} style={st.readingLine} selectable>· {q}</Text>)}
+            </View>
+          )}
+          {outcome.closing ? <Text style={st.closing}>{outcome.closing}</Text> : null}
+          <Body muted style={{ fontSize: 12 }}>
+            {t('Lecture immédiate, préparée avec l’aide d’une intelligence artificielle : une personne du Cercle la relit ensuite. Des pistes, pas des vérités : vous gardez la main sur le sens.')}
+          </Body>
+          {!outcome.saved && <Body muted style={{ fontSize: 12 }}>{t('Elle sera aussi rangée dans votre Grimoire dès que possible.')}</Body>}
+          <Pressable onPress={() => report(dream.title)} accessibilityRole="link">
+            <Text style={st.report}>{t('Signaler cette lecture ou demander une relecture')}</Text>
+          </Pressable>
+        </Card>
+      ) : outcome?.status === 'accompagnement' ? (
+        <Card>
+          <Eyebrow>{t('Oni est là')}</Eyebrow>
+          {outcome.reading.split(/\n+/).map((p, i) => (
+            <Text key={i} style={st.readingLine} selectable>{p}</Text>
+          ))}
+          <GoldButton label={t('Appeler le 3114')} onPress={() => Linking.openURL('tel:3114').catch(() => undefined)} />
+          <Body muted style={{ fontSize: 12 }}>
+            {t('Le 3114 est le numéro national de prévention du suicide : gratuit, 24 h/24. En cas de danger immédiat, appelez le 112. Une personne du Cercle lira aussi votre rêve.')}
+          </Body>
         </Card>
       ) : user && !dream.pending && oniRequested.includes(dream.id) ? (
         <Card>
           <Eyebrow>{t('Lecture en préparation')}</Eyebrow>
+          {outcome && 'afterDaily' in outcome && outcome.afterDaily ? (
+            <Body muted>{t('Votre lecture du jour a déjà été utilisée aujourd’hui.')}</Body>
+          ) : null}
           <Body muted>
             {t('Oni lit votre rêve. Sa lecture est relue par une personne du Cercle avant d’arriver ici et dans l’onglet Lectures, en général sous 48 heures. Tirez l’écran du Grimoire vers le bas pour actualiser.')}
           </Body>
         </Card>
       ) : oniEnabled && user && !dream.pending ? (
         <Card>
-          <Eyebrow>Oni</Eyebrow>
+          <Eyebrow>{dailyUsed ? 'Oni' : t('Lecture du jour d’Oni')}</Eyebrow>
           <Body muted>
-            {t('Oni peut proposer des hypothèses et des questions à partir de ce rêve, sans vous dire quoi penser. Chaque lecture est relue par une personne avant de vous parvenir.')}
+            {dailyUsed
+              ? t('Votre lecture du jour est utilisée. Oni peut quand même lire ce rêve : sa lecture sera relue par une personne avant de vous parvenir, en général sous 48 heures. Une nouvelle lecture immédiate vous attend demain.')
+              : t('Une fois par jour, Oni vous répond tout de suite, en une trentaine de secondes : des hypothèses et des questions, sans vous dire quoi penser. Une personne du Cercle relit ensuite sa lecture.')}
           </Body>
-          <GoldButton label={t('Demander une lecture à Oni')} onPress={explore} loading={busy} />
+          <GoldButton label={dailyUsed ? t('Demander une lecture relue') : t('Qu’en dit Oni ? Lecture immédiate')} onPress={explore} loading={busy} />
+          {busy && !dailyUsed ? <Body muted style={{ fontSize: 12 }}>{t('Oni lit votre rêve…')}</Body> : null}
         </Card>
       ) : !dream.pending ? (
         <Card>
@@ -163,5 +230,7 @@ const st = StyleSheet.create({
   symbols: { fontFamily: fonts.title, fontSize: 18, lineHeight: 26, color: colors.gold },
   reading: { fontFamily: fonts.titleItalic, fontSize: 19, lineHeight: 27, color: colors.text },
   readingHeading: { fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: colors.gold, marginTop: 8 },
+  closing: { fontFamily: fonts.titleItalic, fontSize: 17, lineHeight: 24, color: colors.gold },
+  report: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold, paddingVertical: 4 },
   readingLine: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.text },
 });

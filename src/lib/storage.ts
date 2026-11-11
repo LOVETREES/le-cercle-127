@@ -61,6 +61,7 @@ export const KEYS = {
   welcomed: 'c127.oni-rencontre',
   oracleDraws: 'c127.oracle-tirages',
   oracleToday: 'c127.oracle-du-jour',
+  oniDaily: 'c127.oni-lecture-du-jour',
   journalIntime: 'c127.journal-intime',
   naissance: 'c127.naissance',
   bilans: 'c127.labyrinthe-bilans',

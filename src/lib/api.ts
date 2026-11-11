@@ -16,6 +16,32 @@ import { t } from '../i18n';
 
 // Scénario Make « Cercle 127 — App : demande de lecture d'Oni (relue) ».
 export const ONI_REQUEST_URL = 'https://hook.eu2.make.com/494v4gvalix9usill8zoynzh2mtyt13w';
+// Scénario Make « Cercle 127 — Lecture du jour d'Oni (immédiate, relue après coup) » : une par jour et par compte
+// (heure de Paris, tenu par le serveur) ; garde-fou de détresse (pas d'interprétation, 3114 / 112, relecture prioritaire).
+export const ONI_DAILY_URL = 'https://hook.eu2.make.com/epuxbt8jq6of4mux15crbkph88rcb59j';
+
+export type DailyReading =
+  | { status: 'lue'; reading: string; questions: string[]; closing?: string; saved: boolean }
+  | { status: 'accompagnement'; reading: string }
+  | { status: 'quota' | 'deja_demandee' | 'indisponible' };
+
+/** Réponse du scénario « lecture du jour » (texte brut du webhook). « Accepted » = rien de lisible pour ce rêve. */
+export function parseDailyReading(raw: unknown): DailyReading {
+  const b = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+  if (b.ok === true && b.status === 'lue' && str(b.reading)) {
+    return {
+      status: 'lue',
+      reading: str(b.reading),
+      questions: str(b.questions).split('\n').map((q) => q.trim()).filter(Boolean),
+      closing: str(b.closing) || undefined,
+      saved: b.saved === true,
+    };
+  }
+  if (b.ok === true && b.status === 'accompagnement' && str(b.reading)) return { status: 'accompagnement', reading: str(b.reading) };
+  if (b.ok === true && (b.status === 'quota' || b.status === 'deja_demandee')) return { status: b.status };
+  return { status: 'indisponible' };
+}
 
 const BASE: string =
   (Constants.expoConfig?.extra as { apiBaseUrl?: string } | undefined)?.apiBaseUrl ?? 'https://lecercle127.com/wp-json';
@@ -184,6 +210,19 @@ export const api = {
     })) as { ok?: boolean; status?: string } | undefined;
     if (body?.ok && (body.status === 'en_attente' || body.status === 'deja_demandee')) return body.status;
     throw new ApiError(t('Ce rêve n’a pas pu être confié à Oni. Actualisez votre Grimoire et réessayez.'), 400);
+  },
+
+  // Lecture du jour : Oni répond tout de suite (environ 30 s) ; une personne la relit ensuite.
+  async requestDailyReading(token: string, id: string, consent: boolean): Promise<DailyReading> {
+    if (consent !== true) throw new ApiError(t('Votre accord est nécessaire avant l’envoi à Oni.'), 400);
+    let body: unknown;
+    try {
+      body = await request(ONI_DAILY_URL, { method: 'POST', body: { dream_id: Number(id), token, consent }, timeoutMs: 120000 });
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 0) throw e;
+      return { status: 'indisponible' };
+    }
+    return parseDailyReading(body);
   },
 
   async privacy(): Promise<{ url: string; oniEnabled: boolean }> {

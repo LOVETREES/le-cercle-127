@@ -21,7 +21,7 @@ export default function Confidentialite() {
       </Card>
       <Card>
         <Title size={24}>{t('Une lecture d’Oni')}</Title>
-        <Body>{t('Les demandes ne sont proposées que lorsque le serveur active ce service. Votre accord est demandé pour chaque rêve. La demande passe par Make, qui reçoit l’identifiant du rêve et le jeton de votre session pour retrouver le récit. OpenAI traite ensuite le récit et son contexte pour préparer une lecture relue par une personne. Les audios de ce carnet ne sont pas transmis.')}</Body>
+        <Body>{t('Les demandes ne sont proposées que lorsque le serveur active ce service. Votre accord est demandé pour chaque rêve. La demande passe par Make, qui reçoit l’identifiant du rêve et le jeton de votre session pour retrouver le récit. OpenAI traite ensuite le récit et son contexte pour préparer une lecture. Une lecture par jour s’affiche aussitôt et une personne du Cercle la relit ensuite ; les suivantes sont relues avant de vous parvenir. Si un récit laisse paraître une détresse, Oni n’interprète pas : elle oriente vers le 3114 et une personne du Cercle est prévenue en priorité. Les audios de ce carnet ne sont pas transmis.')}</Body>
         <Body>{t('Selon les conditions standard de l’API OpenAI, les données ne servent pas à entraîner les modèles par défaut. Des journaux techniques peuvent être conservés selon les réglages et conditions du prestataire. Vous pouvez refuser sans perdre l’accès à votre journal.')}</Body>
       </Card>
       <Card>
