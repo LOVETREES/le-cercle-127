@@ -1,0 +1,61 @@
+name: Android – fichier Google Play (.aab)
+
+# Construit l'Android App Bundle (profil « production ») pour Google Play, signé avec la clé gardée par Expo.
+# Le .aab est joint à l'exécution (« LeCercle127-aab ») et à la publication android-v<version>.
+# La première version doit être importée à la main dans la Play Console (Tests fermés).
+# Déclenchement : bouton « Run workflow » ou un envoi dont le message contient [android-aab].
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  aab:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[android-aab]')
+    concurrency:
+      group: android-aab
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Vérifier le jeton Expo
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::Le secret EXPO_TOKEN est absent (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: SDK Android
+        run: |
+          echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Dépendances
+        run: npm ci
+      - name: Construire le .aab
+        run: npx --yes eas-cli@latest build --platform android --profile production --local --non-interactive --output "$RUNNER_TEMP/LeCercle127.aab"
+      - name: Joindre le .aab à l'exécution
+        uses: actions/upload-artifact@v4
+        with:
+          name: LeCercle127-aab
+          path: ${{ runner.temp }}/LeCercle127.aab
+          if-no-files-found: error
+          retention-days: 30
+      - name: Joindre le .aab à la publication versionnée
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./app.json').expo.version")
+          cp "$RUNNER_TEMP/LeCercle127.aab" "$RUNNER_TEMP/LeCercle127-${VERSION}.aab"
+          gh release view "android-v${VERSION}" >/dev/null 2>&1 || gh release create "android-v${VERSION}" --target "$GITHUB_SHA" --title "Le Cercle 127 — Android ${VERSION}" --notes "Android ${VERSION}"
+          gh release upload "android-v${VERSION}" "$RUNNER_TEMP/LeCercle127-${VERSION}.aab" --clobber
