@@ -1,0 +1,24 @@
+name: Android – état Google Play (lecture seule)
+
+# Affiche l'état de l'app dans Google Play (canaux, versions, testeurs) sans rien modifier.
+# Nécessite le secret GOOGLE_SERVICE_ACCOUNT_JSON. Déclenchement : « Run workflow » ou [play-status].
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  status:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[play-status]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Lire l'état
+        env:
+          GSA: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: node scripts/play-status.js
