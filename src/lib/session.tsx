@@ -27,6 +27,8 @@ type SessionState = {
   user: User | null;
   token: string | null;
   dreams: Dream[];
+  unassignedDrafts: Dream[];
+  claimLocalDrafts: () => Promise<void>;
   syncing: boolean;
   lastError: string | null;
   oniEnabled: boolean;
@@ -49,6 +51,12 @@ export type OniOutcome =
   | { status: 'accompagnement'; reading: string }
   | { status: 'en_attente' | 'deja_demandee'; afterDaily?: boolean };
 
+const LOCAL_ANONYMOUS_OWNER = 'local:anonymous';
+const LOCAL_UNASSIGNED_OWNER = 'local:unassigned';
+const draftOwnerForUser = (userId: string) => `user:${userId}`;
+const isUnassignedDraft = (draft: Dream) =>
+  !draft.ownerId || draft.ownerId === LOCAL_ANONYMOUS_OWNER || draft.ownerId === LOCAL_UNASSIGNED_OWNER;
+
 const Ctx = createContext<SessionState | null>(null);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
@@ -67,6 +75,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const demoRef = useRef<Dream[]>([]);
   const sessionEpoch = useRef(0);
   const activeToken = useRef<string | null>(null);
+  const activeUserId = useRef<string | null>(null);
   const syncQueue = useRef<Promise<void>>(Promise.resolve());
   const syncedIds = useRef<Record<string, string>>({});
 
@@ -88,14 +97,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         local.getJson<boolean>(KEYS.demoActive, false),
         local.getJson<Dream[]>(KEYS.demoDreams, []),
       ]);
+      const scopedDrafts = d.map((draft) =>
+        draft.ownerId ? draft : { ...draft, ownerId: LOCAL_UNASSIGNED_OWNER },
+      );
+      if (scopedDrafts.some((draft, index) => draft.ownerId !== d[index]?.ownerId)) {
+        await local.setJson(KEYS.drafts, scopedDrafts).catch(() => undefined);
+      }
       activeToken.current = t;
-      draftsRef.current = d;
+      activeUserId.current = t && u ? u.id : null;
+      draftsRef.current = scopedDrafts;
       demoRef.current = demoData;
       setDemoRecords(demoData);
       setIsDemo(demoActive && !t);
       setToken(t);
       setUser(t ? u : null);
-      setDrafts(d);
+      setDrafts(scopedDrafts);
       setServer(t ? c : []);
       setOniRequested(r);
       setReady(true);
@@ -111,6 +127,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const clearSession = useCallback(async () => {
     sessionEpoch.current += 1;
     activeToken.current = null;
+    activeUserId.current = null;
     setSyncing(false);
     await secure.remove(KEYS.token);
     await local.remove([KEYS.user, KEYS.cache, KEYS.oniRequested]);
@@ -153,14 +170,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   // Envoie les brouillons au serveur, puis recharge le Grimoire.
   const sync = useCallback(
-    async (tk: string) => {
+    async (tk: string, userId: string) => {
+      if (!userId) return;
+      const ownerId = draftOwnerForUser(userId);
       const epoch = sessionEpoch.current;
       const task = syncQueue.current.catch(() => undefined).then(async () => {
       if (epoch !== sessionEpoch.current || activeToken.current !== tk) return;
       setSyncing(true);
       setLastError(null);
       try {
-        for (const d of [...draftsRef.current]) {
+        for (const d of draftsRef.current.filter((draft) => draft.ownerId === ownerId)) {
           if (epoch !== sessionEpoch.current) return;
           const saved = await api.createDream(tk, d);
           if (epoch !== sessionEpoch.current) return;
@@ -190,13 +209,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     async (tk: string, u: User) => {
       sessionEpoch.current += 1;
       activeToken.current = tk;
+      activeUserId.current = u.id;
       setIsDemo(false);
       await local.remove([KEYS.demoActive]);
       await secure.set(KEYS.token, tk);
       await local.setJson(KEYS.user, u);
       setToken(tk);
       setUser(u);
-      await sync(tk);
+      await sync(tk, u.id);
     },
     [sync],
   );
@@ -233,7 +253,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       },
       user: isDemo ? { ...DEMO_USER, name: t(DEMO_USER.name) } : user,
       token: isDemo ? null : token,
-      dreams: isDemo ? demoRecords : mergeDreams(server, drafts),
+      unassignedDrafts: !isDemo && user ? drafts.filter(isUnassignedDraft) : [],
+      dreams: isDemo
+        ? demoRecords
+        : mergeDreams(
+            server,
+            user
+              ? drafts.filter((draft) => draft.ownerId === draftOwnerForUser(user.id))
+              : drafts.filter((draft) => draft.ownerId === LOCAL_ANONYMOUS_OWNER),
+          ),
       syncing,
       lastError,
       oniEnabled: oniEnabled && !isDemo,
@@ -258,9 +286,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         sessionEpoch.current += 1;
         await api.deleteAccount(token).catch(handleAuthError);
         const deletedOwner = palmOwnerFor(false, user?.id);
+        const deletedDraftOwner = user?.id ? draftOwnerForUser(user.id) : null;
         await clearSession();
         try {
-          await persistDrafts([]);
+          await persistDrafts(
+            deletedDraftOwner
+              ? draftsRef.current.filter((draft) => draft.ownerId !== deletedDraftOwner)
+              : draftsRef.current,
+          );
           await clearVoiceNotes();
           await local.remove([KEYS.journal, KEYS.pendingTranscript, KEYS.presenceDays]);
           await clearPalmReadings(deletedOwner);
@@ -280,7 +313,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         }
       },
       async refresh() {
-        if (token && !isDemo) await sync(token);
+        if (token && user?.id && !isDemo) await sync(token, user.id);
+      },
+      async claimLocalDrafts() {
+        if (isDemo || !token || !user) throw new Error(t('Connectez-vous pour importer les brouillons locaux.'));
+        const ownerId = draftOwnerForUser(user.id);
+        const next = draftsRef.current.map((draft) =>
+          isUnassignedDraft(draft) ? { ...draft, ownerId } : draft,
+        );
+        if (next.every((draft, index) => draft === draftsRef.current[index])) return;
+        await persistDrafts(next);
+        await sync(token, user.id);
       },
       async addDream(input) {
         const draft = makeDraft(input);
@@ -289,10 +332,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           await persistDemo([example, ...demoRef.current]);
           return example;
         }
-        const next = [draft, ...draftsRef.current];
+        const scopedDraft: Dream = {
+          ...draft,
+          ownerId: activeUserId.current ? draftOwnerForUser(activeUserId.current) : LOCAL_ANONYMOUS_OWNER,
+        };
+        const next = [scopedDraft, ...draftsRef.current];
         await persistDrafts(next);
-        if (token) void sync(token);
-        return draft;
+        if (token && user?.id) void sync(token, user.id);
+        return scopedDraft;
       },
       async removeDream(id) {
         if (isDemo) return persistDemo(demoRef.current.filter((d) => d.id !== id));
@@ -310,7 +357,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (isDemo) throw new Error(t('La démonstration utilise uniquement des exemples locaux.'));
         if (!consent) throw new Error(t('Votre accord est nécessaire avant chaque envoi à Oni.'));
         if (!oniEnabled) throw new Error(t('Les nouvelles demandes de lecture sont actuellement indisponibles.'));
-        if (!token) throw new ApiError(t('Connectez-vous pour demander une lecture à Oni.'), 401);
+        if (!token || !user?.id) throw new ApiError(t('Connectez-vous pour demander une lecture à Oni.'), 401);
         const deferred = async (afterDaily = false): Promise<OniOutcome> => {
           const status = await api.requestOniReading(token, id, consent);
           const next = oniRequested.includes(id) ? oniRequested : [...oniRequested, id];
@@ -323,7 +370,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         const daily = await api.requestDailyReading(token, id, consent);
         if (daily.status === 'lue') {
           await markDailyReadingUsed();
-          void sync(token);
+          void sync(token, user.id);
           return daily;
         }
         if (daily.status === 'accompagnement') return daily;
