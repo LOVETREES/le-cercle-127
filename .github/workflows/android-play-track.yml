@@ -1,0 +1,34 @@
+name: Android – placer une version dans un canal Google Play
+
+# Met un .aab déjà importé (numéro de version Android) en brouillon dans un canal (internal, alpha…).
+# Déclenchement : « Run workflow » (avec les valeurs voulues) ou un envoi contenant [play-track] (valeurs par défaut).
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: 'Canal (internal, alpha, beta)'
+        default: 'internal'
+      code:
+        description: 'Numéro de version Android du .aab'
+        default: '17'
+      name:
+        description: 'Nom de la version'
+        default: '1.0.5'
+  push:
+
+jobs:
+  track:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[play-track]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Placer la version
+        env:
+          GSA: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: node scripts/play-track.js "${{ inputs.track || 'internal' }}" "${{ inputs.code || '17' }}" "${{ inputs.name || '1.0.5' }}"
