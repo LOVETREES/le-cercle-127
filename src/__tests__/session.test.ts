@@ -174,6 +174,27 @@ describe('Grimoire, démonstration et effacement', () => {
     expect(mocks.data.has('cache')).toBe(false);
     expect(mocks.clearVoice).toHaveBeenCalledWith();
   });
+  it('efface le Grimoire mis en cache avant de changer de compte', async () => {
+    mocks.data.set('token', 'session-compte-a');
+    mocks.data.set('user', { id: 'compte-a', name: 'Compte A' });
+    mocks.data.set('cache', [{
+      id: 'reve-serveur-a',
+      title: 'Rêve du compte A',
+      story: 'Donnée privée en cache',
+      dreamDate: '2026-11-07',
+      createdAt: '2026-11-07T08:00:00.000Z',
+    }]);
+    mocks.api.login.mockResolvedValueOnce({
+      token: 'session-compte-b',
+      user: { id: 'compte-b', name: 'Compte B' },
+    });
+    mocks.api.listDreams.mockRejectedValueOnce(new Error('Serveur indisponible'));
+    await mount();
+    expect(session.dreams.map((dream) => dream.id)).toContain('reve-serveur-a');
+    await act(async () => session.signIn('b@example.test', 'not-a-real-password'));
+    expect(session.dreams).toHaveLength(0);
+    expect(mocks.data.has('cache')).toBe(false);
+  });
   it('ne synchronise pas et ne montre pas les brouillons d’un autre compte', async () => {
     mocks.data.set('drafts', [{
       id: 'draft-compte-a',
