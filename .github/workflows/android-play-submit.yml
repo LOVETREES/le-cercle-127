@@ -1,6 +1,7 @@
 name: Android – envoi à Google Play (tests fermés)
 
-# Envoie le .aab de la publication android-v<version> au canal de test fermé (« alpha ») de Google Play.
+# Envoie le .aab de la publication android-v<version> au canal de test fermé (« alpha ») de Google Play,
+# en brouillon (obligatoire tant que l’app n’est pas publiée) : il reste à cliquer « Envoyer pour examen ».
 # Nécessite le secret GOOGLE_SERVICE_ACCOUNT_JSON (clé JSON d'un compte de service ayant accès à la Play Console).
 # La toute première version doit avoir été importée à la main dans la Play Console.
 # Déclenchement : bouton « Run workflow » ou un envoi dont le message contient [play-submit].
@@ -38,7 +39,7 @@ jobs:
       - name: Envoyer à Google Play (test fermé)
         run: |
           printf '%s' "$GSA" > "$RUNNER_TEMP/gsa.json"
-          node -e "const f=process.argv[1],e=JSON.parse(require('fs').readFileSync('eas.json'));e.submit=e.submit||{};e.submit.production=e.submit.production||{};e.submit.production.android={serviceAccountKeyPath:f,track:'alpha',releaseStatus:'completed'};require('fs').writeFileSync('eas.json',JSON.stringify(e,null,2))" "$RUNNER_TEMP/gsa.json"
+          node -e "const f=process.argv[1],e=JSON.parse(require('fs').readFileSync('eas.json'));e.submit=e.submit||{};e.submit.production=e.submit.production||{};e.submit.production.android={serviceAccountKeyPath:f,track:'alpha',releaseStatus:'draft'};require('fs').writeFileSync('eas.json',JSON.stringify(e,null,2))" "$RUNNER_TEMP/gsa.json"
           npx --yes eas-cli@latest submit --platform android --profile production --path "$AAB" --non-interactive
       - name: Effacer la clé
         if: always()
