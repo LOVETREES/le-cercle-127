@@ -12,7 +12,6 @@ RUN --mount=type=secret,id=proxy_ca \
 
 FROM dependencies AS development
 COPY . .
-COPY --chmod=755 docker/entrypoint.sh /usr/local/bin/c127-expo
 EXPOSE 8081
-ENTRYPOINT ["c127-expo"]
+ENTRYPOINT ["sh", "/app/docker/entrypoint.sh"]
 CMD ["npx", "expo", "start", "--lan", "--port", "8081", "--max-workers", "2"]
