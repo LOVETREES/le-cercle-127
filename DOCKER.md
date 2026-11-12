@@ -1,6 +1,10 @@
-# Développement Expo 1.0.2 avec Docker
+# Développement Expo 1.0.5 avec Docker
 
 Le service par défaut lance Metro pour développer l’application corrigée sur Mac, Windows ou Linux. Node 24, le code de l’application et les dépendances JavaScript sont dans l’image. Compose monte les fichiers du projet pour le rechargement automatique. L’image ne génère pas à elle seule le binaire iOS signé pour TestFlight.
+
+Source de cette mise à jour : branche `claude/upbeat-lamport-ymb7e2`, commit `9fd7aa5` du 12 novembre 2026. La branche `main` ne contient pas l’application mobile. Le numéro affiché vient de `app.json` (1.0.5) ; le numéro interne du paquet npm est encore 1.0.2.
+
+Compose étiquette l’image `le-cercle-127:1.0.5`. Pour une prochaine version, modifier le tag avec `C127_IMAGE_TAG` lors de la construction et du démarrage. Le code embarqué correspond aux sources locales au moment du build.
 
 ## Démarrer avec Docker Desktop
 
@@ -18,7 +22,7 @@ docker compose up --build -d --wait expo
 docker compose logs -f expo
 ```
 
-Ouvrir http://localhost:8081 pour l’aperçu navigateur. Pour saisir d’autres commandes, ouvrir un deuxième onglet Terminal ; celui qui affiche les journaux reste occupé. Vérifier que Mon compte affiche la version 1.0.2. Les modifications dans `src/` sont prises en compte par Metro et Fast Refresh. Le mode développement n’active pas `CI=1`, qui désactiverait la surveillance des fichiers dans cette version d’Expo.
+Ouvrir http://localhost:8081 pour l’aperçu navigateur. Pour saisir d’autres commandes, ouvrir un deuxième onglet Terminal ; celui qui affiche les journaux reste occupé. Vérifier que Mon compte affiche la version 1.0.5 (version Expo dans `app.json`). Les modifications dans `src/` sont prises en compte par Metro et Fast Refresh. Le mode développement n’active pas `CI=1`, qui désactiverait la surveillance des fichiers dans cette version d’Expo.
 
 ### Tester sur iPhone, sur le même Wi-Fi
 
@@ -52,8 +56,8 @@ Après avoir récupéré une mise à jour du code avec Git, relancer `docker com
 L’image contient aussi le code et peut démarrer sans monter le dossier du projet :
 
 ```sh
-docker build --target development -t le-cercle-127:expo-dev .
-docker run --rm --init -p 127.0.0.1:8082:8081 -e REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1 le-cercle-127:expo-dev
+docker build --target development -t le-cercle-127:1.0.5 .
+docker run --rm --init -p 127.0.0.1:8082:8081 -e REACT_NATIVE_PACKAGER_HOSTNAME=127.0.0.1 le-cercle-127:1.0.5
 ```
 
 Dans ce cas, ouvrir http://localhost:8082. Ce mode utilise le code embarqué au moment de la construction ; pour modifier le code avec Fast Refresh, utiliser Compose.
@@ -75,13 +79,21 @@ Les services WordPress et Make restent distants. Leur fonctionnement dépend du 
 La construction derrière le proxy utilise son certificat comme secret BuildKit ; il n’est pas conservé dans l’image.
 
 ```sh
-docker build --target development --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t le-cercle-127:expo-dev .
+docker build --target development --secret id=proxy_ca,src="$CODEX_PROXY_CERT" -t le-cercle-127:1.0.5 .
 C127_EXPO_OFFLINE=1 docker compose up --no-build -d --wait expo
 ```
 
 Le mode hors ligne est réservé à cette vérification sans services Expo distants. Pour des commandes HTTPS dans le conteneur du cloud, monter également le certificat du proxy en lecture seule et définir `NODE_EXTRA_CA_CERTS` pour le processus concerné, conformément à la configuration de cet environnement.
 
-## Vérifications réalisées
+## Vérification Docker de la version 1.0.5 — 12 novembre 2026
+
+- Construction de l’image `le-cercle-127:1.0.5` réussie avec Node 24 et le verrou npm existant.
+- Configuration Compose et `git diff --check` valides.
+- TypeScript : succès. Lint : aucune erreur, 16 avertissements existants. Tests : 198 réussis dans 29 fichiers, exécutés directement avec Node 24.
+- Démarrage du conteneur et contrôle de santé non validés : le stockage Docker VFS du cloud sature à la création du conteneur (`no space left on device`). L’image et ses caches ont été retirés après vérification de construction pour libérer le disque. Reconstruire localement avec les commandes ci-dessus.
+- L’entrypoint est exécuté avec `sh /app/docker/entrypoint.sh`, ce qui évite une couche de copie supplémentaire sans nécessiter un bit exécutable.
+
+## Vérifications historiques de la version 1.0.2
 
 La version 1.0.2 passe TypeScript, le lint et 117 tests. Les exports iOS, Android et web réussissent. Chromium vérifie le carnet vocal local avec un périphérique simulé : sauvegarde, persistance après rechargement, écoute, suppression, refus du micro. La démonstration est séparée des brouillons personnels. Les cinq onglets ont été exercés dans le navigateur.
 
