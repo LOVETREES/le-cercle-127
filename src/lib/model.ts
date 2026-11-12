@@ -40,6 +40,7 @@ export type Dream = DreamInput & {
   symbols?: string[]; // symboles repérés par le site (« La forêt, La lumière… »)
   oniReading?: string;
   pending?: boolean; // vrai tant que le rêve n'est pas synchronisé
+  ownerId?: string; // portée locale du brouillon ; jamais transmise au serveur
 };
 
 export type User = { id: string; name: string; email?: string };
