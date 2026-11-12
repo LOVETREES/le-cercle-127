@@ -210,8 +210,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       sessionEpoch.current += 1;
       activeToken.current = tk;
       activeUserId.current = u.id;
-      setIsDemo(false);
-      await local.remove([KEYS.demoActive]);
+      setServer([]);
+      setOniRequested([]);
+      await local.remove([KEYS.cache, KEYS.oniRequested, KEYS.demoActive]);
       await secure.set(KEYS.token, tk);
       await local.setJson(KEYS.user, u);
       setToken(tk);
