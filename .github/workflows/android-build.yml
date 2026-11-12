@@ -4,6 +4,7 @@ name: Android – APK de test
 # gardée par Expo. L'APK est joint à l'exécution (onglet Actions > l'exécution > « LeCercle127-apk »).
 # L'APK est aussi publié à une adresse fixe, celle du bouton « Télécharger pour Android » du site :
 #   https://github.com/LOVETREES/le-cercle-127/releases/download/android-test/LeCercle127.apk
+# et à une adresse versionnée : releases/download/android-v<version>/LeCercle127-<version>.apk
 # Déclenchement : bouton « Run workflow » (onglet Actions) ou un envoi dont le message contient [android-build].
 on:
   workflow_dispatch:
@@ -78,3 +79,13 @@ jobs:
             gh release create android-test --target "$GITHUB_SHA" --title "Le Cercle 127 — Android ${VERSION} (test)" --notes "$NOTES" --prerelease
           fi
           gh release upload android-test "$APK" --clobber
+          # Publication versionnée (lien du site avec le numéro de version) :
+          #   https://github.com/LOVETREES/le-cercle-127/releases/download/android-v${VERSION}/LeCercle127-${VERSION}.apk
+          VAPK="$RUNNER_TEMP/LeCercle127-${VERSION}.apk"
+          cp "$APK" "$VAPK"
+          if gh release view "android-v${VERSION}" >/dev/null 2>&1; then
+            gh release edit "android-v${VERSION}" --title "Le Cercle 127 — Android ${VERSION}" --notes "$NOTES"
+          else
+            gh release create "android-v${VERSION}" --target "$GITHUB_SHA" --title "Le Cercle 127 — Android ${VERSION}" --notes "$NOTES"
+          fi
+          gh release upload "android-v${VERSION}" "$VAPK" --clobber
