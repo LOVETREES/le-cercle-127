@@ -1,0 +1,42 @@
+name: Android – envoi à Google Play (tests fermés)
+
+# Envoie le .aab de la publication android-v<version> au canal de test fermé (« alpha ») de Google Play.
+# Nécessite le secret GOOGLE_SERVICE_ACCOUNT_JSON (clé JSON d'un compte de service ayant accès à la Play Console).
+# La toute première version doit avoir été importée à la main dans la Play Console.
+# Déclenchement : bouton « Run workflow » ou un envoi dont le message contient [play-submit].
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  submit:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[play-submit]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      GSA: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - name: Vérifier les secrets
+        run: |
+          [ -n "$EXPO_TOKEN" ] || { echo "::error::Secret EXPO_TOKEN absent."; exit 1; }
+          [ -n "$GSA" ] || { echo "::error::Secret GOOGLE_SERVICE_ACCOUNT_JSON absent (Settings > Secrets and variables > Actions)."; exit 1; }
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Récupérer le .aab
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./app.json').expo.version")
+          gh release download "android-v${VERSION}" --pattern "LeCercle127-${VERSION}.aab" --dir "$RUNNER_TEMP"
+          echo "AAB=$RUNNER_TEMP/LeCercle127-${VERSION}.aab" >> "$GITHUB_ENV"
+      - name: Envoyer à Google Play (test fermé)
+        run: |
+          printf '%s' "$GSA" > "$RUNNER_TEMP/gsa.json"
+          node -e "const f=process.argv[1],e=JSON.parse(require('fs').readFileSync('eas.json'));e.submit=e.submit||{};e.submit.production=e.submit.production||{};e.submit.production.android={serviceAccountKeyPath:f,track:'alpha',releaseStatus:'completed'};require('fs').writeFileSync('eas.json',JSON.stringify(e,null,2))" "$RUNNER_TEMP/gsa.json"
+          npx --yes eas-cli@latest submit --platform android --profile production --path "$AAB" --non-interactive
+      - name: Effacer la clé
+        if: always()
+        run: rm -f "$RUNNER_TEMP/gsa.json"
