@@ -97,8 +97,10 @@ describe('Grimoire, démonstration et effacement', () => {
     expect(session.dreams).toHaveLength(4);
     await act(async () => session.deleteAccount());
     expect(session.isDemo).toBe(false);
-    expect(session.dreams).toHaveLength(1);
-    expect(session.dreams[0].id).toBe('draft-private');
+    expect(session.dreams).toHaveLength(0);
+    expect(mocks.data.get('drafts')).toEqual([
+      expect.objectContaining({ id: 'draft-private', ownerId: 'local:unassigned' }),
+    ]);
     expect(mocks.api.login).not.toHaveBeenCalled();
     expect(mocks.api.createDream).not.toHaveBeenCalled();
     expect(mocks.api.deleteAccount).not.toHaveBeenCalled();
