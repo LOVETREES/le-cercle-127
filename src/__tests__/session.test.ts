@@ -64,6 +64,21 @@ describe('Grimoire, démonstration et effacement', () => {
     expect(mocks.data.has('pendingTranscript')).toBe(false);
     expect(mocks.api.deleteAccount).not.toHaveBeenCalled();
   });
+  it('supprime les brouillons du compte effacé sans toucher aux autres comptes', async () => {
+    mocks.data.set('token', 'session-compte-a');
+    mocks.data.set('user', { id: 'compte-a', name: 'Compte A' });
+    mocks.data.set('drafts', [
+      { id: 'draft-a', ownerId: 'user:compte-a', title: 'A', story: 'Rêve A', dreamDate: '2026-11-07', createdAt: '2026-11-07T08:00:00.000Z', pending: true },
+      { id: 'draft-b', ownerId: 'user:compte-b', title: 'B', story: 'Rêve B', dreamDate: '2026-11-07', createdAt: '2026-11-07T08:00:00.000Z', pending: true },
+      { id: 'draft-local', ownerId: 'local:anonymous', title: 'Local', story: 'Rêve local', dreamDate: '2026-11-07', createdAt: '2026-11-07T08:00:00.000Z', pending: true },
+    ]);
+    await mount();
+    await act(async () => session.deleteAccount());
+    expect(mocks.data.get('drafts')).toEqual([
+      expect.objectContaining({ id: 'draft-b', ownerId: 'user:compte-b' }),
+      expect.objectContaining({ id: 'draft-local', ownerId: 'local:anonymous' }),
+    ]);
+  });
   it('termine le démarrage même si le trousseau est indisponible', async () => {
     mocks.getSecret.mockRejectedValue(new Error('Locked'));
     await mount();
@@ -156,6 +171,48 @@ describe('Grimoire, démonstration et effacement', () => {
     expect(mocks.data.has('token')).toBe(false);
     expect(mocks.data.has('cache')).toBe(false);
     expect(mocks.clearVoice).toHaveBeenCalledWith();
+  });
+  it('ne synchronise pas et ne montre pas les brouillons d’un autre compte', async () => {
+    mocks.data.set('drafts', [{
+      id: 'draft-compte-a',
+      ownerId: 'user:compte-a',
+      title: 'Récit privé',
+      story: 'Un rêve du compte A',
+      dreamDate: '2026-11-07',
+      createdAt: '2026-11-07T08:00:00.000Z',
+      pending: true,
+    }]);
+    mocks.api.login.mockResolvedValueOnce({
+      token: 'session-compte-b',
+      user: { id: 'compte-b', name: 'Compte B' },
+    });
+    await mount();
+    await act(async () => session.signIn('b@example.test', 'not-a-real-password'));
+    expect(session.dreams).toHaveLength(0);
+    expect(session.unassignedDrafts).toHaveLength(0);
+    expect(mocks.api.createDream).not.toHaveBeenCalled();
+  });
+  it('demande un import explicite avant de synchroniser un brouillon local', async () => {
+    mocks.data.set('drafts', [{
+      id: 'draft-local',
+      ownerId: 'local:anonymous',
+      title: 'Brouillon local',
+      story: 'Un rêve resté sur cet appareil',
+      dreamDate: '2026-11-07',
+      createdAt: '2026-11-07T08:00:00.000Z',
+      pending: true,
+    }]);
+    await mount();
+    await act(async () => session.signIn('test', 'not-a-real-password'));
+    expect(session.unassignedDrafts).toHaveLength(1);
+    expect(mocks.api.createDream).not.toHaveBeenCalled();
+    await act(async () => session.claimLocalDrafts());
+    expect(mocks.api.createDream).toHaveBeenCalledTimes(1);
+    expect(mocks.api.createDream).toHaveBeenCalledWith(
+      'test-session',
+      expect.objectContaining({ ownerId: 'user:test-user' }),
+    );
+    expect(session.unassignedDrafts).toHaveLength(0);
   });
   it('garde le brouillon lorsque le serveur ne confirme pas sa création', async () => {
     await mount();
