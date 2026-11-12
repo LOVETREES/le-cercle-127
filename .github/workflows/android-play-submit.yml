@@ -13,7 +13,7 @@ jobs:
   submit:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[play-submit]')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       GSA: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
@@ -36,11 +36,11 @@ jobs:
           VERSION=$(node -p "require('./app.json').expo.version")
           gh release download "android-v${VERSION}" --pattern "LeCercle127-${VERSION}.aab" --dir "$RUNNER_TEMP"
           echo "AAB=$RUNNER_TEMP/LeCercle127-${VERSION}.aab" >> "$GITHUB_ENV"
-      - name: Envoyer à Google Play (test fermé)
+      - name: Envoyer à Google Play (test fermé, import direct)
         run: |
           printf '%s' "$GSA" > "$RUNNER_TEMP/gsa.json"
-          node -e "const f=process.argv[1],e=JSON.parse(require('fs').readFileSync('eas.json'));e.submit=e.submit||{};e.submit.production=e.submit.production||{};e.submit.production.android={serviceAccountKeyPath:f,track:'alpha',releaseStatus:'draft'};require('fs').writeFileSync('eas.json',JSON.stringify(e,null,2))" "$RUNNER_TEMP/gsa.json"
-          npx --yes eas-cli@latest submit --platform android --profile production --path "$AAB" --non-interactive
+          VERSION=$(node -p "require('./app.json').expo.version")
+          GSA="$(cat "$RUNNER_TEMP/gsa.json")" node scripts/play-upload.js "$AAB" "$VERSION"
       - name: Effacer la clé
         if: always()
         run: rm -f "$RUNNER_TEMP/gsa.json"
