@@ -78,7 +78,7 @@ function SitePageContent({ path }: { path: string }) {
     fetch(url, { signal: controller.signal, credentials: 'omit' }).then(async (response) => {
       if (!response.ok) throw new Error(t('Page indisponible.'));
       const content = await response.text();
-      const prepared = prepareAppHtml(content, response.url || url);
+      const prepared = prepareAppHtml(content, response.url || url, Platform.OS);
       // Terra : la page sait si la lecture de la main du jour a déjà été faite (une par jour).
       const palm = await lastPalmScript().catch(() => '');
       if (active) setHtml({ content: palm ? prepared.replace(/<head[^>]*>/i, (h) => h + palm) : prepared, baseUrl: response.url || url });
