@@ -23,5 +23,22 @@ const API = `https://androidpublisher.googleapis.com/androidpublisher/v3/applica
   console.log('FICHIERS .aab importés :', JSON.stringify((b.j.bundles || []).map((x) => x.versionCode)), b.s === 200 ? '' : JSON.stringify(b.j.error));
   for (const c of ['alpha', 'beta', 'internal']) { const ts = await call('GET', `/edits/${id}/testers/${c}`); console.log('Testeurs', c, ':', ts.s, JSON.stringify(ts.j.googleGroups || ts.j.error?.message || ts.j)); }
   await call('DELETE', `/edits/${id}`);
+  // Produits et abonnements (hors « modification ») : nom, état, prix par pays.
+  const money = (m) => m ? `${m.units || 0}${m.nanos ? '.' + String(Math.round(m.nanos / 1e7)).padStart(2, '0') : ''} ${m.currencyCode}` : '?';
+  const ia = await call('GET', '/inappproducts');
+  console.log('PRODUITS INTÉGRÉS (ancienne API) :', ia.s, ia.s === 200 ? '' : JSON.stringify(ia.j.error?.message));
+  for (const p of ia.j.inappproduct || []) console.log(' -', p.sku, '|', p.status, '|', p.purchaseType, '|', JSON.stringify(Object.values(p.listings || {})[0]?.title), '| défaut', p.defaultPrice ? p.defaultPrice.priceMicros / 1e6 + ' ' + p.defaultPrice.currency : '?', '| pays', Object.keys(p.prices || {}).length);
+  const ot = await call('GET', '/onetimeproducts');
+  console.log('PRODUITS PONCTUELS :', ot.s, ot.s === 200 ? '' : JSON.stringify(ot.j.error?.message));
+  for (const p of ot.j.oneTimeProducts || []) {
+    console.log(' -', p.productId, '|', JSON.stringify((p.listings || [])[0]?.title));
+    for (const o of p.purchaseOptions || []) { const r = o.regionalPricingAndAvailabilityConfigs || []; const fr = r.find((x) => x.regionCode === 'FR'); console.log('    option', o.purchaseOptionId, '|', o.state, '|', r.length, 'pays | FR', money(fr?.price)); }
+  }
+  const sb = await call('GET', '/subscriptions');
+  console.log('ABONNEMENTS :', sb.s, sb.s === 200 ? '' : JSON.stringify(sb.j.error?.message));
+  for (const x of sb.j.subscriptions || []) {
+    console.log(' -', x.productId, '|', JSON.stringify((x.listings || [])[0]?.title));
+    for (const b of x.basePlans || []) { const r = b.regionalConfigs || []; const fr = r.find((y) => y.regionCode === 'FR'); console.log('    forfait', b.basePlanId, '|', b.state, '|', b.autoRenewingBasePlanType ? 'renouvelable ' + b.autoRenewingBasePlanType.billingPeriodDuration : b.prepaidBasePlanType ? 'prépayé' : '', '|', r.length, 'pays | FR', money(fr?.price)); }
+  }
   console.log('Lien d’inscription (une fois un test fermé publié) : https://play.google.com/apps/testing/' + PKG);
 })().catch((x) => { console.log('ERREUR', x.message); process.exit(1); });
