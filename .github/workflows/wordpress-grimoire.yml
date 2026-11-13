@@ -1,0 +1,26 @@
+name: Verify WordPress Grimoire
+on:
+  push:
+    paths:
+      - 'site-wordpress/c127-grimoire/**'
+      - 'scripts/test-grimoire-entry.php'
+      - '.github/workflows/wordpress-grimoire.yml'
+  pull_request:
+    paths:
+      - 'site-wordpress/c127-grimoire/**'
+      - 'scripts/test-grimoire-entry.php'
+      - '.github/workflows/wordpress-grimoire.yml'
+  workflow_dispatch:
+jobs:
+  grimoire-entry:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PHP syntax
+        run: |
+          php -l site-wordpress/c127-grimoire/c127-grimoire.php
+          php -l scripts/test-grimoire-entry.php
+      - name: Visitor and authenticated rendering
+        run: php scripts/test-grimoire-entry.php
+      - name: Rendering without optional PHP extensions
+        run: php -n scripts/test-grimoire-entry.php
