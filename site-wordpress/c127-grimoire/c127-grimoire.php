@@ -144,3 +144,36 @@ function c127g_guest_content($html) {
     return (string) ob_get_clean();
 }
 add_filter('the_content', 'c127g_guest_content', PHP_INT_MAX);
+
+
+/**
+ * Core 127 peut ajouter son shortcode de secours à la priorité 18, après que
+ * WordPress a déjà rendu les shortcodes. On vérifie donc la source brute ET le
+ * rendu existant, au lieu de chercher un shortcode dans du HTML déjà produit.
+ */
+function c127g_has_grimoire_surface($html) {
+    $pattern = <<<'REGEX'
+~<(?:section|div|form)\b[^>]*\bclass\s*=\s*(["'])(?:[^"']*\s)?(?:core127-grimoire|core127-auth-form)(?:\s[^"']*)?\1~is
+REGEX;
+    return 1 === preg_match($pattern, $html);
+}
+
+function c127g_surface_fallback($html) {
+    if (!is_page('grimoire') || !in_the_loop() || !is_main_query() || !shortcode_exists('core127_grimoire')) {
+        return $html;
+    }
+    $source = (string) get_post_field('post_content', get_queried_object_id(), 'raw');
+    if (has_shortcode($source, 'core127_grimoire') || c127g_has_grimoire_surface($html)) {
+        return $html;
+    }
+    return $html . do_shortcode('[core127_grimoire]');
+}
+
+function c127g_guard_surface_fallback() {
+    if (!is_page('grimoire')) { return; }
+    $priority = has_filter('the_content', 'core127_surface_fallback');
+    if (false === $priority) { return; }
+    remove_filter('the_content', 'core127_surface_fallback', $priority);
+    add_filter('the_content', 'c127g_surface_fallback', $priority);
+}
+add_action('wp', 'c127g_guard_surface_fallback', 20);
