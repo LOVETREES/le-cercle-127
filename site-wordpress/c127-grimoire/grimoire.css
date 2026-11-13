@@ -117,3 +117,22 @@ body.c127g-on.c127g-ready .page-hero,.c127g-old,body.c127g-on #c127-map:not(.is-
 .c127g .c127g-card{padding:20px 22px!important}
 .c127g .c127g-hero{padding:28px 28px 20px!important}
 @media (max-width:520px){.c127g .c127g-card{padding:16px!important}.c127g .c127g-hero{padding:22px 18px 16px!important}}
+
+
+/* Entrée publique : aucun tableau de bord ni bloc de données avant connexion. */
+.c127g-entry{max-width:780px;gap:24px;padding:12px 0 32px}
+.c127g-entry__intro{padding:clamp(22px,5vw,42px);border:1px solid var(--g-line);border-radius:22px;background:radial-gradient(500px 260px at 90% 10%,rgba(216,182,107,.12),transparent 70%),var(--g-card)}
+.c127g-entry__eyebrow{margin:0 0 12px;color:var(--g-gold);font:600 .72rem/1.5 var(--g-body);letter-spacing:.15em;text-transform:uppercase}
+.c127g-entry__intro h1{margin:0 0 18px!important;color:var(--g-gold2);font:600 clamp(2.4rem,7vw,3.5rem)/1.15 var(--g-serif)}
+.c127g-entry__intro>p:not(.c127g-entry__eyebrow){margin:0;max-width:58ch;color:var(--g-text)}
+.c127g-entry__actions{display:flex;align-items:center;flex-wrap:wrap;gap:16px 24px;margin-top:24px}
+.c127g-entry__link,.c127g-entry__help a{color:var(--g-gold2);text-decoration:underline;text-underline-offset:4px}
+.c127g-entry__login{scroll-margin-top:145px}
+.c127g-entry__login .core127-login{margin:0;padding:clamp(22px,5vw,36px);border:1px solid var(--g-line);border-radius:22px;background:var(--g-card);color:var(--g-text)}
+.c127g-entry__login h2{color:var(--g-gold2)}
+.c127g-entry__login input:not([type=hidden]):not([type=checkbox]):not([type=submit]){box-sizing:border-box;width:100%;max-width:100%;background:var(--g-night);color:var(--g-text);border:1px solid var(--g-line);border-radius:10px;padding:12px}
+.c127g-entry__login input[type=checkbox]{accent-color:var(--g-gold)}
+.c127g-entry__login button,.c127g-entry__login input[type=submit]{max-width:100%;white-space:normal}
+.c127g-entry__help{margin:16px 0 0;text-align:center;font-size:.88rem}
+.c127g-entry a:focus-visible,.c127g-entry input:focus-visible,.c127g-entry button:focus-visible{outline:2px solid var(--g-gold2);outline-offset:4px}
+@media(max-width:540px){.c127g-entry__actions{align-items:stretch;flex-direction:column}.c127g-entry__actions .c127g-btn{text-align:center}.c127g-entry__link{text-align:center}}
