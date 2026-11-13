@@ -1,16 +1,20 @@
 # Le Cercle 127 — Grimoire 1.0.1
 
-Cette mise à jour répare l’entrée de /grimoire/ pour les personnes déconnectées.
+Cette mise à jour répare l’entrée de /grimoire/ pour les personnes déconnectées et protège le formulaire de rêve contre une double injection de Core 127.
 
 ## Existant et cause
 
 Le tableau de bord 1.0.0 se charge uniquement pour un compte connecté. Les visiteurs recevaient donc encore les anciens blocs de la page : dictée, déconnexion, carte en chargement puis en erreur et widget de mémoire.
+
+Dans la source Core 127 disponible, le fallback du Grimoire cherche encore le shortcode dans le HTML après son rendu. Il peut donc ajouter une deuxième fois le formulaire de rêve. La protection ne se branche que si ce callback existe dans la version active.
 
 ## Modification minimale
 
 Le contenu principal visiteur est remplacé après le rendu des shortcodes par une présentation du Grimoire, la création de compte et le formulaire Core 127 déjà présent. Ses champs, son nonce, son traitement serveur et ses messages de validation sont conservés. Si ce formulaire n’est plus disponible, un lien de connexion WordPress revient au Grimoire après authentification.
 
 Le script du nouveau tableau de bord reste réservé aux sessions connectées. Les anciens scripts de dictée et de carte observés en production s’arrêtent quand leurs éléments sont absents ; les blocs correspondants sont retirés du HTML visiteur. Le widget de mémoire ajouté par le pont F127 est également retiré de cette vue.
+
+Pour la page Grimoire, le fallback Core 127 connu est remplacé à sa priorité d’origine par un contrôle de la source brute et des blocs déjà rendus. Le formulaire de secours n’est ajouté que s’il manque. Le branchement du Grand Labyrinthe est conservé.
 
 La page demande des en-têtes de non-cache et l’exclusion du cache de page afin de séparer les rendus selon la session.
 
@@ -20,7 +24,7 @@ Le changement ne crée aucune table, ne migre aucune donnée et ne remplace pas 
 
 ## Vérification automatisée
 
-Le contrôle PHP couvre les visiteurs, la conservation du formulaire et des messages, le repli sans DOM, la création de compte, les rendus connectés, les autres pages et l’absence de script/configuration de données pour un visiteur. Exécuter php scripts/test-grimoire-entry.php puis php -n scripts/test-grimoire-entry.php depuis la racine du dépôt.
+Le contrôle PHP couvre les visiteurs, la conservation du formulaire et des messages, le repli sans DOM, la création de compte, les rendus connectés, la reproduction puis la prévention de la double injection du formulaire de rêve, le maintien du formulaire de secours quand il manque, les autres pages et l’absence de script/configuration de données pour un visiteur. Exécuter php scripts/test-grimoire-entry.php puis php -n scripts/test-grimoire-entry.php depuis la racine du dépôt.
 
 La syntaxe PHP est aussi vérifiée en CI. Ces contrôles n’authentifient aucun vrai compte et ne remplacent pas le test après installation.
 
@@ -31,7 +35,7 @@ La syntaxe PHP est aussi vérifiée en CI. Ces contrôles n’authentifient aucu
 3. Remplacer la version 1.0.0 du plugin Le Cercle 127 — Grimoire, puis vérifier son activation.
 4. Purger une fois le cache de /grimoire/ dans le système de cache du site. Une page déjà mise en cache peut être servie avant l’exécution du plugin.
 5. Vérifier en navigation privée : présentation, création de compte, connexion ; aucun bouton de déconnexion, carte personnelle ou erreur de récupération avant connexion.
-6. Vérifier avec un compte de test : échec de connexion lisible, connexion réussie, tableau de bord, déconnexion puis retour à l’entrée visiteur. Vérifier l’onglet réseau : aucune requête vers les données de rêves ou de mémoire avant connexion.
+6. Vérifier avec un compte de test : échec de connexion lisible, connexion réussie, tableau de bord et un seul formulaire de dépôt de rêve, déconnexion puis retour à l’entrée visiteur. Vérifier l’onglet réseau : aucune requête vers les données de rêves ou de mémoire avant connexion.
 
 ## Retour arrière
 
