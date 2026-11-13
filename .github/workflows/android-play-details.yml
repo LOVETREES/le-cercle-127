@@ -1,0 +1,22 @@
+name: Android – coordonnées Google Play (retirer le téléphone)
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  details:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[play-details]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Retirer le numéro de téléphone public
+        env:
+          GSA: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: node scripts/play-details.js
