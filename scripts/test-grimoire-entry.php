@@ -6,7 +6,7 @@
 define('ABSPATH', __DIR__ . '/');
 $GLOBALS['c127g_test'] = [
     'page' => 'grimoire', 'logged' => false, 'loop' => true, 'main' => true,
-    'signup' => true, 'registration' => false,
+    'signup' => true, 'registration' => false, 'raw' => '', 'shortcode' => true,
     'actions' => [], 'filters' => [], 'styles' => [], 'scripts' => [], 'localized' => [], 'nocache' => 0,
 ];
 function add_action($name, $callback, $priority = 10) { $GLOBALS['c127g_test']['actions'][$name][$priority][] = $callback; }
@@ -45,6 +45,33 @@ function wp_registration_url() { return home_url('/wp-login.php?action=register'
 function wp_login_url($redirect = '') { return home_url('/wp-login.php?redirect_to=' . rawurlencode($redirect)); }
 function wp_lostpassword_url($redirect = '') { return home_url('/wp-login.php?action=lostpassword&redirect_to=' . rawurlencode($redirect)); }
 function nocache_headers() { $GLOBALS['c127g_test']['nocache']++; }
+
+
+function has_filter($name, $callback) {
+    foreach ($GLOBALS['c127g_test']['filters'][$name] ?? [] as $priority => $callbacks) {
+        if (in_array($callback, $callbacks, true)) { return $priority; }
+    }
+    return false;
+}
+function remove_filter($name, $callback, $priority) {
+    $callbacks = $GLOBALS['c127g_test']['filters'][$name][$priority] ?? [];
+    $GLOBALS['c127g_test']['filters'][$name][$priority] = array_values(array_filter($callbacks, function ($item) use ($callback) { return $item !== $callback; }));
+}
+function get_queried_object_id() { return 8354; }
+function get_post_field($field, $id, $context = 'display') { return $GLOBALS['c127g_test']['raw']; }
+function has_shortcode($content, $tag) { return false !== strpos($content, '[' . $tag); }
+function shortcode_exists($tag) { return 'core127_grimoire' === $tag && $GLOBALS['c127g_test']['shortcode']; }
+function do_shortcode($content) {
+    $form = '<section class="core127 core127-grimoire"><form class="core127-dream-form"><textarea name="dream_story"></textarea><button>Garder ce rêve</button></form></section>';
+    return str_replace('[core127_grimoire]', $form, $content);
+}
+// Reproduit le fallback de la source Core 127 disponible, enregistré après do_shortcode.
+function core127_surface_fallback($content) {
+    if (is_page('grimoire') && !has_shortcode($content, 'core127_grimoire')) {
+        return $content . do_shortcode('[core127_grimoire]');
+    }
+    return $content;
+}
 
 require dirname(__DIR__) . '/site-wordpress/c127-grimoire/c127-grimoire.php';
 
@@ -146,5 +173,27 @@ $GLOBALS['c127g_test']['page'] = 'grimoire';
 run_action('template_redirect');
 same($GLOBALS['c127g_test']['nocache'], 1, 'Le Grimoire doit envoyer les en-têtes de non-cache.');
 verify(defined('DONOTCACHEPAGE') && DONOTCACHEPAGE, 'Le Grimoire doit demander l’exclusion du cache de page.');
+
+
+$GLOBALS['c127g_test']['logged'] = true;
+$GLOBALS['c127g_test']['raw'] = '[core127_grimoire]';
+add_filter('the_content', 'core127_surface_fallback', 18);
+$rendered = do_shortcode($GLOBALS['c127g_test']['raw']);
+same(substr_count(run_filter('the_content', $rendered), '<form'), 2, 'Le cas de régression doit reproduire la double injection avant protection.');
+run_action('wp');
+same(has_filter('the_content', 'core127_surface_fallback'), false, 'Le fallback connu doit être remplacé uniquement dans cette requête Grimoire.');
+same(substr_count(run_filter('the_content', $rendered), '<form'), 1, 'Un shortcode déjà rendu doit garder un seul formulaire de rêve.');
+$GLOBALS['c127g_test']['raw'] = 'Une introduction sans shortcode.';
+same(substr_count(run_filter('the_content', '<p>Introduction</p>'), '<form'), 1, 'Le formulaire de secours doit rester disponible si la page n’en contient pas.');
+same(substr_count(run_filter('the_content', $rendered), '<form'), 1, 'Un bloc déjà rendu ailleurs doit empêcher une seconde injection.');
+$GLOBALS['c127g_test']['shortcode'] = false;
+same(substr_count(run_filter('the_content', '<p>Introduction</p>'), '<form'), 0, 'Un shortcode indisponible ne doit pas être injecté.');
+$GLOBALS['c127g_test']['shortcode'] = true;
+remove_filter('the_content', 'c127g_surface_fallback', 18);
+add_filter('the_content', 'core127_surface_fallback', 18);
+$GLOBALS['c127g_test']['page'] = 'grand-labyrinthe';
+run_action('wp');
+same(has_filter('the_content', 'core127_surface_fallback'), 18, 'Le fallback des autres pages doit garder son branchement.');
+$GLOBALS['c127g_test']['page'] = 'grimoire';
 
 echo $checks . " vérifications de contrat réussies.\n";
