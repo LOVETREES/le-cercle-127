@@ -1,0 +1,24 @@
+name: Android – fiche Google Play (compléter)
+
+# Complète la fiche Play Store (textes fr-FR, coordonnées, icône, bannière, captures) sans rien écraser.
+# Déclenchement : « Run workflow » ou un envoi contenant [play-listing].
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  listing:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[play-listing]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compléter la fiche
+        env:
+          GSA: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: node scripts/play-listing.js
