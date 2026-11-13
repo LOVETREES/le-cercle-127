@@ -7,4 +7,7 @@ export const FEATURES = {
   sisters: false,
   // Oracle 127 natif (essai) : bandeau en haut de l'onglet Oracle ; l'Oracle du site reste en place.
   oracleNatif: true,
+  // La Perle d'Oni en achat intégré Google Play (Android seulement) : ouverte dès que la clé RevenueCat
+  // (extra.revenuecatAndroidKey) est renseignée et le produit créé dans la Play Console.
+  perleAndroid: true,
 } as const;

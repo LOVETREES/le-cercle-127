@@ -7,6 +7,7 @@ import { EMOTIONS, readingSections } from '../../lib/model';
 import { splitContext } from '../../lib/oni-questions';
 import { useSession, type OniOutcome } from '../../lib/session';
 import { dailyReadingUsed } from '../../lib/oni-daily';
+import { PerleCard } from '../../components/PerleCard';
 import { colors, fonts, space } from '../../lib/theme';
 import { t } from '../../i18n';
 
@@ -27,7 +28,7 @@ function report(title: string) {
 
 export default function DreamDetail() {
   const { id, lire } = useLocalSearchParams<{ id: string; lire?: string }>();
-  const { dreams, removeDream, exploreWithOni, oniEnabled, oniRequested, user, isDemo } = useSession();
+  const { dreams, removeDream, exploreWithOni, oniEnabled, oniRequested, user, isDemo, token } = useSession();
   const dream = dreams.find((d) => d.id === id);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -204,6 +205,10 @@ export default function DreamDetail() {
       ) : null}
 
       {error && <Notice tone="error" text={error} />}
+
+      {user && token && !isDemo && !dream.pending && !dream.id.startsWith('draft-') ? (
+        <PerleCard dreamId={dream.id} userId={String(user.id)} token={token} />
+      ) : null}
 
       <OutlineButton
         danger

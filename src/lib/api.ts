@@ -20,6 +20,9 @@ export const ONI_REQUEST_URL = 'https://hook.eu2.make.com/494v4gvalix9usill8zoyn
 // (heure de Paris, tenu par le serveur) ; garde-fou de détresse (pas d'interprétation, 3114 / 112, relecture prioritaire).
 export const ONI_DAILY_URL = 'https://hook.eu2.make.com/epuxbt8jq6of4mux15crbkph88rcb59j';
 
+export type PerleRecord = { dreamId: string; status: 'en_preparation' | 'livree' | 'remboursee'; at: string };
+export type PerleStatus = { welcomeEligible: boolean; perles: PerleRecord[] };
+
 export type DailyReading =
   | { status: 'lue'; reading: string; questions: string[]; closing?: string; saved: boolean }
   | { status: 'accompagnement'; reading: string }
@@ -49,6 +52,7 @@ const NS = `${BASE}/cercle127/v1`;
 const PALM = `${BASE}/c127-palm/v1/readings`;
 const PALM_DETAILED = `${BASE}/c127-palm/v1/detailed`;
 const LV_BILANS = `${BASE}/c127-lv/v1/bilans`;
+const PERLE = `${BASE}/c127-oni/v1/perle`;
 
 export class ApiError extends Error {
   constructor(
@@ -223,6 +227,24 @@ export const api = {
       return { status: 'indisponible' };
     }
     return parseDailyReading(body);
+  },
+
+  /** Perles du compte et droit au prix de bienvenue (première Perle). */
+  async perleStatus(token: string): Promise<PerleStatus> {
+    const b = (await request(PERLE, { token })) as Partial<PerleStatus> | undefined;
+    return { welcomeEligible: b?.welcomeEligible !== false, perles: Array.isArray(b?.perles) ? b!.perles : [] };
+  },
+
+  /** Confirme un achat Google Play au site, qui le vérifie avant de lancer la Perle. */
+  async claimPerle(token: string, claim: { dreamId: string; productId: string; transactionId: string }): Promise<'en_preparation' | 'deja_confirmee'> {
+    const b = (await request(PERLE, {
+      method: 'POST',
+      token,
+      timeoutMs: 45000,
+      body: { dream_id: Number(claim.dreamId), product_id: claim.productId, transaction_id: claim.transactionId, consent: true },
+    })) as { status?: string } | undefined;
+    if (b?.status === 'en_preparation' || b?.status === 'deja_confirmee') return b.status;
+    throw new ApiError(t('Votre achat n’a pas encore pu être confirmé. Il sera réessayé automatiquement.'), 400);
   },
 
   async privacy(): Promise<{ url: string; oniEnabled: boolean }> {
