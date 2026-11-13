@@ -7,13 +7,16 @@ on:
     inputs:
       track:
         description: 'Canal (internal, alpha, beta)'
-        default: 'internal'
+        default: 'alpha'
       code:
         description: 'Numéro de version Android du .aab'
         default: '17'
       name:
         description: 'Nom de la version'
         default: '1.0.5'
+      status:
+        description: 'draft (brouillon) ou completed (publier / envoyer à l’examen)'
+        default: 'draft'
   push:
 
 jobs:
@@ -31,4 +34,4 @@ jobs:
       - name: Placer la version
         env:
           GSA: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-        run: node scripts/play-track.js "${{ inputs.track || 'internal' }}" "${{ inputs.code || '17' }}" "${{ inputs.name || '1.0.5' }}"
+        run: node scripts/play-track.js "${{ inputs.track || 'alpha' }}" "${{ inputs.code || '17' }}" "${{ inputs.name || '1.0.5' }}" "${{ inputs.status || 'completed' }}"
