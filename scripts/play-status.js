@@ -28,7 +28,7 @@ const API = `https://androidpublisher.googleapis.com/androidpublisher/v3/applica
   const ia = await call('GET', '/inappproducts');
   console.log('PRODUITS INTÉGRÉS (ancienne API) :', ia.s, ia.s === 200 ? '' : JSON.stringify(ia.j.error?.message));
   for (const p of ia.j.inappproduct || []) console.log(' -', p.sku, '|', p.status, '|', p.purchaseType, '|', JSON.stringify(Object.values(p.listings || {})[0]?.title), '| défaut', p.defaultPrice ? p.defaultPrice.priceMicros / 1e6 + ' ' + p.defaultPrice.currency : '?', '| pays', Object.keys(p.prices || {}).length);
-  const ot = await call('GET', '/onetimeproducts');
+  const ot = await call('GET', '/oneTimeProducts');
   console.log('PRODUITS PONCTUELS :', ot.s, ot.s === 200 ? '' : JSON.stringify(ot.j.error?.message));
   for (const p of ot.j.oneTimeProducts || []) {
     console.log(' -', p.productId, '|', JSON.stringify((p.listings || [])[0]?.title));
