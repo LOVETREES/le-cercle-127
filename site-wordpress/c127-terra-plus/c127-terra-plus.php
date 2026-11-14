@@ -2,11 +2,24 @@
 /**
  * Plugin Name: Cercle 127 - Terra Plus (mudras, schéma des lignes, lecture du jour)
  * Description: Complète l'atelier de Terra : vrai scan des lignes sur la photo (MediaPipe + modèle « Palm Line Reader », MIT, exécutés sur l'appareil, hébergés ici), espace à onglets (lire ma main, lecture détaillée, m'ancrer, parler à Terra), pastilles illustrées à la place des menus, arbre de progression (Graine → Canopée) et célébration de fin de lecture ; illustrations des quatre mudras et façon de faire chaque geste, schéma de la main dont les lignes s'allument, message clair en fin de lecture, une lecture de la main par jour composée à partir du corpus de Terra (tradition de d’Arpentigny, Desbarrolles et Cheiro, textes originaux), et la lecture détaillée sur photo (avec consentement, photo non conservée) avec l'évolution de la main dans le temps. Désactiver l'extension revient à l'état précédent.
- * Version: 1.10.1
+ * Version: 1.10.2
  * Author: Le Cercle 127
  */
 
 if (!defined('ABSPATH')) exit;
+
+// L'ancien module caméra de la page : le thème retire ses boutons à l'affichage mais laisse son script,
+// qui plantait en les cherchant. On l'arrête proprement quand ils sont absents.
+function c127_terra_plus_guard_old_camera($html) {
+    if (strpos($html, "getElementById('btn-terra-camera')") === false) return $html;
+    return str_replace("let stream = null;", "if (!btnCamera || !btnSnap || !btnUpload || !fileInput) return;\n  let stream = null;", $html);
+}
+add_filter('the_content', function ($c) {
+    return is_page('terra-gardienne-de-lancrage') ? c127_terra_plus_guard_old_camera($c) : $c;
+}, 1);
+add_action('template_redirect', function () {
+    if (is_page('terra-gardienne-de-lancrage')) ob_start('c127_terra_plus_guard_old_camera');
+}, 0);
 
 // Sur la page de Naïa : la conversation reçoit le message préparé après une lecture de la main.
 add_action('wp_enqueue_scripts', function () {
