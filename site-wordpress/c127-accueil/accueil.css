@@ -57,3 +57,53 @@ body.home .m1 > .wrap > .c127a-unfold{order:11}
 .c127a-pic{display:block;width:44px;height:44px;flex:0 0 auto;border-radius:12px;object-fit:contain}
 .c127a-pic.is-round{border-radius:50%;object-fit:cover;border:1px solid rgba(216,182,107,.6)}
 .c127a-pic.is-small{width:30px;height:30px;border-radius:8px}
+
+/* ===== Accueil identique à l'application (portée .c127h) ===== */
+.c127h{background:#080b17;color:#f2ede2;font:400 16px/1.5 "Manrope",system-ui,sans-serif;padding:22px 0 30px}
+.c127h *{box-sizing:border-box}
+.c127h-wrap{width:min(1180px,calc(100% - 32px));margin:0 auto;display:grid;gap:18px;grid-template-columns:minmax(0,1fr);grid-template-areas:"hello" "ctas" "chemin" "rituel" "thought" "tiles" "more"}
+@media (min-width:900px){.c127h-wrap{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:32px;grid-template-areas:"hello chemin" "ctas chemin" "rituel chemin" "thought chemin" "tiles tiles" "more more";grid-template-rows:auto auto auto 1fr auto auto;align-items:start}}
+.c127h-hello{grid-area:hello;display:flex;flex-direction:column;gap:4px}
+.c127h-ctas{grid-area:ctas;display:flex;flex-wrap:wrap;gap:12px}
+.c127h-chemin{grid-area:chemin}
+.c127h-rituel{grid-area:rituel}
+.c127h-thought{grid-area:thought}
+.c127h-tiles{grid-area:tiles}
+.c127h .c127h-more{grid-area:more}
+.c127h-date{font:600 .75rem/1.3 "Manrope",sans-serif;letter-spacing:.2em;color:#a9a4b8}
+.c127h h1{margin:0;font:500 clamp(2.4rem,7vw,3.5rem)/1.05 "Cormorant Garamond",Georgia,serif;color:#f2ede2}
+.c127h-sub{margin:0;color:#d8b66b;font-size:1rem}
+.c127h .c127h-main{flex:1 1 260px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:58px;border-radius:999px;background:#e8cf8f!important;color:#1b1730!important;text-decoration:none!important;font:500 1.5rem/1 "Cormorant Garamond",Georgia,serif;box-shadow:0 12px 30px rgba(216,182,107,.25)}
+.c127h .c127h-sec{flex:1 1 220px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:54px;border-radius:999px;border:1.5px solid #d8b66b;color:#e8cf8f!important;text-decoration:none!important;font-weight:600}
+.c127h-card{background:#111528;border:1px solid rgba(216,182,107,.28);border-radius:24px;padding:20px 16px;display:flex;flex-direction:column;gap:14px}
+.c127h-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.c127h-head h2{margin:0;font:500 1.85rem/1.1 "Cormorant Garamond",Georgia,serif;color:#f2ede2}
+.c127h-head span{font-weight:700;font-size:.82rem;color:#d8b66b}
+.c127h-intro{margin:0;font-size:.9rem;line-height:1.5;color:#a9a4b8}
+.c127h-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 4px}
+.c127h .c127h-sis{display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none!important;color:#f2ede2!important;text-align:center}
+.c127h-sis b{font-size:.82rem;font-weight:700}
+.c127h-sis small{font-size:.7rem;color:#a9a4b8}
+.c127h-sis em{font-style:normal;font-size:.7rem;font-weight:700;color:#a9a4b8}
+.c127h-sis em.is-on{color:#d8b66b}
+.c127h-ring{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.c127h-ring svg{position:absolute;inset:0}
+.c127h-ring img{border-radius:50%;object-fit:cover;background:#080b17;max-width:none!important;height:auto}
+.c127h-ring img.is-asleep{filter:brightness(.55)}
+.c127h .c127h-next{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:#1a1f38;text-decoration:none!important;color:#f2ede2!important}
+.c127h-next > span:not(.c127h-ring){flex:1;display:flex;flex-direction:column;gap:2px;font-size:.88rem;line-height:1.4}
+.c127h-next small{font-size:.68rem;font-weight:700;letter-spacing:.12em}
+.c127h-next i{font:500 1.6rem "Cormorant Garamond",serif;color:#d8b66b;font-style:normal}
+.c127h-note{margin:0;font-size:.75rem;color:#8e89a0}
+.c127h .c127h-start{display:flex;align-items:center;justify-content:center;min-height:50px;border-radius:999px;background:#e8cf8f!important;color:#1b1730!important;text-decoration:none!important;font:500 1.25rem "Cormorant Garamond",Georgia,serif}
+.c127h-rituel .c127a-rituel{margin:0}
+.c127h-thought small{font-size:.72rem;font-weight:700;letter-spacing:.14em;color:#d8b66b}
+.c127h-thought p{margin:6px 0 0;font:italic 500 1.35rem/1.35 "Cormorant Garamond",Georgia,serif;color:#f2ede2}
+.c127h-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.c127h .c127h-tiles a{display:flex;flex-direction:column;gap:2px;padding:16px;border-radius:18px;background:#111528;border:1px solid rgba(216,182,107,.2);text-decoration:none!important;color:#f2ede2!important}
+.c127h-tiles b{font:500 1.3rem "Cormorant Garamond",Georgia,serif}
+.c127h-tiles small{font-size:.8rem;color:#a9a4b8}
+#c127h-root .c127h-more,.c127h .c127h-more,.c127h .c127h-more.c127-force-soft-primary{justify-self:center;margin-top:6px;padding:12px 22px;border-radius:999px;border:1px solid rgba(216,182,107,.4)!important;background:transparent!important;color:#e8cf8f!important;font:600 .95rem "Manrope",sans-serif;cursor:pointer}
+.c127h-hidden{display:none!important}
+.c127h section,.c127h .c127h-thought,.c127h .c127a-rituel{margin:0}
+.c127h .c127h-thought{padding:4px 2px}
