@@ -2,16 +2,17 @@
    Textes originaux du Cercle 127, écrits dans la voix de Terra. Ils reprennent les correspondances
    de la tradition chiromantique du XIXe siècle, aujourd'hui dans le domaine public :
    C. S. d'Arpentigny (La Chirognomonie, 1843), A. Desbarrolles (Les Mystères de la main, 1859-1862),
-   Cheiro (Language of the Hand, 1894).
+   Cheiro (Language of the Hand, 1897).
+   Les passages qui nomment un auteur suivent les fiches d'apprentissage (docs/terra), relues sur le texte.
    Règles de Terra : une tradition symbolique, jamais une mesure ; ni santé, ni durée de vie,
    ni fortune, ni avenir certain ne se déduisent des lignes. */
 (function () {
   var C = {
-    version: '1.0',
+    version: '1.1',
     sources: {
       arp: 'd’après la chirognomonie de d’Arpentigny (1843)',
       desb: 'd’après la chiromancie de Desbarrolles (1859)',
-      cheiro: 'd’après Cheiro (1894)',
+      cheiro: 'd’après Cheiro (1897)',
       terra: 'lecture du Cercle 127'
     },
 
@@ -41,17 +42,17 @@
         theme: 'liens',
         name: 'la ligne de cœur',
         length: {
-          courte: 'Ta ligne de cœur s’arrête tôt : selon Desbarrolles, l’affection se dit alors en actes plus qu’en déclarations. Tu montres ton attachement par ce que tu fais pour l’autre.',
+          courte: 'Ta ligne de cœur est courte. Pour Desbarrolles, la longueur de cette ligne dit la force de l’attachement ; Terra y lit un cœur qui se donne à peu de personnes, mais sans se disperser.',
           moyenne: 'Ta ligne de cœur trouve une longueur d’équilibre : de l’élan vers les autres, sans s’y dissoudre. C’est la ligne de ceux qui savent rester eux-mêmes dans un lien.',
-          longue: 'Ta ligne de cœur traverse largement la paume : la tradition y voit une affectivité généreuse, idéaliste, qui donne beaucoup. Sa leçon est de recevoir autant qu’elle offre.'
+          longue: 'Ta ligne de cœur traverse largement la paume : Desbarrolles y voit une grande tendresse, qui peut déborder. Sa leçon est de recevoir autant qu’elle offre, et de laisser de l’air à ceux qu’elle aime.'
         },
         aspect: {
           fine: 'Tracée finement, elle parle d’une sensibilité qui se protège : tu ressens beaucoup, mais tu choisis à qui tu le montres.',
           profonde: 'Profondément gravée, elle dit des attachements durables et entiers. Ce que tu aimes, tu l’aimes longtemps.',
-          courbe: 'Sa courbe qui monte vers les doigts est, chez Cheiro, le signe d’une chaleur qui s’exprime : tu as besoin que l’affection se voie et se dise.',
+          courbe: 'Sa courbe qui monte vers l’index est lue par la tradition comme une chaleur qui s’exprime : tu as besoin que l’affection se voie et se dise.',
           droite: 'Droite et horizontale, elle est lue comme un cœur qui passe par la réflexion : tu aimes avec lucidité, parfois avec réserve.',
           discontinue: 'Ses interruptions racontent des passages : des liens qui se sont transformés, et un cœur qui a appris à se réparer.',
-          'bifurquée': 'Elle se divise en fin de course : la tradition y voit un cœur capable de tenir ensemble raison et émotion.'
+          'bifurquée': 'Elle se divise, et une branche monte vers l’index : Desbarrolles y voit un signe heureux, celui d’un cœur qui trouve sa place.'
         }
       },
       head: {
@@ -60,24 +61,24 @@
         length: {
           courte: 'Ta ligne de tête est courte : un esprit qui va à l’essentiel, qui décide vite et préfère le concret aux longs détours.',
           moyenne: 'Ta ligne de tête a une longueur mesurée : la pensée sait s’arrêter quand elle a compris assez pour agir.',
-          longue: 'Ta ligne de tête s’étend loin : pour Desbarrolles, c’est la marque d’un esprit qui pèse, prévoit, envisage chaque possibilité, au risque de trop retourner les choses.'
+          longue: 'Ta ligne de tête s’étend loin : Desbarrolles y lit un jugement sain et un esprit lucide, avec le risque, quand elle est très longue, de trop calculer.'
         },
         aspect: {
           fine: 'Fine, elle évoque une pensée délicate et nuancée, qui a besoin de calme pour se déployer.',
           profonde: 'Nette et profonde, elle parle d’une concentration solide : quand tu t’attaches à une idée, tu la creuses.',
-          courbe: 'En descendant vers le mont de la Lune, elle tourne la pensée vers l’imagination : tes idées naissent d’images avant de devenir des plans.',
+          courbe: 'En descendant vers le mont de la Lune, elle tourne la pensée vers l’imagination : pour Desbarrolles, on voit alors la vie « en artiste ».',
           droite: 'Droite à travers la paume, elle est lue comme un esprit pratique et méthodique, qui aime que les choses tiennent debout.',
           discontinue: 'Ses coupures signalent des changements de cap dans ta façon de penser : tu as su revoir tes certitudes.',
-          'bifurquée': 'La « fourche de l’écrivain » : la tradition y voit une pensée qui sait regarder un même sujet sous deux angles.'
+          'bifurquée': 'Elle se termine en fourche : Terra y lit une pensée qui sait regarder un même sujet sous deux angles, le concret et l’imaginaire.'
         }
       },
       life: {
         theme: 'energie',
         name: 'la ligne de vie',
         length: {
-          courte: 'Ta ligne de vie s’arrête tôt sur la paume. La tradition est claire : elle ne mesure aucune durée. On la lit comme un rythme qui préfère les élans courts et les vraies pauses.',
+          courte: 'Ta ligne de vie s’arrête tôt sur la paume. Les anciens traités y cherchaient une durée ; Terra ne les suit pas : cette ligne ne mesure pas la vie. Elle y lit un rythme qui préfère les élans courts et les vraies pauses.',
           moyenne: 'Ta ligne de vie entoure le pouce sur une longueur moyenne : une énergie qui se dose, qui sait quand donner et quand récupérer.',
-          longue: 'Ta ligne de vie descend loin autour du pouce : on y lit une vitalité de fond, de l’endurance, le goût de durer dans ce que tu entreprends.'
+          longue: 'Ta ligne de vie entoure largement le pouce : Desbarrolles y associe la vitalité et un bon caractère. Terra y lit de l’endurance, le goût de durer dans ce que tu entreprends.'
         },
         aspect: {
           fine: 'Fine, elle invite à ménager tes ressources : ton énergie est réelle, mais elle aime être écoutée.',
@@ -85,23 +86,23 @@
           courbe: 'Sa large courbe qui ouvre le mont de Vénus est lue comme une chaleur vitale tournée vers les autres et vers le plaisir de vivre.',
           droite: 'Plus droite, serrée contre le pouce, elle évoque une énergie prudente, qui se garde pour l’essentiel.',
           discontinue: 'Ses interruptions sont lues comme des changements de rythme ou de décor : tu as connu des recommencements, et tu en es sortie ou sorti.',
-          'bifurquée': 'Elle se divise vers le bas : la tradition y voit le goût du mouvement, des horizons qui changent.'
+          'bifurquée': 'Elle se divise vers le bas : Desbarrolles y voit un changement d’existence, et le conseil de ne pas forcer son travail, de se reposer à temps.'
         }
       },
       fate: {
         theme: 'direction',
         name: 'la ligne de destinée',
         length: {
-          courte: 'Ta ligne de destinée est brève : selon la tradition, ta direction s’est dessinée tard ou se construit par étapes, au fil de tes propres choix.',
+          courte: 'Ta ligne de destinée est brève : Terra y lit une direction qui se construit par étapes, au fil de tes propres choix.',
           moyenne: 'Ta ligne de destinée monte à mi-paume : une direction qui se précise à mesure que tu avances.',
           longue: 'Ta ligne de destinée remonte loin vers le majeur : on y lit un fil conducteur, une vocation qui t’accompagne depuis longtemps.'
         },
         aspect: {
           fine: 'Discrète, elle rappelle que ton chemin n’a pas besoin d’être spectaculaire pour être le tien.',
           profonde: 'Bien marquée, elle parle d’une volonté de suivre ton propre axe, même quand le monde propose autre chose.',
-          courbe: 'Partie du mont de la Lune, elle est lue comme une direction nourrie par les autres, les rencontres et l’intuition.',
+          courbe: 'Quand elle part du mont de la Lune, Desbarrolles y lit un chemin aidé par les autres et par les rencontres.',
           droite: 'Droite comme un axe, elle évoque la constance : tu avances quand tu sais pourquoi.',
-          discontinue: 'Ses coupures sont lues comme des bifurcations : des changements de route choisis ou subis, qui t’ont appris à repartir.',
+          discontinue: 'Coupée puis reprise, elle est lue par Desbarrolles comme une route qui avance par à-coups : tu as appris à repartir.',
           'bifurquée': 'Elle se partage : deux élans coexistent en toi, et ce n’est pas une faute de ne pas avoir encore choisi.'
         }
       }
@@ -109,9 +110,9 @@
 
     /* Le pouce : la volonté et la logique chez d'Arpentigny. */
     thumb: {
-      court: 'Ton pouce est plutôt court : d’Arpentigny y lisait une volonté qui passe par le cœur plus que par le calcul.',
+      court: 'Ton pouce est plutôt court : la tradition y lit une volonté qui laisse plus de place au sentiment qu’au calcul.',
       moyen: 'Ton pouce a une longueur d’équilibre : la volonté et la logique se répondent sans que l’une écrase l’autre.',
-      long: 'Ton pouce est long : pour d’Arpentigny, le pouce est l’homme même, et un pouce long dit une volonté qui sait tenir un cap.',
+      long: 'Ton pouce est long. Pour d’Arpentigny, le pouce résume la personne : il représente la volonté et la logique raisonnées. Long, il dit une volonté qui sait tenir un cap.',
       'très ouvert par rapport à la paume': 'Ton pouce s’écarte largement de la main : la tradition y voit une nature indépendante et généreuse, qui n’aime pas être enfermée.'
     },
 
