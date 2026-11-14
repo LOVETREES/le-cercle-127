@@ -53,8 +53,15 @@ describe('synchronisation des lectures de la main', () => {
     const { mergePalmReadings } = await import('../lib/palm');
     const a = { id: 'palm-1', at: '2026-11-01T10:00:00Z', word: 'Un', mantra: 'm' };
     const b = { id: 'palm-2', at: '2026-11-05T10:00:00Z', word: 'Deux' };
-    const dupe = { id: 'palm-9', at: '2026-11-02T10:00:00Z', word: 'Un', mantra: 'm' };
+    const dupe = { id: 'palm-9', at: '2026-11-01T18:00:00Z', word: 'Un', mantra: 'm' };
     expect(mergePalmReadings([a], [b, dupe]).map((r) => r.id)).toEqual(['palm-2', 'palm-1']);
+  });
+
+  it('garde le même texte reçu un autre jour comme une lecture à part', async () => {
+    const { mergePalmReadings } = await import('../lib/palm');
+    const a = { id: 'palm-1', at: '2026-11-01T10:00:00Z', word: 'Un', mantra: 'm' };
+    const later = { id: 'palm-3', at: '2026-11-08T10:00:00Z', word: 'Un', mantra: 'm' };
+    expect(mergePalmReadings([a], [later]).map((r) => r.id)).toEqual(['palm-3', 'palm-1']);
   });
 });
 

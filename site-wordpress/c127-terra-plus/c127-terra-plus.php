@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Cercle 127 - Terra Plus (mudras, schéma des lignes, lecture du jour)
- * Description: Complète l'atelier de Terra : vrai scan des lignes sur la photo (MediaPipe + modèle « Palm Line Reader », MIT, exécutés sur l'appareil, hébergés ici), espace à onglets (lire ma main, lecture détaillée, m'ancrer, parler à Terra), pastilles illustrées à la place des menus, arbre de progression (Graine → Canopée) et célébration de fin de lecture ; illustrations des quatre mudras et façon de faire chaque geste, schéma de la main dont les lignes s'allument, message clair en fin de lecture, une lecture de la main par jour, et la lecture détaillée sur photo (avec consentement, photo non conservée) avec l'évolution de la main dans le temps. Désactiver l'extension revient à l'état précédent.
- * Version: 1.9.5
+ * Description: Complète l'atelier de Terra : vrai scan des lignes sur la photo (MediaPipe + modèle « Palm Line Reader », MIT, exécutés sur l'appareil, hébergés ici), espace à onglets (lire ma main, lecture détaillée, m'ancrer, parler à Terra), pastilles illustrées à la place des menus, arbre de progression (Graine → Canopée) et célébration de fin de lecture ; illustrations des quatre mudras et façon de faire chaque geste, schéma de la main dont les lignes s'allument, message clair en fin de lecture, une lecture de la main par jour composée à partir du corpus de Terra (tradition de d’Arpentigny, Desbarrolles et Cheiro, textes originaux), et la lecture détaillée sur photo (avec consentement, photo non conservée) avec l'évolution de la main dans le temps. Désactiver l'extension revient à l'état précédent.
+ * Version: 1.10.0
  * Author: Le Cercle 127
  */
 
@@ -28,6 +28,9 @@ add_action('wp_enqueue_scripts', function () {
     wp_enqueue_script('c127-terra-scene', $base . 'terra-scene.js', [], (string) filemtime($dir . 'terra-scene.js'), true);
     wp_enqueue_script('c127-terra-seance', $base . 'terra-seance.js', [], (string) filemtime($dir . 'terra-seance.js'), true);
     wp_enqueue_script('c127-terra-hub', $base . 'terra-hub.js', [], (string) filemtime($dir . 'terra-hub.js'), true);
+    // La lecture du jour composée à partir du corpus de Terra (remplace les quatre cartes fixes de l'atelier).
+    wp_enqueue_script('c127-terra-corpus', $base . 'terra-corpus.js', [], (string) filemtime($dir . 'terra-corpus.js'), true);
+    wp_enqueue_script('c127-terra-lecture', $base . 'terra-lecture.js', ['c127-terra-corpus'], (string) filemtime($dir . 'terra-lecture.js'), true);
     wp_add_inline_script('c127-terra-scan', 'window.C127TerraDetailed = ' . wp_json_encode([
         'rest' => esc_url_raw(rest_url('c127-palm/v1/')),
         'nonce' => is_user_logged_in() ? wp_create_nonce('wp_rest') : '',

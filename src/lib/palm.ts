@@ -44,7 +44,9 @@ export function parsePalmMessage(raw: string, now = new Date()): PalmReading | u
   return r;
 }
 
-const sameReading = (a: PalmReading, b: PalmReading) => a.word === b.word && a.mantra === b.mantra && a.mudra === b.mudra;
+// Même texte le même jour = même lecture ; le même texte un autre jour reste une lecture à part.
+const sameReading = (a: PalmReading, b: PalmReading) =>
+  a.word === b.word && a.mantra === b.mantra && a.mudra === b.mudra && a.at.slice(0, 10) === b.at.slice(0, 10);
 
 /** Ajoute une lecture en tête, sans doublon, 50 au plus. */
 export function addPalmReading(list: PalmReading[], r: PalmReading): PalmReading[] {
