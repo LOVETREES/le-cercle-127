@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Le Cercle 127 — Accueil recentré et prolongement du rêve
  * Description: Accueil identique à l'application (salutation, « Raconter un rêve », « Mon chemin » avec les Sept Sœurs et leurs indices, rituel du jour, pensée du jour, raccourcis), sur mobile comme sur ordinateur ; la présentation du site est rangée sous « Découvrir le Cercle ». Auparavant : accueil centré sur le rêve : « Raconter mon rêve » (prix lu sur la page) et « Ouvrir mon Grimoire » en tête, bandeau « Ton rituel du jour » (carte, émotion, main) avec gestes cochés et série de jours, le reste replié plus bas. Après le paiement d'une Perle d'Oni : « Pendant qu'Oni lit ton rêve », Terra et Naïa en prolongement. Affiche « Le Cercle 127 » dans l’en-tête. Le thème n’est pas modifié ; désactiver l'extension rend l'accueil d'origine.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: Le Cercle 127
  */
 if (!defined('ABSPATH')) { exit; }

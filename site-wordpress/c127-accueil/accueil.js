@@ -29,6 +29,8 @@
   }
 
   /* ---------- Accueil : le même que l'application (salutation, rêve, Mon chemin, rituel) ---------- */
+  // wp_localize_script transmet 0 sous forme de texte « 0 » (vrai en JavaScript) : comparaison explicite.
+  var LOGGED = String(cfg.loggedIn) === '1';
   var THOUGHTS = ["Tu n’as pas à mériter la douceur : offre-t’en un peu aujourd’hui.", "Ce que tu ressens a le droit d’exister. Accueille-le, puis respire.", "Aimer, c’est aussi s’écouter quand personne ne le fait.", "Chaque matin est une page blanche. Écris-y une intention tendre.", "Ta valeur ne se mesure pas à ce que tu accomplis aujourd’hui.", "Un pas lent reste un pas. Avance à ton rythme.", "Sois pour toi l’ami·e que tu es pour les autres.", "Le calme ne vient pas d’ailleurs : il naît d’un souffle, ici, maintenant.", "Tes rêves te parlent avec douceur. Écoute-les sans te juger.", "Il y a de la beauté dans ce que tu traverses, même si tu ne la vois pas encore.", "Laisse aujourd’hui un peu de place à ce qui te fait du bien.", "Tu as déjà survécu à tous tes jours difficiles. Tu es plus fort·e que tu ne le crois.", "L’amour commence par un regard bienveillant posé sur soi.", "Ralentis : ce qui est important ne s’envolera pas.", "Une gratitude par jour suffit à éclairer une vie entière.", "Tu peux être en chemin et déjà entier·ère.", "Pardonne-toi d’avoir appris lentement : tu as appris.", "Ce que tu arroses grandit. Choisis ce que tu nourris aujourd’hui.", "Ton corps te porte depuis toujours. Remercie-le d’un geste doux.", "L’amour que tu donnes revient souvent par des chemins inattendus.", "Respire profondément : tu es exactement là où tu dois être.", "Tes émotions sont des messagères, pas des ennemies.", "Ose dire non à ce qui t’éteint, et oui à ce qui t’éclaire.", "La nuit prépare toujours le jour. Aie confiance en ton rythme.", "Un sourire offert à soi-même est déjà un soin.", "Ce qui se répète dans tes rêves t’invite à grandir, pas à t’inquiéter.", "Tu mérites un amour qui te laisse respirer, à commencer par le tien.", "Prends soin de toi comme on prend soin d’un jardin : patiemment.", "La lumière que tu cherches est déjà en toi.", "Aujourd’hui, choisis la douceur, envers toi et envers les autres.", "Chaque rêve noté est un pas de plus vers toi-même."];
   function thought(d) {
     var start = Date.UTC(d.getFullYear(), 0, 0);
@@ -55,10 +57,10 @@
     return '<span class="c127h-ring" style="width:' + size + 'px;height:' + size + 'px">' +
       '<svg width="' + size + '" height="' + size + '" aria-hidden="true"><circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" stroke="rgba(169,164,184,.25)" stroke-width="4" fill="none"/>' +
       (share ? '<circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" stroke="' + s.c + '" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="' + (c * share).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 ' + size / 2 + ' ' + size / 2 + ')"/>' : '') +
-      '</svg><img src="' + esc((IMG.sisters || {})[s.k]) + '" alt="" width="' + (size - 12) + '" height="' + (size - 12) + '" loading="lazy" decoding="async"' + (lvl || !cfg.loggedIn ? '' : ' class="is-asleep"') + '></span>';
+      '</svg><img src="' + esc((IMG.sisters || {})[s.k]) + '" alt="" width="' + (size - 12) + '" height="' + (size - 12) + '" loading="lazy" decoding="async"' + (lvl || !LOGGED ? '' : ' class="is-asleep"') + '></span>';
   }
   function cheminHtml(counts) {
-    var logged = !!cfg.loggedIn;
+    var logged = !!LOGGED;
     var lv = SISTERS.map(function (s) { return logged ? level(counts[s.k] || 0, s.th) : 0; });
     var awake = lv.filter(Boolean).length;
     var min = Math.min.apply(null, lv), next = SISTERS[lv.indexOf(min)];
@@ -88,7 +90,7 @@
       '<div class="c127h-wrap">' +
       '<div class="c127h-hello"><span class="c127h-date">' + esc(now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()) + '</span>' +
       '<h1>' + greeting(now) + (first ? ', ' + esc(first) : '') + '</h1>' +
-      '<p class="c127h-sub">' + (cfg.loggedIn ? 'Ton chemin t’attend : chaque rêve noté le fait avancer.' : 'Comprendre tes rêves, voir ce qui revient, avancer.') + '</p></div>' +
+      '<p class="c127h-sub">' + (LOGGED ? 'Ton chemin t’attend : chaque rêve noté le fait avancer.' : 'Comprendre tes rêves, voir ce qui revient, avancer.') + '</p></div>' +
       '<div class="c127h-ctas"><a class="c127h-main" href="' + esc(L.raconter || L.grimoire) + '">Raconter un rêve <span aria-hidden="true">›</span></a>' +
       '<a class="c127h-sec" href="' + esc(L.grimoire) + '">' + (IMG.grimoire ? '<img src="' + esc(IMG.grimoire) + '" alt="" width="28" height="28">' : '') + 'Ouvrir mon Grimoire</a></div>' +
       '<div class="c127h-chemin">' + cheminHtml({}) + '</div>' +
@@ -119,7 +121,7 @@
     });
 
     // Connecté·e : indices tirés du Grimoire (rêves, motifs) et des bilans du Labyrinthe ; le reste vit dans l'appli.
-    if (cfg.loggedIn && cfg.api) {
+    if (LOGGED && cfg.api) {
       var get = function (u) { return fetch(u, { credentials: 'same-origin', headers: { 'X-WP-Nonce': cfg.nonce || '' } }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); };
       Promise.all([get(cfg.api.dreams), cfg.api.bilans ? get(cfg.api.bilans) : null]).then(function (res) {
         var dreams = Array.isArray(res[0]) ? res[0] : (res[0] && res[0].dreams) || [];
