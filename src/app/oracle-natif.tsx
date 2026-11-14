@@ -5,7 +5,7 @@ import * as Crypto from 'expo-crypto';
 import * as Haptics from 'expo-haptics';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, Image, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Image, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, G, RadialGradient, Stop, Text as SvgText } from 'react-native-svg';
 
 import { Screen } from '../components/ui';
@@ -108,25 +108,64 @@ function Cercle({ lit, progress, onIn, onOut, onA11y, opened }: { lit: number; p
   );
 }
 
-/* ---------- Une lame : l'illustration seule, en grand ---------- */
-function LameView({ card, position, onZoom }: { card: Lame; position: string; onZoom: () => void }) {
-  const [w, setW] = useState(0);
+/* ---------- Une lame, montrée entière (700 × 1200 : titre, illustration et numéro font partie de la carte) ---------- */
+function LameArt({ card, onPress, label, style }: { card: Lame; onPress: () => void; label: string; style?: StyleProp<ViewStyle> }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="imagebutton" accessibilityLabel={label} style={[st.artBox, style]}>
+      <Image source={LAME_IMAGES[card.n]} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+    </Pressable>
+  );
+}
+
+function LameDetails({ card }: { card: Lame }) {
   const txt = lameText(card);
   return (
-    <View style={st.lame}>
-      <Text style={st.kicker}>{t(position).toUpperCase()}</Text>
-      <Pressable onPress={onZoom} accessibilityRole="imagebutton" accessibilityLabel={t('Voir la lame entière : {n}', { n: txt.name })} style={st.artBox} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-        {w ? (
-          // La lame d'édition porte un cadre chargé : on ne garde que son illustration.
-          <View style={{ width: w * 1.136, height: w * 1.136 * (12 / 7), marginLeft: -w * 0.068, marginTop: -w * 0.33 }}>
-            <Image source={LAME_IMAGES[card.n]} style={{ width: '100%', height: '100%' }} resizeMode="stretch" />
-          </View>
-        ) : null}
-      </Pressable>
+    <>
       <Text style={st.num}>{t('Lame {n}', { n: String(card.n).padStart(3, '0') })}</Text>
       <Text style={st.name}>{txt.name}</Text>
       <Text style={st.def}>{txt.definition}</Text>
       <Text style={st.sisters}>{sistersOfMask(card.mask).map((s) => s.name).join(' · ')}</Text>
+    </>
+  );
+}
+
+/* ---------- Une lame seule, en grand ---------- */
+function LameView({ card, position, onZoom }: { card: Lame; position: string; onZoom: () => void }) {
+  return (
+    <View style={st.lame}>
+      <Text style={st.kicker}>{t(position).toUpperCase()}</Text>
+      <LameArt card={card} onPress={onZoom} label={t('Voir la lame entière : {n}', { n: lameText(card).name })} style={{ width: '72%' }} />
+      <LameDetails card={card} />
+    </View>
+  );
+}
+
+/* ---------- Trois lames côte à côte : même taille, même ligne ; on touche une lame pour la lire ---------- */
+function Spread({ cards, positions, onZoom }: { cards: Lame[]; positions: string[]; onZoom: (c: Lame) => void }) {
+  const [sel, setSel] = useState(1);
+  const current = cards[sel] ?? cards[0];
+  return (
+    <View style={st.lame}>
+      <View style={st.spread} accessibilityRole="tablist">
+        {cards.map((c, i) => {
+          const on = i === sel;
+          return (
+            <View key={c.n} style={st.spreadCol}>
+              <Text style={[st.spreadPos, on && { color: GOLD2 }]} numberOfLines={2}>{t(positions[i] ?? '').toUpperCase()}</Text>
+              <LameArt
+                card={c}
+                onPress={() => (on ? onZoom(c) : setSel(i))}
+                label={on ? t('Voir la lame entière : {n}', { n: lameText(c).name }) : `${t(positions[i] ?? '')} : ${lameText(c).name}`}
+                style={[{ width: '100%' }, on ? st.spreadOn : st.spreadOff]}
+              />
+              <Text style={[st.spreadName, on && { color: colors.text }]} numberOfLines={2}>{lameText(c).name}</Text>
+              <View style={[st.spreadDot, on && { backgroundColor: GOLD2 }]} />
+            </View>
+          );
+        })}
+      </View>
+      <Text style={[st.kicker, { marginTop: space.sm }]}>{t(positions[sel] ?? '').toUpperCase()}</Text>
+      <LameDetails card={current} />
     </View>
   );
 }
@@ -276,9 +315,13 @@ export default function OracleNatif() {
         </>
       ) : (
         <Animated.View style={{ opacity: reveal, transform: [{ translateY: reveal.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }], gap: space.md }}>
-          {draw.cards.map((c, i) => (
-            <LameView key={c.n} card={c} position={draw.positions[i] ?? draw.positions[0]} onZoom={() => setZoom(c)} />
-          ))}
+          {draw.cards.length === 3 ? (
+            <Spread key={draw.cards.map((c) => c.n).join('-')} cards={draw.cards} positions={draw.positions} onZoom={setZoom} />
+          ) : (
+            draw.cards.map((c, i) => (
+              <LameView key={c.n} card={c} position={draw.positions[i] ?? draw.positions[0]} onZoom={() => setZoom(c)} />
+            ))
+          )}
 
           <View style={st.card}>
             {draw.mode === 'sept' ? (
@@ -372,7 +415,14 @@ const st = StyleSheet.create({
   peek: { alignSelf: 'center', borderTopWidth: 1, borderTopColor: 'rgba(216,182,107,0.2)', paddingTop: space.sm },
   peekT: { fontFamily: fonts.titleItalic, fontSize: 17, color: GOLD2, textAlign: 'center' },
   lame: { alignItems: 'center', gap: 6 },
-  artBox: { position: 'relative', width: '86%', aspectRatio: 17 / 16, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: '#0b0d1e', borderWidth: 1, borderColor: 'rgba(240,214,140,0.55)' },
+  spread: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, alignSelf: 'stretch' },
+  spreadCol: { flex: 1, alignItems: 'center', gap: 6 },
+  spreadPos: { fontFamily: fonts.bodyBold, fontSize: 9.5, letterSpacing: 1.1, lineHeight: 13, height: 26, color: colors.muted, textAlign: 'center', textAlignVertical: 'bottom' },
+  spreadOn: { borderColor: GOLD2, borderWidth: 2 },
+  spreadOff: { opacity: 0.72 },
+  spreadName: { fontFamily: fonts.title, fontSize: 15, lineHeight: 18, height: 36, color: colors.muted, textAlign: 'center' },
+  spreadDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'transparent' },
+  artBox: { position: 'relative', aspectRatio: 7 / 12, borderRadius: radius.md, overflow: 'hidden', backgroundColor: '#0b0d1e', borderWidth: 1, borderColor: 'rgba(240,214,140,0.55)' },
   num: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.6, color: colors.muted, marginTop: 4 },
   name: { fontFamily: fonts.title, fontSize: 30, color: colors.text, textAlign: 'center' },
   def: { fontFamily: fonts.titleItalic, fontSize: 18, lineHeight: 25, color: GOLD2, textAlign: 'center', paddingHorizontal: space.md },

@@ -1,5 +1,5 @@
 // Les 127 lames de l'édition 127, embarquées dans l'application (consultables hors ligne).
-// Fichier généré : assets/oracle/lame-NNN.webp (420 × 720).
+// Fichier généré : assets/oracle/lame-NNN.webp (420 × 720), d’après les cartes du site (card-NNN-c.jpg, novembre 2026).
 import type { ImageSourcePropType } from 'react-native';
 
 export const LAME_IMAGES: Record<number, ImageSourcePropType> = {

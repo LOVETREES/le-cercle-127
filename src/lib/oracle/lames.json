@@ -11,7 +11,7 @@
  },
  {
   "n": 2,
-  "name": "L’Étoile intérieure",
+  "name": "L’Appel",
   "mask": 32,
   "sisters": [
    "Astria"
@@ -21,7 +21,7 @@
  },
  {
   "n": 3,
-  "name": "L’Étoile au carrefour",
+  "name": "La Voie",
   "mask": 96,
   "sisters": [
    "Astria",
@@ -32,7 +32,7 @@
  },
  {
   "n": 4,
-  "name": "La Première Flamme",
+  "name": "La Mue",
   "mask": 16,
   "sisters": [
    "Ignis"
@@ -42,7 +42,7 @@
  },
  {
   "n": 5,
-  "name": "Le Feu du passage",
+  "name": "Le Premier Pas",
   "mask": 80,
   "sisters": [
    "Ignis",
@@ -53,7 +53,7 @@
  },
  {
   "n": 6,
-  "name": "La Flamme qui montre le nord",
+  "name": "L’Élan",
   "mask": 48,
   "sisters": [
    "Ignis",
@@ -64,7 +64,7 @@
  },
  {
   "n": 7,
-  "name": "Le Triangle vivant",
+  "name": "Le Départ",
   "mask": 112,
   "sisters": [
    "Ignis",
@@ -76,7 +76,7 @@
  },
  {
   "n": 8,
-  "name": "La Racine",
+  "name": "L’Ancrage",
   "mask": 8,
   "sisters": [
    "Terra"
@@ -86,7 +86,7 @@
  },
  {
   "n": 9,
-  "name": "Le Pas sur la terre",
+  "name": "Le Passage",
   "mask": 72,
   "sisters": [
    "Terra",
@@ -97,7 +97,7 @@
  },
  {
   "n": 10,
-  "name": "La Racine & horizon",
+  "name": "La Boussole",
   "mask": 40,
   "sisters": [
    "Terra",
@@ -108,7 +108,7 @@
  },
  {
   "n": 11,
-  "name": "Le Triangle vivant",
+  "name": "Le Sentier",
   "mask": 104,
   "sisters": [
    "Terra",
@@ -155,7 +155,7 @@
  },
  {
   "n": 15,
-  "name": "Songe",
+  "name": "Le Vestibule",
   "mask": 120,
   "sisters": [
    "Terra",
@@ -168,7 +168,7 @@
  },
  {
   "n": 16,
-  "name": "La Source sensible",
+  "name": "L’Écoute",
   "mask": 4,
   "sisters": [
    "Naïa"
