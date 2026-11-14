@@ -103,6 +103,7 @@ function Root() {
         <Stack.Screen name="oracle-natif" options={{ title: 'Oracle 127', headerShown: false }} />
         <Stack.Screen name="rencontre" options={{ headerShown: false, presentation: 'fullScreenModal', gestureEnabled: false }} />
         <Stack.Screen name="connaissance" options={{ title: 'Faisons connaissance', headerShown: false }} />
+        <Stack.Screen name="chemin" options={{ title: 'Mon chemin', headerShown: false }} />
         <Stack.Screen name="parcours" options={{ title: 'Mon parcours onirique', headerShown: false }} />
         <Stack.Screen name="soeurs" options={{ title: 'Le Cercle des 7 Sœurs', headerShown: false }} />
         <Stack.Screen name="journal" options={{ title: 'Mon journal', headerShown: false }} />

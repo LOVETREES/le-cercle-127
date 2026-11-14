@@ -51,7 +51,7 @@ export default function MesLectures() {
   return (
     <Screen>
       <View style={{ gap: space.sm }}>
-        <Eyebrow>{t('Ma promesse d’individuation')}</Eyebrow>
+        <Eyebrow>{t('Oni et Terra')}</Eyebrow>
         <Title size={34}>{t('Mes lectures')}</Title>
         <Body muted>
           {t('Vos rêves et votre main sont deux miroirs. Les relire, c’est revenir à vous-même et devenir, pas à pas, pleinement qui vous êtes.')}

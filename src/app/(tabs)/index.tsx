@@ -2,11 +2,13 @@ import { router, useFocusEffect } from 'expo-router';
 import { type ComponentRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { CheminCard } from '../../components/Chemin';
 import { NaiaCard, TerraCard } from '../../components/HomeSisters';
 import { RituelDuJour } from '../../components/RituelDuJour';
 import { GoldButton, Screen, SiteFooter } from '../../components/ui';
 import { IMAGES, SISTERS } from '../../lib/content';
-import { addPresence, dailyThought, greetingKey, journey } from '../../lib/insights';
+import { computeChemin, loadChemin, type Chemin } from '../../lib/chemin';
+import { addPresence, allRecurringMotifs, dailyThought, greetingKey, journey } from '../../lib/insights';
 import { useSession } from '../../lib/session';
 import { KEYS, local } from '../../lib/storage';
 import { colors, fonts, radius, space } from '../../lib/theme';
@@ -36,6 +38,14 @@ export default function Home() {
   const j = useMemo(() => journey(dreams, now), [dreams, now]);
   const last = useMemo(() => [...dreams].sort((a, b) => b.dreamDate.localeCompare(a.dreamDate))[0], [dreams]);
   const firstName = user?.name?.split(/\s+/)[0];
+  // Mon chemin : recalculé à chaque retour sur l'accueil (un geste fait ailleurs fait grandir sa Sœur).
+  const recurringAll = useMemo(() => allRecurringMotifs(dreams), [dreams]);
+  const [chemin, setChemin] = useState<Chemin>(() => computeChemin({ dreams: [], motifs: 0, motifDreams: [], emotions: [], palms: [], gestes: [], bilans: [], draws: [] }));
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    loadChemin(dreams, recurringAll).then((c) => { if (active) setChemin(c); }, () => undefined);
+    return () => { active = false; };
+  }, [dreams, recurringAll, ritualTick]));
   const thisMonth = j.months[5]?.count ?? 0;
   const lastMonth = j.months[4]?.count ?? 0;
 
@@ -81,6 +91,9 @@ export default function Home() {
         <Image source={PICTO_GRIMOIRE} style={st.grimoirePicto} resizeMode="contain" />
         <Text style={st.grimoireLabel}>{t('Ouvrir mon Grimoire')}</Text>
       </Pressable>
+
+      {/* Mon chemin : les Sept Sœurs, leurs niveaux et le prochain pas */}
+      <CheminCard chemin={chemin} />
 
       {/* Rituel du jour : carte, émotion, main */}
       <RituelDuJour refreshKey={ritualTick} onEmotion={() => scrollRef.current?.scrollTo({ y: Math.max(0, naiaY.current - 12), animated: true })} />
@@ -132,7 +145,7 @@ export default function Home() {
       {/* Mes lectures : rêve et main */}
       <Pressable style={st.card} onPress={() => router.push('/mes-lectures')} accessibilityRole="link" accessibilityLabel={t('Mes lectures : mes rêves et ma main')}>
         <View style={{ flex: 1, gap: 2 }}>
-          <Text style={st.kickerMuted}>{t('MA PROMESSE D’INDIVIDUATION')}</Text>
+          <Text style={st.kickerMuted}>{t('ONI ET TERRA')}</Text>
           <Text style={st.cardTitle}>{t('Mes lectures')}</Text>
           <Text style={st.cardSub}>{t('Mes rêves avec Oni · Ma main avec Terra')}</Text>
         </View>
