@@ -80,7 +80,80 @@
       '</section>';
   }
 
-  function home() {
+  /* Ordinateur : l'accueil du site tel qu'il était (1.1.0), inchangé. */
+  function homeClassic() {
+    var wrap = document.querySelector('.m1 > .wrap');
+    if (!wrap) return;
+
+    // 1. Le bouton principal : raconter son rêve, avec le prix lu sur la page.
+    var cta = wrap.querySelector('.m1-cta');
+    var priceEl = document.querySelector('.m1-detail');
+    var price = priceEl && /(\d+[,.]\d{2})\s*€/.exec(priceEl.textContent || '');
+    if (cta) {
+      cta.classList.add('c127a-main');
+      cta.innerHTML = '<span>Raconter mon rêve' + (price ? ' — ' + price[1] + ' €' : '') + '</span>' +
+        '<small>La Perle d’Oni : une lecture détaillée, reçue par e-mail</small>';
+      cta.setAttribute('href', L.reve || cta.getAttribute('href'));
+    }
+    // 2. Le second : le Grimoire.
+    if (!wrap.querySelector('.c127a-cta2')) {
+      var g = el('a', 'c127a-cta2 wp-exclude-emoji', (IMG.grimoire ? '<img class="c127a-pic is-small" src="' + IMG.grimoire + '" alt="" width="30" height="30">' : '<span aria-hidden="true">📖</span>') + ' Ouvrir mon Grimoire');
+      g.href = L.grimoire || '/grimoire/';
+      wrap.appendChild(g);
+    }
+
+    // 3. Le rituel du jour.
+    var st = ritualState();
+    var R = st.R;
+    var streakTxt = (R.streak > 1 && (R.lastDay === day(0) || R.lastDay === day(1))) ? '🔥 ' + R.streak + ' jours' : '';
+    var band = el('section', 'c127a-rituel wp-exclude-emoji');
+    band.setAttribute('aria-labelledby', 'c127a-rituel-h');
+    band.innerHTML =
+      '<div class="c127a-rituel__head"><h2 id="c127a-rituel-h">Ton rituel du jour</h2><span class="c127a-rituel__meta">' + st.count + ' / 3' + (streakTxt ? ' · ' + streakTxt : '') + '</span></div>' +
+      '<div class="c127a-gestes">' +
+      geste('carte', pic(IMG.carte, false, '🌙'), 'Ta carte', 'Un éclairage pour aujourd’hui', L.oracle) +
+      geste('emotion', pic(IMG.naia, true, '💧'), 'Ton émotion', 'L’accueillir avec Naïa', L.naia) +
+      geste('main', pic(IMG.terra, true, '✋'), 'Ta main', 'Revenir au corps avec Terra', L.terra) +
+      '</div><div class="c127a-bar" aria-hidden="true"><i></i></div>' +
+      '<p class="c127a-rituel__foot">' + footer(st.count) + '</p>';
+    function geste(key, ic, t, s, href) {
+      return '<a class="c127a-geste' + (st.done[key] ? ' is-done' : '') + '" data-geste="' + key + '" href="' + (href || '#') + '">' +
+        ic + '<b>' + t + '</b><span class="c127a-geste__s">' + s + '</span>' +
+        (st.done[key] ? '<span class="screen-reader-text"> (fait aujourd’hui)</span>' : '') + '</a>';
+    }
+    function footer(n) {
+      if (n === 3) return 'Ton rituel est accompli. Reviens demain : le Cercle garde le fil.';
+      if (n === 0) return 'Trois gestes de quelques minutes. Commence par celui qui t’appelle.';
+      return 'Encore ' + (3 - n) + ' geste' + (3 - n > 1 ? 's' : '') + ' pour accomplir ton rituel.';
+    }
+    wrap.appendChild(band);
+    requestAnimationFrame(function () { band.querySelector('.c127a-bar i').style.width = (st.count / 3 * 100) + '%'; });
+    band.addEventListener('click', function (e) {
+      var a = e.target.closest('[data-geste]');
+      if (a) markVisited(a.getAttribute('data-geste'));
+    });
+
+    // 4. La grande grille passe plus bas, repliée.
+    var circle = wrap.querySelector('.m1-circle');
+    if (circle && !wrap.querySelector('.c127a-unfold')) {
+      var n = circle.querySelectorAll('a').length;
+      circle.classList.add('c127a-folded');
+      circle.id = circle.id || 'c127a-explorer';
+      var btn = el('button', 'c127a-unfold', 'Explorer tout le Cercle' + (n ? ' (' + n + ')' : '') + ' <span aria-hidden="true">▾</span>');
+      btn.type = 'button';
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-controls', circle.id);
+      btn.addEventListener('click', function () {
+        var open = circle.classList.toggle('c127a-folded') === false;
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.innerHTML = open ? 'Replier <span aria-hidden="true">▴</span>' : 'Explorer tout le Cercle' + (n ? ' (' + n + ')' : '') + ' <span aria-hidden="true">▾</span>';
+      });
+      circle.parentNode.insertBefore(btn, circle.nextSibling);
+    }
+  }
+
+  /* Mobile : l'accueil identique à l'application. */
+  function homeApp() {
     var host = document.getElementById('contenu-principal') || document.querySelector('.site-content');
     if (!host || document.querySelector('.c127h')) return;
     var now = new Date();
@@ -204,6 +277,7 @@
     anchor.appendChild(box);
   }
 
-  function boot() { if (cfg.mode === 'home') home(); else if (cfg.mode === 'confirm') confirm(); }
+  var MOBILE = window.matchMedia ? window.matchMedia('(max-width: 899px)').matches : window.innerWidth < 900;
+  function boot() { if (cfg.mode === 'home') (MOBILE ? homeApp : homeClassic)(); else if (cfg.mode === 'confirm') confirm(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
