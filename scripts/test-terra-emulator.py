@@ -13,15 +13,26 @@ OUT.mkdir(exist_ok=True)
 def adb(*args):
     if args and args[0] == 'shell':
         args = ('shell', shlex.join(args[1:]))
-    return subprocess.check_output(['adb', *args], text=True, errors='replace')
+    return subprocess.check_output(['adb', *args], text=True, errors='replace', timeout=30)
 
 def snapshot(name):
-    adb('shell', 'uiautomator', 'dump', '/sdcard/window.xml')
-    xml = adb('shell', 'cat', '/sdcard/window.xml')
-    (OUT / (name + '.xml')).write_text(xml)
     with (OUT / (name + '.png')).open('wb') as f:
-        subprocess.run(['adb', 'exec-out', 'screencap', '-p'], stdout=f, check=True)
-    return ET.fromstring(xml)
+        subprocess.run(['adb', 'exec-out', 'screencap', '-p'], stdout=f, check=True, timeout=20)
+    for attempt in range(2):
+        try:
+            adb('shell', 'uiautomator', 'dump', '/sdcard/window.xml')
+            xml = adb('shell', 'cat', '/sdcard/window.xml')
+            (OUT / (name + '.xml')).write_text(xml)
+            root = ET.fromstring(xml)
+            print(name, ' | '.join(n.get('text', '') for n in root.iter('node') if n.get('text'))[-800:], flush=True)
+            return root
+        except (subprocess.SubprocessError, ET.ParseError):
+            if attempt:
+                raise
+            time.sleep(2)
+
+def scroll():
+    adb('shell', 'input', 'swipe', str(W // 2), str(int(H * .8)), str(W // 2), str(int(H * .3)), '350')
 
 def norm(s):
     return ''.join(c for c in unicodedata.normalize('NFD', s.lower()) if not unicodedata.combining(c))
@@ -39,6 +50,7 @@ def click(root, words):
                 return True
     return False
 
+W, H = map(int, re.findall(r'(\d+)x(\d+)', adb('shell', 'wm', 'size'))[-1])
 report = {'apk': '1.0.6', 'api': adb('shell', 'getprop', 'ro.build.version.sdk').strip()}
 report['package'] = adb('shell', 'dumpsys', 'package', 'com.lecercle127.app')
 (OUT / 'package.txt').write_text(report.pop('package'))
@@ -62,11 +74,11 @@ for i in range(24):
         hand_selected = True
         root = snapshot('03-hand-selected')
         if not click(root, ['Continuer', 'Continue']):
-            adb('shell', 'input', 'swipe', '540', '1900', '540', '600', '400')
+            scroll()
     elif click(root, ['Plus tard', 'Reessayer', 'Continuer', 'Continue']):
         pass
     else:
-        adb('shell', 'input', 'swipe', '540', '1700', '540', '600', '400')
+        scroll()
     time.sleep(2)
 else:
     report['photo_button_found'] = False
@@ -84,6 +96,14 @@ if report['picker_opened']:
     report['reopen_tapped'] = click(root, ['Choisir une photo', 'Prendre une photo', 'ou importer'])
     root = snapshot('06-reopened')
     report['reopened_packages'] = sorted(set(n.get('package', '') for n in root.iter('node')))
+if report.get('photo_button_found') and not report['picker_opened']:
+    report['camera_permission_before'] = re.findall(r'android.permission.CAMERA: granted=\w+', adb('shell', 'dumpsys', 'package', 'com.lecercle127.app'))
+    adb('shell', 'pm', 'grant', 'com.lecercle127.app', 'android.permission.CAMERA')
+    root = snapshot('07-camera-authorized')
+    report['camera_retry_tapped'] = click(root, ['Choisir une photo', 'Prendre une photo', 'ou importer'])
+    time.sleep(3)
+    root = snapshot('08-camera-retry')
+    report['packages_after_camera_grant'] = sorted(set(n.get('package', '') for n in root.iter('node')))
 (OUT / 'logcat.txt').write_text(adb('logcat', '-d', '-t', '3000'))
 (OUT / 'report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2))
 print(json.dumps(report, ensure_ascii=False, indent=2))
