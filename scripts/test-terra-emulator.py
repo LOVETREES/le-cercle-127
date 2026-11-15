@@ -1,5 +1,6 @@
 import json
 import re
+import shlex
 import subprocess
 import time
 import unicodedata
@@ -10,6 +11,8 @@ OUT = Path('evidence')
 OUT.mkdir(exist_ok=True)
 
 def adb(*args):
+    if args and args[0] == 'shell':
+        args = ('shell', shlex.join(args[1:]))
     return subprocess.check_output(['adb', *args], text=True, errors='replace')
 
 def snapshot(name):
