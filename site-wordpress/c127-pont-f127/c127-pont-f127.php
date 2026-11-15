@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 final class C127_Pont_F127 {
-    const VERSION = '1.4.3';
+    const VERSION = '1.5.0';
     const NS = 'c127-f127/v1';
     const DAILY_LIMIT = 3;
 
