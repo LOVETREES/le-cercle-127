@@ -10,7 +10,7 @@ on:
         default: 'alpha'
       code:
         description: 'Numéro de version Android du .aab'
-        default: '17'
+        default: '23'
       name:
         description: 'Nom de la version'
         default: '1.0.6'
