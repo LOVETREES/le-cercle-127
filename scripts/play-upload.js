@@ -20,7 +20,7 @@ const UP = `https://androidpublisher.googleapis.com/upload/androidpublisher/v3/a
   console.log('Modification ouverte');
   const bundle = await j(await fetch(`${UP}/edits/${edit.id}/bundles?uploadType=media`, { method: 'POST', headers: { ...H, 'Content-Type': 'application/octet-stream' }, body: fs.readFileSync(aab) }), 'import du .aab');
   console.log('Fichier importé, versionCode', bundle.versionCode);
-  await j(await fetch(`${API}/edits/${edit.id}/tracks/alpha`, { method: 'PUT', headers: { ...H, 'Content-Type': 'application/json' }, body: JSON.stringify({ track: 'alpha', releases: [{ name, versionCodes: [String(bundle.versionCode)], status: 'draft', releaseNotes: [{ language: 'fr-FR', text: 'Version de test du Cercle 127 : lecture du jour d’Oni, Oracle, Labyrinthe vivant, journal intime.' }] }] }) }), 'test fermé');
+  await j(await fetch(`${API}/edits/${edit.id}/tracks/alpha`, { method: 'PUT', headers: { ...H, 'Content-Type': 'application/json' }, body: JSON.stringify({ track: 'alpha', releases: [{ name, versionCodes: [String(bundle.versionCode)], status: 'draft', releaseNotes: [{ language: 'fr-FR', text: 'Nouvel Oracle 127 avec ses 127 nouvelles cartes et le tirage à trois lames, « Mon chemin » avec les Sept Sœurs, et des lectures de la main qui changent chaque jour.' }] }] }) }), 'test fermé');
   console.log('Version placée dans le test fermé (brouillon)');
   await j(await fetch(`${API}/edits/${edit.id}:commit`, { method: 'POST', headers: H }), 'validation');
   console.log('TERMINÉ : la version', name, 'attend dans Tests fermés → « Envoyer pour examen ».');
