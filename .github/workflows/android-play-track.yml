@@ -13,7 +13,7 @@ on:
         default: '17'
       name:
         description: 'Nom de la version'
-        default: '1.0.5'
+        default: '1.0.6'
       status:
         description: 'draft (brouillon) ou completed (publier / envoyer à l’examen)'
         default: 'draft'
@@ -34,4 +34,4 @@ jobs:
       - name: Placer la version
         env:
           GSA: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-        run: node scripts/play-track.js "${{ inputs.track || 'alpha' }}" "${{ inputs.code || '17' }}" "${{ inputs.name || '1.0.5' }}" "${{ inputs.status || 'completed' }}"
+        run: node scripts/play-track.js "${{ inputs.track || 'alpha' }}" "${{ inputs.code || '23' }}" "${{ inputs.name || '1.0.6' }}" "${{ inputs.status || 'completed' }}"
