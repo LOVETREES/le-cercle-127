@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cercle 127 - Pont Framework 127 (Terra, Naïa, app)
  * Description: Relie l'application et la lecture détaillée de Terra à Framework 127. Publie palm.reading.completed et emotion.submitted dans l'Event Bus (en interne, sans jeton exposé), laisse la Conscience choisir la Sœur (Naïa pour les émotions et l'apaisement, Alka pour les rêves récurrents, Terra pour l'ancrage, Ignis pour un petit pas, Irma pour les choix, Astria pour les aspirations). « Ce que le Cercle retient de moi » dans Mon Grimoire : garder ou oublier chaque souvenir ; seuls les souvenirs gardés sont transmis aux Sœurs., et propose des souvenirs (memory_candidate_emitted, à valider) uniquement avec l'accord explicite de la personne. Effacement : retirer une lecture ou supprimer son compte efface ses souvenirs. Sans Framework 127 actif, l'extension ne fait rien.
- * Version: 1.4.3
+ * Version: 1.5.0
  * Author: Le Cercle 127
  * Requires PHP: 7.4
  */
@@ -385,6 +385,26 @@ final class C127_Pont_F127 {
         return $out;
     }
 
+    /** Repères de connaissance (knowledge.php) : le rôle de la Sœur est toujours joint, puis les plus proches de la demande, 4 au plus. */
+    public static function knowledge_for(string $kind, array $payload): array {
+        $sister = explode('-', $kind)[0];
+        $bank = include __DIR__ . '/knowledge.php';
+        $items = is_array($bank[$sister] ?? null) ? $bank[$sister] : [];
+        $text = mb_strtolower(wp_strip_all_tags(wp_json_encode($payload) ?: ''));
+        $text = strtr($text, ['é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e', 'à' => 'a', 'â' => 'a', 'î' => 'i', 'ï' => 'i', 'ô' => 'o', 'û' => 'u', 'ù' => 'u', 'ç' => 'c', 'œ' => 'oe']);
+        $chosen = [];
+        $scored = [];
+        foreach ($items as $it) {
+            if (empty($it['mots'])) { $chosen[] = $it; continue; }
+            $hits = 0;
+            foreach ($it['mots'] as $m) { if (strpos($text, $m) !== false) { $hits++; } }
+            if ($hits > 0) { $scored[] = [$hits, $it]; }
+        }
+        usort($scored, function ($a, $b) { return $b[0] <=> $a[0]; });
+        foreach (array_slice($scored, 0, 3) as $pair) { $chosen[] = $pair[1]; }
+        return array_map(function ($it) { return ['id' => $it['id'], 'titre' => $it['titre'], 'texte' => $it['texte']]; }, array_slice($chosen, 0, 4));
+    }
+
     /**
      * Envoie un stimulus à la Conscience et récupère la réponse de la Sœur.
      * Le Framework ne stocke pas le texte de la Sœur (confidentialité) : on le capte au passage,
@@ -648,6 +668,7 @@ final class C127_Pont_F127 {
             'context' => ['source' => $cfg['source'], 'actor' => $ref, 'sensitivity' => 'personal'],
             'constraints' => ['no_side_effects' => true, 'no_diagnosis' => true, 'max_support_sisters' => 2],
             'memory' => self::kept_memories($ref) ?: (object) [],
+            'knowledge' => self::knowledge_for($kind, $payload),
         ]);
 
         if (!empty($p['remember']) && 'astria-aspiration' === $kind) {
