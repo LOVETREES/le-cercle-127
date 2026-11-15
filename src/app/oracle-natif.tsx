@@ -265,7 +265,7 @@ export default function OracleNatif() {
   return (
     <Screen>
       <View style={st.head}>
-        <Text style={st.kicker}>{t('ORACLE 127 · ESSAI')}</Text>
+        <Text style={st.kicker}>{t('ORACLE 127')}</Text>
         <Text style={st.title}>{draw ? (doneToday ? t('Ton tirage du jour') : t('Le cercle a parlé')) : t('Gardez le doigt sur le cercle')}</Text>
       </View>
 
