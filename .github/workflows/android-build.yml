@@ -66,6 +66,8 @@ jobs:
           retention-days: 14
 
       - name: Publier l'APK à l'adresse fixe (publication « android-test »)
+        # Les builds de correctif restent des artefacts de test.
+        if: github.ref == 'refs/heads/claude/upbeat-lamport-ymb7e2'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

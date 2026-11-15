@@ -5,8 +5,19 @@ const ANALYTICS = /stats\.wp\.com|pixel\.wp\.com|burst-statistics|burst[-_]js|bu
 const CONSENT_UI = /complianz|\bcmplz[-_]|cookieyes|cookie-law-info|wp-consent-api/i;
 
 /** Retire les scripts de suivi connus AVANT que la WebView mobile ne lise le document. */
-export function prepareAppHtml(html: string, baseUrl: string): string {
-  const cleaned = html
+export function prepareAppHtml(html: string, baseUrl: string, platform?: string): string {
+  // WebView Android 14 : capture + permission CAMERA non accordée produit un
+  // Intent nul, sans ouvrir de sélecteur ni demander l'autorisation. L'import
+  // d'une image reste disponible sans permission caméra avec le sélecteur système.
+  const source = platform === 'android'
+    ? html.replace(/<label\b[^>]*>[\s\S]*?<\/label\s*>/gi, (label) => {
+      if (!/<input\b[^>]*\sdata-file(?:\s|=|>)/i.test(label)) return label;
+      return label
+        .replace(/<input\b[^>]*>/gi, (input) => input.replace(/\s+capture(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?/gi, ''))
+        .replace(/<span\b[^>]*>[\s\S]*?<\/span\s*>/i, '<span>Choisir une photo de ma main<br><small>Tu peux d’abord photographier ta paume avec l’appareil photo du téléphone.</small></span>');
+    })
+    : html;
+  const cleaned = source
     .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, (script) => ANALYTICS.test(script) || CONSENT_UI.test(script) ? '' : script)
     .replace(/<(?:img|iframe|link)\b[^>]*>/gi, (tag) => ANALYTICS.test(tag) ? '' : tag)
     .replace(/<base\b[^>]*>/gi, '');
