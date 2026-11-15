@@ -48,9 +48,12 @@ root = snapshot('01-first-launch')
 click(root, ['Plus tard', 'Decouvrir l’application d’abord', 'Later'])
 adb('shell', 'am', 'start', '-W', '-a', 'android.intent.action.VIEW', '-d', 'cercle127://page?path=%2Fterra-gardienne-de-lancrage%2F&title=Terra', 'com.lecercle127.app')
 time.sleep(20)
-for i in range(12):
+for i in range(32):
     root = snapshot(f'02-terra-{i:02d}')
     labels = norm(' '.join(n.get('text', '') + ' ' + n.get('content-desc', '') for n in root.iter('node')))
+    if 'pixel launcher' in labels and 'responding' in labels:
+        click(root, ['Close app'])
+        continue
     if any(s in labels for s in ['choisir une photo', 'prendre une photo', 'ou importer']):
         report['photo_button_found'] = click(root, ['Choisir une photo', 'Prendre une photo', 'ou importer'])
         break
