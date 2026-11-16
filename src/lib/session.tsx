@@ -10,6 +10,7 @@ import { clearDraws } from './oracle/history';
 import { clearTodaysDraw } from './oracle/daily';
 import { clearDailyReading, dailyReadingUsed, markDailyReadingUsed } from './oni-daily';
 import { clearJournal } from './journal-intime';
+import { clearLocalDrafts } from './local-draft';
 import { clearLabyrinthe } from './labyrinthe/store';
 import { clearRitual } from './rituel';
 import { KEYS, local, secure } from './storage';
@@ -137,6 +138,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await clearDraws('demo');
     await clearTodaysDraw('demo');
     await clearJournal('demo');
+    await clearLocalDrafts('demo');
     await clearLabyrinthe('demo');
     demoRef.current = [];
     setDemoRecords([]);
@@ -229,6 +231,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await clearDreamer(palmOwnerFor(false, user?.id));
         await clearDraws(palmOwnerFor(false, user?.id));
         await clearTodaysDraw(palmOwnerFor(false, user?.id));
+        await clearJournal(palmOwnerFor(false, user?.id));
+        await clearLocalDrafts(palmOwnerFor(false, user?.id));
         setServer([]);
       },
       user: isDemo ? { ...DEMO_USER, name: t(DEMO_USER.name) } : user,
@@ -272,6 +276,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           await clearTodaysDraw(deletedOwner);
           await clearDailyReading(deletedOwner);
           await clearJournal(deletedOwner);
+          await clearLocalDrafts(deletedOwner);
           await clearLabyrinthe(deletedOwner);
           await saveReminder(DEFAULT_REMINDER);
           await Promise.all([clearLastError(), clearWebError()]);

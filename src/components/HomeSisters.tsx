@@ -1,7 +1,7 @@
 // Deux Sœurs sur l'accueil : Naïa (réguler l'émotion du moment) et Terra (la main du jour).
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { FEATURES } from '../lib/features';
 import { api } from '../lib/api';
@@ -71,6 +71,10 @@ function AskSister({ emotion, entries }: { emotion: EmotionKey; entries: Emotion
 }
 
 export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
+  const [expanded, setExpanded] = useState(false);
+  const [query, setQuery] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const [entries, setEntries] = useState<EmotionEntry[]>([]);
   const [open, setOpen] = useState<EmotionKey | null>(null);
   const today = dayKey(new Date());
@@ -88,25 +92,34 @@ export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
   const todays = entries.find((e) => e.day === today)?.key;
   const shown = emotionOf(open ?? undefined);
 
-  const choose = (key: EmotionKey) => {
-    setOpen(key);
-    recordEmotion(key).then((l) => { setEntries(l); onRecorded?.(); }, () => undefined);
+  const choose = async (key: EmotionKey) => {
+    if (saving) return;
+    setSaving(true); setSaveError(false);
+    try { const list = await recordEmotion(key); setEntries(list); setOpen(key); onRecorded?.(); }
+    catch { setSaveError(true); }
+    finally { setSaving(false); }
   };
+  const normalize = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const palette = expanded ? EMOTIONS.filter(e => normalize(t(e.name)).includes(normalize(query.trim()))) : EMOTIONS.filter(e => ['peur', 'colere', 'tristesse', 'culpabilite', 'confusion', 'soulagement', 'joie', 'serenite'].includes(e.key));
 
   return (
     <View style={[st.card, { borderColor: 'rgba(143,218,211,0.35)' }]}>
       <Text style={[st.kicker, { color: NAIA }]}>{t('NAÏA · RÉGULER MES ÉMOTIONS')}</Text>
       <Text style={st.title}>{t('Qu’est-ce qui vous traverse en ce moment ?')}</Text>
+      <Text style={st.text}>{t('Choisissez le mot le plus proche. Ces besoins possibles sont des pistes, pas une explication imposée.')}</Text>
+      {expanded && <TextInput value={query} onChangeText={setQuery} accessibilityLabel={t('Chercher une émotion')} placeholder={t('Chercher une émotion')} placeholderTextColor={colors.muted} style={{ color: colors.text, borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: 12, fontFamily: fonts.body }} />}
       <View style={st.chips} accessibilityRole="radiogroup">
-        {EMOTIONS.map((e) => {
+        {palette.map((e) => {
           const on = (open ?? todays) === e.key;
           return (
             <Pressable
               key={e.key}
-              onPress={() => choose(e.key)}
+              onPress={() => void choose(e.key)}
+              disabled={saving}
               style={[st.chip, on && { borderColor: e.color, backgroundColor: 'rgba(255,255,255,0.06)' }]}
               accessibilityRole="radio"
-              accessibilityState={{ selected: on }}
+              accessibilityState={{ checked: on, disabled: saving }}
+              aria-checked={on}
             >
               <Text style={[st.chipText, { color: on ? e.color : colors.text }]}>
                 {e.sign} {t(e.name)}
@@ -115,6 +128,11 @@ export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
           );
         })}
       </View>
+      {palette.length === 0 && <Text style={st.text}>{t('Aucun mot ne correspond ? Vous pouvez décrire votre ressenti dans le journal privé.')}</Text>}
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => { setExpanded(!expanded); setQuery(''); }}>
+        <Text style={[st.link, { color: NAIA }]}>{t(expanded ? 'Réduire la palette' : 'Explorer toutes les émotions')}</Text>
+      </Pressable>
+      {saveError && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{t('Votre émotion n’a pas pu être gardée. Réessayez.')}</Text>}
 
       {shown && (
         <View style={st.ritual}>
@@ -129,9 +147,12 @@ export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
             </View>
           ))}
           <Text style={st.phrase}>{quote(t(shown.phrase))}</Text>
-          <AskSister emotion={shown.key} entries={entries} />
+          {['peur', 'colere', 'tristesse', 'culpabilite', 'confusion', 'soulagement'].includes(shown.key)
+            ? <AskSister key={shown.key} emotion={shown.key} entries={entries} />
+            : <Text style={st.text}>{t('Ce repère et son geste restent sur cet appareil.')}</Text>}
         </View>
       )}
+      <Pressable accessibilityRole="link" onPress={() => router.push('/journal-intime')}><Text style={[st.link, { color: NAIA }]}>{t('Mettre mes propres mots dans mon journal privé ›')}</Text></Pressable>
 
       <Pressable onPress={() => openSister('/naia-gardienne-des-emotions/', 'Naïa')} accessibilityRole="link">
         <Text style={[st.link, { color: NAIA }]}>{t('Aller plus loin avec Naïa ›')}</Text>

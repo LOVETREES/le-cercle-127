@@ -13,6 +13,7 @@ import {
   type User,
 } from './model';
 import { t } from '../i18n';
+import { explicitCrisis } from './renouveau';
 
 // Scénario Make « Cercle 127 — App : demande de lecture d'Oni (relue) ».
 export const ONI_REQUEST_URL = 'https://hook.eu2.make.com/494v4gvalix9usill8zoynzh2mtyt13w';
@@ -128,6 +129,11 @@ export const api = {
   // Framework 127 : la Conscience choisit la Sœur qui répond à l'émotion du jour (avec accord).
   async sisterForEmotion(token: string, body: { emotion: string; recent: Record<string, number>; consent: true; remember: boolean; lang: string }): Promise<unknown> {
     return request(`${BASE}/c127-f127/v1/emotion`, { method: 'POST', token, body, timeoutMs: 90000 });
+  },
+  async sisterForChapter(token: string, body: { sister: string; excerpt: string; consent: true; lang: string }): Promise<{ ok?: boolean; sister?: string; answer?: string }> {
+    if (body.consent !== true) throw new Error(t('Ton accord est nécessaire avant cet envoi.'));
+    if (!token || !body.excerpt.trim() || body.excerpt.length > 1200 || explicitCrisis(body.excerpt)) throw new Error(t('Cet extrait ne peut pas être envoyé.'));
+    return (await request(`${BASE}/c127-f127/v1/chapter-light`, { method: 'POST', token, body, timeoutMs: 90000 })) as { ok?: boolean; sister?: string; answer?: string };
   },
   // Bilans de la semaine du Labyrinthe vivant, gardés dans le compte sur accord (chiffres de 0 à 4 seulement).
   async lvBilans(token: string): Promise<unknown[]> {

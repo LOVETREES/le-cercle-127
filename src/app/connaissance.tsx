@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useRef, useState, type ComponentRef } from 'react';
+import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Body, GoldButton, Notice, OutlineButton, Screen } from '../components/ui';
 import { AGE_RANGES, DREAM_HABITS, EMPTY_PROFILE, clearDreamer, isEmptyProfile, readDreamer, saveDreamer, type DreamerProfile } from '../lib/dreamer';
@@ -20,6 +20,11 @@ function Choice({ label, on, onPress, multi }: { label: string; on: boolean; onP
 }
 
 export default function Connaissance() {
+  const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
+  const [step, setStep] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const steps = ['Vous', 'Votre quotidien', 'Vos rêves'];
+  const go = (next: number) => { setStep(next); scroll.current?.scrollTo({ y: 0, animated: true }); };
   const [p, setP] = useState<DreamerProfile>({ ...EMPTY_PROFILE });
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -45,10 +50,13 @@ export default function Connaissance() {
   };
 
   const save = async () => {
+    setError(null);
     setBusy(true);
     try {
       setP(await saveDreamer(p));
       setSaved(true);
+    } catch {
+      setError(t('Votre profil n’a pas pu être gardé. Vos réponses restent ici pour réessayer.'));
     } finally {
       setBusy(false);
     }
@@ -72,15 +80,25 @@ export default function Connaissance() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Screen>
+      <Screen scrollRef={scroll}>
+        <View style={st.welcome}>
+          <Image source={require('../../assets/images/oni.webp')} style={st.portrait} />
+          <View style={{ flex: 1, gap: 5 }}>
+            <Text style={st.kicker}>{t('ONI · FAISONS CONNAISSANCE')}</Text>
+            <Text style={st.title}>{t('Un peu de vous, à votre rythme.')}</Text>
+          </View>
+        </View>
+        <Body muted>{t('Quelques repères pour donner du contexte à vos rêves. Tout est facultatif et modifiable.')}</Body>
+        <View style={st.steps} accessibilityRole="tablist">
+          {steps.map((label, i) => <Pressable key={label} onPress={() => go(i)} style={[st.step, i === step && st.optOn]} accessibilityRole="tab" accessibilityState={{ selected: i === step }} aria-selected={i === step}>
+            <Text style={[st.optT, i === step && st.optTOn]}>{i + 1} · {t(label)}</Text>
+          </Pressable>)}
+        </View>
         <View style={st.card}>
-          <Text style={st.kicker}>{t('ONI · FAISONS CONNAISSANCE')}</Text>
-          <Text style={st.title}>{t('Votre histoire donne du sens à vos rêves.')}</Text>
-          <Body muted>{t('Vous pouvez répondre librement, passer une question ou modifier vos réponses plus tard. Aucune identité civile n’est nécessaire.')}</Body>
-
+          {step === 0 && <>
           <View style={st.block}>
             <Text style={st.q}>{t('Comment souhaitez-vous qu’Oni vous appelle ?')}</Text>
-            <TextInput value={p.name ?? ''} onChangeText={(name) => edit({ name: name.slice(0, 60) })} placeholder={t('Prénom ou pseudonyme')} placeholderTextColor={colors.muted} style={st.input} />
+            <TextInput accessibilityLabel={t('Prénom ou pseudonyme')} value={p.name ?? ''} onChangeText={(name) => edit({ name: name.slice(0, 60) })} placeholder={t('Prénom ou pseudonyme')} placeholderTextColor={colors.muted} style={st.input} />
           </View>
 
           <View style={st.block}>
@@ -92,6 +110,8 @@ export default function Connaissance() {
             </View>
           </View>
 
+          </>}
+          {step === 1 && <>
           <View style={st.block}>
             <Text style={st.q}>{t('Quels domaines occupent votre vie en ce moment ?')}</Text>
             <View style={st.opts}>
@@ -105,6 +125,7 @@ export default function Connaissance() {
             <Text style={st.q}>{t('Y a-t-il quelque chose d’important dans votre vie actuelle ?')}</Text>
             <TextInput
               value={p.now ?? ''}
+              accessibilityLabel={t('Y a-t-il quelque chose d’important dans votre vie actuelle ?')}
               onChangeText={(now) => edit({ now: now.slice(0, 800) })}
               placeholder={t('Un événement, une relation, un changement, une décision…')}
               placeholderTextColor={colors.muted}
@@ -113,6 +134,8 @@ export default function Connaissance() {
             />
           </View>
 
+          </>}
+          {step === 2 && <>
           <View style={st.block}>
             <Text style={st.q}>{t('Vos rêves et votre sommeil')}</Text>
             <View style={st.opts}>
@@ -121,7 +144,11 @@ export default function Connaissance() {
               ))}
             </View>
           </View>
-
+          </>}
+          <Body muted style={{ fontSize: 12 }}>{t('Vous pouvez passer une étape. Aucune identité civile n’est nécessaire.')}</Body>
+          {step < 2 ? <GoldButton label={t('Continuer')} onPress={() => go(step + 1)} disabled={busy} /> : null}
+          {step > 0 ? <OutlineButton label={t('Revenir à l’étape précédente')} onPress={() => go(step - 1)} disabled={busy} /> : null}
+          {error && <Notice tone="error" text={error} />}
           <View style={st.block}>
             <Text style={st.q}>{t('Comment souhaitez-vous utiliser ces informations ?')}</Text>
             <Choice label="Oni peut s’en servir pour lire mes rêves" on={p.use === 'lectures'} onPress={() => edit({ use: 'lectures' })} />
@@ -146,17 +173,21 @@ export default function Connaissance() {
 }
 
 const st = StyleSheet.create({
-  card: { backgroundColor: CARD, borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(216,182,107,0.5)', padding: space.md, gap: space.md },
+  welcome: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  portrait: { width: 64, height: 64, borderRadius: 32 },
+  steps: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  step: { borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 12, paddingVertical: 10 },
+  card: { backgroundColor: CARD, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: space.md, gap: space.md },
   kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8, color: colors.gold },
-  title: { fontFamily: fonts.title, fontSize: 28, lineHeight: 32, color: colors.text },
-  block: { gap: space.sm, paddingTop: space.sm, borderTopWidth: 1, borderTopColor: 'rgba(216,182,107,0.18)' },
+  title: { fontFamily: fonts.title, fontSize: 25, lineHeight: 29, color: colors.text },
+  block: { gap: space.sm, paddingTop: space.sm },
   q: { fontFamily: fonts.bodyMedium, fontSize: 16, lineHeight: 22, color: colors.text },
   opts: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   opt: { borderWidth: 1, borderColor: 'rgba(170,160,230,0.45)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 8, alignSelf: 'flex-start' },
   optOn: { backgroundColor: '#e8cf8f', borderColor: '#e8cf8f' },
   optT: { fontFamily: fonts.body, fontSize: 13.5, color: colors.text },
   optTOn: { color: '#1b1730', fontFamily: fonts.bodyBold },
-  input: { borderWidth: 1, borderColor: 'rgba(216,182,107,0.3)', borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 12, color: colors.text, fontFamily: fonts.body, fontSize: 15 },
+  input: { borderWidth: 1, borderColor: 'rgba(216,182,107,0.3)', borderRadius: radius.md, paddingHorizontal: 16, paddingVertical: 12, color: colors.text, fontFamily: fonts.body, fontSize: 15 },
   area: { borderRadius: radius.md, minHeight: 84, textAlignVertical: 'top' },
   erase: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.danger },
 });

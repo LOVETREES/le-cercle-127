@@ -61,10 +61,10 @@ export default function CheminScreen() {
           <Polygon points={pos.map((p) => `${p.x},${p.y}`).join(' ')} stroke="rgba(216,182,107,0.3)" fill="none" />
           <Circle cx={cx} cy={cx} r={52} stroke="rgba(216,182,107,0.45)" fill={`rgba(232,207,143,${0.06 + chemin.selfShare / 300})`} />
         </Svg>
-        <View style={[st.self, { left: cx - 52, top: cx - 52 }]} accessible accessibilityLabel={t('Le Soi : {n} % relié', { n: chemin.selfShare })}>
+        <View style={[st.self, { left: cx - 52, top: cx - 52 }]} accessible accessibilityLabel={t('{n} repères actifs sur sept', { n: chemin.awakened })}>
           <Text style={st.selfKicker}>{t('LE SOI')}</Text>
-          <Text style={st.selfPct}>{chemin.selfShare} %</Text>
-          <Text style={st.selfSub}>{t('relié')}</Text>
+          <Text style={st.selfPct}>{chemin.awakened}/7</Text>
+          <Text style={st.selfSub}>{t('repères actifs')}</Text>
         </View>
         {chemin.stations.map((x, i) => (
           <Pressable key={x.slug} onPress={() => setPicked(x.slug)} style={[st.node, { left: pos[i].x - 40, top: pos[i].y - 37 }]}
@@ -76,6 +76,13 @@ export default function CheminScreen() {
         ))}
       </View>
 
+      <View style={st.panel}>
+        <Text style={st.h2}>{t('Apprivoiser son ombre')}</Text>
+        <Body muted>{t('Ces repères décrivent vos pratiques, pas votre degré d’individuation. Vous pouvez approcher ce qui vous dérange ou vous semble contradictoire, avec douceur et à votre rythme.')}</Body>
+        <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/journal-intime', params: { theme: 'ombre' } })}>
+          <Text style={[st.text, { color: colors.gold }]}>{t('Explorer une question dans mon journal privé ›')}</Text>
+        </Pressable>
+      </View>
       <View style={[st.panel, { borderColor: cur.color }]} accessibilityLiveRegion="polite">
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <SisterRing s={cur} size={56} />

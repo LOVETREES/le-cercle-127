@@ -257,6 +257,11 @@ final class C127_Pont_F127 {
             'callback' => [__CLASS__, 'rest_ask'],
             'permission_callback' => '__return_true',
         ]);
+        register_rest_route(self::NS, '/chapter-light', [
+            'methods' => 'POST',
+            'callback' => [__CLASS__, 'rest_chapter_light'],
+            'permission_callback' => '__return_true',
+        ]);
         register_rest_route(self::NS, '/memories', [
             'methods' => 'GET',
             'callback' => [__CLASS__, 'rest_memories_list'],
@@ -561,6 +566,44 @@ final class C127_Pont_F127 {
     }
 
     /* ---------- 2b. Demandes en liste blanche (Alka, Terra…) ---------- */
+
+    /** Éclairage demandé explicitement sur un extrait choisi ; aucune mémoire n'est proposée. */
+    public static function rest_chapter_light(WP_REST_Request $request) {
+        $p = (array) $request->get_json_params();
+        $stages = [
+            'oni' => ['dream.recurring.submitted', 'Voir avec douceur ce qui revient, sous forme de questions ouvertes.'],
+            'naia' => ['emotion.regulation.requested', 'Accueillir ce qui est exprimé et proposer un appui doux, sans interprétation imposée.'],
+            'irma' => ['decision.requested', 'Éclairer un choix possible sans décider à la place de la personne.'],
+            'ignis' => ['action.requested', 'Proposer un petit geste réaliste et réversible, sans pression.'],
+        ];
+        $sister = sanitize_key((string) ($p['sister'] ?? ''));
+        $excerpt = trim(mb_substr(sanitize_textarea_field((string) ($p['excerpt'] ?? '')), 0, 1200));
+        if (!isset($stages[$sister]) || $excerpt === '') {
+            return new WP_Error('c127_f127_input', 'Choisis une Sœur et un extrait à partager.', ['status' => 400]);
+        }
+        $safety_text = mb_strtolower(remove_accents($excerpt));
+        if (preg_match('/\b(me suicider|me tuer|mettre fin a mes jours|en finir avec la vie|je veux mourir|envie de mourir|idees suicidaires)\b/u', $safety_text)) {
+            return new WP_Error('c127_f127_support', 'Ne reste pas seul·e : contacte une personne de confiance ou un professionnel. En France, appelle le 3114 ; en danger immédiat, le 15 ou le 112.', ['status' => 400]);
+        }
+        $user_id = self::guard($request, 'chapter', self::DAILY_LIMIT);
+        if (is_wp_error($user_id)) return $user_id;
+        $corr = 'chapter-' . wp_generate_uuid4();
+        $r = self::ask_conscience([
+            'event_type' => $stages[$sister][0],
+            'correlation_id' => $corr,
+            'language' => self::lang($p),
+            'payload' => [
+                'excerpt' => $excerpt,
+                'requested_sister' => $sister,
+                'request' => $stages[$sister][1] . ' Répondre sans diagnostic ni prédiction, sans nommer de méthode ni de théorie, avec une seule question ouverte. Respecter la sécurité en cas de détresse.',
+            ],
+            'context' => ['source' => 'app.chapter', 'actor' => self::subject_ref($user_id), 'sensitivity' => 'personal'],
+            'constraints' => ['no_side_effects' => true, 'no_diagnosis' => true, 'max_support_sisters' => 1],
+            'memory' => (object) [],
+        ]);
+        // La Conscience choisit la Sœur : ne jamais attribuer une réponse à une autre.
+        return self::reply($corr, $r);
+    }
 
     public static function rest_ask(WP_REST_Request $request) {
         $p = (array) $request->get_json_params();

@@ -48,6 +48,7 @@ export function CheminCard({ chemin }: { chemin: Chemin }) {
       <Text style={st.intro}>
         {t('Devenir pleinement toi-même : c’est ce que Jung appelait l’individuation. Chaque Sœur veille sur une part de ce chemin et grandit avec tes gestes.')}
       </Text>
+      <Text style={st.intro}>{t('Apprivoiser son ombre fait aussi partie du chemin : reconnaître les parts de soi que l’on évite, sans se juger ni se forcer.')}</Text>
       <View style={st.grid}>
         {chemin.stations.map((s) => (
           <Pressable key={s.slug} style={st.cell} onPress={() => router.push({ pathname: '/chemin', params: { s: s.slug } })}
