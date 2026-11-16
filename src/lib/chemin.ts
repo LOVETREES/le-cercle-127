@@ -55,7 +55,7 @@ export const STATIONS: Station[] = [
   },
   {
     slug: 'naia', name: 'Naïa', verb: 'Apaiser', color: '#8fdad3', meeting: 2,
-    role: 'L’émotion du réveil montre souvent ton Ombre : ce que tu n’oses pas encore regarder. Naïa t’aide à la nommer sans t’y noyer.',
+    role: 'Naïa aide à nommer les nuances de tes émotions et les besoins possibles. Tu peux aussi explorer ce que tu tiens à distance, sans faire de chaque émotion un signe de ton Ombre.',
     unit: ['{n} émotion nommée', '{n} émotions nommées'], thresholds: [1, 7, 21],
     tools: [
       { title: 'Ton émotion du jour', sub: 'Sur l’accueil, avec Naïa', route: '/' },

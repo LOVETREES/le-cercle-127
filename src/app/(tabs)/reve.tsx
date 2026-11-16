@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useRef, useState, type ComponentRef } from 'react';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Body, Card, Eyebrow, Field, GoldButton, Notice, OutlineButton, Screen, Title } from '../../components/ui';
 import { EMOTIONS, validateDream, type Emotion } from '../../lib/model';
@@ -19,6 +19,9 @@ import { t } from '../../i18n';
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function Reve() {
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const saving = useRef(false);
+  const showStep = () => requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: 0, animated: true }));
   const { addDream, user, oniEnabled, isDemo, resolveDreamId } = useSession();
   const [lastId, setLastId] = useState<string | null>(null);
   const [opening, setOpening] = useState(false);
@@ -64,10 +67,13 @@ export default function Reve() {
     setError(null);
     setAnswers([]);
     setQuestions(oniQuestions(story, emotion));
+    showStep();
   };
 
   // Étape 2 : garder le rêve, avec les précisions données (ou sans, si la personne passe).
   const save = async (withAnswers: boolean) => {
+    if (saving.current) return;
+    saving.current = true;
     const qs = questions ?? [];
     const given = withAnswers ? answers : [];
     const feeling = qs.map((q) => emotionFromAnswer(q, given.find((a) => a.id === q.id))).find(Boolean);
@@ -87,16 +93,18 @@ export default function Reve() {
       setEmotion(undefined);
       setIntensity(undefined);
       setDreamDate(today());
+      showStep();
     } catch (e) {
       setError(e instanceof Error ? e.message : t('Enregistrement impossible.'));
     } finally {
+      saving.current = false;
       setBusy(false);
     }
   };
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Screen>
+      <Screen scrollRef={scrollRef}>
         <View style={{ gap: space.sm }}>
           <Eyebrow>{t('Le Cercle des 7 Sœurs')}</Eyebrow>
           <Title>{t('Confiez-lui votre rêve')}</Title>
@@ -155,7 +163,7 @@ export default function Reve() {
             error={error}
             onSave={() => save(true)}
             onSkip={() => save(false)}
-            onBack={() => setQuestions(null)}
+            onBack={() => { setQuestions(null); showStep(); }}
             name={dreamer?.use === 'lectures' ? dreamer.name : undefined}
           />
         ) : (

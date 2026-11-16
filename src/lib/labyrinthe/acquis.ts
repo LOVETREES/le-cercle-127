@@ -33,6 +33,20 @@ const DIG: Record<SisterName, { dom: number[]; exa: number[]; exil: number[]; ch
 };
 
 export type Birth = { date: string; time?: string; place?: string }; // AAAA-MM-JJ, HH:MM (heure locale du lieu), ville de la liste
+/** Formats explicitement proposés par le formulaire, sans normalisation d'une date impossible. */
+export function normalizeBirthDate(value: string): string | undefined {
+  const raw = value.trim();
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const french = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!iso && !french) return undefined;
+  const [y, m, d] = iso ? [+iso[1], +iso[2], +iso[3]] : [+french![3], +french![2], +french![1]];
+  const date = new Date(Date.UTC(y, m - 1, d));
+  if (y < 1900 || date.getUTCFullYear() !== y || date.getUTCMonth() !== m - 1 || date.getUTCDate() !== d) return undefined;
+  const now = new Date();
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  if (date.getTime() > today) return undefined;
+  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
 export type Placement = { sister: SisterName; astre: string; lon: number; sign: string; degree: number; weight: number; reasons: string[] };
 
 /** Décalage (ms) d'un fuseau IANA à un instant donné, heure d'été historique comprise. */
@@ -51,9 +65,10 @@ export function zonedToUtc(y: number, mo: number, d: number, h: number, mi: numb
 }
 
 export function birthInstant(b: Birth): Date | undefined {
-  const m = b.date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const m = normalizeBirthDate(b.date)?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!m) return undefined;
   const t = b.time?.match(/^(\d{1,2}):(\d{2})$/);
+  if (b.time?.trim() && !t) return undefined;
   if (t && (+t[1] > 23 || +t[2] > 59)) return undefined;
   // Sans heure : midi, l'erreur reste faible pour tous les astres sauf la Lune (≈ 6° au plus).
   const [h, mi] = t ? [+t[1], +t[2]] : [12, 0];

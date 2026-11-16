@@ -8,7 +8,7 @@ import Svg, { Circle, Defs, G, Line, Path, RadialGradient, Stop, Text as SvgText
 import { Screen } from '../components/ui';
 import { allRecurringMotifs } from '../lib/insights';
 import { listEntries } from '../lib/journal-intime';
-import { acquis, acquisLevels, birthAngles, ORDER, type Birth, type Placement } from '../lib/labyrinthe/acquis';
+import { acquis, acquisLevels, birthAngles, normalizeBirthDate, ORDER, type Birth, type Placement } from '../lib/labyrinthe/acquis';
 import { searchVilles, villeByName } from '../lib/labyrinthe/villes';
 import { api } from '../lib/api';
 import { listBilans, listGestes, mergeBilans, readBilansSync, readBirth, replaceBilans, saveBilan, saveBilansSync, saveBirth, type Bilan } from '../lib/labyrinthe/store';
@@ -105,6 +105,7 @@ export default function Labyrinthe() {
   const [form, setForm] = useState<Birth>({ date: '', time: '', place: '' });
   const [placeQ, setPlaceQ] = useState('');
   const [editBirth, setEditBirth] = useState(false);
+  const [skyError, setSkyError] = useState<string | null>(null);
   const [counts, setCounts] = useState<Counts>({ Oni: 0, Alka: 0, Naïa: 0, Terra: 0, Ignis: 0, Astria: 0, Irma: 0 });
   const [bilans, setBilans] = useState<Bilan[]>([]);
   const [answers, setAnswers] = useState<number[]>(Array(7).fill(-1));
@@ -187,11 +188,17 @@ export default function Labyrinthe() {
   const aMask = a ? maskOf(a) : 0;
 
   const saveSky = async () => {
-    const b: Birth = { date: form.date.trim(), time: form.time?.trim() || undefined, place: villeByName(form.place) ? form.place : undefined };
-    if (!acquis(b)) return;
-    await saveBirth(b);
-    setBirth(b);
-    setEditBirth(false);
+    setSkyError(null);
+    const date = normalizeBirthDate(form.date);
+    if (!date) { setSkyError(t('Indiquez une date valide : JJ/MM/AAAA ou AAAA-MM-JJ.')); return; }
+    const b: Birth = { date, time: form.time?.trim() || undefined, place: villeByName(form.place) ? form.place : undefined };
+    if (!acquis(b)) { setSkyError(t('Vérifiez l’heure : HH:MM, de 00:00 à 23:59, ou laissez ce champ vide.')); return; }
+    try {
+      await saveBirth(b);
+      setBirth(b);
+      setForm(b);
+      setEditBirth(false);
+    } catch { setSkyError(t('Votre ciel n’a pas pu être gardé. Réessayez.')); }
   };
   const ready = answers.every((x) => x >= 0);
   const saveWeek = async () => {
@@ -201,7 +208,6 @@ export default function Labyrinthe() {
     setEditBilan(false);
     if (sync && canSync && token) api.lvPushBilans(token, next.slice(0, 1)).catch(() => undefined);
   };
-  const skyValid = !!acquis({ date: form.date.trim(), time: form.time?.trim() || undefined });
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -332,7 +338,8 @@ export default function Labyrinthe() {
           ) : (
             <>
               <Text style={st.small}>{t('Ta date de naissance, et si tu les connais l’heure et le lieu. Le calcul se fait sur ton téléphone : rien n’est envoyé.')}</Text>
-              <TextInput value={form.date} onChangeText={(d) => setForm((f) => ({ ...f, date: d.slice(0, 10) }))} placeholder="AAAA-MM-JJ" placeholderTextColor={colors.muted} keyboardType="numbers-and-punctuation" style={st.input} accessibilityLabel={t('Date de naissance')} />
+              <Text style={st.small}>{t('Date : JJ/MM/AAAA ou AAAA-MM-JJ. Heure et lieu facultatifs.')}</Text>
+              <TextInput value={form.date} onChangeText={(d) => { setSkyError(null); setForm((f) => ({ ...f, date: d.slice(0, 10) })); }} placeholder="JJ/MM/AAAA" placeholderTextColor={colors.muted} keyboardType="numbers-and-punctuation" style={st.input} accessibilityLabel={t('Date de naissance')} />
               <TextInput value={form.time} onChangeText={(h) => setForm((f) => ({ ...f, time: h.slice(0, 5) }))} placeholder={t('HH:MM (facultatif)')} placeholderTextColor={colors.muted} keyboardType="numbers-and-punctuation" style={st.input} accessibilityLabel={t('Heure de naissance')} />
               <TextInput
                 value={placeQ}
@@ -353,7 +360,8 @@ export default function Labyrinthe() {
               ) : placeQ && !villeByName(placeQ) && placeQ.length >= 2 ? (
                 <Text style={st.small}>{t('Ville absente de la liste : choisis la grande ville la plus proche.')}</Text>
               ) : null}
-              <Pressable onPress={() => void saveSky()} disabled={!skyValid} style={[st.cta, !skyValid && { opacity: 0.45 }]} accessibilityRole="button">
+              {skyError ? <Text accessibilityRole="alert" style={[st.small, { color: colors.danger }]}>{skyError}</Text> : null}
+              <Pressable onPress={() => void saveSky()} style={st.cta} accessibilityRole="button">
                 <Text style={st.ctaT}>{t('Lire mon ciel')}</Text>
               </Pressable>
             </>

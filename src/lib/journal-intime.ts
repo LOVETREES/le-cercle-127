@@ -13,20 +13,22 @@ export async function listEntries(): Promise<JournalEntry[]> {
   return Array.isArray(l) ? [...l].sort((a, b) => b.at.localeCompare(a.at)) : [];
 }
 
-async function write(l: JournalEntry[]) {
-  await local.setJson(keyFor(), l);
+async function write(l: JournalEntry[], key = keyFor()) {
+  await local.setJson(key, l);
   return l;
 }
 
 export async function saveEntry(e: Omit<JournalEntry, 'id' | 'at'> & { id?: string; at?: string }, now = new Date()): Promise<JournalEntry[]> {
+  const key = keyFor();
   const text = e.text.trim().slice(0, 20000);
-  if (!text) return listEntries();
-  const l = await listEntries();
+  const stored = await local.getJson<JournalEntry[]>(key, []);
+  const l = Array.isArray(stored) ? [...stored].sort((a, b) => b.at.localeCompare(a.at)) : [];
+  if (!text) return l;
   if (e.id && l.some((x) => x.id === e.id)) {
-    return write(l.map((x) => (x.id === e.id ? { ...x, text, feeling: e.feeling, prompt: e.prompt, updatedAt: now.toISOString() } : x)));
+    return write(l.map((x) => (x.id === e.id ? { ...x, text, feeling: e.feeling, prompt: e.prompt, updatedAt: now.toISOString() } : x)), key);
   }
   const entry: JournalEntry = { id: `j-${now.getTime()}-${Math.random().toString(36).slice(2, 7)}`, at: e.at ?? now.toISOString(), text, feeling: e.feeling, prompt: e.prompt };
-  return write([entry, ...l]);
+  return write([entry, ...l], key);
 }
 
 export async function deleteEntry(id: string): Promise<JournalEntry[]> {
