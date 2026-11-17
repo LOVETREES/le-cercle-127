@@ -1,5 +1,5 @@
-import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { type ComponentRef, useCallback, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, Ellipse, G, Line, LinearGradient, Path, Polyline, RadialGradient, Rect, Stop, Text as SvgText } from 'react-native-svg';
@@ -165,10 +165,24 @@ type Extra = { emotions: EmotionEntry[]; palms: PalmReading[]; ritual: RitualSto
 const EMPTY: Extra = { emotions: [], palms: [], ritual: {}, portes: {}, notes: 0, draws: [], journal: [] };
 
 export default function Grimoire() {
+  const { section } = useLocalSearchParams<{ section?: string }>();
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const recurrenceY = useRef<number | null>(null);
+  const scrollToRecurrences = useRef(false);
   const { user, dreams, syncing, lastError, refresh, isDemo } = useSession();
   const [extra, setExtra] = useState<Extra>(EMPTY);
   const [tab, setTab] = useState<'sym' | 'emo'>('sym');
   const [query, setQuery] = useState('');
+  useFocusEffect(useCallback(() => {
+    scrollToRecurrences.current = section === 'recurrences';
+    if (scrollToRecurrences.current && recurrenceY.current !== null) {
+      scrollToRecurrences.current = false;
+      requestAnimationFrame(() => {
+        scrollRef.current?.scrollTo({ y: recurrenceY.current ?? 0, animated: true });
+        router.setParams({ section: undefined });
+      });
+    }
+  }, [section]));
 
   useFocusEffect(
     useCallback(() => {
@@ -247,6 +261,7 @@ export default function Grimoire() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.night }} edges={['top']}>
       <AppHeader />
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={{ padding: space.md, paddingBottom: 130, gap: space.md }}
         refreshControl={<RefreshControl refreshing={syncing} onRefresh={refresh} tintColor={colors.gold} />}
       >
@@ -278,15 +293,13 @@ export default function Grimoire() {
 
         {lastError && <Notice tone="error" text={lastError} />}
 
-        <NouveauChapitre key={isDemo ? 'demo' : user?.id ?? 'local'} entries={extra.journal} onChanged={(journal) => setExtra((prev) => ({ ...prev, journal }))} />
-
         {/* Chiffres */}
         <View style={st.stats}>
           {[
             [dreams.length, dreams.length > 1 ? t('Rêves enregistrés') : t('Rêve enregistré')],
             [allSymbols, t('Symboles récurrents')],
             [opened, opened > 1 ? t('Portes ouvertes') : t('Porte ouverte')],
-            [extra.notes, t('Notes & réflexions')],
+            [extra.notes + extra.journal.length, t('Notes & réflexions')],
           ].map(([n, l]) => (
             <View key={String(l)} style={st.stat}>
               <Text style={st.statN}>{n}</Text>
@@ -295,25 +308,17 @@ export default function Grimoire() {
           ))}
         </View>
 
-        <View style={st.card}>
-          <Text style={st.h}>{t('OMBRE ET POLARITÉS')}</Text>
-          <Body muted>{t('Quelques mots français qui reviennent dans votre journal privé, rapprochés pour ouvrir des questions. Le contexte, y compris une négation, peut changer leur sens : vous restez libre de les interpréter.')}</Body>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-            {([
-              [t('Mots de tension'), shadow.tensions],
-              [t('Mots de ressource'), shadow.ressources],
-              [t('Mots de mouvement'), shadow.mouvements],
-            ] as const).map(([label, items]) => <View key={label} style={{ flex: 1, minWidth: 130, gap: 8 }}>
-              <Text style={st.recName}>{label}</Text>
-              {items.length ? items.map(({ word, occurrences }) => <Pressable key={word} accessibilityRole="button" accessibilityLabel={t('Voir les pages pour {mot} : {n}', { mot: t(shadowLabel(word)), n: occurrences })} onPress={() => router.push({ pathname: '/journal-intime', params: { motif: word } })}><Text style={st.recN}>{t(shadowLabel(word))} · {occurrences} ›</Text></Pressable>) : <Body muted>{t('Aucun mot récurrent repéré pour l’instant.')}</Body>}
-            </View>)}
-          </View>
-          <Body muted>{t('Chaque nombre indique le nombre de notes contenant ce mot. Ce repérage local ne déduit ni vos intentions ni vos ressources réelles.')}</Body>
-          <OutlineButton label={t('Explorer dans mon journal privé')} onPress={() => router.push('/journal-intime')} />
-        </View>
-        <EchoGrimoire key={palmOwnerFor(isDemo, user?.id)} echoes={echoes} owner={palmOwnerFor(isDemo, user?.id)} />
         {/* Récurrences */}
-        <View style={st.card}>
+        <View style={st.card} onLayout={(event) => {
+          recurrenceY.current = event.nativeEvent.layout.y;
+          if (scrollToRecurrences.current) {
+            scrollToRecurrences.current = false;
+            requestAnimationFrame(() => {
+              scrollRef.current?.scrollTo({ y: recurrenceY.current ?? 0, animated: true });
+              router.setParams({ section: undefined });
+            });
+          }
+        }}>
           <Text style={st.h}>{t('TES RÉCURRENCES')}</Text>
           <View style={st.tabs} accessibilityRole="tablist">
             {(['sym', 'emo'] as const).map((k) => (
@@ -377,6 +382,55 @@ export default function Grimoire() {
           )}
         </View>
 
+        {/* Journal intime */}
+        <View style={st.card}>
+          <Text style={st.h}>{t('JOURNAL INTIME')}</Text>
+          {extra.journal[0] ? (
+            <View style={{ gap: 2 }}>
+              <Text style={st.dMotifs}>
+                {new Date(extra.journal[0].at).toLocaleDateString(locale(), { day: 'numeric', month: 'long' })}
+                {extra.journal.length > 1 ? ` · ${t('{n} pages', { n: extra.journal.length })}` : ''}
+              </Text>
+              <Text style={st.dExcerpt} numberOfLines={2}>« {extra.journal[0].text} »</Text>
+            </View>
+          ) : (
+            <Body muted>{t('Note ici tes réflexions, tes ressentis et tes prises de conscience, à voix haute ou par écrit.')}</Body>
+          )}
+          <Pressable onPress={() => router.push('/journal-intime')} style={({ pressed }) => [st.ghost, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+            <Text style={st.ghostT}>{t('ÉCRIRE')}</Text>
+          </Pressable>
+        </View>
+
+        {/* Suivi émotionnel */}
+        <View style={st.card}>
+          <Text style={st.h}>{t('SUIVI ÉMOTIONNEL')}</Text>
+          <MoodChart points={mood.pts} />
+          <Body muted>
+            {mood.pts.length
+              ? t('Tes émotions dominantes ces 30 derniers jours : {list}.', { list: mood.dominant.join(', ') || '—' })
+              : t('Note l’émotion de tes réveils : la courbe des 30 derniers jours se dessinera ici.')}
+          </Body>
+        </View>
+
+        <NouveauChapitre key={isDemo ? 'demo' : user?.id ?? 'local'} entries={extra.journal} onChanged={(journal) => setExtra((prev) => ({ ...prev, journal }))} />
+
+        <View style={st.card}>
+          <Text style={st.h}>{t('OMBRE ET POLARITÉS')}</Text>
+          <Body muted>{t('Quelques mots français qui reviennent dans votre journal privé, rapprochés pour ouvrir des questions. Le contexte, y compris une négation, peut changer leur sens : vous restez libre de les interpréter.')}</Body>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+            {([
+              [t('Mots de tension'), shadow.tensions],
+              [t('Mots de ressource'), shadow.ressources],
+              [t('Mots de mouvement'), shadow.mouvements],
+            ] as const).map(([label, items]) => <View key={label} style={{ flex: 1, minWidth: 130, gap: 8 }}>
+              <Text style={st.recName}>{label}</Text>
+              {items.length ? items.map(({ word, occurrences }) => <Pressable key={word} accessibilityRole="button" accessibilityLabel={t('Voir les pages pour {mot} : {n}', { mot: t(shadowLabel(word)), n: occurrences })} onPress={() => router.push({ pathname: '/journal-intime', params: { motif: word } })}><Text style={st.recN}>{t(shadowLabel(word))} · {occurrences} ›</Text></Pressable>) : <Body muted>{t('Aucun mot récurrent repéré pour l’instant.')}</Body>}
+            </View>)}
+          </View>
+          <Body muted>{t('Chaque nombre indique le nombre de notes contenant ce mot. Ce repérage local ne déduit ni vos intentions ni vos ressources réelles.')}</Body>
+          <OutlineButton label={t('Explorer dans mon journal privé')} onPress={() => router.push('/journal-intime')} />
+        </View>
+        <EchoGrimoire key={palmOwnerFor(isDemo, user?.id)} echoes={echoes} owner={palmOwnerFor(isDemo, user?.id)} />
         {/* Le Labyrinthe vivant : l'acquis face au vécu */}
         <Pressable onPress={() => router.push('/labyrinthe')} style={({ pressed }) => [st.card, st.laby, pressed && { opacity: 0.85 }]} accessibilityRole="link">
           <Text style={st.h}>{t('LE LABYRINTHE VIVANT')}</Text>
@@ -418,36 +472,6 @@ export default function Grimoire() {
           <Pressable onPress={() => router.push('/oracle-natif')} style={({ pressed }) => [st.ghost, pressed && { opacity: 0.7 }]} accessibilityRole="button">
             <Text style={st.ghostT}>{t('TIRER UNE LAME')}</Text>
           </Pressable>
-        </View>
-
-        {/* Journal intime */}
-        <View style={st.card}>
-          <Text style={st.h}>{t('JOURNAL INTIME')}</Text>
-          {extra.journal[0] ? (
-            <View style={{ gap: 2 }}>
-              <Text style={st.dMotifs}>
-                {new Date(extra.journal[0].at).toLocaleDateString(locale(), { day: 'numeric', month: 'long' })}
-                {extra.journal.length > 1 ? ` · ${t('{n} pages', { n: extra.journal.length })}` : ''}
-              </Text>
-              <Text style={st.dExcerpt} numberOfLines={2}>« {extra.journal[0].text} »</Text>
-            </View>
-          ) : (
-            <Body muted>{t('Note ici tes réflexions, tes ressentis et tes prises de conscience, à voix haute ou par écrit.')}</Body>
-          )}
-          <Pressable onPress={() => router.push('/journal-intime')} style={({ pressed }) => [st.ghost, pressed && { opacity: 0.7 }]} accessibilityRole="button">
-            <Text style={st.ghostT}>{t('ÉCRIRE')}</Text>
-          </Pressable>
-        </View>
-
-        {/* Suivi émotionnel */}
-        <View style={st.card}>
-          <Text style={st.h}>{t('SUIVI ÉMOTIONNEL')}</Text>
-          <MoodChart points={mood.pts} />
-          <Body muted>
-            {mood.pts.length
-              ? t('Tes émotions dominantes ces 30 derniers jours : {list}.', { list: mood.dominant.join(', ') || '—' })
-              : t('Note l’émotion de tes réveils : la courbe des 30 derniers jours se dessinera ici.')}
-          </Body>
         </View>
 
         {/* Appel principal */}

@@ -1,9 +1,11 @@
 import { router, useFocusEffect } from 'expo-router';
 import { type ComponentRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AppState, Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { CheminCard } from '../../components/Chemin';
 import { NaiaCard, TerraCard } from '../../components/HomeSisters';
+import { MoonPhase } from '../../components/MoonPhase';
 import { RituelDuJour } from '../../components/RituelDuJour';
 import { GoldButton, Notice, Screen, SiteFooter } from '../../components/ui';
 import { OracleExpress } from '../../components/OracleExpress';
@@ -11,18 +13,23 @@ import { appendTranscript } from '../../lib/dictation';
 import { draftKey } from '../../lib/local-draft';
 import { palmOwnerFor } from '../../lib/palm';
 import { useLocalDraft } from '../../lib/use-local-draft';
-import { IMAGES, SISTERS } from '../../lib/content';
 import { computeChemin, loadChemin, type Chemin } from '../../lib/chemin';
 import { addPresence, allRecurringMotifs, dailyThought, greetingKey, journey } from '../../lib/insights';
 import { useSession } from '../../lib/session';
 import { KEYS, local } from '../../lib/storage';
 import { colors, fonts, radius, space } from '../../lib/theme';
 import { locale, quote, t } from '../../i18n';
+import { moonAt } from '../../lib/moon';
 
-const PICTO_GRIMOIRE = require('../../../assets/images/nav-grimoire.png');
-
-// Couleurs des Sœurs, reprises du site (--sister-accent).
-const SISTER_COLORS = ['#d9cdfb', '#a9c2f7', '#8fdad3', '#a9c98a', '#eb9a68', '#f2dea8', '#f3f1fb'];
+const DREAMER_ICONS = {
+  grimoire: require('../../../assets/images/dreamer-icons/grimoire.png'),
+  motifs: require('../../../assets/images/dreamer-icons/motifs.png'),
+  sisters: require('../../../assets/images/dreamer-icons/sept-soeurs.png'),
+  journey: require('../../../assets/images/dreamer-icons/parcours.png'),
+  hand: require('../../../assets/images/dreamer-icons/main.webp'),
+  grounding: require('../../../assets/images/dreamer-icons/ancrage.webp'),
+  symbols: require('../../../assets/images/dreamer-icons/symboles.webp'),
+};
 
 function formatDate(iso: string) {
   const [y, m, d] = iso.split('-').map(Number);
@@ -34,6 +41,7 @@ export default function Home() {
   const { dreams, user, isDemo } = useSession();
   const opening = useLocalDraft(draftKey(palmOwnerFor(isDemo, user?.id), 'home'));
   const [openingBusy, setOpeningBusy] = useState(false);
+  const [showOpening, setShowOpening] = useState(false);
   const [openingError, setOpeningError] = useState(false);
   const openingLock = useRef(false);
   const startDream = async () => {
@@ -63,6 +71,12 @@ export default function Home() {
   // L'heure est relue à chaque retour sur l'accueil : l'onglet reste ouvert des heures.
   const [now, setNow] = useState(() => new Date());
   useFocusEffect(useCallback(() => setNow(new Date()), []));
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60_000);
+    const subscription = AppState.addEventListener('change', (state) => { if (state === 'active') setNow(new Date()); });
+    return () => { clearInterval(timer); subscription.remove(); };
+  }, []);
+  const moon = useMemo(() => moonAt(now), [now]);
   const thought = useMemo(() => t(dailyThought(now)), [now]);
   const j = useMemo(() => journey(dreams, now), [dreams, now]);
   const last = useMemo(() => [...dreams].sort((a, b) => b.dreamDate.localeCompare(a.dreamDate))[0], [dreams]);
@@ -105,7 +119,7 @@ export default function Home() {
   return (
     <Screen scrollRef={scrollRef}>
       {/* Salut personnel */}
-      <View style={{ gap: 4 }}>
+      <View style={st.welcome}>
         <Text style={st.date}>{now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}</Text>
         <Text style={st.hello}>
           {t(greetingKey(now))}
@@ -114,27 +128,55 @@ export default function Home() {
         <Text style={st.progress}>{progress}</Text>
       </View>
 
-      {/* L'essentiel d'abord : raconter son rêve, puis son Grimoire */}
-      <View style={{ gap: 8 }}>
-        <Text style={st.cardTitle}>{t('Comprendre vos rêves, à votre rythme.')}</Text>
-        <Text style={st.cardSub}>{t('Racontez quelques mots à Oni pour commencer.')}</Text>
-        <TextInput accessibilityLabel={t('Premières lignes de mon rêve')} value={opening.text} onChangeText={opening.set} editable={opening.ready && !openingBusy} placeholder={t('Je me souviens que…')} placeholderTextColor={colors.muted} multiline maxLength={20000} style={st.dreamInput} />
+      {/* Une scène onirique distincte de la phase lunaire calculée plus bas. */}
+      <View style={st.hero}>
+        <ImageBackground source={require('../../../assets/images/home-moon.webp')} style={st.heroImage} imageStyle={st.heroImageFill} resizeMode="cover">
+          <View style={st.heroCaption}>
+            <Text style={st.heroEyebrow}>{t('Rêver · Comprendre · Avancer').toUpperCase()}</Text>
+            <Text style={st.heroText} accessibilityRole="header">{t('Comprendre vos rêves, à votre rythme.')}</Text>
+          </View>
+        </ImageBackground>
+      </View>
+
+      <View style={st.dreamEntry}>
+        <Text style={st.kicker}>{t('LE RÊVE, PREMIÈRE PORTE')}</Text>
+        <GoldButton label={t('Raconter un rêve  ›')} disabled={!opening.ready} loading={openingBusy} onPress={() => void startDream()} />
+        <Pressable onPress={() => setShowOpening((visible) => !visible)} accessibilityRole="button" accessibilityState={{ expanded: showOpening }} aria-expanded={showOpening} style={st.draftToggle}>
+          <Text style={st.draftToggleText}>{opening.text.trim() ? t('Brouillon en cours · écrire ici') : t('Écrire quelques mots ici')}</Text>
+          <Text style={st.draftToggleText}>{showOpening ? '⌃' : '⌄'}</Text>
+        </Pressable>
+        {showOpening && <TextInput accessibilityLabel={t('Premières lignes de mon rêve')} value={opening.text} onChangeText={opening.set} editable={opening.ready && !openingBusy} placeholder={t('Quelques mots de mon rêve…')} placeholderTextColor={colors.muted} multiline maxLength={20000} style={st.dreamInput} />}
+        <Pressable style={st.nightButton} onPress={() => router.push('/nuit-noire')} accessibilityRole="link" accessibilityLabel={t('Nuit noire · Après un cauchemar')}>
+          <MaterialCommunityIcons name="weather-night" size={15} color={colors.muted} />
+          <Text style={st.nightButtonText}>{t('Nuit noire · Après un cauchemar')} ›</Text>
+        </Pressable>
         {opening.error && <Notice tone="error" text={t('Le brouillon n’a pas pu être enregistré sur cet appareil.')} />}
         {openingError && <Notice tone="error" text={t('Impossible de préparer votre rêve. Réessayez.')} />}
-        <GoldButton label={t('Raconter un rêve  ›')} disabled={!opening.ready} loading={openingBusy} onPress={() => void startDream()} />
       </View>
-      <Pressable style={st.grimoireBtn} onPress={() => router.navigate('/grimoire')} accessibilityRole="button" accessibilityLabel={t('Ouvrir mon Grimoire')}>
-        <Image source={PICTO_GRIMOIRE} style={st.grimoirePicto} resizeMode="contain" />
-        <Text style={st.grimoireLabel}>{t('Ouvrir mon Grimoire')}</Text>
-      </Pressable>
 
-      <OracleExpress onDraw={() => setRitualTick((n) => n + 1)} />
-
-      {/* Mon chemin : les Sept Sœurs, leurs niveaux et le prochain pas */}
+      {/* Chaque Sœur ouvre une partie du chemin, après le rêve avec Oni. */}
       <CheminCard chemin={chemin} />
 
-      {/* Rituel du jour : carte, émotion, main */}
-      <RituelDuJour refreshKey={ritualTick} onEmotion={() => scrollRef.current?.scrollTo({ y: Math.max(0, naiaY.current - 12), animated: true })} />
+      <Pressable onPress={() => router.push('/parcours')} accessibilityRole="link" accessibilityLabel={t('Mon parcours onirique : ce qui se dessine')} style={st.journeyBanner}>
+        <ImageBackground source={require('../../../assets/images/home-parcours-forest.webp')} style={st.journeyBannerImage} imageStyle={st.journeyBannerFill} resizeMode="cover">
+          <Image source={DREAMER_ICONS.sisters} style={st.journeyBannerIcon} resizeMode="contain" accessible={false} />
+          <View style={st.journeyBannerText}>
+            <Text style={st.journeyBannerKicker}>{t('Mon parcours onirique').toUpperCase()}</Text>
+            <Text style={st.journeyBannerTitle}>{t('Ce qui se dessine…')}</Text>
+            <Text style={st.journeyBannerSub}>{t('Évolutions · Récurrences · Transformations')}</Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right-circle-outline" size={29} color={colors.gold} />
+        </ImageBackground>
+      </Pressable>
+
+      <Pressable style={st.homeGrimoire} onPress={() => router.navigate('/grimoire')} accessibilityRole="link" accessibilityLabel={t('Mon Grimoire')}>
+        <Image source={DREAMER_ICONS.grimoire} style={st.homeGrimoireIcon} resizeMode="contain" accessible={false} />
+        <View style={{ flex: 1, gap: 3 }}>
+          <Text style={st.cardTitle}>{t('Mon Grimoire')}</Text>
+          <Text style={st.cardSub}>{t('Mes rêves conservés et reliés')}</Text>
+        </View>
+        <Text style={st.chevron}>›</Text>
+      </Pressable>
 
       {/* Naïa : l'émotion du moment ; Terra : la main du jour */}
       <View onLayout={(e) => { naiaY.current = e.nativeEvent.layout.y; }}>
@@ -148,16 +190,36 @@ export default function Home() {
         <Text style={st.thoughtText}>{quote(thought)}</Text>
       </View>
 
+      <OracleExpress onDraw={() => setRitualTick((n) => n + 1)} />
+
+      {/* Rituel du jour : carte, émotion, main */}
+      <RituelDuJour refreshKey={ritualTick} onEmotion={() => scrollRef.current?.scrollTo({ y: Math.max(0, naiaY.current - 12), animated: true })} />
+
+      {/* La phase est calculée pour l'instant présent, sans localisation. */}
+      <Pressable style={st.moonBanner} onPress={() => router.navigate({ pathname: '/symboles', params: { recherche: 'lune' } })} accessibilityRole="link" accessibilityLabel={t('La Lune : {phase}, {percent} % éclairée. Découvrir le symbole.', { phase: t(moon.label), percent: moon.illuminated })}>
+        <View style={st.moonBannerContent}>
+          <MoonPhase fraction={moon.fraction} waxing={moon.waxing} />
+          <View style={{ flex: 1, gap: 3 }}>
+            <Text style={st.kicker}>{t('LA LUNE AUJOURD’HUI')}</Text>
+            <Text style={st.cardTitle}>{t(moon.label)}</Text>
+            <Text style={st.moonPhase}>{t('{n} % éclairée', { n: moon.illuminated })}</Text>
+            <Text style={st.moonHint}>{t('Un repère pour observer vos nuits, sans prédiction.')}</Text>
+          </View>
+          <Text style={st.chevron}>›</Text>
+        </View>
+      </Pressable>
+
       {/* Mesures */}
+      <Text style={st.sectionHeading} accessibilityRole="header">{t('Mon parcours onirique')}</Text>
       <View style={st.stats}>
         {[
-          { icon: '📖', value: j.total, label: 'Rêves dans\nmon Grimoire', go: () => router.navigate('/grimoire') },
-          { icon: '∞', value: j.recurringCount, label: 'Motifs\nrécurrents', go: () => router.push('/parcours') },
-          { icon: '☾', value: presence, label: 'Jours\nde présence', go: () => router.push('/parcours') },
+          { icon: 'weather-night-partly-cloudy' as const, value: j.total, label: 'Rêves dans\nmon Grimoire', go: () => router.navigate('/grimoire') },
+          { icon: 'vector-square' as const, value: j.recurringCount, label: 'Motifs\nrécurrents', go: () => router.push('/parcours') },
+          { icon: 'fire' as const, value: presence, label: 'Jours\nde présence', go: () => router.push('/parcours') },
         ].map((x) => (
           <Pressable key={x.label} style={st.stat} onPress={x.go} accessibilityRole="button" accessibilityLabel={`${x.value} ${t(x.label).replace('\n', ' ')}`}>
             <View style={st.statTop}>
-              <Text style={st.statIcon}>{x.icon}</Text>
+              <MaterialCommunityIcons name={x.icon} size={23} color={colors.gold} />
               <Text style={st.statValue}>{x.value}</Text>
             </View>
             <Text style={st.statLabel}>{t(x.label)}</Text>
@@ -165,20 +227,36 @@ export default function Home() {
         ))}
       </View>
 
-      {/* Mon parcours onirique, avec un mini-graphique des 6 derniers mois */}
-      <Pressable style={st.card} onPress={() => router.push('/parcours')} accessibilityRole="link" accessibilityLabel={t('Mon parcours onirique : ce qui se dessine')}>
-        <View style={{ flex: 1, gap: 2 }}>
-          <Text style={st.kickerMuted}>{t('MON PARCOURS ONIRIQUE')}</Text>
-          <Text style={st.cardTitle}>{t('Ce qui se dessine…')}</Text>
-          <Text style={st.cardSub}>{t('Évolutions · Récurrences · Transformations')}</Text>
-        </View>
-        <View style={st.spark} accessibilityElementsHidden>
-          {j.months.map((m) => (
-            <View key={m.key} style={[st.sparkBar, { height: 6 + (m.count / Math.max(1, ...j.months.map((x) => x.count))) * 38 }]} />
-          ))}
-        </View>
-        <Text style={st.chevron}>›</Text>
-      </Pressable>
+      {/* Quatre accès aux espaces existants, comme dans la référence. */}
+      <View style={st.tiles}>
+        {[
+          { label: 'Mon Grimoire', sub: 'Mes rêves conservés et relus', icon: DREAMER_ICONS.grimoire, go: () => router.navigate('/grimoire') },
+          { label: 'Mes motifs', sub: 'Ce qui revient dans mes rêves', icon: DREAMER_ICONS.motifs, go: () => router.navigate({ pathname: '/grimoire', params: { section: 'recurrences' } }) },
+          { label: 'Les Sept Sœurs', sub: 'Des regards complémentaires', icon: DREAMER_ICONS.sisters, go: () => router.push('/soeurs') },
+          { label: 'Mon parcours', sub: 'Évolutions et prochaines étapes', icon: DREAMER_ICONS.journey, go: () => router.push('/parcours') },
+        ].map((tile) => (
+          <Pressable key={tile.label} style={st.tile} onPress={tile.go} accessibilityRole="link" accessibilityLabel={t(tile.label)}>
+            <View style={st.tileIcon}><Image source={tile.icon} style={st.dreamerIcon} resizeMode="contain" accessible={false} /></View>
+            <View style={st.tileFoot}>
+              <Text style={st.tileLabel}>{t(tile.label)}</Text>
+              <Text style={st.tileSub}>{t(tile.sub)}</Text>
+            </View>
+            <Text style={st.tileArrow}>›</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <Text style={st.exploreHeading} accessibilityRole="header">{t('Explorer autrement')}</Text>
+      <View style={st.exploreTiles}>
+        {[
+          { label: 'Lecture de la main', icon: DREAMER_ICONS.hand, go: () => router.push('/lecture-main') },
+          { label: 'Rituels & ancrage', icon: DREAMER_ICONS.grounding, go: () => router.push({ pathname: '/page', params: { path: '/terra-gardienne-de-lancrage/', title: 'Terra' } }) },
+          { label: 'Dictionnaire des symboles', icon: DREAMER_ICONS.symbols, go: () => router.navigate('/symboles') },
+        ].map((item) => <Pressable key={item.label} style={st.exploreTile} onPress={item.go} accessibilityRole="link" accessibilityLabel={t(item.label)}>
+          <Image source={item.icon} style={st.exploreIcon} resizeMode="contain" accessible={false} />
+          <Text style={st.exploreTileText}>{t(item.label)}</Text>
+        </Pressable>)}
+      </View>
 
       {/* Mes lectures : rêve et main */}
       <Pressable style={st.card} onPress={() => router.push('/mes-lectures')} accessibilityRole="link" accessibilityLabel={t('Mes lectures : mes rêves et ma main')}>
@@ -206,40 +284,6 @@ export default function Home() {
         </Pressable>
       )}
 
-      {/* Trois raccourcis */}
-      <View style={st.tiles}>
-        {[
-          { label: 'Mon Grimoire', sub: 'Mes rêves conservés et reliés', img: IMAGES.grimoire, go: () => router.navigate('/grimoire') },
-          { label: 'Oracle 127', sub: 'Une carte, un éclairage', img: IMAGES.oracle, go: () => router.navigate('/oracle') },
-          { label: 'Symboles', sub: 'Le dictionnaire des rêves', img: IMAGES.symboles, go: () => router.navigate('/symboles') },
-        ].map((tile) => (
-          <Pressable key={tile.label} style={st.tile} onPress={tile.go} accessibilityRole="link" accessibilityLabel={t(tile.label)}>
-            <Image source={tile.img} style={st.tileImg} resizeMode="cover" />
-            <View style={st.tileFoot}>
-              <Text style={st.tileLabel}>{t(tile.label)}</Text>
-              <Text style={st.tileSub}>{t(tile.sub)}</Text>
-            </View>
-          </Pressable>
-        ))}
-      </View>
-
-      {/* Les Sept Sœurs */}
-      <Pressable style={st.card} onPress={() => router.push('/soeurs')} accessibilityRole="link" accessibilityLabel={t('Les Sept Sœurs : sept regards pour éclairer ton chemin')}>
-        <View style={{ flex: 1, gap: 4 }}>
-          <Text style={st.sistersTitle}>{t('Les Sept Sœurs')}</Text>
-          <Text style={st.cardSub}>{t('Sept regards pour éclairer ton chemin.')}</Text>
-          <View style={st.dots}>
-            {SISTERS.map((sis, i) => (
-              <View key={sis.slug} style={st.dotItem}>
-                <View style={[st.dot, { backgroundColor: SISTER_COLORS[i] }]} />
-                <Text style={[st.dotName, { color: SISTER_COLORS[i] }]}>{sis.name}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-        <Text style={st.chevron}>›</Text>
-      </Pressable>
-
       {/* Le reste, rangé sur une page dédiée */}
       <Pressable style={st.card} onPress={() => router.push('/explorer')} accessibilityRole="link" accessibilityLabel={t('Apprendre et explorer')}>
         <View style={{ flex: 1, gap: 2 }}>
@@ -257,10 +301,21 @@ export default function Home() {
 const card = { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: colors.surface } as const;
 
 const st = StyleSheet.create({
-  dreamInput: { minHeight: 88, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, color: colors.text, fontFamily: fonts.body, fontSize: 16, padding: 14, textAlignVertical: 'top' },
-  grimoireBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 52, paddingHorizontal: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.gold },
-  grimoirePicto: { width: 30, height: 30 },
-  grimoireLabel: { fontFamily: fonts.bodyBold, fontSize: 16, color: colors.gold },
+  welcome: { gap: 3 },
+  hero: { borderRadius: radius.lg, overflow: 'hidden', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  heroImage: { height: 190, justifyContent: 'flex-end', alignItems: 'flex-start', padding: 14 },
+  heroImageFill: { width: '100%', height: '100%' },
+  heroCaption: { maxWidth: '100%', backgroundColor: 'rgba(8, 11, 23, 0.82)', borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 10, gap: 3 },
+  heroEyebrow: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 9, letterSpacing: 1.2 },
+  heroText: { color: colors.text, fontFamily: fonts.title, fontSize: 23, lineHeight: 27 },
+  dreamEntry: { gap: 8 },
+  homeGrimoire: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 76, paddingHorizontal: 14, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, backgroundColor: colors.surface },
+  homeGrimoireIcon: { width: 48, height: 48 },
+  nightButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, minHeight: 44 },
+  nightButtonText: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.muted },
+  dreamInput: { minHeight: 48, maxHeight: 92, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, color: colors.text, fontFamily: fonts.body, fontSize: 15, paddingHorizontal: 14, paddingVertical: 11, textAlignVertical: 'top' },
+  draftToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 36 },
+  draftToggleText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.gold },
   date: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 2, color: colors.muted },
   hello: { fontFamily: fonts.title, fontSize: 34, color: colors.text },
   progress: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.gold },
@@ -268,27 +323,39 @@ const st = StyleSheet.create({
   kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 2, color: colors.gold },
   kickerMuted: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 1.8, color: colors.muted },
   thoughtText: { fontFamily: fonts.titleItalic, fontSize: 19, lineHeight: 26, color: colors.text },
-  stats: { flexDirection: 'row', gap: space.sm },
-  stat: { flex: 1, gap: 4, padding: 12, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: colors.surface },
-  statTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  statIcon: { fontSize: 20, color: colors.gold },
-  statValue: { fontFamily: fonts.title, fontSize: 26, lineHeight: 30, color: colors.gold },
-  statLabel: { fontFamily: fonts.body, fontSize: 11, lineHeight: 14, color: colors.text },
+  sectionHeading: { fontFamily: fonts.title, fontSize: 25, lineHeight: 30, color: colors.text, marginBottom: -12 },
+  stats: { flexDirection: 'row', gap: 8 },
+  stat: { flex: 1, gap: 7, padding: 10, minHeight: 76, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, backgroundColor: '#0c121e' },
+  statTop: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  moonPhase: { fontFamily: fonts.body, fontSize: 12, lineHeight: 17, color: colors.text },
+  statValue: { fontFamily: fonts.title, fontSize: 27, lineHeight: 31, color: '#e5d4b2' },
+  statLabel: { fontFamily: fonts.body, fontSize: 11, lineHeight: 16, color: colors.muted },
+  journeyBanner: { borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, overflow: 'hidden', backgroundColor: colors.surface },
+  journeyBannerImage: { minHeight: 108, paddingHorizontal: 15, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  journeyBannerFill: { width: '100%', height: '100%', opacity: 0.28 },
+  journeyBannerIcon: { width: 54, height: 54 },
+  journeyBannerText: { flex: 1, alignItems: 'flex-start', gap: 2 },
+  journeyBannerKicker: { fontFamily: fonts.bodyBold, fontSize: 10, letterSpacing: 1.3, color: colors.gold },
+  journeyBannerTitle: { fontFamily: fonts.title, fontSize: 23, lineHeight: 27, color: colors.text },
+  journeyBannerSub: { fontFamily: fonts.body, fontSize: 11, lineHeight: 15, color: colors.text },
   card,
   cardTitle: { fontFamily: fonts.title, fontSize: 22, color: colors.text },
   cardSub: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18, color: colors.muted },
   chevron: { color: colors.gold, fontSize: 24 },
-  spark: { flexDirection: 'row', alignItems: 'flex-end', gap: 3, height: 46 },
-  sparkBar: { width: 6, borderRadius: 3, backgroundColor: colors.gold },
-  tiles: { flexDirection: 'row', gap: space.sm },
-  tile: { flex: 1, borderRadius: radius.md, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: colors.surface },
-  tileImg: { width: '100%', height: 88 },
-  tileFoot: { padding: 10, gap: 2 },
-  tileLabel: { fontFamily: fonts.title, fontSize: 15, color: colors.text },
+  tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  tile: { flexBasis: '48%', flexGrow: 1, minHeight: 100, flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(216,182,107,0.22)', backgroundColor: colors.surface },
+  tileIcon: { width: 52, minHeight: 100, alignItems: 'center', justifyContent: 'center' },
+  dreamerIcon: { width: 52, height: 52 },
+  tileFoot: { flex: 1, padding: 6, gap: 2 },
+  tileLabel: { fontFamily: fonts.title, fontSize: 16, color: colors.text },
   tileSub: { fontFamily: fonts.body, fontSize: 11, lineHeight: 15, color: colors.muted },
-  sistersTitle: { fontFamily: fonts.title, fontSize: 26, color: colors.text },
-  dots: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 6 },
-  dotItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  dot: { width: 9, height: 9, borderRadius: 5 },
-  dotName: { fontFamily: fonts.bodyMedium, fontSize: 12 },
+  tileArrow: { color: colors.gold, fontSize: 18, paddingRight: 5 },
+  moonBanner: { borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  moonBannerContent: { minHeight: 108, padding: space.md, flexDirection: 'row', alignItems: 'center', gap: 14 },
+  moonHint: { fontFamily: fonts.body, fontSize: 11, lineHeight: 15, color: colors.muted },
+  exploreHeading: { textAlign: 'center', color: colors.gold, fontFamily: fonts.title, fontSize: 23 },
+  exploreTiles: { flexDirection: 'row', gap: space.sm },
+  exploreTile: { flex: 1, minHeight: 92, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, borderRadius: radius.md, justifyContent: 'center', alignItems: 'center', padding: 8, gap: 6 },
+  exploreIcon: { width: 48, height: 48 },
+  exploreTileText: { color: colors.text, fontFamily: fonts.title, fontSize: 15, textAlign: 'center' },
 });

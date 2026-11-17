@@ -1,10 +1,11 @@
 // Contenus repris de la version mobile de lecercle127.com.
 import type { ImageSourcePropType } from 'react-native';
+import type { SisterKey } from './portes';
 
 export { SITE } from './webpage';
 
 export type Sister = {
-  slug: string;
+  slug: SisterKey;
   name: string;
   verb: string; // libellé court sous l'avatar (comme sur l'accueil mobile)
   role: string;

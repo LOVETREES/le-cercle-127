@@ -161,8 +161,6 @@ export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
   );
 }
 
-// Une vraie main (photo de la démo de Terra) avec ses lignes détectées.
-const HAND_PHOTO = require('../../assets/images/terra-main.webp');
 const LINES = [
   { name: 'Cœur', color: '#e8a3ae' },
   { name: 'Tête', color: '#e2c06f' },
@@ -187,16 +185,19 @@ export function TerraCard() {
 
   return (
     <Pressable
-      style={[st.card, st.row, { borderColor: 'rgba(169,201,138,0.35)' }]}
+      style={[st.card, { borderColor: 'rgba(169,201,138,0.35)' }]}
       onPress={() => (doneToday ? router.push({ pathname: '/mes-lectures', params: { tab: 'main' } }) : openSister('/terra-gardienne-de-lancrage/', 'Terra'))}
       accessibilityRole="link"
       accessibilityLabel={doneToday ? t('Terra : revoir la lecture de ma main du jour') : t('Terra : lire les lignes de ma main')}
     >
-      <View style={st.handFrame} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <Image source={HAND_PHOTO} style={st.handPhoto} resizeMode="cover" />
+      <Text style={[st.kicker, { color: TERRA }]}>{t('TERRA · VOTRE MAIN DU JOUR')}</Text>
+      <View style={st.handVisual} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        <Image source={require('../../assets/images/terra-main.webp')} style={st.handPhoto} resizeMode="cover" accessible={false} />
+        <View style={st.handLegend}>
+          {LINES.map((l) => <Text key={l.name} style={[st.handLegendText, { color: l.color }]}>● {t(l.name)}</Text>)}
+        </View>
       </View>
-      <View style={{ flex: 1, gap: 4 }}>
-        <Text style={[st.kicker, { color: TERRA }]}>{t('TERRA · VOTRE MAIN DU JOUR')}</Text>
+      <View style={{ gap: 4 }}>
         {doneToday ? (
           <>
             <Text style={st.title}>{t('Votre main a parlé aujourd’hui')}</Text>
@@ -206,13 +207,6 @@ export function TerraCard() {
         ) : (
           <>
             <Text style={st.title}>{t('Lire les lignes de ma main')}</Text>
-            <View style={st.legend}>
-              {LINES.map((l) => (
-                <Text key={l.name} style={[st.legendItem, { color: l.color }]}>
-                  ● {t(l.name)}
-                </Text>
-              ))}
-            </View>
             <Text style={st.text}>{t('Une lecture par jour : un geste, un mantra, une question.')}</Text>
           </>
         )}
@@ -222,7 +216,6 @@ export function TerraCard() {
           </Pressable>
         ) : null}
       </View>
-      <Text style={st.chevron}>›</Text>
     </Pressable>
   );
 }
@@ -242,8 +235,10 @@ const st = StyleSheet.create({
   link: { fontFamily: fonts.bodyBold, fontSize: 14 },
   legend: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   legendItem: { fontFamily: fonts.bodyMedium, fontSize: 12.5 },
-  handFrame: { width: 76, height: 92, borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(214,182,108,0.55)' },
-  handPhoto: { width: '100%', height: '100%' },
+  handVisual: { flexDirection: 'row', alignItems: 'center', overflow: 'hidden', borderRadius: radius.md, backgroundColor: colors.night },
+  handPhoto: { width: '55%', height: 180 },
+  handLegend: { flex: 1, padding: 12, gap: 10 },
+  handLegendText: { fontFamily: fonts.bodyMedium, fontSize: 13 },
   chevron: { color: colors.gold, fontSize: 24 },
   check: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
   box: { fontSize: 18, color: NAIA, lineHeight: 20 },

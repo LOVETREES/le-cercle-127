@@ -54,7 +54,7 @@ export function OracleExpress({ onDraw }: { onDraw: () => void }) {
   const mirror = mirrorForSister(lead?.name);
   return (
     <View style={st.card}>
-      <Text style={st.kicker}>{t('ORACLE EXPRESS · SANS INSCRIPTION')}</Text>
+      <Text style={st.kicker}>{t('Carte du jour').toUpperCase()} · {t('ORACLE EXPRESS · SANS INSCRIPTION')}</Text>
       <Text style={st.title}>{t('Pas de souvenir cette nuit ?')}</Text>
       <Text style={st.text}>{t('Découvrez une carte pour éclairer votre journée.')}</Text>
       {card && words ? (

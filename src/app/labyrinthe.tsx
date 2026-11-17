@@ -6,6 +6,7 @@ import { Animated, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet,
 import Svg, { Circle, Defs, G, Line, Path, RadialGradient, Stop, Text as SvgText } from 'react-native-svg';
 
 import { Screen } from '../components/ui';
+import { SISTERS } from '../lib/content';
 import { allRecurringMotifs } from '../lib/insights';
 import { listEntries } from '../lib/journal-intime';
 import { acquis, acquisLevels, birthAngles, normalizeBirthDate, ORDER, type Birth, type Placement } from '../lib/labyrinthe/acquis';
@@ -213,8 +214,92 @@ export default function Labyrinthe() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen>
         <View style={{ alignItems: 'center', gap: 4 }}>
-          <Text style={st.kicker}>{t('LE LABYRINTHE VIVANT')}</Text>
-          <Text style={st.title}>{t('Ce que tu portes, ce que tu vis')}</Text>
+          <Text style={st.title}>{t('Le Cercle des 7 Sœurs')}</Text>
+          <Text style={st.kicker}>{t('TON VÉCU, SŒUR PAR SŒUR')}</Text>
+        </View>
+
+        {/* Le vécu, Sœur par Sœur */}
+        <View style={st.card}>
+          <Text style={st.h}>{t('TON VÉCU, SŒUR PAR SŒUR')}</Text>
+          {ORDER.map((s) => {
+            const sister = SISTERS.find((item) => item.name === s);
+            return (
+              <View key={s} style={st.sisterRow}>
+                {sister && <Image source={sister.image} style={st.sisterPortrait} accessible={false} />}
+                <View style={st.sisterDetails}>
+                  <Text style={st.sisterName}>{s}</Text>
+                  <Text style={st.sisterSource}>{t(SOURCES[s].what)}</Text>
+                  <View style={st.track} accessibilityLabel={`${s} : ${counts[s]} ${t(SOURCES[s].what)}`}>
+                    <View style={[st.fill, { width: `${Math.round(v[s] * 100)}%` }]} />
+                    {a ? <View style={[st.tick, { left: `${Math.round(a[s] * 100)}%` }]} /> : null}
+                  </View>
+                </View>
+                <Text style={st.rowN}>{counts[s]}</Text>
+              </View>
+            );
+          })}
+          <Text style={st.small}>
+            {ORDER.map((s) => `${s} : ${t(SOURCES[s].what)}`).join(' · ')}. {a ? t('Le trait doré marque ton ciel.') : ''}
+          </Text>
+          <Pressable onPress={() => router.push('/oracle-natif')} accessibilityRole="link" hitSlop={6}>
+            <Text style={st.link}>{t('Ignis grandit avec les gestes accomplis après un tirage de l’Oracle ›')}</Text>
+          </Pressable>
+        </View>
+
+        {/* Le ciel de naissance */}
+        <View style={st.card}>
+          <Text style={st.h}>{t('TON CIEL DE NAISSANCE')}</Text>
+          {placements && !editBirth ? (
+            <>
+              {placements.map((p) => (
+                <Text key={p.sister} style={st.place}>
+                  <Text style={st.qS}>{p.sister}</Text> · {t(p.astre)} {t('en')} {t(p.sign)} {p.degree}°{p.reasons.length ? ` · ${p.reasons.map((r) => t(r)).join(', ')}` : ''}
+                </Text>
+              ))}
+              {angs ? (
+                <Text style={st.place}>
+                  <Text style={st.qS}>{t('Ascendant')}</Text> {t('en')} {t(angs.ascSign)} {Math.floor(angs.asc % 30)}° · <Text style={st.qS}>{t('Milieu du ciel')}</Text> {t('en')} {t(angs.mcSign)} {Math.floor(angs.mc % 30)}°
+                </Text>
+              ) : (
+                <Text style={st.small}>{t('Ajoute l’heure et le lieu de naissance pour l’ascendant et le milieu du ciel.')}</Text>
+              )}
+              {birth?.place ? <Text style={st.small}>{t('Né·e à {p}', { p: birth.place })}{birth.time ? ` · ${birth.time}` : ''}</Text> : null}
+              <Pressable onPress={() => setEditBirth(true)} accessibilityRole="button" hitSlop={8}>
+                <Text style={st.link}>{t('Modifier ma date de naissance ›')}</Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <Text style={st.small}>{t('Ta date de naissance, et si tu les connais l’heure et le lieu. Le calcul se fait sur ton téléphone : rien n’est envoyé.')}</Text>
+              <Text style={st.small}>{t('Date : JJ/MM/AAAA ou AAAA-MM-JJ. Heure et lieu facultatifs.')}</Text>
+              <TextInput value={form.date} onChangeText={(d) => { setSkyError(null); setForm((f) => ({ ...f, date: d.slice(0, 10) })); }} placeholder="JJ/MM/AAAA" placeholderTextColor={colors.muted} keyboardType="numbers-and-punctuation" style={st.input} accessibilityLabel={t('Date de naissance')} />
+              <TextInput value={form.time} onChangeText={(h) => setForm((f) => ({ ...f, time: h.slice(0, 5) }))} placeholder={t('HH:MM (facultatif)')} placeholderTextColor={colors.muted} keyboardType="numbers-and-punctuation" style={st.input} accessibilityLabel={t('Heure de naissance')} />
+              <TextInput
+                value={placeQ}
+                onChangeText={(q) => { setPlaceQ(q); setForm((f) => ({ ...f, place: villeByName(q) ? q : '' })); }}
+                placeholder={t('Lieu de naissance (facultatif)')}
+                placeholderTextColor={colors.muted}
+                style={st.input}
+                accessibilityLabel={t('Lieu de naissance')}
+              />
+              {suggestions.length ? (
+                <View style={st.sugg}>
+                  {suggestions.map((v) => (
+                    <Pressable key={v.name} onPress={() => { setPlaceQ(v.name); setForm((f) => ({ ...f, place: v.name })); }} style={st.suggI} accessibilityRole="button">
+                      <Text style={st.suggT}>{v.name}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              ) : placeQ && !villeByName(placeQ) && placeQ.length >= 2 ? (
+                <Text style={st.small}>{t('Ville absente de la liste : choisis la grande ville la plus proche.')}</Text>
+              ) : null}
+              {skyError ? <Text accessibilityRole="alert" style={[st.small, { color: colors.danger }]}>{skyError}</Text> : null}
+              <Pressable onPress={() => void saveSky()} style={st.cta} accessibilityRole="button">
+                <Text style={st.ctaT}>{t('Lire mon ciel')}</Text>
+              </Pressable>
+            </>
+          )}
+          <Text style={st.small}>{t('Lecture symbolique : les correspondances astrales inspirent la réflexion, elles ne décrivent ni ne prédisent qui tu es. Ce qui compte ici, c’est ce que tu en fais.')}</Text>
         </View>
 
         <Animated.View style={[st.card, { opacity: fade }]}>
@@ -292,82 +377,6 @@ export default function Labyrinthe() {
           </View>
         ) : null}
 
-        {/* Le vécu, Sœur par Sœur */}
-        <View style={st.card}>
-          <Text style={st.h}>{t('TON VÉCU, SŒUR PAR SŒUR')}</Text>
-          {ORDER.map((s) => (
-            <View key={s} style={st.row}>
-              <Text style={st.rowS}>{s}</Text>
-              <View style={st.track}>
-                <View style={[st.fill, { width: `${Math.round(v[s] * 100)}%` }]} />
-                {a ? <View style={[st.tick, { left: `${Math.round(a[s] * 100)}%` }]} /> : null}
-              </View>
-              <Text style={st.rowN}>{counts[s]}</Text>
-            </View>
-          ))}
-          <Text style={st.small}>
-            {ORDER.map((s) => `${s} : ${t(SOURCES[s].what)}`).join(' · ')}. {a ? t('Le trait doré marque ton ciel.') : ''}
-          </Text>
-          <Pressable onPress={() => router.push('/oracle-natif')} accessibilityRole="link" hitSlop={6}>
-            <Text style={st.link}>{t('Ignis grandit avec les gestes accomplis après un tirage de l’Oracle ›')}</Text>
-          </Pressable>
-        </View>
-
-        {/* Le ciel de naissance */}
-        <View style={st.card}>
-          <Text style={st.h}>{t('TON CIEL DE NAISSANCE')}</Text>
-          {placements && !editBirth ? (
-            <>
-              {placements.map((p) => (
-                <Text key={p.sister} style={st.place}>
-                  <Text style={st.qS}>{p.sister}</Text> · {t(p.astre)} {t('en')} {t(p.sign)} {p.degree}°{p.reasons.length ? ` · ${p.reasons.map((r) => t(r)).join(', ')}` : ''}
-                </Text>
-              ))}
-              {angs ? (
-                <Text style={st.place}>
-                  <Text style={st.qS}>{t('Ascendant')}</Text> {t('en')} {t(angs.ascSign)} {Math.floor(angs.asc % 30)}° · <Text style={st.qS}>{t('Milieu du ciel')}</Text> {t('en')} {t(angs.mcSign)} {Math.floor(angs.mc % 30)}°
-                </Text>
-              ) : (
-                <Text style={st.small}>{t('Ajoute l’heure et le lieu de naissance pour l’ascendant et le milieu du ciel.')}</Text>
-              )}
-              {birth?.place ? <Text style={st.small}>{t('Né·e à {p}', { p: birth.place })}{birth.time ? ` · ${birth.time}` : ''}</Text> : null}
-              <Pressable onPress={() => setEditBirth(true)} accessibilityRole="button" hitSlop={8}>
-                <Text style={st.link}>{t('Modifier ma date de naissance ›')}</Text>
-              </Pressable>
-            </>
-          ) : (
-            <>
-              <Text style={st.small}>{t('Ta date de naissance, et si tu les connais l’heure et le lieu. Le calcul se fait sur ton téléphone : rien n’est envoyé.')}</Text>
-              <Text style={st.small}>{t('Date : JJ/MM/AAAA ou AAAA-MM-JJ. Heure et lieu facultatifs.')}</Text>
-              <TextInput value={form.date} onChangeText={(d) => { setSkyError(null); setForm((f) => ({ ...f, date: d.slice(0, 10) })); }} placeholder="JJ/MM/AAAA" placeholderTextColor={colors.muted} keyboardType="numbers-and-punctuation" style={st.input} accessibilityLabel={t('Date de naissance')} />
-              <TextInput value={form.time} onChangeText={(h) => setForm((f) => ({ ...f, time: h.slice(0, 5) }))} placeholder={t('HH:MM (facultatif)')} placeholderTextColor={colors.muted} keyboardType="numbers-and-punctuation" style={st.input} accessibilityLabel={t('Heure de naissance')} />
-              <TextInput
-                value={placeQ}
-                onChangeText={(q) => { setPlaceQ(q); setForm((f) => ({ ...f, place: villeByName(q) ? q : '' })); }}
-                placeholder={t('Lieu de naissance (facultatif)')}
-                placeholderTextColor={colors.muted}
-                style={st.input}
-                accessibilityLabel={t('Lieu de naissance')}
-              />
-              {suggestions.length ? (
-                <View style={st.sugg}>
-                  {suggestions.map((v) => (
-                    <Pressable key={v.name} onPress={() => { setPlaceQ(v.name); setForm((f) => ({ ...f, place: v.name })); }} style={st.suggI} accessibilityRole="button">
-                      <Text style={st.suggT}>{v.name}</Text>
-                    </Pressable>
-                  ))}
-                </View>
-              ) : placeQ && !villeByName(placeQ) && placeQ.length >= 2 ? (
-                <Text style={st.small}>{t('Ville absente de la liste : choisis la grande ville la plus proche.')}</Text>
-              ) : null}
-              {skyError ? <Text accessibilityRole="alert" style={[st.small, { color: colors.danger }]}>{skyError}</Text> : null}
-              <Pressable onPress={() => void saveSky()} style={st.cta} accessibilityRole="button">
-                <Text style={st.ctaT}>{t('Lire mon ciel')}</Text>
-              </Pressable>
-            </>
-          )}
-          <Text style={st.small}>{t('Lecture symbolique : les correspondances astrales inspirent la réflexion, elles ne décrivent ni ne prédisent qui tu es. Ce qui compte ici, c’est ce que tu en fais.')}</Text>
-        </View>
       </Screen>
     </KeyboardAvoidingView>
   );
@@ -403,6 +412,11 @@ const st = StyleSheet.create({
   cta: { backgroundColor: '#e8cf8f', borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', marginTop: 4 },
   ctaT: { fontFamily: fonts.title, fontSize: 19, color: '#1b1730' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  sisterRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(216,182,107,0.12)' },
+  sisterPortrait: { width: 46, height: 46, borderRadius: 23, borderWidth: 1, borderColor: colors.border },
+  sisterDetails: { flex: 1, gap: 4 },
+  sisterName: { fontFamily: fonts.title, fontSize: 20, color: colors.text },
+  sisterSource: { fontFamily: fonts.body, fontSize: 11, color: colors.muted },
   syncRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   syncBox: { fontSize: 20, color: colors.gold, lineHeight: 22 },
   rowS: { width: 52, fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.text },

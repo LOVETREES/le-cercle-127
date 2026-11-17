@@ -39,27 +39,28 @@ const levelText = (s: StationState) => t(LEVEL_LABEL[s.level]);
 /** Carte de l'accueil : sept boutons (un par Sœur) et le prochain pas. */
 export function CheminCard({ chemin }: { chemin: Chemin }) {
   const next = chemin.stations[chemin.nextIndex];
+  const order = ['oni', 'alka', 'naia', 'terra', 'ignis', 'astria', 'irma'];
+  const stations = order.flatMap((slug) => chemin.stations.filter((station) => station.slug === slug));
   return (
     <View style={st.card}>
       <View style={st.head}>
         <Text style={st.title}>{t('Mon chemin')}</Text>
-        <Text style={st.count}>{t('{n} / 7 éveillées', { n: chemin.awakened })}</Text>
       </View>
-      <Text style={st.intro}>
-        {t('Devenir pleinement toi-même : c’est ce que Jung appelait l’individuation. Chaque Sœur veille sur une part de ce chemin et grandit avec tes gestes.')}
-      </Text>
-      <Text style={st.intro}>{t('Apprivoiser son ombre fait aussi partie du chemin : reconnaître les parts de soi que l’on évite, sans se juger ni se forcer.')}</Text>
-      <View style={st.grid}>
-        {chemin.stations.map((s) => (
-          <Pressable key={s.slug} style={st.cell} onPress={() => router.push({ pathname: '/chemin', params: { s: s.slug } })}
-            accessibilityRole="button" accessibilityLabel={t('{v0}, {v1} : {v2}', { v0: s.name, v1: t(s.verb), v2: levelText(s) })}>
-            <SisterRing s={s} />
-            <Text style={[st.name, { color: s.color }]}>{s.name}</Text>
-            <Text style={st.verb}>{t(s.verb)}</Text>
-            <Text style={[st.level, { color: s.level ? colors.gold : colors.muted }]}>{levelText(s)}</Text>
-          </Pressable>
-        ))}
-      </View>
+      <Text style={st.intro}>{t('Avancer vers toi-même, pas à pas, avec le soutien des Sœurs.')}</Text>
+      {[stations.slice(0, 4), stations.slice(4)].map((row, i) => (
+        <View key={i} style={st.gridRow}>
+          {row.map((s) => (
+            <Pressable key={s.slug} style={st.node} onPress={() => router.push({ pathname: '/conversation', params: { sister: s.slug } })}
+              accessibilityRole="link" accessibilityLabel={t('{v0}, {v1} : {v2}', { v0: s.name, v1: t(s.verb), v2: levelText(s) })}>
+              <Image source={IMG[s.slug]} style={st.portrait} accessible={false} />
+              <Text style={[st.name, { color: s.color }]}>{s.name}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ))}
+      <Pressable onPress={() => router.push('/labyrinthe')} accessibilityRole="link" style={st.evolutionLink}>
+        <Text style={st.evolutionLinkText}>{t('Voir mon évolution et mon ciel ›')}</Text>
+      </Pressable>
       <Pressable style={st.next} onPress={() => router.push({ pathname: '/chemin', params: { s: next.slug } })} accessibilityRole="button">
         <SisterRing s={next} size={46} />
         <View style={{ flex: 1, gap: 2 }}>
@@ -76,13 +77,13 @@ const st = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: radius.lg, padding: space.md, gap: 14 },
   head: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   title: { fontFamily: fonts.title, fontSize: 28, color: colors.text },
-  count: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold },
   intro: { fontFamily: fonts.body, fontSize: 14, lineHeight: 21, color: colors.muted },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 14 },
-  cell: { width: '25%', alignItems: 'center', gap: 3 },
-  name: { fontFamily: fonts.bodyBold, fontSize: 13 },
-  verb: { fontFamily: fonts.body, fontSize: 11, color: colors.muted },
-  level: { fontFamily: fonts.bodyBold, fontSize: 11 },
+  gridRow: { flexDirection: 'row', justifyContent: 'center' },
+  node: { width: '25%', alignItems: 'center', gap: 4, minHeight: 76 },
+  portrait: { width: 52, height: 52, borderRadius: 26, borderWidth: 3, borderColor: '#35394b', backgroundColor: colors.night },
+  name: { fontFamily: fonts.bodyBold, fontSize: 12 },
+  evolutionLink: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  evolutionLinkText: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold },
   next: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: radius.md, backgroundColor: colors.surfaceRaised },
   nextKicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.4 },
   nextText: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.text },

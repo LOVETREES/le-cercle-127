@@ -107,6 +107,16 @@ async function request(url: string, { method = 'GET', body, token, timeoutMs = 2
 export type Session = { token: string; user: User };
 
 export const api = {
+  async sisterChat(body: { sister: string; message: string; history: { role: 'user' | 'assistant'; content: string }[]; session: string; consent: boolean }): Promise<{ answer: string }> {
+    if (!body.consent) throw new Error(t('Ton accord est nécessaire avant cet envoi.'));
+    if (!['oni', 'alka', 'naia', 'terra', 'ignis', 'astria', 'irma'].includes(body.sister) || !body.message.trim() || body.message.length > 4000 || explicitCrisis(body.message)) throw new Error(t('Cet extrait ne peut pas être envoyé.'));
+    const result = await request(`${BASE}/onirologue/v1/sister-chat`, {
+      method: 'POST', timeoutMs: 45000,
+      body: { sister: body.sister, message: body.message.trim(), history: body.history.slice(-12), session: body.session, image: null, website: '' },
+    }) as { answer?: unknown } | undefined;
+    if (typeof result?.answer !== 'string' || !result.answer.trim()) throw new Error(t('Aucun éclairage n’a pu être obtenu. Réessaie plus tard.'));
+    return { answer: result.answer.trim() };
+  },
   // Lectures de la main gardées dans le compte (extension « Cercle 127 - Lectures de la main »).
   async palmList(token: string): Promise<Record<string, unknown>[]> {
     const body = (await request(PALM, { token })) as { items?: unknown } | undefined;

@@ -7,6 +7,23 @@ beforeEach(() => { fetchMock.mockReset(); vi.stubGlobal('fetch', fetchMock); });
 afterEach(() => vi.unstubAllGlobals());
 
 describe('API : consentement, disponibilité et effacement', () => {
+  it('ne transmet pas la conversation sans accord ou en cas de détresse explicite', async () => {
+    const chat = { sister: 'naia', message: 'Bonjour', history: [], session: 'test', consent: false };
+    await expect(api.sisterChat(chat)).rejects.toThrow();
+    await expect(api.sisterChat({ ...chat, consent: true, message: 'Je veux me suicider' })).rejects.toThrow();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it('utilise le service de dialogue avec la Sœur choisie et les échanges récents', async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({ answer: 'Je vous écoute.' }), { status: 200 }));
+    const history = [{ role: 'user' as const, content: 'Bonjour' }, { role: 'assistant' as const, content: 'Bonjour à vous.' }];
+    expect(await api.sisterChat({ sister: 'terra', message: ' Mon message ', history, session: 'test', consent: true })).toEqual({ answer: 'Je vous écoute.' });
+    expect(fetchMock.mock.calls[0][0]).toBe('https://example.test/wp-json/onirologue/v1/sister-chat');
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual({ sister: 'terra', message: 'Mon message', history, session: 'test', image: null, website: '' });
+  });
+  it('signale une réponse de conversation vide', async () => {
+    fetchMock.mockResolvedValue(new Response('{}', { status: 200 }));
+    await expect(api.sisterChat({ sister: 'oni', message: 'Bonjour', history: [], session: 'test', consent: true })).rejects.toThrow();
+  });
   it('ne partage pas une page sans accord explicite ou si elle contient une formulation explicite de crise', async () => {
     const base = { sister: 'oni', excerpt: 'Une page privée', lang: 'fr' };
     await expect(api.sisterForChapter('session', { ...base, consent: false as unknown as true })).rejects.toThrow('accord');

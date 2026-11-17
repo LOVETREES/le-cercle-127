@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Body, Eyebrow, Notice, Screen, Title } from '../../components/ui';
@@ -10,10 +10,15 @@ import { t } from '../../i18n';
 const SUGGESTIONS = ['arbre', 'eau', 'maison', 'serpent', 'chute', 'dents', 'lune', 'forêt'];
 
 export default function Symboles() {
+  const { recherche } = useLocalSearchParams<{ recherche?: string }>();
   const [q, setQ] = useState('');
   const [results, setResults] = useState<Symbol127[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useFocusEffect(useCallback(() => {
+    if (typeof recherche === 'string') setQ(recherche);
+  }, [recherche]));
 
   // Recherche dans le dictionnaire du site (plus de 3 900 symboles), avec un léger délai de frappe.
   useEffect(() => {
@@ -63,6 +68,13 @@ export default function Symboles() {
         clearButtonMode="while-editing"
         returnKeyType="search"
       />
+
+      {q.trim().toLocaleLowerCase() === 'lune' && (
+        <View style={st.moonNote}>
+          <Text style={st.itemTitle}>{t('La Lune et vos nuits')}</Text>
+          <Body muted>{t('La Lune évoque les cycles et invite à observer ce qui change ou revient dans vos nuits. Sa phase est un repère : elle ne permet pas de prédire ni d’expliquer à elle seule un rêve.')}</Body>
+        </View>
+      )}
 
       {q.trim().length < 2 && (
         <View style={st.chips}>
@@ -122,6 +134,7 @@ const st = StyleSheet.create({
   chip: { borderRadius: radius.pill, borderWidth: 1, borderColor: 'rgba(170,160,230,0.45)', paddingHorizontal: 14, paddingVertical: 8 },
   chipText: { fontFamily: fonts.body, color: colors.text, fontSize: 14 },
   item: { padding: space.md, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', gap: 6 },
+  moonNote: { padding: space.md, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, gap: 6 },
   itemTitle: { fontFamily: fonts.title, fontSize: 21, color: colors.text },
   itemText: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.muted },
   all: { alignItems: 'center', padding: space.md },
