@@ -141,7 +141,7 @@
       return '<article class="c127g-dream"><div class="c127g-thumb is-' + k + '">' + icon(k, 'c127g-thumb__ic') + '</div><div class="c127g-dream__b">' +
         '<p class="c127g-date">' + esc(fmt(d.date)) + '</p><h3>' + esc(d.title || 'Rêve sans titre') + '</h3>' +
         ((d.symbols.length || e) ? '<p class="c127g-motifs">' + d.symbols.slice(0, 3).map(esc).concat(e && e.key !== 'aucune' ? [esc(e.label)] : []).join(' · ') + '</p>' : '') +
-        (d.text ? '<p class="c127g-excerpt">« ' + esc(d.text.slice(0, 120)) + (d.text.length > 120 ? '…' : '') + ' »</p>' : '') + '</div></article>';
+        (d.text ? '<p class="c127g-excerpt">« ' + esc(d.text.slice(0, 120)) + (d.text.length > 120 ? '…' : '') + ' »</p>' : '') + (d.id && C.reading ? '<details class="c127g-reading" data-dream-id="' + d.id + '"><summary>Ouvrir mon rêve</summary><p class="c127g-full-story">' + esc(d.text) + '</p><div class="c127g-reading-body" aria-live="polite">Lecture en attente d’ouverture.</div></details>' : '') + '</div></article>';
     }).join('');
     h += '</section><div class="c127g-side">';
     h += '<section class="c127g-card c127g-journal"><h2 class="c127g-h">Journal intime</h2><p>Note ici tes réflexions, tes ressentis et tes prises de conscience, à voix haute ou par écrit.</p>' +
@@ -165,6 +165,32 @@
     h += '<a class="c127g-cta" href="' + esc((C.links || {}).oni || '/lecture-de-reve/') + '"><span>Confier un nouveau rêve à Oni</span><small>La Perle d’Oni · lecture approfondie</small></a>';
     h += '<p class="c127g-foot">Sauvegarde automatique · Tes rêves restent privés · Tu gardes le contrôle' + (Number.isSafeInteger(R.streak) && R.streak > 1 ? ' · ✦ ' + R.streak + ' jours de rituel' : '') + '</p>';
     host.innerHTML = h;
+    host.querySelectorAll('.c127g-reading').forEach(function (panel) {
+      panel.addEventListener('toggle', function () {
+        if (!panel.open || panel.dataset.loaded || panel.dataset.loading) return;
+        panel.dataset.loading = '1';
+        var body = panel.querySelector('.c127g-reading-body'), id = Number(panel.dataset.dreamId);
+        body.textContent = 'Ouverture de la lecture…';
+        var url = new URL(C.reading, location.href);
+        if (url.origin !== location.origin) { body.textContent = 'Lecture indisponible.'; delete panel.dataset.loading; return; }
+        if (url.searchParams.has('rest_route')) url.searchParams.set('rest_route', url.searchParams.get('rest_route').replace(/\/$/, '') + '/' + id);
+        else url.pathname = url.pathname.replace(/\/$/, '') + '/' + id;
+        get(url.href).then(function (data) {
+          if (!data || data.dream_id !== id) throw new Error('MISMATCH');
+          var r = data.reading;
+          if (!r) { body.textContent = 'Aucune lecture enregistrée pour ce rêve.'; }
+          else {
+            var html = '<h4>Le regard d’Oni</h4><p>' + esc(r.oni_reading || '') + '</p>';
+            if (Array.isArray(r.symbols) && r.symbols.length) html += '<h4>Symboles</h4><ul>' + r.symbols.map(function (s) { return '<li>' + esc(s.name) + (s.reading ? ' — ' + esc(s.reading) : '') + '</li>'; }).join('') + '</ul>';
+            if (Array.isArray(r.open_questions) && r.open_questions.length) html += '<h4>Pour prolonger ta réflexion</h4><ul>' + r.open_questions.map(function (q) { return '<li>' + esc(q) + '</li>'; }).join('') + '</ul>';
+            if (r.closing) html += '<p>' + esc(r.closing) + '</p>';
+            if (Array.isArray(data.sources) && data.sources.length) html += '<details><summary>Connaissances mobilisées</summary><ul>' + data.sources.map(function (s) { return '<li>' + esc(s.title) + ' · p. ' + esc(s.page) + '</li>'; }).join('') + '</ul></details>';
+            body.innerHTML = html;
+          }
+          panel.dataset.loaded = '1'; delete panel.dataset.loading;
+        }).catch(function () { body.textContent = 'Lecture indisponible. Referme puis réessaie.'; delete panel.dataset.loading; });
+      });
+    });
 
     host.addEventListener('click', function (e) {
       var tab = e.target.closest('[data-tab]');
@@ -180,14 +206,14 @@
 
   /* ---------- Données ---------- */
   function get(url) {
-    return fetch(url, { credentials: 'same-origin', headers: { 'X-WP-Nonce': C.nonce || '' } }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+    return fetch(url, { credentials: 'same-origin', cache: 'no-store', headers: { 'X-WP-Nonce': C.nonce || '' } }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
   }
   function parseDream(d) {
     var t = String(d.title || ''), i = t.indexOf(':'); if (/^priv/i.test(t) && i >= 0) t = t.slice(i + 1).trim();
     var sy = Array.isArray(d.symbols) ? d.symbols : String(d.symbols || '').split(',');
     var text = d.content || d.dream_content || d.story || d.excerpt || d.text || '';
     text = String(text).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-    return { title: t, date: parseDate(d.dream_date || d.date), emotion: d.emotion || '', symbols: sy.map(function (s) { return String(s).trim(); }).filter(Boolean), text: text };
+    var id = Number(d.id || d.ID || d.dream_id); return { id: Number.isSafeInteger(id) && id > 0 ? id : null, title: t, date: parseDate(d.dream_date || d.date), emotion: d.emotion || '', symbols: sy.map(function (s) { return String(s).trim(); }).filter(Boolean), text: text };
   }
   document.body.classList.add('c127g-ready');
   // Le tableau de bord remplace la présentation « Mon Grimoire » (pour les visiteurs) et l'ancienne carte (gardée derrière « Voir le détail »).
