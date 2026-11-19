@@ -159,11 +159,11 @@
     chart += P2.map(function (p) { return '<circle cx="' + X(p[0]).toFixed(1) + '" cy="' + Y(p[1]).toFixed(1) + '" r="3" class="c127g-pt"/>'; }).join('') + '</svg>';
     var dom = (function () { var c = {}; all.forEach(function (d) { var e = emo(d.emotion); if (e && d.date >= from && e.key !== 'aucune') c[e.label] = (c[e.label] || 0) + 1; }); return Object.keys(c).sort(function (a, b) { return c[b] - c[a]; }).slice(0, 2); })();
     h += '<section class="c127g-card c127g-mood"><h2 class="c127g-h">Suivi émotionnel</h2>' + chart +
-      '<p>' + (P2.length ? 'Tes émotions dominantes ces 30 derniers jours : <b>' + (dom.join(', ') || '—') + '</b>.' : 'Note l’émotion de tes réveils : la courbe des 30 derniers jours se dessinera ici.') + '</p>' +
+      '<p>' + (P2.length ? 'Tes émotions dominantes ces 30 derniers jours : <b>' + (dom.map(esc).join(', ') || '—') + '</b>.' : 'Note l’émotion de tes réveils : la courbe des 30 derniers jours se dessinera ici.') + '</p>' +
       '<button type="button" class="c127g-more" data-c127g="map">Voir le détail →</button></section></div></div>';
 
     h += '<a class="c127g-cta" href="' + esc((C.links || {}).oni || '/lecture-de-reve/') + '"><span>Confier un nouveau rêve à Oni</span><small>La Perle d’Oni · lecture approfondie</small></a>';
-    h += '<p class="c127g-foot">Sauvegarde automatique · Tes rêves restent privés · Tu gardes le contrôle' + (R.streak > 1 ? ' · ✦ ' + R.streak + ' jours de rituel' : '') + '</p>';
+    h += '<p class="c127g-foot">Sauvegarde automatique · Tes rêves restent privés · Tu gardes le contrôle' + (Number.isSafeInteger(R.streak) && R.streak > 1 ? ' · ✦ ' + R.streak + ' jours de rituel' : '') + '</p>';
     host.innerHTML = h;
 
     host.addEventListener('click', function (e) {
