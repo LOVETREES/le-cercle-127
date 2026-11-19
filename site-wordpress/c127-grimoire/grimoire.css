@@ -117,3 +117,6 @@ body.c127g-on.c127g-ready .page-hero,.c127g-old,body.c127g-on #c127-map:not(.is-
 .c127g .c127g-card{padding:20px 22px!important}
 .c127g .c127g-hero{padding:28px 28px 20px!important}
 @media (max-width:520px){.c127g .c127g-card{padding:16px!important}.c127g .c127g-hero{padding:22px 18px 16px!important}}
+
+/* Inline private reading */
+.c127g-reading{margin-top:12px;overflow-wrap:anywhere}.c127g-reading summary{cursor:pointer;color:var(--g-gold2);padding:8px 0;font-weight:600}.c127g-reading summary:focus-visible{outline:2px solid var(--g-gold);outline-offset:3px}.c127g-reading-body{border-top:1px solid var(--g-line);padding-top:12px;font-size:.9rem}.c127g-reading-body h4{color:var(--g-gold);margin:12px 0 6px}.c127g-reading-body p,.c127g-full-story{white-space:pre-wrap;margin:8px 0}.c127g-reading-body ul{padding-inline-start:20px}.c127g-reading-body details{margin-top:12px}
