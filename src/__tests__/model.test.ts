@@ -125,9 +125,11 @@ describe('rêves et brouillons', () => {
     expect(mergeDreams([b, c], [a]).map((d) => d.id)).toEqual(['8', '9', a.id]);
   });
 
-  it('envoie le récit sous plusieurs noms de champ', () => {
-    const p = dreamPayload({ ...input, title: ' Titre ' });
+  it('envoie le récit sous plusieurs noms de champ sans métadonnée locale', () => {
+    const localDraft = { ...input, title: ' Titre ', ownerId: 'user:compte-a' };
+    const p = dreamPayload(localDraft);
     expect(p).toMatchObject({ title: 'Titre', story: 'Je volais', content: 'Je volais', dream_date: '2026-11-04' });
+    expect(p).not.toHaveProperty('ownerId');
   });
 
   it('valide une adresse e-mail', () => {
