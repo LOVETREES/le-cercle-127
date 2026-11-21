@@ -64,7 +64,7 @@ jobs:
           - tapOn:
               text: "Plus tard"
               optional: true
-          - assertVisible: "LA LUNE AUJOURD’HUI"
+          - assertVisible: "(?i)(La Lune : .*|La Lune aujourd.hui)"
           - takeScreenshot: 01-accueil-lune
           - scrollUntilVisible:
               element: "Les Sept Sœurs"
@@ -72,10 +72,21 @@ jobs:
               centerElement: true
           - takeScreenshot: 02-sept-soeurs
           - scrollUntilVisible:
+              element: "Découvrir ma carte du jour.*"
+              direction: DOWN
+              centerElement: true
+          - tapOn: "Découvrir ma carte du jour.*"
+          - takeScreenshot: 03-carte-du-jour
+          - scrollUntilVisible:
               element: "Intensité du ressenti"
               direction: DOWN
               centerElement: true
-          - takeScreenshot: 03-emotions-naia
+          - takeScreenshot: 04-emotions-naia
+          - scrollUntilVisible:
+              element: "(?i)Terra : lire les lignes de ma main"
+              direction: DOWN
+              centerElement: true
+          - takeScreenshot: 05-lecture-de-la-main
           - tapOn: "Grimoire"
           - tapOn: "Entrer dans mon Grimoire"
           - scrollUntilVisible:
@@ -88,17 +99,17 @@ jobs:
               direction: DOWN
           - tapOn: "La forêt lumineuse.*"
           - scrollUntilVisible:
-              element: "CE QU’ONI Y VOIT"
+              element: "(?i)ce qu.oni y voit"
               direction: DOWN
               centerElement: true
-          - takeScreenshot: 04-grimoire-lecture-oni
+          - takeScreenshot: 06-grimoire-lecture-oni
           YAML
           maestro --device "$SIMULATOR_ID" test flow.yml
           for path in 0*.png; do
             dimensions=$(sips -g pixelWidth -g pixelHeight "$path" | awk '/pixelWidth|pixelHeight/ {print $2}' | paste -sd x -)
             test "$dimensions" = "1320x2868"
           done
-          test "$(find . -name '0*.png' | wc -l | tr -d ' ')" = 4
+          test "$(find . -name '0*.png' | wc -l | tr -d ' ')" = 6
       - uses: actions/upload-artifact@v4
         if: always()
         with:
