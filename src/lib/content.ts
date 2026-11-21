@@ -33,9 +33,17 @@ export const LEARN: LinkItem[] = [
   { title: 'Suis-je en train de rêver ?', subtitle: 'Quelques gestes simples pour le savoir.', path: '/verification-des-reves/', icon: '◉' },
 ];
 
+export const GRAND_LABYRINTHE: LinkItem = {
+  title: 'Jouer au Grand Labyrinthe 127',
+  subtitle: 'Un parcours guidé à travers les symboles.',
+  path: '/jouer-au-grand-labyrinthe-127/',
+  icon: '◎',
+};
+
 // « Explorer » sur l'accueil mobile (sans l'offre payante, vendue uniquement sur le site).
 export const EXPLORE: LinkItem[] = [
-  { title: 'Grand Labyrinthe', subtitle: 'Un parcours guidé à travers les symboles.', path: '/labyrinthe-du-grimoire/', icon: '◎' },
+  GRAND_LABYRINTHE,
+  { title: 'Le Labyrinthe vivant', subtitle: 'Ton ciel et ta semaine', path: '/labyrinthe-du-grimoire/', icon: '◎' },
   { title: 'Les 127 portes', subtitle: 'Une question à la fois, porte après porte.', path: '/les-127-portes/', icon: '⌂' },
   { title: 'Le Cercle des 7 Sœurs', subtitle: 'Sept regards, une même trame vivante.', path: '/%e2%9c%a6-le-cercle-des-soeurs-%e2%9c%a6/', icon: '✦' },
   { title: 'Cauchemar : comprendre et s’apaiser', subtitle: 'Quand la nuit a été lourde.', path: '/cauchemar-comprendre-et-sapaiser-lonirologue/', icon: '☁' },

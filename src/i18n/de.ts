@@ -151,6 +151,7 @@ export const de: Record<string, string> = {
   "Gardées dans votre compte : vous les retrouvez sur tous vos téléphones.": "In deinem Konto gespeichert: Du findest sie auf all deinen Telefonen.",
   "Gardées sur ce téléphone. Connectez-vous pour les retrouver partout.": "Auf diesem Telefon gespeichert. Melde dich an, um sie überall zu finden.",
   "Gardées sur ce téléphone. La sauvegarde dans votre compte reprendra plus tard.": "Auf diesem Telefon gespeichert. Die Sicherung in deinem Konto wird später fortgesetzt.",
+  "Jouer au Grand Labyrinthe 127": "Das Große Labyrinth 127 spielen",
   "Grand Labyrinthe": "Das Große Labyrinth",
   "Gratuit. Vos rêves sont privés. Une lecture par l’IA nécessite un accord séparé.": "Kostenlos. Deine Träume sind privat. Eine Deutung durch KI erfordert eine eigene Zustimmung.",
   "Grimoire": "Grimoire",

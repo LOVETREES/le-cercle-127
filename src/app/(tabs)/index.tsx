@@ -7,8 +7,9 @@ import { CheminCard } from '../../components/Chemin';
 import { NaiaCard, TerraCard } from '../../components/HomeSisters';
 import { MoonPhase } from '../../components/MoonPhase';
 import { RituelDuJour } from '../../components/RituelDuJour';
-import { GoldButton, Notice, Screen, SiteFooter } from '../../components/ui';
+import { GoldButton, LinkRow, Notice, Screen, SiteFooter } from '../../components/ui';
 import { OracleExpress } from '../../components/OracleExpress';
+import { GRAND_LABYRINTHE } from '../../lib/content';
 import { appendTranscript } from '../../lib/dictation';
 import { draftKey } from '../../lib/local-draft';
 import { palmOwnerFor } from '../../lib/palm';
@@ -235,6 +236,13 @@ export default function Home() {
             <Text style={st.exploreTileText}>{t(item.label)}</Text>
           </Pressable>)}
         </View>
+
+        <LinkRow
+          icon={GRAND_LABYRINTHE.icon}
+          title={t(GRAND_LABYRINTHE.title)}
+          subtitle={t(GRAND_LABYRINTHE.subtitle)}
+          onPress={() => router.push({ pathname: '/page', params: { path: GRAND_LABYRINTHE.path, title: t(GRAND_LABYRINTHE.title) } })}
+        />
 
         {/* Le reste, rangé sur une page dédiée */}
         <Pressable style={st.card} onPress={() => router.push('/explorer')} accessibilityRole="link" accessibilityLabel={t('Apprendre et explorer')}>
