@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - fix/accueil-grimoire-mobile
+      - fix/accueil-grimoire-mobile-captures
 
 permissions:
   contents: write
@@ -15,6 +15,7 @@ jobs:
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       LANG: en_US.UTF-8
+      HOMEBREW_NO_AUTO_UPDATE: 1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,6 +26,22 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      - name: Installer les dépendances et Maestro
+        run: |
+          npm ci
+          brew install mobile-dev-inc/tap/maestro
+          which pod || brew install cocoapods
+      - name: Construire uniquement pour l’architecture du simulateur
+        run: |
+          CI=1 npx expo prebuild --platform ios --no-install
+          pod install --project-directory=ios
+          WORKSPACE=$(find ios -maxdepth 1 -name '*.xcworkspace' -type d | head -1)
+          SCHEME=$(xcodebuild -list -json -workspace "$WORKSPACE" | jq -r '.workspace.schemes[]' | grep -v '^Pods-' | head -1)
+          test -n "$SCHEME"
+          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/c127-derived" ARCHS="$(uname -m)" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO build >"$RUNNER_TEMP/c127-xcodebuild.log" 2>&1 || { tail -150 "$RUNNER_TEMP/c127-xcodebuild.log"; exit 1; }
+          APP=$(find "$RUNNER_TEMP/c127-derived/Build/Products/Release-iphonesimulator" -maxdepth 1 -name '*.app' -type d | head -1)
+          test -n "$APP"
+          echo "SIMULATOR_APP=$APP" >> "$GITHUB_ENV"
       - name: Démarrer un iPhone 6,9 pouces
         run: |
           DEVICE=$(xcrun simctl list devices available --json | jq -r '[.devices[][] | select(.name == "iPhone 17 Pro Max" or .name == "iPhone 16 Pro Max")][0].udid // empty')
@@ -36,20 +53,8 @@ jobs:
           xcrun simctl status_bar "$DEVICE" override --time '9:41' --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState discharging --batteryLevel 100
           xcrun simctl spawn "$DEVICE" defaults write NSGlobalDomain AppleLanguages -array fr
           xcrun simctl spawn "$DEVICE" defaults write NSGlobalDomain AppleLocale -string fr_FR
-      - name: Installer les dépendances et Maestro
-        run: |
-          npm ci
-          brew install mobile-dev-inc/tap/maestro
-          which pod || brew install cocoapods
-      - name: Construire le binaire pour simulateur
-        run: |
-          node -e 'const fs = require("fs"); const config = require("./eas.json"); config.build.screenshots = { distribution: "internal", ios: { simulator: true, buildConfiguration: "Release" } }; fs.writeFileSync("eas.json", JSON.stringify(config));'
-          npx --yes eas-cli@latest build --platform ios --profile screenshots --local --non-interactive --output "$RUNNER_TEMP/c127-simulator.tar.gz"
-          mkdir "$RUNNER_TEMP/c127-simulator"
-          tar -xzf "$RUNNER_TEMP/c127-simulator.tar.gz" -C "$RUNNER_TEMP/c127-simulator"
-          APP=$(find "$RUNNER_TEMP/c127-simulator" -name '*.app' -type d -maxdepth 2 | head -1)
-          test -n "$APP"
-          xcrun simctl install "$SIMULATOR_ID" "$APP"
+      - name: Installer l’app sur l’iPhone
+        run: xcrun simctl install "$SIMULATOR_ID" "$SIMULATOR_APP"
       - name: Photographier les écrans natifs
         run: |
           mkdir -p "$RUNNER_TEMP/c127-captures"
@@ -116,6 +121,14 @@ jobs:
           name: Captures-iPhone-6.9
           path: ${{ runner.temp }}/c127-captures/0*.png
           if-no-files-found: warn
+      - name: Archiver le binaire si la capture échoue
+        if: failure() && env.SIMULATOR_APP != ''
+        run: tar -czf "$RUNNER_TEMP/c127-sim-recovery.tar.gz" -C "$(dirname "$SIMULATOR_APP")" "$(basename "$SIMULATOR_APP")"
+      - uses: actions/upload-artifact@v4
+        if: failure() && env.SIMULATOR_APP != ''
+        with:
+          name: C127-sim-recovery
+          path: ${{ runner.temp }}/c127-sim-recovery.tar.gz
       - name: Enregistrer les captures dans le dossier App Store
         run: |
           git restore eas.json
