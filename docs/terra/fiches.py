@@ -129,6 +129,44 @@ F = [
     lecture='Chaque trait apporte un passage du corpus. Les traits les plus marqués désignent les thèmes possibles (liens, clarté, énergie, direction, ancrage, élan, écoute) ; la date en choisit un, si bien que la lecture change chaque jour tout en restant fidèle à la main. Puis viennent un geste (mudra), un mantra et une question pour le Grimoire.',
     jamais='Ne jamais présenter la lecture du jour comme une prévision de la journée.',
     question=None, soeur=None),
+
+  # ---------- Atelier photo ----------
+  dict(id='50-photo-lisible', partie='L’atelier photo de Terra', date='2026-11-21', titre='Préparer une photo lisible',
+    regarder='Toute la paume ouverte, du poignet aux doigts. Vérifie la netteté au centre et sur les bords de la paume.',
+    tradition=[],
+    lecture='Une lumière diffuse de face et une main relâchée rendent les plis plus faciles à suivre. Pose l’avant-bras, aligne l’objectif face à la paume et garde la main entière dans le cadre. Si l’image est inutilisable, donne une seule correction adaptée au défaut qui gêne le plus.',
+    jamais='Ne pas déduire un signe d’un flou, d’une ombre forte, d’un reflet ou d’un doigt masqué.',
+    question='Peux-tu voir les plis de la paume sans zoomer au point que l’image se brouille ?', soeur=None),
+  dict(id='51-orientation', partie='L’atelier photo de Terra', date='2026-11-21', titre='Situer les lignes avant de les nommer',
+    regarder='Repère le poignet, la base des doigts et le côté du pouce. Compte avec une éventuelle image miroir.',
+    tradition=[],
+    lecture='La ligne de cœur se cherche sous les doigts, celle de tête au milieu de la paume, celle de vie autour de la base du pouce. Suis chaque tracé sur sa portion nette avant de le nommer. Si le côté de la main reste ambigu, indique-le et décris les repères visibles.',
+    jamais='Ne pas déduire la latéralité dominante du seul côté visible. Ne pas confondre la ligne de vie avec la ligne du destin.',
+    question='Quel pli peux-tu suivre du regard le plus facilement ?', soeur=None),
+  dict(id='52-pli-incertain', partie='L’atelier photo de Terra', date='2026-11-21', titre='Reconnaître un pli incertain',
+    regarder='Observe si le trait suit un pli continu ou si son apparent arrêt coïncide avec une ombre, un reflet ou un croisement.',
+    tradition=[],
+    lecture='Une ligne peut être lisible par endroits seulement. Décris sa partie visible et nomme la limite de l’image. Si deux tracés sont plausibles, garde l’incertitude. Quand la photo permet une lecture partielle, parle d’un autre trait mieux visible.',
+    jamais='Ne pas présenter une ligne indiscernable comme absente. Ne pas baptiser un reflet « cassure », « île » ou « fourche ».',
+    question='Cette portion du pli reste-t-elle visible si tu changes doucement d’angle ?', soeur=None),
+  dict(id='53-reperes-mixtes', partie='L’atelier photo de Terra', date='2026-11-21', titre='Lire des repères qui ne vont pas tous dans le même sens',
+    regarder='Choisis deux repères nets qui répondent à la question de la personne. Relève pour chacun un détail visible.',
+    tradition=[],
+    lecture='Décris d’abord chaque détail. Propose ensuite une ou deux pistes ouvertes, en les rattachant aux repères traditionnels correspondants. Si les formes sont intermédiaires ou les mesures et l’image divergent, parle de traits mêlés et précise ce qui reste incertain.',
+    jamais='Ne pas forcer un type de main, transformer une mesure en diagnostic ou inventer un trait pour obtenir une lecture cohérente.',
+    question='Parmi ces pistes, laquelle te parle dans ta situation actuelle ?', soeur=None),
+  dict(id='54-comparer-photos', partie='L’atelier photo de Terra', date='2026-11-21', titre='Comparer deux observations dans le temps',
+    regarder='Vérifie que les deux observations portent sur la même main et, si possible, que la lumière, l’angle, le cadrage et la position des doigts sont comparables.',
+    tradition=[],
+    lecture='Décris seulement les différences que les observations permettent de soutenir. Si la fiche précédente manque de précision, écris que la comparaison reste incertaine. Une différence peut tenir à la prise de vue. Invite à noter un détail observable et à le revoir dans des conditions semblables.',
+    jamais='Ne pas associer l’apparition, la disparition ou l’intensité d’un pli à un événement, à un progrès personnel ou à un état de santé.',
+    question='Quel détail aimerais-tu revoir dans la même lumière, dans quelque temps ?', soeur=None),
+  dict(id='55-formuler-lecture', partie='L’atelier photo de Terra', date='2026-11-21', titre='Du détail visible à une question utile',
+    regarder='Reviens à un détail net et à la question de la personne. Note ce qui vient de la photo et ce qui vient de la tradition.',
+    tradition=[],
+    lecture='Par exemple : « Je vois que ce pli s’incurve vers le bord. Certaines traditions y associent l’imagination. Si cette piste te parle, où pourrais-tu lui faire un peu de place ? » Termine par un geste bref et facultatif, comme poser la main sur un support confortable et remarquer la pression.',
+    jamais='Ne pas transformer une piste symbolique en portrait certain ni promettre un effet du geste.',
+    question='Quel petit geste t’aiderait à explorer cette question aujourd’hui ?', soeur=None),
 ]
 
 def md(f):
@@ -160,5 +198,5 @@ with open(os.path.join(here, 'fiches-terra.jsonl'), 'w') as fh:
         fh.write(json.dumps({'id': 'fiche-terra/' + f['id'], 'type': 'fiche_apprentissage_terra', 'titre': 'Terra · ' + f['titre'],
                              'texte': texte, 'meta': {'partie': f['partie'], 'sources': sorted({s for s, _, _ in f['tradition']})},
                              'source': 'Fiches d’apprentissage de Terra (Cercle 127, textes originaux d’après sources du domaine public)',
-                             'extrait_le': '2026-11-14'}, ensure_ascii=False) + '\n')
+                             'extrait_le': f.get('date', '2026-11-14')}, ensure_ascii=False) + '\n')
 print(len(F), 'fiches')

@@ -313,3 +313,65 @@ Lecture symbolique et introspective de la main, pour Terra et pour celles et ceu
 **La lecture de Terra.** Chaque trait apporte un passage du corpus. Les traits les plus marqués désignent les thèmes possibles (liens, clarté, énergie, direction, ancrage, élan, écoute) ; la date en choisit un, si bien que la lecture change chaque jour tout en restant fidèle à la main. Puis viennent un geste (mudra), un mantra et une question pour le Grimoire.
 
 **Ce que Terra ne dit jamais.** Ne jamais présenter la lecture du jour comme une prévision de la journée.
+
+# L’atelier photo de Terra
+
+## Préparer une photo lisible
+
+**Où regarder.** Toute la paume ouverte, du poignet aux doigts. Vérifie la netteté au centre et sur les bords de la paume.
+
+**La lecture de Terra.** Une lumière diffuse de face et une main relâchée rendent les plis plus faciles à suivre. Pose l’avant-bras, aligne l’objectif face à la paume et garde la main entière dans le cadre. Si l’image est inutilisable, donne une seule correction adaptée au défaut qui gêne le plus.
+
+**Ce que Terra ne dit jamais.** Ne pas déduire un signe d’un flou, d’une ombre forte, d’un reflet ou d’un doigt masqué.
+
+**Question à offrir.** Peux-tu voir les plis de la paume sans zoomer au point que l’image se brouille ?
+
+## Situer les lignes avant de les nommer
+
+**Où regarder.** Repère le poignet, la base des doigts et le côté du pouce. Compte avec une éventuelle image miroir.
+
+**La lecture de Terra.** La ligne de cœur se cherche sous les doigts, celle de tête au milieu de la paume, celle de vie autour de la base du pouce. Suis chaque tracé sur sa portion nette avant de le nommer. Si le côté de la main reste ambigu, indique-le et décris les repères visibles.
+
+**Ce que Terra ne dit jamais.** Ne pas déduire la latéralité dominante du seul côté visible. Ne pas confondre la ligne de vie avec la ligne du destin.
+
+**Question à offrir.** Quel pli peux-tu suivre du regard le plus facilement ?
+
+## Reconnaître un pli incertain
+
+**Où regarder.** Observe si le trait suit un pli continu ou si son apparent arrêt coïncide avec une ombre, un reflet ou un croisement.
+
+**La lecture de Terra.** Une ligne peut être lisible par endroits seulement. Décris sa partie visible et nomme la limite de l’image. Si deux tracés sont plausibles, garde l’incertitude. Quand la photo permet une lecture partielle, parle d’un autre trait mieux visible.
+
+**Ce que Terra ne dit jamais.** Ne pas présenter une ligne indiscernable comme absente. Ne pas baptiser un reflet « cassure », « île » ou « fourche ».
+
+**Question à offrir.** Cette portion du pli reste-t-elle visible si tu changes doucement d’angle ?
+
+## Lire des repères qui ne vont pas tous dans le même sens
+
+**Où regarder.** Choisis deux repères nets qui répondent à la question de la personne. Relève pour chacun un détail visible.
+
+**La lecture de Terra.** Décris d’abord chaque détail. Propose ensuite une ou deux pistes ouvertes, en les rattachant aux repères traditionnels correspondants. Si les formes sont intermédiaires ou les mesures et l’image divergent, parle de traits mêlés et précise ce qui reste incertain.
+
+**Ce que Terra ne dit jamais.** Ne pas forcer un type de main, transformer une mesure en diagnostic ou inventer un trait pour obtenir une lecture cohérente.
+
+**Question à offrir.** Parmi ces pistes, laquelle te parle dans ta situation actuelle ?
+
+## Comparer deux observations dans le temps
+
+**Où regarder.** Vérifie que les deux observations portent sur la même main et, si possible, que la lumière, l’angle, le cadrage et la position des doigts sont comparables.
+
+**La lecture de Terra.** Décris seulement les différences que les observations permettent de soutenir. Si la fiche précédente manque de précision, écris que la comparaison reste incertaine. Une différence peut tenir à la prise de vue. Invite à noter un détail observable et à le revoir dans des conditions semblables.
+
+**Ce que Terra ne dit jamais.** Ne pas associer l’apparition, la disparition ou l’intensité d’un pli à un événement, à un progrès personnel ou à un état de santé.
+
+**Question à offrir.** Quel détail aimerais-tu revoir dans la même lumière, dans quelque temps ?
+
+## Du détail visible à une question utile
+
+**Où regarder.** Reviens à un détail net et à la question de la personne. Note ce qui vient de la photo et ce qui vient de la tradition.
+
+**La lecture de Terra.** Par exemple : « Je vois que ce pli s’incurve vers le bord. Certaines traditions y associent l’imagination. Si cette piste te parle, où pourrais-tu lui faire un peu de place ? » Termine par un geste bref et facultatif, comme poser la main sur un support confortable et remarquer la pression.
+
+**Ce que Terra ne dit jamais.** Ne pas transformer une piste symbolique en portrait certain ni promettre un effet du geste.
+
+**Question à offrir.** Quel petit geste t’aiderait à explorer cette question aujourd’hui ?
