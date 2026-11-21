@@ -1,14 +1,15 @@
 // Import direct d’un .aab dans Google Play : brouillon en alpha, soumission en production.
-// Usage : GSA='<clé JSON>' node scripts/play-upload.js <fichier.aab> <nom de version> [alpha|production]
+// Usage : GSA='<clé JSON>' node scripts/play-upload.js <fichier.aab> <nom de version> [alpha|production] [draft|completed]
 const crypto = require('crypto');
 const fs = require('fs');
 const PKG = 'com.lecercle127.app';
-const [aab, name, track = 'alpha'] = process.argv.slice(2);
+const [aab, name, track = 'alpha', delivery = 'draft'] = process.argv.slice(2);
 if (!['alpha', 'production'].includes(track)) throw new Error('Canal Google Play inconnu');
-const status = track === 'production' ? 'completed' : 'draft';
+if (!['draft', 'completed'].includes(delivery)) throw new Error('Statut Google Play inconnu');
+const status = track === 'production' ? 'completed' : delivery;
 const releaseNotes = [{
   language: 'fr-FR',
-  text: 'Un accueil simplifié pour raconter un rêve et ouvrir votre Grimoire. Retrouvez le Grimoire amélioré, votre parcours onirique et vos lectures avec Oni et Terra.',
+  text: 'Un accueil simplifié pour raconter un rêve et ouvrir votre Grimoire. Retrouvez le Grimoire amélioré, le Grand Labyrinthe 127, les rituels et vos lectures avec Oni et Terra.',
 }];
 const k = JSON.parse(process.env.GSA || '{}');
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');

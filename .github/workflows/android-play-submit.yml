@@ -15,6 +15,13 @@ on:
           - alpha
           - production
         default: alpha
+      delivery:
+        description: Statut de la version sur la piste de test
+        type: choice
+        options:
+          - draft
+          - completed
+        default: draft
   push:
 
 jobs:
@@ -47,10 +54,11 @@ jobs:
       - name: Envoyer à Google Play
         env:
           PLAY_TRACK: ${{ inputs.track || 'alpha' }}
+          PLAY_DELIVERY: ${{ inputs.delivery || 'draft' }}
         run: |
           printf '%s' "$GSA" > "$RUNNER_TEMP/gsa.json"
           VERSION=$(node -p "require('./app.json').expo.version")
-          GSA="$(cat "$RUNNER_TEMP/gsa.json")" node scripts/play-upload.js "$AAB" "$VERSION" "$PLAY_TRACK"
+          GSA="$(cat "$RUNNER_TEMP/gsa.json")" node scripts/play-upload.js "$AAB" "$VERSION" "$PLAY_TRACK" "$PLAY_DELIVERY"
       - name: Effacer la clé
         if: always()
         run: rm -f "$RUNNER_TEMP/gsa.json"
