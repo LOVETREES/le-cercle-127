@@ -1,0 +1,38 @@
+name: Publier l’APK Android 1.0.9
+on:
+  push:
+    branches:
+      - release/publish-apk-1.0.9
+permissions:
+  actions: read
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      BUILD_RUN: '44950472366'
+      BUILD_COMMIT: a22a77eb2f02f8796fe78dc710745b2ab5f1e962
+    steps:
+      - name: Vérifier la provenance du build
+        run: |
+          test "$(gh run view "$BUILD_RUN" --json headSha --jq .headSha)" = "$BUILD_COMMIT"
+          test "$(gh run view "$BUILD_RUN" --json conclusion --jq .conclusion)" = success
+      - uses: actions/download-artifact@v4
+        with:
+          name: LeCercle127-apk
+          run-id: ${{ env.BUILD_RUN }}
+          github-token: ${{ github.token }}
+          path: apk
+      - name: Publier le fichier signé
+        run: |
+          unzip -tq apk/LeCercle127.apk
+          mv apk/LeCercle127.apk apk/LeCercle127-1.0.9.apk
+          if ! gh release view android-v1.0.9 >/dev/null 2>&1; then
+            gh release create android-v1.0.9 --target "$BUILD_COMMIT" --title 'Le Cercle 127 — Android 1.0.9' --notes 'Accueil simplifié, Grimoire amélioré, accès au Grand Labyrinthe 127, rituels et correctif photo de Terra.' --draft
+          fi
+          gh release upload android-v1.0.9 apk/LeCercle127-1.0.9.apk
+          gh release edit android-v1.0.9 --draft=false
+          gh release view android-v1.0.9 --json url,assets --jq '{url, assets: [.assets[].name]}'
