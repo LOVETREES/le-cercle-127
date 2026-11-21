@@ -24,9 +24,10 @@ describe('Naïa : régulation des émotions', () => {
   it('garde une émotion par jour (la dernière choisie) et trace les 7 derniers jours', async () => {
     await recordEmotion('peur', new Date(2026, 10, 6, 9));
     await recordEmotion('colere', new Date(2026, 10, 8, 9));
-    await recordEmotion('soulagement', new Date(2026, 10, 8, 21));
+    await recordEmotion('soulagement', new Date(2026, 10, 8, 21), 4);
     const list = await listEmotions();
     expect(list.map((e) => e.key)).toEqual(['soulagement', 'peur']);
+    expect(list.map((e) => e.intensity)).toEqual([4, undefined]);
     const week = lastSevenDays(list, new Date(2026, 10, 8, 22));
     expect(week).toHaveLength(7);
     expect(week[6]).toEqual({ day: '2026-11-08', key: 'soulagement' });

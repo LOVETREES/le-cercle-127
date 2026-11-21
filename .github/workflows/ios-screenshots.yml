@@ -1,0 +1,117 @@
+name: Captures iPhone – accueil et Grimoire
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix/accueil-grimoire-mobile
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: macos-26
+    timeout-minutes: 65
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      LANG: en_US.UTF-8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Démarrer un iPhone 6,9 pouces
+        run: |
+          DEVICE=$(xcrun simctl list devices available --json | jq -r '[.devices[][] | select(.name == "iPhone 17 Pro Max" or .name == "iPhone 16 Pro Max")][0].udid // empty')
+          test -n "$DEVICE"
+          echo "SIMULATOR_ID=$DEVICE" >> "$GITHUB_ENV"
+          xcrun simctl boot "$DEVICE"
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl ui "$DEVICE" appearance dark
+          xcrun simctl status_bar "$DEVICE" override --time '9:41' --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState unplugged --batteryLevel 100
+          xcrun simctl spawn "$DEVICE" defaults write NSGlobalDomain AppleLanguages -array fr
+          xcrun simctl spawn "$DEVICE" defaults write NSGlobalDomain AppleLocale -string fr_FR
+      - name: Installer les dépendances et Maestro
+        run: |
+          npm ci
+          brew install mobile-dev-inc/tap/maestro
+          which pod || brew install cocoapods
+      - name: Construire le binaire pour simulateur
+        run: |
+          node -e 'const fs = require("fs"); const config = require("./eas.json"); config.build.screenshots = { distribution: "internal", ios: { simulator: true, buildConfiguration: "Release" } }; fs.writeFileSync("eas.json", JSON.stringify(config));'
+          npx --yes eas-cli@latest build --platform ios --profile screenshots --local --non-interactive --output "$RUNNER_TEMP/c127-simulator.tar.gz"
+          mkdir "$RUNNER_TEMP/c127-simulator"
+          tar -xzf "$RUNNER_TEMP/c127-simulator.tar.gz" -C "$RUNNER_TEMP/c127-simulator"
+          APP=$(find "$RUNNER_TEMP/c127-simulator" -name '*.app' -type d -maxdepth 2 | head -1)
+          test -n "$APP"
+          xcrun simctl install "$SIMULATOR_ID" "$APP"
+      - name: Photographier les écrans natifs
+        run: |
+          mkdir -p "$RUNNER_TEMP/c127-captures"
+          cd "$RUNNER_TEMP/c127-captures"
+          cat > flow.yml <<'YAML'
+          appId: com.lecercle127.app
+          ---
+          - launchApp:
+              arguments:
+                AppleLanguages: "(fr)"
+                AppleLocale: "fr_FR"
+          - tapOn:
+              text: "Plus tard"
+              optional: true
+          - assertVisible: "LA LUNE AUJOURD’HUI"
+          - takeScreenshot: 01-accueil-lune
+          - scrollUntilVisible:
+              element: "Les Sept Sœurs"
+              direction: DOWN
+              centerElement: true
+          - takeScreenshot: 02-sept-soeurs
+          - scrollUntilVisible:
+              element: "Intensité du ressenti"
+              direction: DOWN
+              centerElement: true
+          - takeScreenshot: 03-emotions-naia
+          - tapOn: "Grimoire"
+          - tapOn: "Entrer dans mon Grimoire"
+          - scrollUntilVisible:
+              element: "Explorer la démonstration locale"
+              direction: DOWN
+          - tapOn: "Explorer la démonstration locale"
+          - scrollUntilVisible:
+              element:
+                text: "La forêt lumineuse.*"
+              direction: DOWN
+          - tapOn: "La forêt lumineuse.*"
+          - scrollUntilVisible:
+              element: "CE QU’ONI Y VOIT"
+              direction: DOWN
+              centerElement: true
+          - takeScreenshot: 04-grimoire-lecture-oni
+          YAML
+          maestro --device "$SIMULATOR_ID" test flow.yml
+          for path in 0*.png; do
+            dimensions=$(sips -g pixelWidth -g pixelHeight "$path" | awk '/pixelWidth|pixelHeight/ {print $2}' | paste -sd x -)
+            test "$dimensions" = "1320x2868"
+          done
+          test "$(find . -name '0*.png' | wc -l | tr -d ' ')" = 4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Captures-iPhone-6.9
+          path: ${{ runner.temp }}/c127-captures/0*.png
+          if-no-files-found: warn
+      - name: Enregistrer les captures dans le dossier App Store
+        run: |
+          git restore eas.json
+          mkdir -p store/ios-6.9-accueil-revise
+          cp "$RUNNER_TEMP"/c127-captures/0*.png store/ios-6.9-accueil-revise/
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add store/ios-6.9-accueil-revise
+          git commit -m "Ajoute les captures natives iPhone de l’accueil révisé"
+          git push origin HEAD:"$GITHUB_REF_NAME"

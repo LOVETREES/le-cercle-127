@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
-import { type ComponentProps, type ComponentRef, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, type LayoutChangeEvent, Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { type ComponentRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AppState, Image, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { CheminCard } from '../../components/Chemin';
@@ -25,7 +25,6 @@ import { moonAt } from '../../lib/moon';
 const DREAMER_ICONS = {
   grimoire: require('../../../assets/images/dreamer-icons/grimoire.png'),
   sisters: require('../../../assets/images/dreamer-icons/sept-soeurs.png'),
-  hand: require('../../../assets/images/dreamer-icons/main.webp'),
   grounding: require('../../../assets/images/dreamer-icons/ancrage.webp'),
   symbols: require('../../../assets/images/dreamer-icons/symboles.webp'),
 };
@@ -63,8 +62,6 @@ export default function Home() {
       setOpeningBusy(false);
     }
   };
-  const [showDaily, setShowDaily] = useState(false);
-  const [showExplore, setShowExplore] = useState(false);
   const [ritualTick, setRitualTick] = useState(0);
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const dailyY = useRef(0);
@@ -122,6 +119,20 @@ export default function Home() {
         </Text>
       </View>
 
+      {/* La phase est calculée pour l'instant présent, sans localisation. */}
+      <Pressable style={st.moonBanner} onPress={() => router.navigate({ pathname: '/symboles', params: { recherche: 'lune' } })} accessibilityRole="link" accessibilityLabel={t('La Lune : {phase}, {percent} % éclairée. Découvrir le symbole.', { phase: t(moon.label), percent: moon.illuminated })}>
+        <View style={st.moonBannerContent}>
+          <MoonPhase fraction={moon.fraction} waxing={moon.waxing} />
+          <View style={{ flex: 1, gap: 3 }}>
+            <Text style={st.kicker}>{t('LA LUNE AUJOURD’HUI')}</Text>
+            <Text style={st.cardTitle}>{t(moon.label)}</Text>
+            <Text style={st.moonPhase}>{t('{n} % éclairée', { n: moon.illuminated })}</Text>
+            <Text style={st.moonHint}>{t('Un repère pour observer vos nuits, sans prédiction.')}</Text>
+          </View>
+          <Text style={st.chevron}>›</Text>
+        </View>
+      </Pressable>
+
       <View style={st.hero}>
         <ImageBackground source={require('../../../assets/images/home-moon.webp')} style={st.heroImage} imageStyle={st.heroImageFill} resizeMode="cover">
           <Text style={st.heroText} accessibilityRole="header">{t('Comprendre vos rêves, à votre rythme.')}</Text>
@@ -142,6 +153,12 @@ export default function Home() {
         </View>
       </View>
 
+      {/* Pensée du jour */}
+      <View style={st.thought} accessibilityLabel={t('Pensée du jour : {v0}', { v0: thought })}>
+        <Text style={st.kicker}>{t('✦ PENSÉE DU JOUR')}</Text>
+        <Text style={st.thoughtText}>{quote(thought)}</Text>
+      </View>
+
       <Pressable style={st.homeGrimoire} onPress={() => router.navigate('/grimoire')} accessibilityRole="link" accessibilityLabel={t('Mon Grimoire')}>
         <Image source={DREAMER_ICONS.grimoire} style={st.homeGrimoireIcon} resizeMode="contain" accessible={false} />
         <View style={{ flex: 1, gap: 3 }}>
@@ -150,6 +167,21 @@ export default function Home() {
         </View>
         <Text style={st.chevron}>›</Text>
       </Pressable>
+
+      {/* Chaque Sœur ouvre une partie du chemin, après le rêve avec Oni. */}
+      <CheminCard chemin={chemin} />
+
+      <Text style={st.sectionTitle} accessibilityRole="header">{t('Aujourd’hui')}</Text>
+      <OracleExpress onDraw={() => setRitualTick((n) => n + 1)} />
+
+      {/* Rituel du jour : carte, émotion, main */}
+      <RituelDuJour refreshKey={ritualTick} onEmotion={() => scrollRef.current?.scrollTo({ y: Math.max(0, dailyY.current - 12), animated: true })} />
+
+      <View onLayout={(event) => { dailyY.current = event.nativeEvent.layout.y; }}>
+        <NaiaCard key={palmOwnerFor(isDemo, user?.id)} onRecorded={() => setRitualTick((n) => n + 1)} />
+      </View>
+      <TerraCard />
+      <LinkRow icon="✦" title={t('Lecture de la main')} onPress={() => router.push('/lecture-main')} />
 
       <Pressable onPress={() => router.push('/parcours')} accessibilityRole="link" accessibilityLabel={t('Mon parcours onirique')} accessibilityHint={progress} style={st.journeyBanner}>
         <ImageBackground source={require('../../../assets/images/home-parcours-forest.webp')} style={st.journeyBannerImage} imageStyle={st.journeyBannerFill} resizeMode="cover">
@@ -188,104 +220,35 @@ export default function Home() {
         <Text style={st.chevron}>›</Text>
       </Pressable>
 
-      <HomeSection title={t('Aujourd’hui')} onContentLayout={(event) => { dailyY.current = event.nativeEvent.layout.y; }} icon="moon-waning-crescent" expanded={showDaily} onPress={() => setShowDaily((value) => !value)}>
-        <NaiaCard onRecorded={() => setRitualTick((n) => n + 1)} />
-        <TerraCard />
+      <Text style={st.sectionTitle} accessibilityRole="header">{t('Explorer autrement')}</Text>
+      <View style={st.exploreTiles}>
+        {[
+          { label: 'Rituels & ancrage', icon: DREAMER_ICONS.grounding, go: () => router.push({ pathname: '/page', params: { path: '/terra-gardienne-de-lancrage/', title: 'Terra' } }) },
+          { label: 'Dictionnaire des symboles', icon: DREAMER_ICONS.symbols, go: () => router.navigate('/symboles') },
+        ].map((item) => <Pressable key={item.label} style={st.exploreTile} onPress={item.go} accessibilityRole="link" accessibilityLabel={t(item.label)}>
+          <Image source={item.icon} style={st.exploreIcon} resizeMode="contain" accessible={false} />
+          <Text style={st.exploreTileText}>{t(item.label)}</Text>
+        </Pressable>)}
+      </View>
 
-        {/* Pensée du jour */}
-        <View style={st.thought} accessibilityLabel={t('Pensée du jour : {v0}', { v0: thought })}>
-          <Text style={st.kicker}>{t('✦ PENSÉE DU JOUR')}</Text>
-          <Text style={st.thoughtText}>{quote(thought)}</Text>
+      <LinkRow
+        icon={GRAND_LABYRINTHE.icon}
+        title={t(GRAND_LABYRINTHE.title)}
+        subtitle={t(GRAND_LABYRINTHE.subtitle)}
+        onPress={() => router.push({ pathname: '/page', params: { path: GRAND_LABYRINTHE.path, title: t(GRAND_LABYRINTHE.title) } })}
+      />
+
+      {/* Le reste, rangé sur une page dédiée */}
+      <Pressable style={st.card} onPress={() => router.push('/explorer')} accessibilityRole="link" accessibilityLabel={t('Apprendre et explorer')}>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={st.cardTitle}>{t('Apprendre et explorer')}</Text>
+          <Text style={st.cardSub}>{t('Rêve lucide · Laboratoire · Carnet vocal · Labyrinthe · 127 portes')}</Text>
         </View>
-
-        <OracleExpress onDraw={() => setRitualTick((n) => n + 1)} />
-
-        {/* Rituel du jour : carte, émotion, main */}
-        <RituelDuJour refreshKey={ritualTick} onEmotion={() => scrollRef.current?.scrollTo({ y: Math.max(0, dailyY.current - 12), animated: true })} />
-
-        {/* La phase est calculée pour l'instant présent, sans localisation. */}
-        <Pressable style={st.moonBanner} onPress={() => router.navigate({ pathname: '/symboles', params: { recherche: 'lune' } })} accessibilityRole="link" accessibilityLabel={t('La Lune : {phase}, {percent} % éclairée. Découvrir le symbole.', { phase: t(moon.label), percent: moon.illuminated })}>
-          <View style={st.moonBannerContent}>
-            <MoonPhase fraction={moon.fraction} waxing={moon.waxing} />
-            <View style={{ flex: 1, gap: 3 }}>
-              <Text style={st.kicker}>{t('LA LUNE AUJOURD’HUI')}</Text>
-              <Text style={st.cardTitle}>{t(moon.label)}</Text>
-              <Text style={st.moonPhase}>{t('{n} % éclairée', { n: moon.illuminated })}</Text>
-              <Text style={st.moonHint}>{t('Un repère pour observer vos nuits, sans prédiction.')}</Text>
-            </View>
-            <Text style={st.chevron}>›</Text>
-          </View>
-        </Pressable>
-      </HomeSection>
-
-      <HomeSection title={t('Explorer autrement')} icon="compass-outline" expanded={showExplore} onPress={() => setShowExplore((value) => !value)}>
-        {/* Chaque Sœur ouvre une partie du chemin, après le rêve avec Oni. */}
-        <CheminCard chemin={chemin} />
-
-        <Pressable style={st.card} onPress={() => router.push('/soeurs')} accessibilityRole="link">
-          <Image source={DREAMER_ICONS.sisters} style={st.homeGrimoireIcon} resizeMode="contain" accessible={false} />
-          <Text style={st.cardTitle}>{t('Les Sept Sœurs')}</Text>
-        </Pressable>
-        <View style={st.exploreTiles}>
-          {[
-            { label: 'Lecture de la main', icon: DREAMER_ICONS.hand, go: () => router.push('/lecture-main') },
-            { label: 'Rituels & ancrage', icon: DREAMER_ICONS.grounding, go: () => router.push({ pathname: '/page', params: { path: '/terra-gardienne-de-lancrage/', title: 'Terra' } }) },
-            { label: 'Dictionnaire des symboles', icon: DREAMER_ICONS.symbols, go: () => router.navigate('/symboles') },
-          ].map((item) => <Pressable key={item.label} style={st.exploreTile} onPress={item.go} accessibilityRole="link" accessibilityLabel={t(item.label)}>
-            <Image source={item.icon} style={st.exploreIcon} resizeMode="contain" accessible={false} />
-            <Text style={st.exploreTileText}>{t(item.label)}</Text>
-          </Pressable>)}
-        </View>
-
-        <LinkRow
-          icon={GRAND_LABYRINTHE.icon}
-          title={t(GRAND_LABYRINTHE.title)}
-          subtitle={t(GRAND_LABYRINTHE.subtitle)}
-          onPress={() => router.push({ pathname: '/page', params: { path: GRAND_LABYRINTHE.path, title: t(GRAND_LABYRINTHE.title) } })}
-        />
-
-        {/* Le reste, rangé sur une page dédiée */}
-        <Pressable style={st.card} onPress={() => router.push('/explorer')} accessibilityRole="link" accessibilityLabel={t('Apprendre et explorer')}>
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text style={st.cardTitle}>{t('Apprendre et explorer')}</Text>
-            <Text style={st.cardSub}>{t('Rêve lucide · Laboratoire · Carnet vocal · Labyrinthe · 127 portes')}</Text>
-          </View>
-          <Text style={st.chevron}>›</Text>
-        </Pressable>
-      </HomeSection>
+        <Text style={st.chevron}>›</Text>
+      </Pressable>
 
       <SiteFooter />
     </Screen>
-  );
-}
-
-function HomeSection({ title, icon, expanded, onPress, onContentLayout, children }: {
-  title: string;
-  icon: ComponentProps<typeof MaterialCommunityIcons>['name'];
-  expanded: boolean;
-  onPress: () => void;
-  onContentLayout?: (event: LayoutChangeEvent) => void;
-  children: ReactNode;
-}) {
-  const [opened, setOpened] = useState(false);
-  const toggle = () => {
-    setOpened(true);
-    onPress();
-  };
-
-  return (
-    <>
-      <Pressable style={st.card} accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ expanded }} aria-expanded={expanded} onPress={toggle}>
-        <MaterialCommunityIcons name={icon} size={23} color={colors.gold} />
-        <Text style={[st.cardTitle, st.sectionTitle]}>{title}</Text>
-        <MaterialCommunityIcons name={expanded ? 'chevron-up' : 'chevron-down'} size={22} color={colors.gold} />
-      </Pressable>
-      {(expanded || opened) && (
-        <View onLayout={onContentLayout} style={expanded ? st.sectionContent : st.sectionHidden}>
-          {children}
-        </View>
-      )}
-    </>
   );
 }
 
@@ -320,9 +283,7 @@ const st = StyleSheet.create({
   journeyBannerKicker: { fontFamily: fonts.bodyBold, fontSize: 10, letterSpacing: 1.3, color: colors.gold },
   journeyBannerTitle: { fontFamily: fonts.title, fontSize: 23, lineHeight: 27, color: colors.text },
   card,
-  sectionTitle: { flex: 1 },
-  sectionContent: { gap: space.md },
-  sectionHidden: { display: 'none' },
+  sectionTitle: { fontFamily: fonts.title, fontSize: 28, color: colors.text, marginTop: space.sm },
   cardTitle: { fontFamily: fonts.title, fontSize: 22, color: colors.text },
   cardSub: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18, color: colors.muted },
   chevron: { color: colors.gold, fontSize: 24 },

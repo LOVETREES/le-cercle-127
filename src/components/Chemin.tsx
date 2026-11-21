@@ -44,7 +44,7 @@ export function CheminCard({ chemin }: { chemin: Chemin }) {
   return (
     <View style={st.card}>
       <View style={st.head}>
-        <Text style={st.title}>{t('Mon chemin')}</Text>
+        <Text style={st.title} accessibilityRole="header">{t('Les Sept Sœurs')}</Text>
       </View>
       <Text style={st.intro}>{t('Avancer vers toi-même, pas à pas, avec le soutien des Sœurs.')}</Text>
       {[stations.slice(0, 4), stations.slice(4)].map((row, i) => (
@@ -52,7 +52,7 @@ export function CheminCard({ chemin }: { chemin: Chemin }) {
           {row.map((s) => (
             <Pressable key={s.slug} style={st.node} onPress={() => router.push({ pathname: '/conversation', params: { sister: s.slug } })}
               accessibilityRole="link" accessibilityLabel={t('{v0}, {v1} : {v2}', { v0: s.name, v1: t(s.verb), v2: levelText(s) })}>
-              <Image source={IMG[s.slug]} style={st.portrait} accessible={false} />
+              <Image source={IMG[s.slug]} style={[st.portrait, { borderColor: s.color }]} accessible={false} />
               <Text style={[st.name, { color: s.color }]}>{s.name}</Text>
             </Pressable>
           ))}
@@ -80,7 +80,7 @@ const st = StyleSheet.create({
   intro: { fontFamily: fonts.body, fontSize: 14, lineHeight: 21, color: colors.muted },
   gridRow: { flexDirection: 'row', justifyContent: 'center' },
   node: { width: '25%', alignItems: 'center', gap: 4, minHeight: 76 },
-  portrait: { width: 52, height: 52, borderRadius: 26, borderWidth: 3, borderColor: '#35394b', backgroundColor: colors.night },
+  portrait: { width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: '#35394b', backgroundColor: colors.night },
   name: { fontFamily: fonts.bodyBold, fontSize: 12 },
   evolutionLink: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   evolutionLinkText: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold },

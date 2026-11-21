@@ -1,7 +1,8 @@
 // Deux Sœurs sur l'accueil : Naïa (réguler l'émotion du moment) et Terra (la main du jour).
+import Slider from '@react-native-community/slider';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { createElement, useCallback, useRef, useState } from 'react';
+import { Image, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { FEATURES } from '../lib/features';
 import { api } from '../lib/api';
@@ -76,7 +77,9 @@ export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [entries, setEntries] = useState<EmotionEntry[]>([]);
-  const [open, setOpen] = useState<EmotionKey | null>(null);
+  const [selected, setSelected] = useState<EmotionKey>();
+  const [intensity, setIntensity] = useState<number>();
+  const lock = useRef(false);
   const today = dayKey(new Date());
 
   useFocusEffect(
@@ -89,15 +92,27 @@ export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
     }, []),
   );
 
-  const todays = entries.find((e) => e.day === today)?.key;
-  const shown = emotionOf(open ?? undefined);
+  const saved = entries.find((entry) => entry.day === today);
+  const current = selected ?? saved?.key;
+  const level = intensity ?? saved?.intensity ?? 3;
+  const shown = saved?.key === current ? emotionOf(current) : undefined;
+  const color = emotionOf(current)?.color ?? NAIA;
+  const dirty = current !== saved?.key || level !== saved?.intensity;
 
-  const choose = async (key: EmotionKey) => {
-    if (saving) return;
-    setSaving(true); setSaveError(false);
-    try { const list = await recordEmotion(key); setEntries(list); setOpen(key); onRecorded?.(); }
-    catch { setSaveError(true); }
-    finally { setSaving(false); }
+  const save = async () => {
+    if (lock.current || !current || !dirty) return;
+    lock.current = true;
+    setSaving(true);
+    setSaveError(false);
+    try {
+      setEntries(await recordEmotion(current, new Date(), level));
+      onRecorded?.();
+    } catch {
+      setSaveError(true);
+    } finally {
+      lock.current = false;
+      setSaving(false);
+    }
   };
   const normalize = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const palette = expanded ? EMOTIONS.filter(e => normalize(t(e.name)).includes(normalize(query.trim()))) : EMOTIONS.filter(e => ['peur', 'colere', 'tristesse', 'culpabilite', 'confusion', 'soulagement', 'joie', 'serenite'].includes(e.key));
@@ -110,11 +125,11 @@ export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
       {expanded && <TextInput value={query} onChangeText={setQuery} accessibilityLabel={t('Chercher une émotion')} placeholder={t('Chercher une émotion')} placeholderTextColor={colors.muted} style={{ color: colors.text, borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: 12, fontFamily: fonts.body }} />}
       <View style={st.chips} accessibilityRole="radiogroup">
         {palette.map((e) => {
-          const on = (open ?? todays) === e.key;
+          const on = current === e.key;
           return (
             <Pressable
               key={e.key}
-              onPress={() => void choose(e.key)}
+              onPress={() => { setSelected(e.key); setSaveError(false); }}
               disabled={saving}
               style={[st.chip, on && { borderColor: e.color, backgroundColor: 'rgba(255,255,255,0.06)' }]}
               accessibilityRole="radio"
@@ -132,6 +147,54 @@ export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
       <Pressable accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => { setExpanded(!expanded); setQuery(''); }}>
         <Text style={[st.link, { color: NAIA }]}>{t(expanded ? 'Réduire la palette' : 'Explorer toutes les émotions')}</Text>
       </Pressable>
+      <View style={st.intensity}>
+        <View style={st.intensityTop}>
+          <Text style={st.intensityLabel}>{t('Intensité du ressenti')}</Text>
+          <Text style={[st.intensityValue, { color }]}>{level} / 5</Text>
+        </View>
+        {Platform.OS === 'web' ? createElement('input', {
+          type: 'range',
+          min: 1,
+          max: 5,
+          step: 1,
+          value: level,
+          disabled: saving,
+          'aria-label': t('Intensité du ressenti'),
+          onChange: (event: { currentTarget: HTMLInputElement }) => setIntensity(event.currentTarget.valueAsNumber),
+          style: { width: '100%', minHeight: 44, accentColor: color, margin: 0 },
+        }) : (
+          <Slider
+            style={st.slider}
+            minimumValue={1}
+            maximumValue={5}
+            step={1}
+            value={level}
+            onValueChange={setIntensity}
+            disabled={saving}
+            minimumTrackTintColor={color}
+            maximumTrackTintColor="#48485f"
+            thumbTintColor={color}
+            accessibilityLabel={t('Intensité du ressenti')}
+            accessibilityValue={{ min: 1, max: 5, now: level }}
+          />
+        )}
+        <View style={st.intensityTop}>
+          <Text style={st.scaleLabel}>{t('Légère')}</Text>
+          <Text style={st.scaleLabel}>{t('Très forte')}</Text>
+        </View>
+      </View>
+      {saved && !dirty ? (
+        <Text style={st.askText} accessibilityLiveRegion="polite">{t('Émotion enregistrée')}</Text>
+      ) : (
+        <Pressable
+          accessibilityRole="button"
+          disabled={!current || saving}
+          onPress={() => void save()}
+          style={[st.askBtn, (!current || saving) && { opacity: 0.65 }]}
+        >
+          <Text style={st.askText}>{t('Garder cette émotion')}</Text>
+        </Pressable>
+      )}
       {saveError && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{t('Votre émotion n’a pas pu être gardée. Réessayez.')}</Text>}
 
       {shown && (
@@ -221,6 +284,12 @@ export function TerraCard() {
 }
 
 const st = StyleSheet.create({
+  intensity: { gap: 4, padding: 12, borderRadius: radius.md, backgroundColor: colors.night, borderWidth: 1, borderColor: 'rgba(143,218,211,0.22)' },
+  intensityTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12 },
+  intensityLabel: { color: colors.text, fontFamily: fonts.bodyBold, fontSize: 14, flexShrink: 1 },
+  intensityValue: { fontFamily: fonts.bodyBold, fontSize: 17 },
+  slider: { width: '100%', minHeight: 44 },
+  scaleLabel: { color: colors.muted, fontFamily: fonts.body, fontSize: 13 },
   card: { padding: space.md, borderRadius: radius.md, borderWidth: 1, backgroundColor: colors.surface, gap: space.sm },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8 },

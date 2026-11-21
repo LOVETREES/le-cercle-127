@@ -7,7 +7,7 @@ import Svg, { Circle, Defs, Ellipse, G, Line, LinearGradient, Path, Polyline, Ra
 import { AppHeader, Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Title } from '../../components/ui';
 import { locale, t } from '../../i18n';
 import { SISTERS } from '../../lib/content';
-import { EMOTIONS, recurringSymbols, searchDreams, type Dream } from '../../lib/model';
+import { EMOTIONS, readingSections, recurringSymbols, searchDreams, type Dream } from '../../lib/model';
 import { emotionOf, listEmotions, type EmotionEntry, type EmotionKey } from '../../lib/naia';
 import { shadowLabel, shadowMap } from '../../lib/ombre';
 import { listPalmReadings, palmOwnerFor, type PalmReading } from '../../lib/palm';
@@ -160,6 +160,87 @@ function DreamThumb({ k }: { k: string }) {
   );
 }
 
+function DreamLibrary({ dreams }: { dreams: Dream[] }) {
+  const [query, setQuery] = useState('');
+  const [expandedId, setExpandedId] = useState<string>();
+  const [showAll, setShowAll] = useState(false);
+  const searching = query.trim().length > 0;
+  const results = useMemo(() => searchDreams(dreams, query), [dreams, query]);
+  const visible = showAll || searching ? results : results.slice(0, 3);
+
+  return (
+    <View style={st.card}>
+      <Text style={st.h} accessibilityRole="header">{t('TOUS MES RÊVES')}</Text>
+      {dreams.length > 0 ? (
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t('Chercher dans mes rêves : forêt, eau, peur…')}
+          placeholderTextColor={colors.muted}
+          style={st.search}
+          accessibilityLabel={t('Chercher dans mes rêves')}
+          autoCorrect={false}
+          clearButtonMode="while-editing"
+          returnKeyType="search"
+        />
+      ) : (
+        <Body muted>{t('Aucun rêve pour l’instant. Le prochain réveil est une porte.')}</Body>
+      )}
+      {searching && results.length === 0 && (
+        <Body muted>{t('Aucun rêve ne contient «')} {query.trim()} {t('».')}</Body>
+      )}
+      {visible.map((dream) => {
+        const expanded = dream.id === expandedId;
+        const story = splitContext(dream.story ?? '').story;
+        return (
+          <View key={dream.id} style={st.libraryItem}>
+            <Pressable
+              onPress={() => setExpandedId(expanded ? undefined : dream.id)}
+              style={({ pressed }) => [st.dream, pressed && { opacity: 0.75 }]}
+              accessibilityRole="button"
+              accessibilityState={{ expanded }}
+              aria-expanded={expanded}
+              accessibilityLabel={`${dream.title}, ${formatDate(dream.dreamDate)}`}
+            >
+              <DreamThumb k={dream.symbols?.[0] ? iconKey(dream.symbols[0]) : 'lune'} />
+              <View style={{ flex: 1, gap: 3 }}>
+                <Text style={st.dDate}>{formatDate(dream.dreamDate)}{dream.pending ? t(' · sur cet appareil') : ''}</Text>
+                <Text style={st.dTitle}>{dream.title}</Text>
+                {dream.oniReading && <Text style={st.dMotifs}>{t('Lecture d’Oni disponible')}</Text>}
+                {!expanded && !!story && <Text style={st.dExcerpt} numberOfLines={2}>{story}</Text>}
+              </View>
+              <Text style={st.dMotifs} accessible={false}>{expanded ? '⌃' : '⌄'}</Text>
+            </Pressable>
+            {expanded && (
+              <View style={st.libraryDetail}>
+                {!!story && <Text style={st.libraryText} selectable>{story}</Text>}
+                {(dream.symbols?.length || dream.emotion) ? (
+                  <Text style={st.dMotifs}>{[...(dream.symbols ?? []), dream.emotion && dream.emotion !== 'aucune' ? emotionLabel(dream.emotion) : undefined].filter(Boolean).join(' · ')}</Text>
+                ) : null}
+                {dream.oniReading && (
+                  <View style={st.libraryReading}>
+                    <Eyebrow>{t('Ce qu’Oni y voit')}</Eyebrow>
+                    {readingSections(dream.oniReading, dream.title).filter((section) => section.heading !== 'Le rêve').map((section, index) => (
+                      <View key={index} style={{ gap: 4 }}>
+                        {!!section.heading && <Text style={st.dTitle}>{section.heading}</Text>}
+                        {section.lines.map((line, lineIndex) => <Text key={lineIndex} style={st.libraryText} selectable>{line}</Text>)}
+                      </View>
+                    ))}
+                  </View>
+                )}
+                <OutlineButton label={t('Ouvrir le rêve')} onPress={() => router.push({ pathname: '/reve/[id]', params: { id: dream.id } })} />
+              </View>
+            )}
+          </View>
+        );
+      })}
+      {!searching && !showAll && dreams.length > 3 && (
+        <OutlineButton label={t('Voir tous mes rêves')} onPress={() => setShowAll(true)} />
+      )}
+    </View>
+  );
+}
+
 /* ---------- L'écran ---------- */
 type Extra = { emotions: EmotionEntry[]; palms: PalmReading[]; ritual: RitualStore; portes: PortesStore; notes: number; draws: SavedDraw[]; journal: JournalEntry[] };
 const EMPTY: Extra = { emotions: [], palms: [], ritual: {}, portes: {}, notes: 0, draws: [], journal: [] };
@@ -172,7 +253,6 @@ export default function Grimoire() {
   const { user, dreams, syncing, lastError, refresh, isDemo } = useSession();
   const [extra, setExtra] = useState<Extra>(EMPTY);
   const [tab, setTab] = useState<'sym' | 'emo'>('sym');
-  const [query, setQuery] = useState('');
   useFocusEffect(useCallback(() => {
     scrollToRecurrences.current = section === 'recurrences';
     if (scrollToRecurrences.current && recurrenceY.current !== null) {
@@ -246,14 +326,11 @@ export default function Grimoire() {
     return { pts, dominant: [...count.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([l]) => l) };
   }, [dreams, extra.emotions]);
 
-  const shown = useMemo(() => searchDreams(sorted, query), [sorted, query]);
-  const recent = sorted.slice(0, 3);
   const first = (user?.name ?? '').split(' ')[0];
   const openDoor = (d: Door) => {
     const s = SISTERS.find((x) => x.slug === d.key);
     if (s) router.push({ pathname: '/page', params: { path: s.path, title: s.name } });
   };
-  const openDream = (d: Dream) => router.push({ pathname: '/reve/[id]', params: { id: d.id } });
   const recList = tab === 'sym' ? symbols : emotionsRec;
   const recMax = recList[0]?.[1] ?? 1;
 
@@ -292,6 +369,8 @@ export default function Grimoire() {
         )}
 
         {lastError && <Notice tone="error" text={lastError} />}
+
+        <DreamLibrary key={`dreams:${palmOwnerFor(isDemo, user?.id)}`} dreams={sorted} />
 
         {/* Chiffres */}
         <View style={st.stats}>
@@ -360,28 +439,6 @@ export default function Grimoire() {
           <Text style={st.hint}>{t('Chaque porte est une Sœur. Elle s’ouvre quand tu pratiques avec elle.')}</Text>
         </View>
 
-        {/* Rêves récents */}
-        <View style={st.card}>
-          <Text style={st.h}>{t('TES RÊVES RÉCENTS')}</Text>
-          {recent.length === 0 ? (
-            <Body muted style={{ textAlign: 'center' }}>{t('Aucun rêve pour l’instant. Le prochain réveil est une porte.')}</Body>
-          ) : (
-            recent.map((d) => (
-              <Pressable key={d.id} onPress={() => openDream(d)} style={({ pressed }) => [st.dream, pressed && { opacity: 0.75 }]} accessibilityRole="link" accessibilityLabel={`${d.title}, ${formatDate(d.dreamDate)}`}>
-                <DreamThumb k={d.symbols?.[0] ? iconKey(d.symbols[0]) : 'lune'} />
-                <View style={{ flex: 1, gap: 3 }}>
-                  <Text style={st.dDate}>{formatDate(d.dreamDate).toUpperCase()}{d.pending ? t(' · sur cet appareil') : ''}</Text>
-                  <Text style={st.dTitle} numberOfLines={1}>{d.title}</Text>
-                  {(d.symbols?.length || d.emotion) ? (
-                    <Text style={st.dMotifs} numberOfLines={1}>{[...(d.symbols ?? []).slice(0, 3), d.emotion && d.emotion !== 'aucune' ? emotionLabel(d.emotion) : undefined].filter(Boolean).join(' · ')}</Text>
-                  ) : null}
-                  {d.story ? <Text style={st.dExcerpt} numberOfLines={2}>« {splitContext(d.story).story} »</Text> : null}
-                </View>
-              </Pressable>
-            ))
-          )}
-        </View>
-
         {/* Journal intime */}
         <View style={st.card}>
           <Text style={st.h}>{t('JOURNAL INTIME')}</Text>
@@ -412,7 +469,7 @@ export default function Grimoire() {
           </Body>
         </View>
 
-        <NouveauChapitre key={isDemo ? 'demo' : user?.id ?? 'local'} entries={extra.journal} onChanged={(journal) => setExtra((prev) => ({ ...prev, journal }))} />
+        <NouveauChapitre key={`chapitre:${isDemo ? 'demo' : user?.id ?? 'local'}`} entries={extra.journal} onChanged={(journal) => setExtra((prev) => ({ ...prev, journal }))} />
 
         <View style={st.card}>
           <Text style={st.h}>{t('OMBRE ET POLARITÉS')}</Text>
@@ -430,7 +487,7 @@ export default function Grimoire() {
           <Body muted>{t('Chaque nombre indique le nombre de notes contenant ce mot. Ce repérage local ne déduit ni vos intentions ni vos ressources réelles.')}</Body>
           <OutlineButton label={t('Explorer dans mon journal privé')} onPress={() => router.push('/journal-intime')} />
         </View>
-        <EchoGrimoire key={palmOwnerFor(isDemo, user?.id)} echoes={echoes} owner={palmOwnerFor(isDemo, user?.id)} />
+        <EchoGrimoire key={`echos:${palmOwnerFor(isDemo, user?.id)}`} echoes={echoes} owner={palmOwnerFor(isDemo, user?.id)} />
         {/* Le Labyrinthe vivant : l'acquis face au vécu */}
         <Pressable onPress={() => router.push('/labyrinthe')} style={({ pressed }) => [st.card, st.laby, pressed && { opacity: 0.85 }]} accessibilityRole="link">
           <Text style={st.h}>{t('LE LABYRINTHE VIVANT')}</Text>
@@ -486,36 +543,6 @@ export default function Grimoire() {
           <Text style={st.ctaArrow}>›</Text>
         </Pressable>
 
-        {/* Tous les rêves */}
-        {dreams.length > 3 && (
-          <View style={{ gap: space.sm }}>
-            <Text style={[st.h, { marginTop: space.sm }]}>{t('TOUS MES RÊVES')}</Text>
-            <TextInput
-              value={query}
-              onChangeText={setQuery}
-              placeholder={t('Chercher dans mes rêves : forêt, eau, peur…')}
-              placeholderTextColor="#6f7090"
-              style={st.search}
-              accessibilityLabel={t('Chercher dans mes rêves')}
-              autoCorrect={false}
-              clearButtonMode="while-editing"
-              returnKeyType="search"
-            />
-            {query.trim() !== '' && shown.length === 0 && (
-              <Body muted style={{ textAlign: 'center' }}>{t('Aucun rêve ne contient «')} {query.trim()} {t('».')}</Body>
-            )}
-            {shown.map((d) => (
-              <Pressable key={d.id} style={({ pressed }) => [st.row, pressed && { opacity: 0.7 }]} onPress={() => openDream(d)} accessibilityRole="link" accessibilityLabel={`${d.title}, ${formatDate(d.dreamDate)}`}>
-                <View style={{ flex: 1, gap: 2 }}>
-                  <Text style={st.dDate}>{formatDate(d.dreamDate).toUpperCase()}</Text>
-                  <Text style={st.rowTitle} numberOfLines={1}>{d.title}</Text>
-                </View>
-                {d.emotion ? <Text style={st.rowEmo}>{emotionLabel(d.emotion)}</Text> : null}
-              </Pressable>
-            ))}
-          </View>
-        )}
-
         {/* Citation */}
         <View style={st.quote}>
           <View style={st.quoteLine} />
@@ -534,6 +561,11 @@ export default function Grimoire() {
 }
 
 const st = StyleSheet.create({
+  libraryItem: { borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: space.sm },
+  libraryDetail: { gap: space.sm, paddingTop: space.sm },
+  libraryReading: { gap: space.sm, padding: space.md, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  libraryText: { color: colors.text, fontFamily: fonts.body, fontSize: 16, lineHeight: 24 },
+
   laby: { borderColor: 'rgba(216,182,107,0.6)', backgroundColor: '#14132b' },
   labyT: { fontFamily: fonts.title, fontSize: 24, color: colors.text },
   drawRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: 6 },
@@ -580,9 +612,6 @@ const st = StyleSheet.create({
   ctaS: { fontFamily: fonts.bodyBold, fontSize: 10, letterSpacing: 1.8, color: '#4a3a1c' },
   ctaArrow: { fontFamily: fonts.bodyBold, fontSize: 28, color: '#241a0c' },
   search: { minHeight: 50, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: '#0d1124', color: colors.text, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 20 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: 12, paddingHorizontal: space.md, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  rowTitle: { fontFamily: fonts.title, fontSize: 18, color: colors.text },
-  rowEmo: { fontFamily: fonts.body, fontSize: 11, color: colors.muted },
   quote: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: space.md },
   quoteLine: { flex: 1, height: 1, backgroundColor: colors.gold, opacity: 0.45 },
   quoteT: { flexShrink: 1, maxWidth: 240, fontFamily: fonts.titleItalic, fontSize: 17, lineHeight: 23, color: colors.text, textAlign: 'center' },

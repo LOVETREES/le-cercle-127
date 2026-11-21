@@ -78,7 +78,7 @@ export const EMOTIONS: Emotion[] = [
 {"key": "gratitude", "sign": "○", "color": "#8fdad3", "name": "La gratitude", "need": "Peut-être l’envie de reconnaître un appui, un lien ou un moment précieux.", "body": "Remarquez votre souffle, votre posture et les sensations présentes, sans chercher à les changer.", "gesture": "Notez un détail précis que vous appréciez, sans nier ce qui reste difficile.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
 ];
 
-export type EmotionEntry = { day: string; key: EmotionKey; at: string };
+export type EmotionEntry = { day: string; key: EmotionKey; at: string; intensity?: number };
 
 const keyFor = () => `${KEYS.emotions}:${currentOwner()}`;
 
@@ -88,10 +88,14 @@ export async function listEmotions(): Promise<EmotionEntry[]> {
 }
 
 /** Garde l'émotion du jour (une par jour : la dernière choisie compte), 90 jours au plus. */
-export async function recordEmotion(key: EmotionKey, now = new Date()): Promise<EmotionEntry[]> {
+export async function recordEmotion(key: EmotionKey, now = new Date(), intensity?: number): Promise<EmotionEntry[]> {
   const day = dayKey(now);
-  const next = [{ day, key, at: now.toISOString() }, ...(await listEmotions()).filter((e) => e.day !== day)].slice(0, 90);
-  await local.setJson(keyFor(), next);
+  const storageKey = keyFor();
+  const entries = await listEmotions();
+  const entry: EmotionEntry = { day, key, at: now.toISOString() };
+  if (intensity !== undefined && Number.isInteger(intensity) && intensity >= 1 && intensity <= 5) entry.intensity = intensity;
+  const next = [entry, ...entries.filter((e) => e.day !== day)].slice(0, 90);
+  await local.setJson(storageKey, next);
   return next;
 }
 
