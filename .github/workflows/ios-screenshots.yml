@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   capture:
@@ -16,6 +17,8 @@ jobs:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       LANG: en_US.UTF-8
       HOMEBREW_NO_AUTO_UPDATE: 1
+      MAESTRO_CLI_NO_ANALYTICS: 1
+      MAESTRO_DRIVER_STARTUP_TIMEOUT: 420000
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,18 +29,19 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - name: Installer les dépendances et Maestro
+      - name: Installer Maestro
+        run: brew install mobile-dev-inc/tap/maestro
+      - uses: actions/download-artifact@v4
+        with:
+          name: C127-sim-recovery
+          run-id: '44961066717'
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/c127-cached
+      - name: Réutiliser le binaire compilé
         run: |
-          npm ci
-          brew install mobile-dev-inc/tap/maestro
-          which pod || brew install cocoapods
-      - name: Construire uniquement pour l’architecture du simulateur
-        run: |
-          CI=1 npx expo prebuild --platform ios --no-install
-          pod install --project-directory=ios
-          xcodebuild -workspace ios/LeCercle127.xcworkspace -scheme LeCercle127 -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/c127-derived" ARCHS="$(uname -m)" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO build >"$RUNNER_TEMP/c127-xcodebuild.log" 2>&1 || { tail -150 "$RUNNER_TEMP/c127-xcodebuild.log"; exit 1; }
-          APP=$(find "$RUNNER_TEMP/c127-derived/Build/Products/Release-iphonesimulator" -maxdepth 1 -name '*.app' -type d | head -1)
-          if [ -z "$APP" ]; then tail -80 "$RUNNER_TEMP/c127-xcodebuild.log"; exit 1; fi
+          tar -xzf "$RUNNER_TEMP/c127-cached/c127-sim-recovery.tar.gz" -C "$RUNNER_TEMP/c127-cached"
+          APP="$RUNNER_TEMP/c127-cached/LeCercle127.app"
+          test -d "$APP"
           echo "SIMULATOR_APP=$APP" >> "$GITHUB_ENV"
       - name: Démarrer un iPhone 6,9 pouces
         run: |
@@ -45,13 +49,19 @@ jobs:
           test -n "$DEVICE"
           echo "SIMULATOR_ID=$DEVICE" >> "$GITHUB_ENV"
           xcrun simctl boot "$DEVICE"
+          open -a Simulator
           xcrun simctl bootstatus "$DEVICE" -b
           xcrun simctl ui "$DEVICE" appearance dark
           xcrun simctl status_bar "$DEVICE" override --time '9:41' --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 --batteryState discharging --batteryLevel 100
           xcrun simctl spawn "$DEVICE" defaults write NSGlobalDomain AppleLanguages -array fr
           xcrun simctl spawn "$DEVICE" defaults write NSGlobalDomain AppleLocale -string fr_FR
       - name: Installer l’app sur l’iPhone
-        run: xcrun simctl install "$SIMULATOR_ID" "$SIMULATOR_APP"
+        run: |
+          xcrun simctl install "$SIMULATOR_ID" "$SIMULATOR_APP"
+          xcrun simctl launch "$SIMULATOR_ID" com.lecercle127.app -AppleLanguages '(fr)' -AppleLocale fr_FR
+          mkdir -p "$RUNNER_TEMP/c127-captures"
+          xcrun simctl io "$SIMULATOR_ID" screenshot "$RUNNER_TEMP/c127-captures/initialisation.png"
+
       - name: Photographier les écrans natifs
         run: |
           mkdir -p "$RUNNER_TEMP/c127-captures"
