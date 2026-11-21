@@ -35,12 +35,9 @@ jobs:
         run: |
           CI=1 npx expo prebuild --platform ios --no-install
           pod install --project-directory=ios
-          WORKSPACE=$(find ios -maxdepth 1 -name '*.xcworkspace' -type d | head -1)
-          SCHEME=$(xcodebuild -list -json -workspace "$WORKSPACE" | jq -r '.workspace.schemes[]' | grep -v '^Pods-' | head -1)
-          test -n "$SCHEME"
-          xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/c127-derived" ARCHS="$(uname -m)" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO build >"$RUNNER_TEMP/c127-xcodebuild.log" 2>&1 || { tail -150 "$RUNNER_TEMP/c127-xcodebuild.log"; exit 1; }
+          xcodebuild -workspace ios/LeCercle127.xcworkspace -scheme LeCercle127 -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath "$RUNNER_TEMP/c127-derived" ARCHS="$(uname -m)" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO build >"$RUNNER_TEMP/c127-xcodebuild.log" 2>&1 || { tail -150 "$RUNNER_TEMP/c127-xcodebuild.log"; exit 1; }
           APP=$(find "$RUNNER_TEMP/c127-derived/Build/Products/Release-iphonesimulator" -maxdepth 1 -name '*.app' -type d | head -1)
-          test -n "$APP"
+          if [ -z "$APP" ]; then tail -80 "$RUNNER_TEMP/c127-xcodebuild.log"; exit 1; fi
           echo "SIMULATOR_APP=$APP" >> "$GITHUB_ENV"
       - name: Démarrer un iPhone 6,9 pouces
         run: |
