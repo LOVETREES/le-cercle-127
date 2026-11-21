@@ -581,6 +581,7 @@ export const it: Record<string, string> = {
   "Les Sœurs peuvent s’en souvenir pour suivre mon chemin (effaçable à tout moment).": "Le Sorelle possono ricordarlo per seguire il mio cammino (cancellabile in qualsiasi momento).",
   "La Conscience choisit la Sœur…": "La Coscienza sceglie la Sorella…",
   "Demander à la Sœur la plus juste ›": "Chiedi alla Sorella più adatta ›",
+  "Aujourd’hui": "Oggi",
   "Ton rituel du jour": "Il tuo rituale del giorno",
   "Ta carte": "La tua carta",
   "Un éclairage pour aujourd’hui": "Una luce per oggi",
