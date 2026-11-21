@@ -4,9 +4,47 @@
 #   ARP  = C. S. d'Arpentigny, La Chirognomonie, 1843 ; La Science de la main, 1865
 #   CHEIRO = Cheiro, Language of the Hand, 1897
 # Usage : python3 docs/terra/fiches.py  (écrit fiches-apprentissage.md et fiches-terra.jsonl à côté)
-import json, os
+import csv
+import json
+from pathlib import Path
 
 DESB, ARP, CHEIRO = 'Desbarrolles, Les Mystères de la main (1859)', "d'Arpentigny, La Chirognomonie (1843) / La Science de la main (1865)", 'Cheiro, Language of the Hand (1897)'
+
+HERE = Path(__file__).resolve().parent
+CHEIRO_SCAN = 'Cheiro, Language of the Hand, 9e édition, copyright 1897'
+REFERENCES = {
+    'atelier': ('Atelier de la Paume du Cercle 127', 'protocole pédagogique original'),
+    'cheiro-i': (CHEIRO_SCAN, 'partie I, chap. I, p. 25–26'),
+    'cheiro-ii': (CHEIRO_SCAN, 'partie I, chap. III, p. 28–31'),
+    'cheiro-iv': (CHEIRO_SCAN, 'partie I, chap. IV, p. 32–33'),
+    'cheiro-vi': (CHEIRO_SCAN, 'partie I, chap. VI, p. 37–39'),
+    'cheiro-viii': (CHEIRO_SCAN, 'partie I, chap. VIII, p. 43–44'),
+    'cheiro-ix': (CHEIRO_SCAN, 'partie I, chap. IX, p. 45–50'),
+    'cheiro-x': (CHEIRO_SCAN, 'partie I, chap. X, p. 51–52'),
+    'cheiro-xi': (CHEIRO_SCAN, 'partie I, chap. XI, p. 53–55'),
+    'cheiro-monts': (CHEIRO_SCAN, 'partie I, chap. XV, p. 63–65'),
+    'cheiro-lignes': (CHEIRO_SCAN, 'partie II, chap. II–III, p. 72–76'),
+    'cheiro-deux-mains': (CHEIRO_SCAN, 'partie II, chap. IV, p. 77–78'),
+    'cheiro-v': (CHEIRO_SCAN, 'partie II, chap. V, p. 79–85'),
+    'cheiro-mars': (CHEIRO_SCAN, 'partie II, chap. VI, p. 86'),
+    'cheiro-tete': (CHEIRO_SCAN, 'partie II, chap. VII, p. 87–90'),
+    'cheiro-coeur': (CHEIRO_SCAN, 'partie II, chap. X, p. 98–101'),
+    'cheiro-destin': (CHEIRO_SCAN, 'partie II, chap. XI, p. 102–105'),
+    'cheiro-soleil': (CHEIRO_SCAN, 'partie II, chap. XII, p. 106–108'),
+    'cheiro-etoile': (CHEIRO_SCAN, 'partie II, chap. XVIII, p. 121–124'),
+    'cheiro-croix': (CHEIRO_SCAN, 'partie II, chap. XIX, p. 125–126'),
+    'cheiro-carre': (CHEIRO_SCAN, 'partie II, chap. XX, p. 127–128'),
+    'cheiro-ile': (CHEIRO_SCAN, 'partie II, chap. XXI, p. 129–130'),
+    'cheiro-triangle': (CHEIRO_SCAN, 'partie II, chap. XXII, p. 131–133'),
+    'cheiro-traits': (CHEIRO_SCAN, 'partie II, chap. XXIII, p. 134–135'),
+    'cheiro-quadrangle': (CHEIRO_SCAN, 'partie II, chap. XXIV, p. 136–138'),
+    'desb-doigts': (DESB, 'section « Chirognomonie », sous-section « Les doigts »'),
+    'desb-monts': (DESB, 'description des monts, p. 196–207'),
+    'desb-1862-grilles': ('Desbarrolles, Les Mystères de la main, 4e édition (1862)', '« À propos de la quatrième édition », p. XI–XII'),
+    'arp-chiro-carree': ('d’Arpentigny, La Chirognomonie (1843)', 'p. 334, passage sur les phalanges carrées'),
+    'arp-science-paume': ('d’Arpentigny, La Science de la main (1865)', 'chap. II, « Des signes attachés à la paume de la main », p. 23–26'),
+    'arp-science-toucher': ('d’Arpentigny, La Science de la main (1865)', 'chap. V, « Les mains dures, les mains molles », p. 71–82'),
+}
 
 F = [
   # ---------- Fondements ----------
@@ -176,12 +214,26 @@ def md(f):
         for src, page, txt in f['tradition']:
             out.append(f'- {txt} *({src}, {page})*')
         out.append('')
-    out += ['**La lecture de Terra.** ' + f['lecture'], '', '**Ce que Terra ne dit jamais.** ' + f['jamais'], '']
+    out += ['**La lecture de Terra.** ' + f['lecture'], '']
+    if f.get('jamais'): out += ['**Ce que Terra ne dit jamais.** ' + f['jamais'], '']
     if f.get('question'): out += ['**Question à offrir.** ' + f['question'], '']
     if f.get('soeur'): out += ['**Relais.** ' + f['soeur'], '']
+    if f.get('reference'):
+        source, passage = f['reference']
+        out += [f'**Source de travail.** {source} ({passage}).', '']
     return '\n'.join(out)
 
-here = os.path.dirname(os.path.abspath(__file__))
+with (HERE / 'fiches-complements.tsv').open(encoding='utf-8', newline='') as source:
+    for row in csv.DictReader(source, delimiter='\t'):
+        F.append(dict(
+            id=row['id'], partie=row['partie'], titre=row['titre'], regarder=row['observer'],
+            lecture=row['lecture'], question=row['question'], reference=REFERENCES[row['reference']],
+            tradition=[], date='2026-11-21',
+        ))
+
+if len({f['id'] for f in F}) != len(F) or len({f['titre'] for f in F}) != len(F):
+    raise ValueError('Les identifiants et titres des fiches doivent être distincts.')
+
 parts, body = [], []
 for f in F:
     if f['partie'] not in parts:
@@ -190,13 +242,18 @@ for f in F:
 head = ('# Fiches d’apprentissage de Terra\n\n'
         'Lecture symbolique et introspective de la main, pour Terra et pour celles et ceux qui apprennent avec elle. '
         'Textes originaux du Cercle 127 ; les correspondances viennent d’ouvrages du domaine public '
-        f'({DESB} ; {ARP} ; {CHEIRO}). Les prédictions de ces ouvrages (santé, mort, fortune, crimes) sont volontairement écartées.\n\n')
-open(os.path.join(here, 'fiches-apprentissage.md'), 'w').write(head + '\n'.join(body))
-with open(os.path.join(here, 'fiches-terra.jsonl'), 'w') as fh:
+        f'({DESB}, {ARP} et {CHEIRO}). Les prédictions de ces ouvrages (santé, mort, fortune, crimes) sont volontairement écartées. '
+        'Les fiches complémentaires distinguent le détail observable, la piste écrite pour Terra et sa source de travail.\n\n')
+(HERE / 'fiches-apprentissage.md').write_text(head + '\n'.join(body), encoding='utf-8')
+with (HERE / 'fiches-terra.jsonl').open('w', encoding='utf-8') as fh:
     for f in F:
         texte = md(f).split('\n', 2)[2]
+        sources = {s for s, _, _ in f['tradition']}
+        if f.get('reference'):
+            source, passage = f['reference']
+            sources.add(f'{source} ({passage})')
         fh.write(json.dumps({'id': 'fiche-terra/' + f['id'], 'type': 'fiche_apprentissage_terra', 'titre': 'Terra · ' + f['titre'],
-                             'texte': texte, 'meta': {'partie': f['partie'], 'sources': sorted({s for s, _, _ in f['tradition']})},
+                             'texte': texte, 'meta': {'partie': f['partie'], 'sources': sorted(sources)},
                              'source': 'Fiches d’apprentissage de Terra (Cercle 127, textes originaux d’après sources du domaine public)',
                              'extrait_le': f.get('date', '2026-11-14')}, ensure_ascii=False) + '\n')
 print(len(F), 'fiches')
