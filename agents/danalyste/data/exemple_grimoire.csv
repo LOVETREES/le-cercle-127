@@ -1,0 +1,51 @@
+date,theme,symboles,emotion_dominante,soeur_sollicitee,perle_oni,montant_eur,canal,longueur_mots
+2025-09-01,chute,eau,vertige,chute,Naïa,1,3.9,web,85
+2025-09-02,vol,montagne,liberté,vol,Alka,1,3.9,web,120
+2025-09-04,cherche perdue,porte,anxiété,maze,Irma,0,,web,60
+2025-09-05,eau,eau,calme,océan,Terra,0,app,44
+2025-09-07,montagne,montagne,défi,sommet,Astria,1,3.9,web,150
+2025-09-08,chute,vertige,peur,décollage,Ignis,0,,web,70
+2025-09-10,vol,liberté,joie,ciel,Alka,1,3.9,app,95
+2025-09-11,cherche perdue,porte,confusion,clé,Irma,0,web,55
+2025-09-13,eau,océan,calme,vagues,Terra,0,web,40
+2025-09-14,chute,eau,vertige,tourbillon,Naïa,1,3.9,web,110
+2025-09-15,montagne,neige,isole,pic,Terra,0,app,65
+2025-09-17,vol,plume,légèreté,vent,Astria,1,3.9,web,88
+2025-09-18,cherche perdue,corridor,anxiété,brouillard,Irma,0,web,52
+2025-09-20,eau,pluie,tristesse,orage,Naïa,1,3.9,lettre,130
+2025-09-21,chute,escalier,vertige,marche,Ignis,0,web,58
+2025-09-23,montagne,sommet,fierté,sommet,Astria,1,3.9,web,105
+2025-09-24,vol,ciel,joie,ciels,Alka,0,app,47
+2025-09-26,cherche perdue,clé,soulagement,porte,Irma,1,3.9,web,98
+2025-09-27,eau,source,calme,rivière,Terra,0,web,42
+2025-09-28,chute,eau,peur,vague,Naïa,1,3.9,app,73
+2025-09-30,vol,montagne,liberté,aigle,Ignis,1,3.9,web,91
+2025-10-01,montagne,neige,calme,sentier,Terra,0,web,50
+2025-10-03,cherche perdue,porte,anxiété,clé,Irma,1,3.9,web,102
+2025-10-04,eau,océan,calme,profondeur,Terra,0,app,38
+2025-10-06,chute,vertige,peur,abîme,Naïa,0,web,64
+2025-10-07,vol,plume,joie,vent,Alka,1,3.9,web,87
+2025-10-09,montagne,rocher,détermination,vallée,Astria,0,lettre,77
+2025-10-10,eau,rivière,sérénité,courant,Terra,1,3.9,web,93
+2025-10-12,cherche perdue,corridor,confusion,miroir,Irma,0,web,49
+2025-10-13,chute,escalier,vertige,palier,Ignis,1,3.9,app,81
+2025-10-15,vol,cage,frustration,bars,Naïa,0,web,68
+2025-10-16,montagne,sommet,fierté,drapeau,Astria,1,3.9,web,113
+2025-10-18,eau,island,calme,riche,Terra,0,web,36
+2025-10-19,cherche perdue,clé,anxiété,serrure,Irma,1,3.9,web,90
+2025-10-21,chute,eau,peur,chute,Naïa,1,3.9,web,101
+2025-10-22,vol,plume,légèreté,aile,Alka,0,app,41
+2025-10-24,montagne,neige,isolement,refuge,Terra,0,web,59
+2025-10-25,eau,marée,calme,littoral,Terra,1,3.9,lettre,121
+2025-10-27,cherche perdue,porte,anxiété,seuil,Irma,0,web,53
+2025-10-28,chute,vertige,peur,décollage,Ignis,1,3.9,web,79
+2025-10-30,vol,ciel,joie,horizon,Alka,1,3.9,web,96
+2025-11-01,montagne,sommet,défi,pic,Astria,1,3.9,web,108
+2025-11-02,eau,source,sérénité,rivière,Terra,0,web,45
+2025-11-04,cherche perdue,corridor,confusion,brouillard,Irma,1,3.9,app,84
+2025-11-05,chute,plume,soulagement,atterrissage,Ignis,0,web,62
+2025-11-07,vol,liberté,joie,vent,Alka,1,3.9,web,99
+2025-11-08,eau,pluie,tristesse,orage,Naïa,0,web,57
+2025-11-10,montagne,rocher,détermination,crête,Astria,0,web,71
+2025-11-11,cherche perdue,clé,soulagement,porte,Irma,1,3.9,web,94
+2025-11-13,chute,eau,vertige,tourbillon,Naïa,1,3.9,web,105
