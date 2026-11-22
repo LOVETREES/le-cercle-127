@@ -125,8 +125,11 @@ jobs:
               centerElement: true
           - takeScreenshot: 06-grimoire-lecture-oni
           YAML
-          maestro --device "$SIMULATOR_ID" test flow.yml
-          for path in 0*.png; do
+          maestro --device "$SIMULATOR_ID" test --test-output-dir "$PWD" flow.yml
+          shopt -s nullglob
+          captures=(0*.png)
+          test "${#captures[@]}" = 6
+          for path in "${captures[@]}"; do
             dimensions=$(sips -g pixelWidth -g pixelHeight "$path" | awk '/pixelWidth|pixelHeight/ {print $2}' | paste -sd x -)
             test "$dimensions" = "1320x2868"
           done
