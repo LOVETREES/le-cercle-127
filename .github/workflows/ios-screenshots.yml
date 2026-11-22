@@ -125,7 +125,8 @@ jobs:
               centerElement: true
           - takeScreenshot: 06-grimoire-lecture-oni
           YAML
-          maestro --device "$SIMULATOR_ID" test --test-output-dir "$PWD" flow.yml
+          maestro --device "$SIMULATOR_ID" test --test-output-dir "$PWD/artifacts" flow.yml
+          find artifacts -type f -name "0*.png" -exec cp {} "$PWD"/ \;
           shopt -s nullglob
           captures=(0*.png)
           test "${#captures[@]}" = 6
