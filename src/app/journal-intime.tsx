@@ -1,6 +1,6 @@
 // Le journal intime : écrire (ou dicter) ce que l'on vit, sans que ce soit un rêve.
 // Tout reste sur le téléphone ; rien n'est envoyé à Oni ni au site.
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -10,6 +10,7 @@ import { deleteEntry, FEELINGS, listEntries, promptOfDay, saveEntry, type Journa
 import { colors, fonts, radius, space } from '../lib/theme';
 import { useDictation } from '../lib/use-dictation';
 import { locale, t } from '../i18n';
+import { isShadowWord, shadowLabel, shadowMatches } from '../lib/ombre';
 
 const GOLD2 = '#f3dca0';
 const CARD = '#11122a';
@@ -23,7 +24,12 @@ export default function JournalIntime() {
   const [savedMsg, setSavedMsg] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const base = useRef('');
-  const prompt = promptOfDay();
+  const { theme, motif } = useLocalSearchParams<{ theme?: string; motif?: string }>();
+  const [filter, setFilter] = useState(() => typeof motif === 'string' && isShadowWord(motif) ? motif : '');
+  const shownEntries = filter ? entries.filter((e) => shadowMatches(e.text, filter)) : entries;
+  const prompt = theme === 'ombre'
+    ? 'Quelle part de moi ai-je du mal à accueillir ? De quoi essaie-t-elle peut-être de me protéger, et quel petit geste respectueux puis-je choisir ?'
+    : promptOfDay();
 
   const speech = useDictation({
     onTranscript: useCallback((v: string) => setText(appendTranscript(base.current, v).slice(0, 20000)), []),
@@ -48,7 +54,7 @@ export default function JournalIntime() {
   const save = async () => {
     if (!text.trim()) return;
     if (speech.active) speech.stop();
-    setEntries(await saveEntry({ id: editing ?? undefined, text, feeling, prompt: usePrompt ? prompt : undefined }));
+    setEntries(await saveEntry({ id: editing ?? undefined, text, feeling, prompt: editing ? entries.find((e) => e.id === editing)?.prompt : usePrompt ? prompt : undefined }));
     reset();
     setSavedMsg(true);
     setTimeout(() => setSavedMsg(false), 2500);
@@ -138,11 +144,12 @@ export default function JournalIntime() {
           {savedMsg ? <Notice tone="success" text={t('Page gardée dans ton journal.')} /> : null}
         </View>
 
-        <Text style={st.kicker}>{entries.length ? t('MES PAGES · {n}', { n: entries.length }) : t('MES PAGES')}</Text>
-        {entries.length === 0 ? (
+        {filter ? <View style={{ gap: 8 }}><Text style={st.lead}>{t('Pages contenant « {mot} » et ses variantes', { mot: t(shadowLabel(filter)) })}</Text><Pressable accessibilityRole="button" onPress={() => setFilter('')}><Text style={st.action}>{t('Voir toutes mes pages')}</Text></Pressable></View> : null}
+        <Text style={st.kicker}>{shownEntries.length ? t('MES PAGES · {n}', { n: shownEntries.length }) : t('MES PAGES')}</Text>
+        {shownEntries.length === 0 ? (
           <Text style={st.muted}>{t('Tes pages s’afficheront ici, de la plus récente à la plus ancienne.')}</Text>
         ) : (
-          entries.map((e) => {
+            shownEntries.map((e) => {
             const d = new Date(e.at);
             const isOpen = open === e.id;
             return (

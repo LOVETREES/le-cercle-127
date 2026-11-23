@@ -8,8 +8,9 @@ import { AppHeader, Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Titl
 import { locale, t } from '../../i18n';
 import { SISTERS } from '../../lib/content';
 import { EMOTIONS, recurringSymbols, searchDreams, type Dream } from '../../lib/model';
-import { listEmotions, type EmotionEntry, type EmotionKey } from '../../lib/naia';
-import { listPalmReadings, type PalmReading } from '../../lib/palm';
+import { emotionOf, listEmotions, type EmotionEntry, type EmotionKey } from '../../lib/naia';
+import { shadowLabel, shadowMap } from '../../lib/ombre';
+import { listPalmReadings, palmOwnerFor, type PalmReading } from '../../lib/palm';
 import { doorStates, readPortes, type Door, type PortesStore } from '../../lib/portes';
 import { loadRealityChecks } from '../../lib/reality-journal';
 import { readRitual, type RitualStore } from '../../lib/rituel';
@@ -23,6 +24,9 @@ import { listEntries, type JournalEntry } from '../../lib/journal-intime';
 import { LAME_IMAGES } from '../../lib/oracle/images';
 import { lameText } from '../../lib/oracle/localize';
 import { ICON, iconKey, SymbolIcon } from '../../components/SymbolIcon';
+import { NouveauChapitre } from '../../components/NouveauChapitre';
+import { archetypalEchoes } from '../../lib/echos';
+import { EchoGrimoire } from '../../components/EchoGrimoire';
 
 /* ---------- Petits outils ---------- */
 const VIOLET = '#7a68c9';
@@ -34,8 +38,7 @@ const emotionLabel = (v?: string) => {
   const l = EMOTIONS.find((e) => e.value === v)?.label;
   return l ? t(l) : undefined;
 };
-const NAIA_LABEL: Record<EmotionKey, string> = { peur: 'Peur', colere: 'Colère', tristesse: 'Tristesse', culpabilite: 'Culpabilité', confusion: 'Confusion', soulagement: 'Soulagement' };
-const naiaLabel = (k: EmotionKey) => t(NAIA_LABEL[k]);
+const naiaLabel = (k: EmotionKey) => t(emotionOf(k)?.name ?? k);
 function formatDate(iso: string) {
   const [y, m, d] = iso.split('-').map(Number);
   if (!y || !m || !d) return iso;
@@ -183,6 +186,8 @@ export default function Grimoire() {
   const sorted = useMemo(() => [...dreams].sort((a, b) => (b.dreamDate || '').localeCompare(a.dreamDate || '')), [dreams]);
   const symbols = useMemo(() => recurringSymbols(dreams, 5), [dreams]);
   const allSymbols = useMemo(() => recurringSymbols(dreams, 99).length, [dreams]);
+  const shadow = useMemo(() => shadowMap(extra.journal), [extra.journal]);
+  const echoes = useMemo(() => archetypalEchoes(extra.journal), [extra.journal]);
   const emotionsRec = useMemo(() => {
     const c = new Map<string, number>();
     for (const d of dreams) if (d.emotion && d.emotion !== 'aucune') c.set(emotionLabel(d.emotion) ?? d.emotion, (c.get(emotionLabel(d.emotion) ?? d.emotion) ?? 0) + 1);
@@ -273,6 +278,8 @@ export default function Grimoire() {
 
         {lastError && <Notice tone="error" text={lastError} />}
 
+        <NouveauChapitre key={isDemo ? 'demo' : user?.id ?? 'local'} entries={extra.journal} onChanged={(journal) => setExtra((prev) => ({ ...prev, journal }))} />
+
         {/* Chiffres */}
         <View style={st.stats}>
           {[
@@ -288,6 +295,23 @@ export default function Grimoire() {
           ))}
         </View>
 
+        <View style={st.card}>
+          <Text style={st.h}>{t('OMBRE ET POLARITÉS')}</Text>
+          <Body muted>{t('Quelques mots français qui reviennent dans votre journal privé, rapprochés pour ouvrir des questions. Le contexte, y compris une négation, peut changer leur sens : vous restez libre de les interpréter.')}</Body>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+            {([
+              [t('Mots de tension'), shadow.tensions],
+              [t('Mots de ressource'), shadow.ressources],
+              [t('Mots de mouvement'), shadow.mouvements],
+            ] as const).map(([label, items]) => <View key={label} style={{ flex: 1, minWidth: 130, gap: 8 }}>
+              <Text style={st.recName}>{label}</Text>
+              {items.length ? items.map(({ word, occurrences }) => <Pressable key={word} accessibilityRole="button" accessibilityLabel={t('Voir les pages pour {mot} : {n}', { mot: t(shadowLabel(word)), n: occurrences })} onPress={() => router.push({ pathname: '/journal-intime', params: { motif: word } })}><Text style={st.recN}>{t(shadowLabel(word))} · {occurrences} ›</Text></Pressable>) : <Body muted>{t('Aucun mot récurrent repéré pour l’instant.')}</Body>}
+            </View>)}
+          </View>
+          <Body muted>{t('Chaque nombre indique le nombre de notes contenant ce mot. Ce repérage local ne déduit ni vos intentions ni vos ressources réelles.')}</Body>
+          <OutlineButton label={t('Explorer dans mon journal privé')} onPress={() => router.push('/journal-intime')} />
+        </View>
+        <EchoGrimoire key={palmOwnerFor(isDemo, user?.id)} echoes={echoes} owner={palmOwnerFor(isDemo, user?.id)} />
         {/* Récurrences */}
         <View style={st.card}>
           <Text style={st.h}>{t('TES RÉCURRENCES')}</Text>

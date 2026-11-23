@@ -1,11 +1,16 @@
 import { router, useFocusEffect } from 'expo-router';
 import { type ComponentRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { CheminCard } from '../../components/Chemin';
 import { NaiaCard, TerraCard } from '../../components/HomeSisters';
 import { RituelDuJour } from '../../components/RituelDuJour';
-import { GoldButton, Screen, SiteFooter } from '../../components/ui';
+import { GoldButton, Notice, Screen, SiteFooter } from '../../components/ui';
+import { OracleExpress } from '../../components/OracleExpress';
+import { appendTranscript } from '../../lib/dictation';
+import { draftKey } from '../../lib/local-draft';
+import { palmOwnerFor } from '../../lib/palm';
+import { useLocalDraft } from '../../lib/use-local-draft';
 import { IMAGES, SISTERS } from '../../lib/content';
 import { computeChemin, loadChemin, type Chemin } from '../../lib/chemin';
 import { addPresence, allRecurringMotifs, dailyThought, greetingKey, journey } from '../../lib/insights';
@@ -26,7 +31,31 @@ function formatDate(iso: string) {
 
 // Accueil centré sur la personne : où elle en est, ce qui évolue, et l'essentiel en un geste.
 export default function Home() {
-  const { dreams, user } = useSession();
+  const { dreams, user, isDemo } = useSession();
+  const opening = useLocalDraft(draftKey(palmOwnerFor(isDemo, user?.id), 'home'));
+  const [openingBusy, setOpeningBusy] = useState(false);
+  const [openingError, setOpeningError] = useState(false);
+  const openingLock = useRef(false);
+  const startDream = async () => {
+    if (openingLock.current) return;
+    openingLock.current = true;
+    setOpeningBusy(true);
+    setOpeningError(false);
+    try {
+      if (opening.text.trim()) {
+        const key = isDemo ? KEYS.demoPendingTranscript : KEYS.pendingTranscript;
+        const previous = await local.getJson<string>(key, '');
+        await local.setJson(key, appendTranscript(previous, opening.text).slice(0, 20000));
+        await opening.clear();
+      }
+      router.navigate('/reve');
+    } catch {
+      setOpeningError(true);
+    } finally {
+      openingLock.current = false;
+      setOpeningBusy(false);
+    }
+  };
   const [presence, setPresence] = useState(1);
   const [ritualTick, setRitualTick] = useState(0);
   const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
@@ -86,11 +115,20 @@ export default function Home() {
       </View>
 
       {/* L'essentiel d'abord : raconter son rêve, puis son Grimoire */}
-      <GoldButton label={t('Raconter un rêve  ›')} onPress={() => router.navigate('/reve')} />
+      <View style={{ gap: 8 }}>
+        <Text style={st.cardTitle}>{t('Comprendre vos rêves, à votre rythme.')}</Text>
+        <Text style={st.cardSub}>{t('Racontez quelques mots à Oni pour commencer.')}</Text>
+        <TextInput accessibilityLabel={t('Premières lignes de mon rêve')} value={opening.text} onChangeText={opening.set} editable={opening.ready && !openingBusy} placeholder={t('Je me souviens que…')} placeholderTextColor={colors.muted} multiline maxLength={20000} style={st.dreamInput} />
+        {opening.error && <Notice tone="error" text={t('Le brouillon n’a pas pu être enregistré sur cet appareil.')} />}
+        {openingError && <Notice tone="error" text={t('Impossible de préparer votre rêve. Réessayez.')} />}
+        <GoldButton label={t('Raconter un rêve  ›')} disabled={!opening.ready} loading={openingBusy} onPress={() => void startDream()} />
+      </View>
       <Pressable style={st.grimoireBtn} onPress={() => router.navigate('/grimoire')} accessibilityRole="button" accessibilityLabel={t('Ouvrir mon Grimoire')}>
         <Image source={PICTO_GRIMOIRE} style={st.grimoirePicto} resizeMode="contain" />
         <Text style={st.grimoireLabel}>{t('Ouvrir mon Grimoire')}</Text>
       </Pressable>
+
+      <OracleExpress onDraw={() => setRitualTick((n) => n + 1)} />
 
       {/* Mon chemin : les Sept Sœurs, leurs niveaux et le prochain pas */}
       <CheminCard chemin={chemin} />
@@ -219,6 +257,7 @@ export default function Home() {
 const card = { flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: colors.surface } as const;
 
 const st = StyleSheet.create({
+  dreamInput: { minHeight: 88, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, color: colors.text, fontFamily: fonts.body, fontSize: 16, padding: 14, textAlignVertical: 'top' },
   grimoireBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 52, paddingHorizontal: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.gold },
   grimoirePicto: { width: 30, height: 30 },
   grimoireLabel: { fontFamily: fonts.bodyBold, fontSize: 16, color: colors.gold },

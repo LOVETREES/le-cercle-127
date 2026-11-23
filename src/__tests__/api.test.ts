@@ -7,6 +7,19 @@ beforeEach(() => { fetchMock.mockReset(); vi.stubGlobal('fetch', fetchMock); });
 afterEach(() => vi.unstubAllGlobals());
 
 describe('API : consentement, disponibilité et effacement', () => {
+  it('ne partage pas une page sans accord explicite ou si elle contient une formulation explicite de crise', async () => {
+    const base = { sister: 'oni', excerpt: 'Une page privée', lang: 'fr' };
+    await expect(api.sisterForChapter('session', { ...base, consent: false as unknown as true })).rejects.toThrow('accord');
+    await expect(api.sisterForChapter('session', { ...base, excerpt: 'Je veux me suicider', consent: true })).rejects.toThrow();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it('envoie seulement l’extrait accepté dans la demande d’éclairage', async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({ ok: true, sister: 'oni', answer: 'Une question ?' }), { status: 200 }));
+    const data = { sister: 'oni', excerpt: 'Un extrait choisi', consent: true as const, lang: 'fr' };
+    await api.sisterForChapter('session', data);
+    expect(fetchMock.mock.calls[0][0]).toBe('https://example.test/wp-json/c127-f127/v1/chapter-light');
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual(data);
+  });
   it('n’envoie aucune demande à Make sans accord explicite', async () => {
     await expect(api.requestOniReading('test-session', '42', false)).rejects.toThrow('accord');
     expect(fetchMock).not.toHaveBeenCalled();

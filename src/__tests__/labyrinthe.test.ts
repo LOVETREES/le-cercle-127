@@ -21,7 +21,8 @@ describe('Labyrinthe vivant · acquis', () => {
   });
 
   it('refuse une date invalide ou future', () => {
-    expect(acquis({ date: '15/06/1980' })).toBeUndefined();
+    expect(acquis({ date: '15/06/1980' })).toHaveLength(7);
+    expect(acquis({ date: '31/02/1980' })).toBeUndefined();
     expect(birthInstant({ date: '2999-01-01' })).toBeUndefined();
   });
 });

@@ -1,10 +1,12 @@
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { Animated, Image, type ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, Image, type ImageSourcePropType, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { t } from '../i18n';
 import { SISTERS } from '../lib/content';
 import { listEmotions } from '../lib/naia';
+import { listEntries, saveEntry } from '../lib/journal-intime';
+import { dayKey } from '../lib/insights';
 import { currentOwner, listPalmReadings } from '../lib/palm';
 import { readRitual, ritualToday, withGesture, type RitualToday } from '../lib/rituel';
 import { KEYS, local } from '../lib/storage';
@@ -19,12 +21,25 @@ const EMPTY: RitualToday = { carte: false, emotion: false, main: false, count: 0
 export function RituelDuJour({ refreshKey = 0, onEmotion }: { refreshKey?: number; onEmotion?: () => void }) {
   const [state, setState] = useState<RitualToday>(EMPTY);
   const [bar] = useState(() => new Animated.Value(0));
+  const [evening, setEvening] = useState('');
+  const [eveningId, setEveningId] = useState<string | undefined>();
+  const [eveningMessage, setEveningMessage] = useState('');
+  const [eveningBusy, setEveningBusy] = useState(false);
+  const eveningOwner = useRef(currentOwner());
+  const eveningDirty = useRef(false);
 
   const load = useCallback(() => {
     let active = true;
-    Promise.all([readRitual(), listEmotions(), listPalmReadings()]).then(([store, emotions, palms]) => {
-      if (!active) return;
+    const owner = currentOwner();
+    if (eveningOwner.current !== owner) {
+      eveningOwner.current = owner; eveningDirty.current = false;
+      setEvening(''); setEveningId(undefined); setEveningMessage('');
+    }
+    Promise.all([readRitual(), listEmotions(), listPalmReadings(), listEntries()]).then(([store, emotions, palms, entries]) => {
+      if (!active || currentOwner() !== owner) return;
       const now = new Date();
+      const note = entries.find(e => e.prompt === 'Bilan du soir' && dayKey(new Date(e.at)) === dayKey(now));
+      if (!eveningDirty.current) { setEvening(note?.text ?? ''); setEveningId(note?.id); }
       const today = ritualToday(store, emotions, palms, now);
       setState(today);
       // Un geste fait aujourd'hui fait avancer la série une fois.
@@ -87,6 +102,23 @@ export function RituelDuJour({ refreshKey = 0, onEmotion }: { refreshKey?: numbe
         <Animated.View style={[st.fill, { width: bar.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
       </View>
       <Text style={st.foot}>{foot}</Text>
+      <View style={{ gap: 8, paddingTop: 8 }}>
+        <Text style={st.title}>{t('Bilan du soir')}</Text>
+        <Text style={st.foot}>{t('En une phrase, comment un éclairage ou un geste a-t-il pris place dans votre journée ?')}</Text>
+        <TextInput accessibilityLabel={t('Bilan du soir')} value={evening} onChangeText={(text) => { eveningDirty.current = true; setEvening(text.slice(0, 500)); setEveningMessage(''); }} multiline placeholder={t('Quelques mots, si vous le souhaitez…')} placeholderTextColor={colors.muted} style={st.input} />
+        <Pressable accessibilityRole="button" disabled={!evening.trim() || eveningBusy} onPress={async () => {
+          if (!evening.trim() || eveningBusy) return;
+          setEveningBusy(true);
+          try {
+            const list = await saveEntry({ id: eveningId, text: evening, prompt: 'Bilan du soir' });
+            const note = list.find(e => e.prompt === 'Bilan du soir' && dayKey(new Date(e.at)) === dayKey(new Date()));
+            setEveningId(note?.id); eveningDirty.current = false; setEveningMessage(t('Bilan gardé dans votre journal privé.'));
+          } catch { setEveningMessage(t('Le bilan n’a pas pu être gardé. Réessayez.')); }
+          finally { setEveningBusy(false); }
+        }} style={{ opacity: !evening.trim() || eveningBusy ? 0.5 : 1 }}><Text style={{ color: colors.gold, fontFamily: fonts.bodyBold }}>{t('Garder mon bilan')}</Text></Pressable>
+        {eveningMessage ? <Text accessibilityLiveRegion="polite" style={st.foot}>{eveningMessage}</Text> : null}
+        <Text style={st.foot}>{t('Facultatif, modifiable et gardé sur cet appareil.')}</Text>
+      </View>
     </View>
   );
 }
@@ -107,4 +139,5 @@ const st = StyleSheet.create({
   track: { height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' },
   fill: { height: 6, borderRadius: 3, backgroundColor: '#8fbf7a' },
   foot: { fontFamily: fonts.body, fontSize: 12, lineHeight: 17, color: colors.muted, textAlign: 'center' },
+  input: { minHeight: 62, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 12, color: colors.text, fontFamily: fonts.body, fontSize: 15, textAlignVertical: 'top' },
 });
