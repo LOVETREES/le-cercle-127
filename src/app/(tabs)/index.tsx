@@ -42,6 +42,7 @@ export default function Home() {
   const opening = useLocalDraft(draftKey(palmOwnerFor(isDemo, user?.id), 'home'));
   const [openingBusy, setOpeningBusy] = useState(false);
   const [showOpening, setShowOpening] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const [openingError, setOpeningError] = useState(false);
   const openingLock = useRef(false);
   const startDream = async () => {
@@ -154,29 +155,29 @@ export default function Home() {
         {openingError && <Notice tone="error" text={t('Impossible de préparer votre rêve. Réessayez.')} />}
       </View>
 
+      {/* Dernier rêve */}
+      {last && (
+        <Pressable style={st.card} onPress={() => router.push({ pathname: '/reve/[id]', params: { id: last.id } })} accessibilityRole="link" accessibilityLabel={t('Dernier rêve : {v0}', { v0: last.title })}>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={st.kickerMuted}>{t('DERNIER RÊVE ·')} {formatDate(last.dreamDate).toUpperCase()}</Text>
+            <Text style={st.cardTitle} numberOfLines={1}>
+              {last.title}
+            </Text>
+            <Text style={st.cardSub} numberOfLines={1}>
+              {last.oniReading ? t('Lecture d’Oni disponible') : t('Relire et voir ce qui revient')}
+            </Text>
+          </View>
+          <Text style={st.chevron}>›</Text>
+        </Pressable>
+      )}
+
       {/* Chaque Sœur ouvre une partie du chemin, après le rêve avec Oni. */}
       <CheminCard chemin={chemin} />
 
-      <Pressable onPress={() => router.push('/parcours')} accessibilityRole="link" accessibilityLabel={t('Mon parcours onirique : ce qui se dessine')} style={st.journeyBanner}>
-        <ImageBackground source={require('../../../assets/images/home-parcours-forest.webp')} style={st.journeyBannerImage} imageStyle={st.journeyBannerFill} resizeMode="cover">
-          <Image source={DREAMER_ICONS.sisters} style={st.journeyBannerIcon} resizeMode="contain" accessible={false} />
-          <View style={st.journeyBannerText}>
-            <Text style={st.journeyBannerKicker}>{t('Mon parcours onirique').toUpperCase()}</Text>
-            <Text style={st.journeyBannerTitle}>{t('Ce qui se dessine…')}</Text>
-            <Text style={st.journeyBannerSub}>{t('Évolutions · Récurrences · Transformations')}</Text>
-          </View>
-          <MaterialCommunityIcons name="chevron-right-circle-outline" size={29} color={colors.gold} />
-        </ImageBackground>
-      </Pressable>
+      {/* Rituel du jour : carte, émotion, main */}
+      <RituelDuJour refreshKey={ritualTick} onEmotion={() => scrollRef.current?.scrollTo({ y: Math.max(0, naiaY.current - 12), animated: true })} />
 
-      <Pressable style={st.homeGrimoire} onPress={() => router.navigate('/grimoire')} accessibilityRole="link" accessibilityLabel={t('Mon Grimoire')}>
-        <Image source={DREAMER_ICONS.grimoire} style={st.homeGrimoireIcon} resizeMode="contain" accessible={false} />
-        <View style={{ flex: 1, gap: 3 }}>
-          <Text style={st.cardTitle}>{t('Mon Grimoire')}</Text>
-          <Text style={st.cardSub}>{t('Mes rêves conservés et reliés')}</Text>
-        </View>
-        <Text style={st.chevron}>›</Text>
-      </Pressable>
+      <OracleExpress onDraw={() => setRitualTick((n) => n + 1)} />
 
       {/* Naïa : l'émotion du moment ; Terra : la main du jour */}
       <View onLayout={(e) => { naiaY.current = e.nativeEvent.layout.y; }}>
@@ -190,10 +191,23 @@ export default function Home() {
         <Text style={st.thoughtText}>{quote(thought)}</Text>
       </View>
 
-      <OracleExpress onDraw={() => setRitualTick((n) => n + 1)} />
-
-      {/* Rituel du jour : carte, émotion, main */}
-      <RituelDuJour refreshKey={ritualTick} onEmotion={() => scrollRef.current?.scrollTo({ y: Math.max(0, naiaY.current - 12), animated: true })} />
+      {/* Le reste de l'accueil, replié : comme sur le site (« Découvrir le Cercle »). */}
+      <Pressable onPress={() => setShowMore((v) => !v)} accessibilityRole="button" accessibilityState={{ expanded: showMore }} aria-expanded={showMore} style={st.moreToggle}>
+        <Text style={st.moreToggleText}>{showMore ? t('Replier') : t('Découvrir le Cercle')} {showMore ? '▴' : '▾'}</Text>
+      </Pressable>
+      {showMore && (
+        <>
+      <Pressable onPress={() => router.push('/parcours')} accessibilityRole="link" accessibilityLabel={t('Mon parcours onirique : ce qui se dessine')} style={st.journeyBanner}>
+        <ImageBackground source={require('../../../assets/images/home-parcours-forest.webp')} style={st.journeyBannerImage} imageStyle={st.journeyBannerFill} resizeMode="cover">
+          <Image source={DREAMER_ICONS.sisters} style={st.journeyBannerIcon} resizeMode="contain" accessible={false} />
+          <View style={st.journeyBannerText}>
+            <Text style={st.journeyBannerKicker}>{t('Mon parcours onirique').toUpperCase()}</Text>
+            <Text style={st.journeyBannerTitle}>{t('Ce qui se dessine…')}</Text>
+            <Text style={st.journeyBannerSub}>{t('Évolutions · Récurrences · Transformations')}</Text>
+          </View>
+          <MaterialCommunityIcons name="chevron-right-circle-outline" size={29} color={colors.gold} />
+        </ImageBackground>
+      </Pressable>
 
       {/* La phase est calculée pour l'instant présent, sans localisation. */}
       <Pressable style={st.moonBanner} onPress={() => router.navigate({ pathname: '/symboles', params: { recherche: 'lune' } })} accessibilityRole="link" accessibilityLabel={t('La Lune : {phase}, {percent} % éclairée. Découvrir le symbole.', { phase: t(moon.label), percent: moon.illuminated })}>
@@ -268,22 +282,6 @@ export default function Home() {
         <Text style={st.chevron}>›</Text>
       </Pressable>
 
-      {/* Dernier rêve */}
-      {last && (
-        <Pressable style={st.card} onPress={() => router.push({ pathname: '/reve/[id]', params: { id: last.id } })} accessibilityRole="link" accessibilityLabel={t('Dernier rêve : {v0}', { v0: last.title })}>
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text style={st.kickerMuted}>{t('DERNIER RÊVE ·')} {formatDate(last.dreamDate).toUpperCase()}</Text>
-            <Text style={st.cardTitle} numberOfLines={1}>
-              {last.title}
-            </Text>
-            <Text style={st.cardSub} numberOfLines={1}>
-              {last.oniReading ? t('Lecture d’Oni disponible') : t('Relire et voir ce qui revient')}
-            </Text>
-          </View>
-          <Text style={st.chevron}>›</Text>
-        </Pressable>
-      )}
-
       {/* Le reste, rangé sur une page dédiée */}
       <Pressable style={st.card} onPress={() => router.push('/explorer')} accessibilityRole="link" accessibilityLabel={t('Apprendre et explorer')}>
         <View style={{ flex: 1, gap: 2 }}>
@@ -292,6 +290,9 @@ export default function Home() {
         </View>
         <Text style={st.chevron}>›</Text>
       </Pressable>
+
+        </>
+      )}
 
       <SiteFooter />
     </Screen>
@@ -309,6 +310,8 @@ const st = StyleSheet.create({
   heroEyebrow: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 9, letterSpacing: 1.2 },
   heroText: { color: colors.text, fontFamily: fonts.title, fontSize: 23, lineHeight: 27 },
   dreamEntry: { gap: 8 },
+  moreToggle: { alignSelf: 'center', minHeight: 48, paddingHorizontal: 22, justifyContent: 'center', borderRadius: 999, borderWidth: 1, borderColor: colors.gold },
+  moreToggleText: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 15 },
   homeGrimoire: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 76, paddingHorizontal: 14, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, backgroundColor: colors.surface },
   homeGrimoireIcon: { width: 48, height: 48 },
   nightButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, minHeight: 44 },

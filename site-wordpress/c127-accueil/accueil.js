@@ -162,7 +162,7 @@
     box.innerHTML =
       '<div class="c127h-wrap">' +
       '<div class="c127h-hello"><span class="c127h-date">' + esc(now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()) + '</span>' +
-      '<h1>' + greeting(now) + (first ? ', ' + esc(first) : '') + '</h1>' +
+      '<p class="c127h-greet">' + greeting(now) + (first ? ', ' + esc(first) : '') + '</p>' +
       '<p class="c127h-sub">' + (LOGGED ? 'Ton chemin t’attend : chaque rêve noté le fait avancer.' : 'Comprendre tes rêves, voir ce qui revient, avancer.') + '</p></div>' +
       '<div class="c127h-ctas"><a class="c127h-main" href="' + esc(L.raconter || L.grimoire) + '">Raconter un rêve <span aria-hidden="true">›</span></a>' +
       '<a class="c127h-sec" href="' + esc(L.grimoire) + '">' + (IMG.grimoire ? '<img src="' + esc(IMG.grimoire) + '" alt="" width="28" height="28">' : '') + 'Ouvrir mon Grimoire</a></div>' +
@@ -176,6 +176,7 @@
       '<button type="button" class="c127h-more" aria-expanded="false" aria-controls="c127h-decouvrir">Découvrir le Cercle <span aria-hidden="true">▾</span></button>' +
       '</div>';
     host.insertBefore(box, host.firstChild);
+    document.documentElement.classList.remove('c127a-m');
 
     // Le rituel du jour (carte, émotion, main), comme dans l'application.
     box.querySelector('.c127h-rituel').appendChild(ritualBand());

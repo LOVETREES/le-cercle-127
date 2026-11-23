@@ -1,30 +1,32 @@
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Eyebrow, LinkRow, SiteFooter } from '../components/ui';
-import { EXPLORE, LEARN, SISTERS } from '../lib/content';
+import { EXPLORE, LEARN } from '../lib/content';
 import { useSession } from '../lib/session';
 import { colors, space } from '../lib/theme';
 import { t } from '../i18n';
 
-// Reprend le menu du site mobile (Mon Grimoire, Rêve lucide, Le Cercle des 7 Sœurs, Ressources).
+// Menu simplifié (21/11/2026) : seulement ce que la barre du bas ne propose pas déjà.
+// Grimoire, Rêve, Oracle et Symboles sont dans la barre du bas. Les Sœurs sont réunies sur la page
+// « Le Cercle des 7 Sœurs » (Explorer). Paramètres regroupe langue, compte, rappel du matin et aide.
+// Sanctuaire Framework 127 : recette locale uniquement (Docker sur le Mac de développement).
+// Visible en développement, ou dans une compilation locale avec EXPO_PUBLIC_F127_RECETTE=1.
+// Jamais dans les versions EAS / TestFlight : localhost n'existe pas sur le téléphone d'un utilisateur.
+const F127_RECETTE = __DEV__ || process.env.EXPO_PUBLIC_F127_RECETTE === '1';
+const SANCTUAIRE_RECETTE = 'http://localhost:8083/?f127_sanctuaire=1';
+
 export default function Menu() {
   const { user } = useSession();
   const go = (path: string, title: string) => {
     router.back();
     router.push({ pathname: '/page', params: { path, title } });
   };
-  const tab = (to: '/grimoire' | '/reve' | '/symboles' | '/oracle') => {
-    router.back();
-    router.navigate(to);
-  };
 
   return (
     <ScrollView style={{ backgroundColor: colors.night }} contentContainerStyle={st.content}>
-      <Eyebrow>{t('Mon Grimoire')}</Eyebrow>
+      <Eyebrow>{t('Mon espace')}</Eyebrow>
       <View style={st.group}>
-        <LinkRow icon="❖" title={t('Mon Grimoire')} onPress={() => tab('/grimoire')} />
-        <LinkRow icon="☾" title={t('Raconter un rêve')} onPress={() => tab('/reve')} />
         <LinkRow
           icon="✧"
           title={t('Mes lectures')}
@@ -62,15 +64,6 @@ export default function Menu() {
             router.push('/parametres');
           }}
         />
-        <LinkRow
-          icon="⚙"
-          title={user ? t('Mon compte · {v0}', { v0: user.name }) : t('Réglages')}
-          subtitle={t('Rappel du matin, données, diagnostic')}
-          onPress={() => {
-            router.back();
-            router.push('/compte');
-          }}
-        />
       </View>
 
       <Eyebrow>{t('Rêve lucide')}</Eyebrow>
@@ -80,21 +73,28 @@ export default function Menu() {
         ))}
       </View>
 
-      <Eyebrow>{t('Le Cercle des 7 Sœurs')}</Eyebrow>
+      <Eyebrow>{t('Explorer')}</Eyebrow>
       <View style={st.group}>
-        {SISTERS.map((s) => (
-          <LinkRow key={s.slug} title={s.name} subtitle={t(s.role)} onPress={() => go(s.path, s.name)} />
-        ))}
-      </View>
-
-      <Eyebrow>Ressources</Eyebrow>
-      <View style={st.group}>
-        <LinkRow icon="✦" title={t('Dictionnaire des symboles')} onPress={() => tab('/symboles')} />
-        <LinkRow icon="✧" title={t('Oracle 127')} onPress={() => tab('/oracle')} />
         {EXPLORE.map((e) => (
           <LinkRow key={e.path} icon={e.icon} title={t(e.title)} onPress={() => go(e.path, t(e.title))} />
         ))}
       </View>
+      {F127_RECETTE && (
+        <>
+          <Eyebrow>Recette · Framework 127</Eyebrow>
+          <View style={st.group}>
+            <LinkRow
+              icon="✦"
+              title="Sanctuaire des Sept Sœurs"
+              subtitle="Recette locale sur ce Mac (Docker, mode observe)"
+              onPress={() => {
+                router.back();
+                void Linking.openURL(SANCTUAIRE_RECETTE);
+              }}
+            />
+          </View>
+        </>
+      )}
       <Text style={{ height: space.md }} />
       <SiteFooter />
     </ScrollView>

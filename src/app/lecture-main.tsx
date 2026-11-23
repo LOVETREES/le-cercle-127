@@ -148,7 +148,7 @@ export default function LectureMain() {
       </Pressable>
       <View style={{ gap: space.sm }}>
         <Eyebrow>{t('TERRA · LECTURE DÉTAILLÉE DE TA MAIN')}</Eyebrow>
-        <Title>{t('Ta main, lue comme un horoscope')}</Title>
+        <Title>{t('Ta main, lue comme un miroir')}</Title>
         <Body muted>{t('Une photo de ta paume, et Terra te remet une lecture complète. Refais-la au fil des mois pour voir tes lignes évoluer.')}</Body>
       </View>
 
@@ -199,6 +199,7 @@ export default function LectureMain() {
         </Card>
       ) : null}
 
+      {open && quota && !canRead && open.id === items[0]?.id ? <Notice tone="info" text={t('Ce n’est pas une nouvelle lecture : voici ta dernière lecture détaillée, du {d}.', { d: fmt(open.at) })} /> : null}
       {open ? <ReadingView item={open} onDelete={() => remove(open)} /> : null}
 
       {items.length ? (

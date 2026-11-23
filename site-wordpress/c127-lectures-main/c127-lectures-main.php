@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cercle 127 - Lectures de la main (compte)
  * Description: Sauvegarde dans le compte de la personne les lectures de la main faites avec Terra, et propose la lecture détaillée de la main sur photo (analyse par Terra, photo jamais conservée, première lecture offerte) avec son évolution dans le temps. Authentification identique à l'application (jeton Bearer vérifié par /cercle127/v1/me). Désactiver l'extension n'efface aucune donnée.
- * Version: 1.2.0
+ * Version: 1.2.2
  * Author: Le Cercle 127
  * License: GPL-2.0-or-later
  */
@@ -124,6 +124,36 @@ const C127_PALM_DETAILED_MAX = 36;
 const C127_PALM_DETAILED_FREE = 1;
 const C127_PALM_DETAILED_HOOK = 'https://hook.eu2.make.com/s40997qaroh07umtuv86oovvg3gmm2yz';
 const C127_PALM_DETAILED_GAP = 20 * HOUR_IN_SECONDS;
+
+/**
+ * Repères de Terra (son rôle, puis « La main, lue comme un miroir ») tirés de la banque unique
+ * du Pont Framework 127 (c127-pont-f127/knowledge.php), transmis au scénario Make de la lecture détaillée.
+ * Chaîne vide si le Pont est absent ou en erreur : la lecture fonctionne alors comme avant.
+ */
+function c127_palm_terra_knowledge() {
+	if ( ! class_exists( 'C127_Pont_F127' ) || ! method_exists( 'C127_Pont_F127', 'knowledge_for' ) ) {
+		return '';
+	}
+	try {
+		$items = (array) C127_Pont_F127::knowledge_for( 'terra', array( 'sujet' => 'lecture de la main : paume, lignes, monts, pouce, doigts (chiromancie)' ) );
+	} catch ( Throwable $e ) {
+		return '';
+	}
+	$out = array();
+	foreach ( $items as $it ) {
+		if ( is_array( $it ) && ! empty( $it['texte'] ) ) {
+			$out[] = '- ' . ( isset( $it['titre'] ) ? $it['titre'] . ' : ' : '' ) . $it['texte'];
+		}
+	}
+	$reperes = mb_substr( implode( "\n", $out ), 0, 4000 );
+	// Fiches d'apprentissage de Terra (docs/terra/compact.py, d'après des traités du domaine public).
+	$fiches_file = __DIR__ . '/terra-fiches-compact.txt';
+	$fiches = is_readable( $fiches_file ) ? (string) file_get_contents( $fiches_file ) : '';
+	if ( '' !== trim( $fiches ) ) {
+		$reperes .= "\n\nFICHES DE TERRA (tradition chiromantique du XIXe siècle relue par le Cercle 127 ; la parler au conditionnel ; chaque « Jamais » est une interdiction) :\n" . mb_substr( $fiches, 0, 16000 );
+	}
+	return $reperes;
+}
 
 add_action( 'rest_api_init', function () {
 	register_rest_route( 'c127-palm/v1', '/detailed', array(
@@ -305,6 +335,7 @@ function c127_palm_detailed_create( WP_REST_Request $request ) {
 			'lang'     => $lang,
 			'metrics'  => wp_json_encode( $metrics ),
 			'previous' => $previous ? wp_json_encode( $previous ) : 'aucune',
+			'knowledge' => c127_palm_terra_knowledge(),
 		) ),
 	) );
 	unset( $image, $p );

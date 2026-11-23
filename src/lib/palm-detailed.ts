@@ -27,7 +27,7 @@ export const SECTIONS: [keyof DetailedReading['reading'], string, string][] = [
   ['life', 'Vie · ton énergie', '#69bd7d'],
   ['fate', 'Destin · ta direction', '#8fc8e8'],
   ['mounts', 'Monts et doigts · tes forces', '#d9cdfb'],
-  ['month', 'Ce que ta main t’invite à vivre ce mois-ci', '#f2dea8'],
+  ['month', 'Ce que ta main t’invite à essayer', '#f2dea8'],
 ];
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);

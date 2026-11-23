@@ -104,7 +104,7 @@ export default function MesLectures() {
             <Pressable onPress={() => router.push('/lecture-main')} accessibilityRole="link">
               <Card>
                 <Eyebrow>{t('TERRA · LECTURE DÉTAILLÉE DE TA MAIN')}</Eyebrow>
-                <Body>{t('Ta main lue sur photo comme un horoscope, et l’évolution de tes lignes dans le temps ›')}</Body>
+                <Body>{t('Ta main lue sur photo comme un miroir, et l’évolution de tes lignes dans le temps ›')}</Body>
               </Card>
             </Pressable>
           ) : null}

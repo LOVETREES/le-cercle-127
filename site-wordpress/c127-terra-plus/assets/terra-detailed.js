@@ -8,7 +8,7 @@
   var BUNDLE = LOCAL ? MP + '/vision_bundle.js' : MP + '/vision_bundle.mjs';
   var MODEL = LOCAL ? MP + '/hand_landmarker.task' : 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
   var LINES = { heart: ['Ligne de cœur', '#e8a3ae'], head: ['Ligne de tête', '#d6b66c'], life: ['Ligne de vie', '#69bd7d'], fate: ['Ligne du destin', '#8fc8e8'], sun: ['Ligne du soleil', '#f2dea8'] };
-  var SECTIONS = [['overview', 'Vue d’ensemble', '#d8b66b'], ['heart', 'Cœur · tes liens', '#e8a3ae'], ['head', 'Tête · tes choix', '#d6b66c'], ['life', 'Vie · ton énergie', '#69bd7d'], ['fate', 'Destin · ta direction', '#8fc8e8'], ['mounts', 'Monts et doigts · tes forces', '#d9cdfb'], ['month', 'Ce que ta main t’invite à vivre ce mois-ci', '#f2dea8']];
+  var SECTIONS = [['overview', 'Vue d’ensemble', '#d8b66b'], ['heart', 'Cœur · tes liens', '#e8a3ae'], ['head', 'Tête · tes choix', '#d6b66c'], ['life', 'Vie · ton énergie', '#69bd7d'], ['fate', 'Destin · ta direction', '#8fc8e8'], ['mounts', 'Monts et doigts · tes forces', '#d9cdfb'], ['month', 'Ce que ta main t’invite à essayer', '#f2dea8']];
   var FIELD = { length: 'longueur', depth: 'profondeur', shape: 'forme', present: 'présence' };
 
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
@@ -159,8 +159,8 @@
   function intro(html) {
     host.innerHTML = '';
     host.appendChild(el('p', 'c127d-eyebrow', '✦ TERRA · LECTURE DÉTAILLÉE DE TA MAIN'));
-    host.appendChild(el('h2', 'c127d-h2', 'Ta main, lue comme un horoscope'));
-    host.appendChild(el('p', 'c127d-lead', 'Une photo de ta paume, et Terra te remet une lecture complète : cœur, tête, vie, destin, monts, et ce que ta main t’invite à vivre ce mois-ci. Refais-la au fil des mois pour voir tes lignes évoluer.'));
+    host.appendChild(el('h2', 'c127d-h2', 'Ta main, lue comme un miroir'));
+    host.appendChild(el('p', 'c127d-lead', 'Une photo de ta paume, et Terra te remet une lecture complète : cœur, tête, vie, destin, monts. Un miroir pour réfléchir, jamais une prédiction. Refais-la au fil des mois pour voir tes lignes évoluer.'));
     if (html) host.appendChild(el('div', 'c127d-note', html));
   }
 
@@ -238,7 +238,11 @@
       host.appendChild(view);
       var tl = renderTimeline(items);
       if (tl) host.appendChild(tl);
-      if (justDone) show(justDone); else if (items[0]) { view.appendChild(renderReading(items[0])); }
+      var blocked = (!q.plus && q.free_left < 1) || !!q.next_at;
+      if (justDone) show(justDone); else if (items[0]) {
+        if (blocked) view.appendChild(el('p', 'c127d-note c127d-old', 'Ce n’est pas une nouvelle lecture : voici ta dernière lecture détaillée, du ' + esc(fmt(items[0].at)) + '. Une nouvelle photo ne sera lue qu’à la prochaine lecture possible.'));
+        view.appendChild(renderReading(items[0]));
+      }
     });
   }
 

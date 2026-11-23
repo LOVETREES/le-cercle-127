@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Le Cercle 127 — Accueil recentré et prolongement du rêve
  * Description: Accueil identique à l'application (salutation, « Raconter un rêve », « Mon chemin » avec les Sept Sœurs et leurs indices, rituel du jour, pensée du jour, raccourcis), sur mobile uniquement (sur ordinateur, l'accueil reste celui du site) ; la présentation du site est rangée sous « Découvrir le Cercle ». Auparavant : accueil centré sur le rêve : « Raconter mon rêve » (prix lu sur la page) et « Ouvrir mon Grimoire » en tête, bandeau « Ton rituel du jour » (carte, émotion, main) avec gestes cochés et série de jours, le reste replié plus bas. Après le paiement d'une Perle d'Oni : « Pendant qu'Oni lit ton rêve », Terra et Naïa en prolongement. Affiche « Le Cercle 127 » dans l’en-tête. Le thème n’est pas modifié ; désactiver l'extension rend l'accueil d'origine.
- * Version: 1.2.2
+ * Version: 1.2.3
  * Author: Le Cercle 127
  */
 if (!defined('ABSPATH')) { exit; }
@@ -61,6 +61,17 @@ add_action('template_redirect', function () {
             $html,
             1
         );
-        return str_replace('aria-label="Onirologue — Accueil"', 'aria-label="Le Cercle 127 — Accueil"', $html);
+        $html = str_replace('aria-label="Onirologue — Accueil"', 'aria-label="Le Cercle 127 — Accueil"', $html);
+        // 1.2.3 : l'image d'en-tête de l'ancien accueil mobile du thème n'est plus affichée ; on ne la précharge plus.
+        return preg_replace('#<link rel="preload" as="image" href="[^"]*/assets/home/m1-hero\.webp" fetchpriority="high">#', '', $html, 1);
     });
 });
+
+// 1.2.3 : une seule version de l'accueil sur mobile (moins de 900 px) : celle de l'extension.
+// L'ancien accueil mobile du thème (.m1-*) ne garde que ce qui n'existe pas ailleurs, rangé sous « Découvrir le Cercle ».
+// Avant que l'accueil soit construit, le contenu d'origine reste invisible (pas de clignotement) ; 4 s au plus.
+add_action('wp_head', function () {
+    if (!is_front_page()) { return; }
+    echo '<style id="c127a-mobile-unique">@media (max-width:899px){body.home .m1-top,body.home .m1-hero,body.home .m1-cta,body.home .m1-tiles,body.home .m1-wide,body.home .m1-group:has(.m1-sisters){display:none!important}html.c127a-m body.home #contenu-principal>:not(.c127h):not(#c127h-decouvrir){visibility:hidden}}</style>' . "\n";
+    echo '<script id="c127a-mobile-unique-js">(function(d){if(window.matchMedia){if(matchMedia("(max-width: 899px)").matches){d.classList.add("c127a-m");setTimeout(function(){d.classList.remove("c127a-m")},4000)}}})(document.documentElement)</script>' . "\n";
+}, 1);
