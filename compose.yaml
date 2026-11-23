@@ -1,6 +1,6 @@
 services:
   expo:
-    image: le-cercle-127:expo-dev
+    image: le-cercle-127:${C127_IMAGE_TAG:-1.0.5}
     init: true
     build:
       context: .
