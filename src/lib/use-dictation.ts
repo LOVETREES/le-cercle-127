@@ -14,6 +14,9 @@ function allowSpeechService(): Promise<boolean> {
   ], { cancelable: true, onDismiss: () => resolve(false) }));
 }
 
+/** Durée maximale d'une dictée en direct, relances comprises. */
+const MAX_LIVE_MS = 20 * 60 * 1000;
+
 export type SpeechRecording = { uri: string; text: string; durationMillis: number };
 export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscript?: (text: string) => void; onFinal?: (text: string) => void; onRecording?: (recording: SpeechRecording) => void } = {}) {
   const [text, setText] = useState('');
@@ -27,6 +30,20 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
   const watchdog = useRef<ReturnType<typeof setTimeout> | null>(null);
   const capture = useRef(false);
   const recordingStartedAt = useRef(0);
+  // Dictée en direct : les moteurs vocaux s'arrêtent seuls (silence, ~1 min sur iOS). Tant que la personne
+  // n'a pas appuyé sur « Arrêter », on relance une nouvelle séquence qui s'ajoute au texte déjà dicté.
+  const keepGoing = useRef(false);
+  const startOptions = useRef<Record<string, unknown> | null>(null);
+  const sessionStartedAt = useRef(0);
+
+  /** Relance une séquence de dictée en direct (sans fichier audio), dans la limite de 20 minutes au total. */
+  function relaunch(): boolean {
+    const module = getSpeechModule();
+    if (!module || !keepGoing.current || !focused.current || !startOptions.current) return false;
+    if (Date.now() - sessionStartedAt.current > MAX_LIVE_MS || latest.current.length >= 20000) return false;
+    committed.current = latest.current;
+    try { module.start(startOptions.current as never); return true; } catch { return false; }
+  }
 
   useFocusEffect(useCallback(() => {
     focused.current = true;
@@ -48,19 +65,21 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
       }),
       module.addListener('error', (event) => {
         if (!active.current) return;
-        active.current = false; setPhase('idle');
+        if (event.error === 'no-speech' && relaunch()) return;
+        active.current = false; keepGoing.current = false; setPhase('idle');
         if (watchdog.current) clearTimeout(watchdog.current);
         if (event.error !== 'aborted') setError(speechErrorMessage(event.error));
       }),
       module.addListener('end', () => {
         if (!active.current) return;
-        active.current = false; setPhase('idle');
+        if (relaunch()) return;
+        active.current = false; keepGoing.current = false; setPhase('idle');
         if (watchdog.current) clearTimeout(watchdog.current);
         if (!latest.current) setError(t('Aucun texte reconnu. Réessayez ou écrivez votre récit.'));
       }),
     ] : [];
     return () => {
-      focused.current = false; generation.current += 1; capture.current = false;
+      focused.current = false; generation.current += 1; capture.current = false; keepGoing.current = false;
       const wasActive = active.current; active.current = false;
       if (watchdog.current) clearTimeout(watchdog.current);
       if (wasActive) module?.abort();
@@ -99,21 +118,28 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
       if (!focused.current || current !== generation.current) return;
       committed.current = ''; latest.current = ''; setText('');
       active.current = true; capture.current = persistRecording; recordingStartedAt.current = Date.now();
-      module.start({ lang: locale(), interimResults: true, continuous: !uri, maxAlternatives: 1, addsPunctuation: true,
-        requiresOnDeviceRecognition: onDevice, iosTaskHint: 'dictation', ...(uri ? { audioSource: { uri } } : {}),
+      const options = { lang: locale(), interimResults: true, continuous: !uri, maxAlternatives: 1, addsPunctuation: true,
+        requiresOnDeviceRecognition: onDevice, iosTaskHint: 'dictation' as const, ...(uri ? { audioSource: { uri } } : {}),
         ...(persistRecording ? { recordingOptions: { persist: true } } : {}),
-      });
+      };
+      // Seule la dictée en direct sans sauvegarde audio se relance d'elle-même (un enregistrement reste un seul fichier).
+      keepGoing.current = !uri && !persistRecording;
+      startOptions.current = keepGoing.current ? options : null;
+      sessionStartedAt.current = Date.now();
+      module.start(options);
+      if (keepGoing.current) return;
       watchdog.current = setTimeout(() => {
         if (!active.current) return;
         module.stop(); setPhase('stopping');
         watchdog.current = setTimeout(() => { module.abort(); active.current = false; setPhase('idle'); if (!latest.current) setError(t('La dictée n’a pas répondu. Réessayez ou écrivez votre récit.')); }, 5000);
       }, uri ? 180000 : 120000);
     } catch (cause) {
-      active.current = false; capture.current = false; setPhase('idle');
+      active.current = false; capture.current = false; keepGoing.current = false; setPhase('idle');
       setError(cause instanceof Error ? cause.message : t('La dictée n’a pas pu démarrer.'));
     }
   };
   const stop = () => {
+    keepGoing.current = false;
     if (!active.current) return;
     setPhase('stopping'); getSpeechModule()?.stop();
     if (watchdog.current) clearTimeout(watchdog.current);

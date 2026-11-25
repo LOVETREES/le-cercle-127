@@ -67,8 +67,31 @@ describe('dictée et transcription', () => {
     expect(speech.text).toBe('Je marchais dans la forêt.\nUne porte s’ouvrait.');
     expect(mock.onTranscript).toHaveBeenLastCalledWith(speech.text);
     expect(mock.onFinal).toHaveBeenLastCalledWith(speech.text);
+    await act(async () => speech.stop());
     await act(async () => emit('end'));
     expect(speech.active).toBe(false);
+  });
+  it('relance la dictée en direct quand le moteur s’arrête seul, sans perdre le début du récit', async () => {
+    await mount(); await act(async () => speech.start());
+    await act(async () => emit('result', { isFinal: true, results: [{ transcript: 'Je marchais dans la forêt.' }] }));
+    await act(async () => emit('end'));
+    expect(mock.start).toHaveBeenCalledTimes(2);
+    expect(speech.active).toBe(true);
+    await act(async () => emit('result', { isFinal: true, results: [{ transcript: 'Puis une porte s’ouvrait.' }] }));
+    expect(speech.text).toBe('Je marchais dans la forêt.\nPuis une porte s’ouvrait.');
+    await act(async () => emit('error', { error: 'no-speech' }));
+    expect(mock.start).toHaveBeenCalledTimes(3);
+    await act(async () => speech.stop());
+    await act(async () => emit('end'));
+    expect(speech.active).toBe(false);
+    expect(mock.start).toHaveBeenCalledTimes(3);
+  });
+  it('ne relance pas un enregistrement audio conservé', async () => {
+    mock.platform.OS = 'android';
+    await mount(); await act(async () => speech.start(undefined, true));
+    await act(async () => emit('result', { isFinal: true, results: [{ transcript: 'Une forêt.' }] }));
+    await act(async () => emit('end'));
+    expect(mock.start).toHaveBeenCalledTimes(1); expect(speech.active).toBe(false);
   });
   it('utilise le fichier conservé pour transcrire un audio iPhone', async () => {
     await mount(); await act(async () => speech.start('file:///private/note.m4a'));

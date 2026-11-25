@@ -161,8 +161,8 @@ function DreamThumb({ k }: { k: string }) {
 }
 
 /* ---------- L'écran ---------- */
-type Extra = { emotions: EmotionEntry[]; palms: PalmReading[]; ritual: RitualStore; portes: PortesStore; notes: number; draws: SavedDraw[]; journal: JournalEntry[] };
-const EMPTY: Extra = { emotions: [], palms: [], ritual: {}, portes: {}, notes: 0, draws: [], journal: [] };
+type Extra = { emotions: EmotionEntry[]; palms: PalmReading[]; ritual: RitualStore; portes: PortesStore; notes: number; voice: number; draws: SavedDraw[]; journal: JournalEntry[] };
+const EMPTY: Extra = { emotions: [], palms: [], ritual: {}, portes: {}, notes: 0, voice: 0, draws: [], journal: [] };
 
 export default function Grimoire() {
   const { section } = useLocalSearchParams<{ section?: string }>();
@@ -189,7 +189,7 @@ export default function Grimoire() {
       let alive = true;
       Promise.all([listEmotions(), listPalmReadings(), readRitual(), readPortes(), loadRealityChecks(isDemo), listVoiceNotes(isDemo), listDraws(), listEntries()]).then(
         ([emotions, palms, ritual, portes, checks, voice, draws, journal]) => {
-          if (alive) setExtra({ emotions, palms, ritual, portes, notes: (checks?.length ?? 0) + (voice?.length ?? 0), draws, journal });
+          if (alive) setExtra({ emotions, palms, ritual, portes, notes: (checks?.length ?? 0) + (voice?.length ?? 0), voice: voice?.length ?? 0, draws, journal });
         },
         () => undefined,
       );
@@ -380,6 +380,19 @@ export default function Grimoire() {
               </Pressable>
             ))
           )}
+        </View>
+
+        {/* Rêves enregistrés à voix haute : on les retrouve ici, pour les écouter ou les confier à Oni */}
+        <View style={st.card}>
+          <Text style={st.h}>{t('MES RÊVES ENREGISTRÉS')}</Text>
+          <Body muted>
+            {extra.voice
+              ? t('{n} enregistrement(s) gardé(s) sur cet appareil. Écoute-les, relis leur texte ou confie-les à Oni.', { n: extra.voice })
+              : t('Raconte ton rêve à voix haute au réveil : l’enregistrement et son texte se retrouvent ici.')}
+          </Body>
+          <Pressable onPress={() => router.push('/carnet-vocal')} style={({ pressed }) => [st.ghost, pressed && { opacity: 0.7 }]} accessibilityRole="button">
+            <Text style={st.ghostT}>{extra.voice ? t('RETROUVER MES ENREGISTREMENTS') : t('ENREGISTRER UN RÊVE')}</Text>
+          </Pressable>
         </View>
 
         {/* Journal intime */}

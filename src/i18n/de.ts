@@ -355,6 +355,7 @@ export const de: Record<string, string> = {
   "Sur Android 13 ou plus, « Enregistrer et transcrire » garde ensemble votre voix et le texte reconnu. Sur les versions plus anciennes, utilisez la dictée pour obtenir le texte. Les anciens audios restent lisibles.": "Ab Android 13 behält „Aufnehmen und transkribieren“ deine Stimme und den erkannten Text zusammen. Auf älteren Versionen nutze das Diktat für den Text. Ältere Audios bleiben abspielbar.",
   "Sur cet appareil": "Auf diesem Gerät",
   "Sur iPhone, la transcription est proposée à l’arrêt de l’enregistrement et peut être relancée depuis chaque audio.": "Auf dem iPhone wird die Transkription beim Beenden der Aufnahme angeboten und kann bei jedem Audio neu gestartet werden.",
+  "Gêne / embarras": "Verlegenheit",
   "Surprise": "Überraschung",
   "Symboles": "Symbole",
   "Symboles repérés": "Erkannte Symbole",

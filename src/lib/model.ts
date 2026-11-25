@@ -10,6 +10,7 @@ export type Emotion =
   | 'confusion'
   | 'emerveillement'
   | 'surprise'
+  | 'gene'
   | 'aucune'
   | 'autre';
 
@@ -22,6 +23,7 @@ export const EMOTIONS: { value: Emotion; label: string }[] = [
   { value: 'confusion', label: 'Confusion' },
   { value: 'emerveillement', label: 'Émerveillement' },
   { value: 'surprise', label: 'Surprise' },
+  { value: 'gene', label: 'Gêne / embarras' },
   { value: 'aucune', label: 'Aucune en particulier' },
   { value: 'autre', label: 'Autre' },
 ];

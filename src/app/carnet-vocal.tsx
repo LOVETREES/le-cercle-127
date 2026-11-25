@@ -182,6 +182,10 @@ export default function CarnetVocal() {
           <Card key={note.id}>
             <Body>{new Date(note.createdAt).toLocaleString(locale())} · {duration(note.durationMillis)}</Body>
             {note.transcript && <Body>{note.transcript}</Body>}
+            {note.transcript ? <GoldButton label={t('Confier ce rêve à Oni')} disabled={recording || busy || speech.active} onPress={async () => {
+              try { await local.setJson(isDemo ? KEYS.demoPendingTranscript : KEYS.pendingTranscript, note.transcript ?? ''); router.navigate('/reve'); }
+              catch { setError(t('Le texte n’a pas pu être transféré au récit. Réessayez.')); }
+            }} /> : null}
             {(Platform.OS === 'ios' || androidAudioAndText && /\.wav$/i.test(note.uri)) && <OutlineButton label={t('Transcrire cet enregistrement')} disabled={recording || busy || speech.active} onPress={() => { player.pause(); transcribedNoteId.current = note.id; void speech.start(note.uri); }} />}
             <OutlineButton disabled={recording || busy || speech.active} label={playingId === note.id && playback.playing ? t('Mettre en pause') : t('Écouter l’enregistrement')} onPress={() => {
               try {

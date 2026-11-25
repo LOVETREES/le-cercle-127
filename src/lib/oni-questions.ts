@@ -31,6 +31,7 @@ export const DREAM_FEELINGS: { label: string; emotion: Emotion }[] = [
   { label: 'Tristesse', emotion: 'tristesse' },
   { label: 'Colère', emotion: 'colere' },
   { label: 'Confusion', emotion: 'confusion' },
+  { label: 'Gêne / embarras', emotion: 'gene' },
   { label: 'Sérénité', emotion: 'serenite' },
   { label: 'Joie', emotion: 'joie' },
   { label: 'Émerveillement', emotion: 'emerveillement' },
