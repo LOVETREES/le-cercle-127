@@ -20,11 +20,14 @@ function ReadingView({ item, onDelete }: { item: DetailedReading; onDelete: () =
   const r = item.reading;
   return (
     <Card style={{ gap: space.md }}>
-      <Eyebrow>{`${t('LECTURE DÉTAILLÉE')} · ${fmt(item.at).toUpperCase()}`}</Eyebrow>
-      <Title size={26}>{r.title || t('Ta main, aujourd’hui')}</Title>
-      {SECTIONS.map(([k, label, color]) =>
+      <View style={st.letterHead}>
+        <View style={st.medal}><Text style={st.medalGlyph}>♧</Text></View>
+        <Eyebrow>{`${t('LECTURE DÉTAILLÉE')} · ${fmt(item.at).toUpperCase()}`}</Eyebrow>
+        <Title size={28}>{r.title || t('Ta main, aujourd’hui')}</Title>
+      </View>
+      {SECTIONS.map(([k, label, color], i) =>
         typeof r[k] === 'string' && r[k] ? (
-          <View key={k} style={[st.section, { borderLeftColor: color }]}>
+          <View key={k} style={[st.section, { borderLeftColor: color }, i > 0 && st.sectionGap]}>
             <Text style={[st.sectionTitle, { color }]}>{t(label)}</Text>
             <Text style={st.text}>{r[k] as string}</Text>
           </View>
@@ -53,6 +56,7 @@ function ReadingView({ item, onDelete }: { item: DetailedReading; onDelete: () =
           <Text style={st.text}>{item.evolution}</Text>
         </View>
       ) : null}
+      <Text style={st.signature}>— Terra</Text>
       <Body muted>{t('Une lecture symbolique, pour réfléchir et s’ancrer : jamais un diagnostic ni une prédiction.')}</Body>
       <Pressable onPress={onDelete} accessibilityRole="button">
         <Text style={st.remove}>{t('Supprimer cette lecture')}</Text>
@@ -152,6 +156,11 @@ export default function LectureMain() {
         <Body muted>{t('Une photo de ta paume, et Terra te remet une lecture complète. Refais-la au fil des mois pour voir tes lignes évoluer.')}</Body>
       </View>
 
+      <OutlineButton
+        label={t('Atelier de Terra : main du jour, gestes et fiches')}
+        onPress={() => router.push({ pathname: '/page', params: { path: '/terra-gardienne-de-lancrage/', title: 'Terra' } })}
+      />
+
       {notice && <Notice tone={notice.tone} text={notice.text} />}
 
       {!token || isDemo ? (
@@ -238,8 +247,13 @@ export default function LectureMain() {
 
 const st = StyleSheet.create({
   back: { fontFamily: fonts.bodyMedium, color: colors.gold, fontSize: 15 },
-  text: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.text },
-  section: { borderLeftWidth: 3, paddingLeft: 12, gap: 4 },
+  text: { fontFamily: fonts.body, fontSize: 16, lineHeight: 25, color: colors.text },
+  section: { borderLeftWidth: 3, paddingLeft: 12, gap: 6 },
+  sectionGap: { marginTop: 6 },
+  letterHead: { alignItems: 'center', gap: 6, paddingBottom: 4 },
+  medal: { width: 58, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center', backgroundColor: '#786a58', borderWidth: 1, borderColor: 'rgba(230,201,127,0.45)' },
+  medalGlyph: { fontSize: 28, color: '#f2dea8' },
+  signature: { fontFamily: fonts.title, fontSize: 20, fontStyle: 'italic', color: colors.gold, textAlign: 'right' },
   sectionTitle: { fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 1.4, textTransform: 'uppercase' },
   ritual: { gap: 10, padding: space.md, borderRadius: radius.md, backgroundColor: 'rgba(216,182,107,0.08)' },
   label: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.6, color: colors.gold },
