@@ -12,19 +12,19 @@ import { t } from '../i18n';
 
 const HOURS = [6, 7, 8, 9];
 
-function confirm(title: string, message: string, action: string): Promise<boolean> {
+function confirm(title: string, message: string, action: string, destructive = true): Promise<boolean> {
   title = t(title); message = t(message); action = t(action);
   if (Platform.OS === 'web') return Promise.resolve(window.confirm(`${title}\n\n${message}`));
   return new Promise((resolve) =>
     Alert.alert(title, message, [
       { text: t('Annuler'), style: 'cancel', onPress: () => resolve(false) },
-      { text: action, style: 'destructive', onPress: () => resolve(true) },
+      { text: action, style: destructive ? 'destructive' : 'default', onPress: () => resolve(true) },
     ]),
   );
 }
 
 export default function Compte() {
-  const { user, signOut, deleteAccount, isDemo, clearLocalData } = useSession();
+  const { user, signOut, deleteAccount, isDemo, clearLocalData, unassignedDrafts, claimLocalDrafts } = useSession();
   const [busy, setBusy] = useState(false);
   const [reminder, setReminder] = useState<Reminder>(DEFAULT_REMINDER);
   const [notice, setNotice] = useState<{ text: string; tone: 'error' | 'success' } | null>(null);
@@ -103,6 +103,31 @@ export default function Compte() {
 
       {notice && <Notice tone={notice.tone} text={notice.text} />}
       {isDemo && <Notice text={t('Démonstration locale : exemples fictifs et données séparées. Aucun compte serveur ni envoi à l’IA.')} />}
+
+      {user && !isDemo && unassignedDrafts.length > 0 && (
+        <Card>
+          <Eyebrow>{t('Brouillons locaux à associer')}</Eyebrow>
+          <Body muted>
+            {t('Ces brouillons ne sont associés à aucun compte. Ils restent sur cet appareil et ne seront pas envoyés sans votre accord.')}
+          </Body>
+          <Body muted>
+            {t('Nombre de brouillons locaux :')} {unassignedDrafts.length}
+          </Body>
+          <OutlineButton
+            disabled={busy}
+            label={t('Importer ces brouillons dans mon Grimoire')}
+            onPress={async () => {
+              const count = unassignedDrafts.length;
+              const title = count === 1 ? 'Importer ce brouillon ?' : 'Importer ces brouillons ?';
+              const message = count === 1
+                ? 'Ce brouillon sera associé à votre compte et envoyé au serveur.'
+                : 'Ces ' + count + ' brouillons seront associés à votre compte et envoyés au serveur.';
+              if (!await confirm(title, message, 'Importer', false)) return;
+              await runAccountAction(claimLocalDrafts, 'Brouillons associés. La synchronisation continue en arrière-plan.');
+            }}
+          />
+        </Card>
+      )}
 
       {user && (
         <Card>
