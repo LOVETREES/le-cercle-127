@@ -78,7 +78,7 @@ export default function CheminScreen() {
 
       <View style={st.panel}>
         <Text style={st.h2}>{t('Apprivoiser son ombre')}</Text>
-        <Body muted>{t('Ces repères décrivent vos pratiques, pas votre degré d’individuation. Vous pouvez approcher ce qui vous dérange ou vous semble contradictoire, avec douceur et à votre rythme.')}</Body>
+        <Body muted>{t('Ces repères décrivent tes pratiques, pas ton degré d’individuation. Tu peux approcher ce qui te dérange ou te semble contradictoire, avec douceur et à ton rythme.')}</Body>
         <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/journal-intime', params: { theme: 'ombre' } })}>
           <Text style={[st.text, { color: colors.gold }]}>{t('Explorer une question dans mon journal privé ›')}</Text>
         </Pressable>

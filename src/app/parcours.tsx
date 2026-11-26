@@ -74,7 +74,7 @@ function Constellation({ nights }: { nights: Night[] }) {
   );
 }
 
-/* ---------- Une lune par mois : plus elle est pleine, plus vous avez rêvé ---------- */
+/* ---------- Une lune par mois : plus elle est pleine, plus tu as rêvé ---------- */
 function Moon({ fill, size = 34 }: { fill: number; size?: number }) {
   const r = size / 2 - 2, c = size / 2;
   const f = Math.min(1, Math.max(0, fill));
@@ -110,26 +110,26 @@ export default function Parcours() {
     const s = j.total > 1 ? 's' : '';
     out.push(
       since && !Number.isNaN(since.getTime())
-        ? t('Depuis le {d}, vous avez confié {n} rêve{s} à votre Grimoire.', { d: since.toLocaleDateString(locale(), { day: 'numeric', month: 'long' }), n: j.total, s })
-        : t('Vous avez confié {n} rêve{s} à votre Grimoire.', { n: j.total, s }),
+        ? t('Depuis le {d}, tu as confié {n} rêve{s} à ton Grimoire.', { d: since.toLocaleDateString(locale(), { day: 'numeric', month: 'long' }), n: j.total, s })
+        : t('Tu as confié {n} rêve{s} à ton Grimoire.', { n: j.total, s }),
     );
     const top = j.recurring[0];
-    if (top) out.push(`${t('Votre fil rouge : « {s} », revenu {n} fois.', { s: top[0], n: top[1] })} ${hintFor(top[0])}`);
+    if (top) out.push(`${t('Ton fil rouge : « {s} », revenu {n} fois.', { s: top[0], n: top[1] })} ${hintFor(top[0])}`);
     const counts = new Map<string, number>();
     for (const d of dreams) if (d.emotion && d.emotion !== 'aucune' && d.emotion !== 'autre') counts.set(d.emotion, (counts.get(d.emotion) ?? 0) + 1);
     const dom = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
     if (dom) {
       const e = emoLabel(dom).toLowerCase();
-      out.push(CALM.has(dom) ? t('Vos nuits penchent vers la lumière : « {e} » y domine.', { e }) : t('Vos nuits traversent surtout « {e} » : elle a quelque chose à vous dire.', { e }));
+      out.push(CALM.has(dom) ? t('Tes nuits penchent vers la lumière : « {e} » y domine.', { e }) : t('Tes nuits traversent surtout « {e} » : elle a quelque chose à te dire.', { e }));
     }
     if (j.calmShare) {
       const { before, after } = j.calmShare;
       out.push(
         after > before
-          ? t('Quelque chose s’apaise : vos rêves lumineux passent de {a} % à {b} %.', { a: before, b: after })
+          ? t('Quelque chose s’apaise : tes rêves lumineux passent de {a} % à {b} %.', { a: before, b: after })
           : after < before
-            ? t('Une traversée est en cours : vos rêves lumineux passent de {a} % à {b} %. C’est souvent là que l’on grandit.', { a: before, b: after })
-            : t('Votre climat intérieur reste stable : {a} % de rêves lumineux.', { a: after }),
+            ? t('Une traversée est en cours : tes rêves lumineux passent de {a} % à {b} %. C’est souvent là que l’on grandit.', { a: before, b: after })
+            : t('Ton climat intérieur reste stable : {a} % de rêves lumineux.', { a: after }),
       );
     }
     return out;
@@ -140,13 +140,13 @@ export default function Parcours() {
       <View style={st.hero}>
         <Eyebrow>{t('Mon parcours onirique')}</Eyebrow>
         <Title size={36}>{t('Ce qui se dessine…')}</Title>
-        <Body muted style={{ textAlign: 'center' }}>{t('Un miroir de vos nuits, jamais un jugement.')}</Body>
+        <Body muted style={{ textAlign: 'center' }}>{t('Un miroir de tes nuits, jamais un jugement.')}</Body>
       </View>
 
       {j.total === 0 ? (
         <View style={st.card}>
           <Constellation nights={nights} />
-          <Body style={{ textAlign: 'center' }}>{t('Votre ciel est encore vierge : chaque rêve noté y allume une étoile.')}</Body>
+          <Body style={{ textAlign: 'center' }}>{t('Ton ciel est encore vierge : chaque rêve noté y allume une étoile.')}</Body>
           <GoldButton label={t('Raconter un rêve')} onPress={() => router.navigate('/reve')} />
         </View>
       ) : (
@@ -237,7 +237,7 @@ export default function Parcours() {
         <View style={st.ornLine} />
       </View>
       <Body muted style={{ fontSize: 12, textAlign: 'center' }}>
-        {t('Ces mesures restent sur votre téléphone et ne remplacent pas un accompagnement thérapeutique.')}
+        {t('Ces mesures restent sur ton téléphone et ne remplacent pas un accompagnement thérapeutique.')}
       </Body>
       <OutlineButton label={t('Retour à l’accueil')} onPress={() => router.navigate('/')} />
     </Screen>

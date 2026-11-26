@@ -141,7 +141,7 @@ function SitePageContent({ path }: { path: string }) {
   if (failed) {
     return (
       <View style={st.center}>
-        <Text style={st.msg}>{t('Cette page n’a pas pu être chargée. Vérifiez votre connexion.')}</Text>
+        <Text style={st.msg}>{t('Cette page n’a pas pu être chargée. Vérifie ta connexion.')}</Text>
         <OutlineButton
           label={t('Réessayer')}
           onPress={retryLoad}

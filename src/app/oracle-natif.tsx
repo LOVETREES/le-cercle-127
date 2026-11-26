@@ -56,7 +56,7 @@ function Cercle({ lit, progress, onIn, onOut, onA11y, opened }: { lit: number; p
       onPressOut={onOut}
       accessibilityRole="button"
       accessibilityLabel={opened ? t('Le cercle des Sept Sœurs') : t('Ouvrir le tirage')}
-      accessibilityHint={t('Gardez le doigt sur le cercle pour ouvrir le tirage.')}
+      accessibilityHint={t('Garde le doigt sur le cercle pour ouvrir le tirage.')}
       accessibilityActions={[{ name: 'activate' }]}
       onAccessibilityAction={onA11y}
       style={{ width: SIZE, height: SIZE, alignSelf: 'center' }}
@@ -266,7 +266,7 @@ export default function OracleNatif() {
     <Screen>
       <View style={st.head}>
         <Text style={st.kicker}>{t('ORACLE 127')}</Text>
-        <Text style={st.title}>{draw ? (doneToday ? t('Ton tirage du jour') : t('Le cercle a parlé')) : t('Gardez le doigt sur le cercle')}</Text>
+        <Text style={st.title}>{draw ? (doneToday ? t('Ton tirage du jour') : t('Le cercle a parlé')) : t('Garde le doigt sur le cercle')}</Text>
       </View>
 
       <Cercle lit={lit} progress={progress} onIn={pressIn} onOut={pressOut} onA11y={() => void open(HOLD_MS)} opened={!!draw} />
@@ -302,7 +302,7 @@ export default function OracleNatif() {
           ) : null}
           {mode !== 'jour' ? (
             askOpen ? (
-              <TextInput value={intent} onChangeText={(v) => setIntent(v.slice(0, 280))} placeholder={t('Quelle question souhaitez-vous éclairer ?')} placeholderTextColor={colors.muted} multiline style={st.input} />
+              <TextInput value={intent} onChangeText={(v) => setIntent(v.slice(0, 280))} placeholder={t('Quelle question souhaites-tu éclairer ?')} placeholderTextColor={colors.muted} multiline style={st.input} />
             ) : (
               <Pressable onPress={() => setAskOpen(true)} accessibilityRole="button" style={{ alignSelf: 'center' }} hitSlop={8}>
                 <Text style={st.link}>{t('+ Poser une question (facultatif)')}</Text>

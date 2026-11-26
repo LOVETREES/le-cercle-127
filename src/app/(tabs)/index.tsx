@@ -107,14 +107,14 @@ export default function Home() {
   // Une phrase d'évolution simple et encourageante.
   const progress =
     j.total === 0
-      ? t('Votre premier rêve ouvrira votre parcours.')
+      ? t('Ton premier rêve ouvrira ton parcours.')
       : j.currentStreak >= 2
-        ? t('{n} jours d’affilée : votre mémoire des rêves se muscle.', { n: j.currentStreak })
+        ? t('{n} jours d’affilée : ta mémoire des rêves se muscle.', { n: j.currentStreak })
         : thisMonth > lastMonth
           ? t(thisMonth > 1 ? '{n} rêves ce mois-ci, plus que le mois dernier.' : '{n} rêve ce mois-ci, plus que le mois dernier.', { n: thisMonth })
           : j.recurring[0]
-            ? t('« {s} » revient {n} fois dans vos nuits.', { s: j.recurring[0][0], n: j.recurring[0][1] })
-            : t(j.total > 1 ? '{n} rêves gardés dans votre Grimoire.' : '{n} rêve gardé dans votre Grimoire.', { n: j.total });
+            ? t('« {s} » revient {n} fois dans tes nuits.', { s: j.recurring[0][0], n: j.recurring[0][1] })
+            : t(j.total > 1 ? '{n} rêves gardés dans ton Grimoire.' : '{n} rêve gardé dans ton Grimoire.', { n: j.total });
 
   return (
     <Screen scrollRef={scrollRef}>
@@ -133,7 +133,7 @@ export default function Home() {
         <ImageBackground source={require('../../../assets/images/home-moon.webp')} style={st.heroImage} imageStyle={st.heroImageFill} resizeMode="cover">
           <View style={st.heroCaption}>
             <Text style={st.heroEyebrow}>{t('Rêver · Comprendre · Avancer').toUpperCase()}</Text>
-            <Text style={st.heroText} accessibilityRole="header">{t('Comprendre vos rêves, à votre rythme.')}</Text>
+            <Text style={st.heroText} accessibilityRole="header">{t('Comprendre tes rêves, à ton rythme.')}</Text>
           </View>
         </ImageBackground>
       </View>
@@ -151,7 +151,7 @@ export default function Home() {
           <Text style={st.nightButtonText}>{t('Nuit noire · Après un cauchemar')} ›</Text>
         </Pressable>
         {opening.error && <Notice tone="error" text={t('Le brouillon n’a pas pu être enregistré sur cet appareil.')} />}
-        {openingError && <Notice tone="error" text={t('Impossible de préparer votre rêve. Réessayez.')} />}
+        {openingError && <Notice tone="error" text={t('Impossible de préparer ton rêve. Réessaie.')} />}
       </View>
 
       {/* Dernier rêve */}
@@ -215,7 +215,7 @@ export default function Home() {
             <Text style={st.kicker}>{t('LA LUNE AUJOURD’HUI')}</Text>
             <Text style={st.cardTitle}>{t(moon.label)}</Text>
             <Text style={st.moonPhase}>{t('{n} % éclairée', { n: moon.illuminated })}</Text>
-            <Text style={st.moonHint}>{t('Un repère pour observer vos nuits, sans prédiction.')}</Text>
+            <Text style={st.moonHint}>{t('Un repère pour observer tes nuits, sans prédiction.')}</Text>
           </View>
           <Text style={st.chevron}>›</Text>
         </View>

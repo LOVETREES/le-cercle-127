@@ -11,11 +11,11 @@ export function voiceFileExtension(uri: string): string {
 }
 
 export function speechErrorMessage(code: string): string {
-  if (code === 'not-allowed') return 'La dictée est refusée. Autorisez le micro et la reconnaissance vocale dans les réglages de l’appareil.';
-  if (code === 'no-speech' || code === 'speech-timeout') return 'Aucune parole reconnue. Réessayez en parlant près du micro.';
-  if (code === 'network') return 'Le service de dictée n’est pas accessible. Vérifiez la connexion puis réessayez.';
-  if (code === 'language-not-supported' || code === 'service-not-allowed') return 'La reconnaissance du français n’est pas disponible. Vérifiez les langues de dictée installées sur votre appareil.';
-  if (code === 'audio-capture') return 'Cet audio n’a pas pu être transcrit. Vous pouvez le réécouter ou dicter le texte directement.';
+  if (code === 'not-allowed') return 'La dictée est refusée. Autorise le micro et la reconnaissance vocale dans les réglages de l’appareil.';
+  if (code === 'no-speech' || code === 'speech-timeout') return 'Aucune parole reconnue. Réessaie en parlant près du micro.';
+  if (code === 'network') return 'Le service de dictée n’est pas accessible. Vérifie la connexion puis réessaie.';
+  if (code === 'language-not-supported' || code === 'service-not-allowed') return 'La reconnaissance du français n’est pas disponible. Vérifie les langues de dictée installées sur ton appareil.';
+  if (code === 'audio-capture') return 'Cet audio n’a pas pu être transcrit. Tu peux le réécouter ou dicter le texte directement.';
   if (code === 'interrupted') return 'La dictée a été interrompue. Le texte déjà reconnu reste disponible.';
-  return 'La dictée n’a pas pu aboutir. Le texte déjà reconnu reste disponible ; vous pouvez réessayer.';
+  return 'La dictée n’a pas pu aboutir. Le texte déjà reconnu reste disponible ; tu peux réessayer.';
 }

@@ -33,9 +33,9 @@ export function OniAsk({ questions, answers, onChange, onSave, onSkip, onBack, b
   return (
     <View style={st.card}>
       <Text style={st.kicker}>{t('ONI A LU VOTRE RÊVE')}</Text>
-      <Text style={st.title}>{name ? t('{n}, quelques questions, si vous le voulez', { n: name }) : t('Quelques questions, si vous le voulez')}</Text>
-      <Text style={st.vow}>{t('« Je ne cherche pas à tout savoir de vous. Je cherche à comprendre ce que votre rêve signifie pour vous. »')}</Text>
-      <Body muted style={{ fontSize: textSize.sm }}>{t('Chaque question est facultative. Vos réponses rejoignent votre rêve, et ce que vous dites prévaut toujours sur les hypothèses d’Oni.')}</Body>
+      <Text style={st.title}>{name ? t('{n}, quelques questions, si tu le veux', { n: name }) : t('Quelques questions, si tu le veux')}</Text>
+      <Text style={st.vow}>{t('« Je ne cherche pas à tout savoir de toi. Je cherche à comprendre ce que ton rêve signifie pour toi. »')}</Text>
+      <Body muted style={{ fontSize: textSize.sm }}>{t('Chaque question est facultative. Tes réponses rejoignent ton rêve, et ce que tu dis prévaut toujours sur les hypothèses d’Oni.')}</Body>
 
       {questions.map((q, i) => {
         const a = get(q.id);
@@ -69,7 +69,7 @@ export function OniAsk({ questions, answers, onChange, onSave, onSkip, onBack, b
             <TextInput
               value={a.text}
               onChangeText={(text) => set({ ...a, text: text.slice(0, 600) })}
-              placeholder={t('En quelques mots, si vous le souhaitez…')}
+              placeholder={t('En quelques mots, si tu le souhaites…')}
               placeholderTextColor={colors.muted}
               multiline
               style={st.input}

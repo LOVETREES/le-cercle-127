@@ -90,7 +90,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       const [t, u, d, c, r, demoActive, demoData] = await Promise.all([
-        secure.get(KEYS.token).catch(() => { setLastError('Le trousseau de session est indisponible. Reconnectez-vous.'); return null; }),
+        secure.get(KEYS.token).catch(() => { setLastError('Le trousseau de session est indisponible. Reconnecte-toi.'); return null; }),
         local.getJson<User | null>(KEYS.user, null),
         local.getJson<Dream[]>(KEYS.drafts, []),
         local.getJson<Dream[]>(KEYS.cache, []),
@@ -185,7 +185,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           if (epoch !== sessionEpoch.current) return;
           const saved = await api.createDream(tk, d);
           if (epoch !== sessionEpoch.current) return;
-          if (!saved?.id) throw new Error(t('Le serveur n’a pas confirmé l’enregistrement. Votre brouillon est conservé sur cet appareil.'));
+          if (!saved?.id) throw new Error(t('Le serveur n’a pas confirmé l’enregistrement. Ton brouillon est conservé sur cet appareil.'));
           syncedIds.current[d.id] = String(saved.id);
           await persistDrafts(draftsRef.current.filter((x) => x.id !== d.id));
         }
@@ -232,7 +232,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       ready,
       isDemo,
       async startDemo() {
-        if (token) throw new Error(t('Déconnectez-vous avant d’ouvrir la démonstration.'));
+        if (token) throw new Error(t('Déconnecte-toi avant d’ouvrir la démonstration.'));
         const examples = demoDreams();
         await persistDemo(examples);
         await local.setJson(KEYS.demoActive, true);
@@ -315,14 +315,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           await saveReminder(DEFAULT_REMINDER);
           await Promise.all([clearLastError(), clearWebError()]);
         } catch {
-          throw new Error(t('Le compte a été supprimé sur le serveur. Réessayez « Effacer les données de cet appareil » pour terminer le nettoyage local.'));
+          throw new Error(t('Le compte a été supprimé sur le serveur. Réessaie « Effacer les données de cet appareil » pour terminer le nettoyage local.'));
         }
       },
       async refresh() {
         if (token && user?.id && !isDemo) await sync(token, user.id);
       },
       async claimLocalDrafts() {
-        if (isDemo || !token || !user) throw new Error(t('Connectez-vous pour importer les brouillons locaux.'));
+        if (isDemo || !token || !user) throw new Error(t('Connecte-toi pour importer les brouillons locaux.'));
         const ownerId = draftOwnerForUser(user.id);
         const next = draftsRef.current.map((draft) =>
           isUnassignedDraft(draft) ? { ...draft, ownerId } : draft,
@@ -361,9 +361,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       },
       async exploreWithOni(id, consent) {
         if (isDemo) throw new Error(t('La démonstration utilise uniquement des exemples locaux.'));
-        if (!consent) throw new Error(t('Votre accord est nécessaire avant chaque envoi à Oni.'));
+        if (!consent) throw new Error(t('Ton accord est nécessaire avant chaque envoi à Oni.'));
         if (!oniEnabled) throw new Error(t('Les nouvelles demandes de lecture sont actuellement indisponibles.'));
-        if (!token || !user?.id) throw new ApiError(t('Connectez-vous pour demander une lecture à Oni.'), 401);
+        if (!token || !user?.id) throw new ApiError(t('Connecte-toi pour demander une lecture à Oni.'), 401);
         const deferred = async (afterDaily = false): Promise<OniOutcome> => {
           const status = await api.requestOniReading(token, id, consent);
           const next = oniRequested.includes(id) ? oniRequested : [...oniRequested, id];

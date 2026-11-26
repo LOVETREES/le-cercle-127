@@ -75,7 +75,7 @@ export default function OracleLabo() {
               <Text style={st.small}>{SISTERS.filter((_, i) => result.bits[i]).map((s) => s.name).join(' · ')}</Text>
             </>
           ) : (
-            <Text style={st.text}>{t('0000000 : aucune Sœur. C’est le 128ᵉ état, le seul qui ne correspond à aucune lame. Mesurez à nouveau.')}</Text>
+            <Text style={st.text}>{t('0000000 : aucune Sœur. C’est le 128ᵉ état, le seul qui ne correspond à aucune lame. Mesure à nouveau.')}</Text>
           )}
         </View>
       ) : null}

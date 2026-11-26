@@ -21,61 +21,61 @@ export type Emotion = {
 export const EMOTIONS: Emotion[] = [
   {
     key: 'peur', sign: '◇', color: '#a9c2f7', name: 'La peur',
-    need: 'Ce que votre corps cherche encore à protéger : un besoin de sécurité.',
+    need: 'Ce que ton corps cherche encore à protéger : un besoin de sécurité.',
     body: 'Souvent un ventre noué, une respiration haute, des épaules qui montent.',
-    gesture: 'Posez une main sur le ventre. Expirez plus longtemps que vous n’inspirez, cinq fois.',
+    gesture: 'Pose une main sur le ventre. Expire plus longtemps que tu n’inspires, cinq fois.',
     phrase: 'Dans cet instant, je suis en sécurité. Je peux avancer pas à pas.',
   },
   {
     key: 'colere', sign: '△', color: '#eb9a68', name: 'La colère',
     need: 'Une limite ou un besoin qui n’a pas été entendu.',
     body: 'Souvent une chaleur, des mâchoires serrées, une énergie dans les bras.',
-    gesture: 'Pressez vos paumes l’une contre l’autre dix secondes, puis relâchez. Trois fois.',
+    gesture: 'Presse tes paumes l’une contre l’autre dix secondes, puis relâche. Trois fois.',
     phrase: 'Ma colère protège une limite. Je peux la dire sans me blesser ni blesser.',
   },
   {
     key: 'tristesse', sign: '≈', color: '#8fdad3', name: 'La tristesse',
     need: 'Une perte, une séparation ou un manque qui demande à être reconnu.',
     body: 'Souvent une gorge serrée, une poitrine lourde, une envie de se replier.',
-    gesture: 'Croisez les bras sur la poitrine, comme une étreinte. Respirez lentement et laissez venir.',
+    gesture: 'Croise les bras sur la poitrine, comme une étreinte. Respire lentement et laisse venir.',
     phrase: 'J’ai le droit d’être triste. Ce que j’ai aimé compte.',
   },
   {
     key: 'culpabilite', sign: '○', color: '#d9cdfb', name: 'La culpabilité',
-    need: 'Distinguer ce qui relève de votre responsabilité de ce qui est une charge héritée.',
+    need: 'Distinguer ce qui relève de ta responsabilité de ce qui est une charge héritée.',
     body: 'Souvent un poids sur les épaules, un regard qui se baisse.',
-    gesture: 'Notez sur deux colonnes : « ce qui m’appartient » et « ce qui ne m’appartient pas ».',
+    gesture: 'Note sur deux colonnes : « ce qui m’appartient » et « ce qui ne m’appartient pas ».',
     phrase: 'Je prends ma part, et je dépose le reste.',
   },
   {
     key: 'confusion', sign: '∞', color: '#f2dea8', name: 'La confusion',
     need: 'Plusieurs émotions contradictoires cohabitent : il faut un peu d’espace.',
     body: 'Souvent une tête pleine, une agitation, du mal à se poser.',
-    gesture: 'Nommez trois choses que vous voyez, deux que vous entendez, une que vous touchez.',
+    gesture: 'Nomme trois choses que tu vois, deux que tu entends, une que tu touches.',
     phrase: 'Je n’ai pas besoin de tout comprendre maintenant.',
   },
   {
     key: 'soulagement', sign: '✦', color: '#a9c98a', name: 'Le soulagement',
-    need: 'Ce que votre psychisme semble enfin prêt à déposer.',
+    need: 'Ce que ton psychisme semble enfin prêt à déposer.',
     body: 'Souvent des épaules qui descendent, un souffle qui s’allonge.',
     gesture: 'Trois respirations lentes, en remarquant ce qui s’est allégé.',
     phrase: 'Je laisse ce poids se poser.',
   },
-{"key": "joie", "sign": "○", "color": "#8fdad3", "name": "La joie", "need": "Un élan à partager ou à savourer, sans obligation de rester joyeux.", "body": "Remarquez votre souffle, votre posture et les sensations présentes, sans chercher à les changer.", "gesture": "Prenez un instant pour nommer ce qui vous fait du bien aujourd’hui.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
+{"key": "joie", "sign": "○", "color": "#8fdad3", "name": "La joie", "need": "Un élan à partager ou à savourer, sans obligation de rester joyeux.", "body": "Remarque ton souffle, ta posture et les sensations présentes, sans chercher à les changer.", "gesture": "Prends un instant pour nommer ce qui te fait du bien aujourd’hui.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
 
-{"key": "serenite", "sign": "○", "color": "#8fdad3", "name": "La sérénité", "need": "Peut-être un besoin de préserver cet espace de calme.", "body": "Remarquez votre souffle, votre posture et les sensations présentes, sans chercher à les changer.", "gesture": "Repérez une petite habitude qui soutient votre calme et gardez-lui une place.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
+{"key": "serenite", "sign": "○", "color": "#8fdad3", "name": "La sérénité", "need": "Peut-être un besoin de préserver cet espace de calme.", "body": "Remarque ton souffle, ta posture et les sensations présentes, sans chercher à les changer.", "gesture": "Repère une petite habitude qui soutient ton calme et garde-lui une place.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
 
-{"key": "anxiete", "sign": "○", "color": "#8fdad3", "name": "L’anxiété", "need": "Peut-être un besoin de sécurité face à une incertitude.", "body": "Remarquez votre souffle, votre posture et les sensations présentes, sans chercher à les changer.", "gesture": "Sentez vos pieds au sol, puis choisissez une seule chose sur laquelle vous pouvez agir.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
+{"key": "anxiete", "sign": "○", "color": "#8fdad3", "name": "L’anxiété", "need": "Peut-être un besoin de sécurité face à une incertitude.", "body": "Remarque ton souffle, ta posture et les sensations présentes, sans chercher à les changer.", "gesture": "Sens tes pieds au sol, puis choisis une seule chose sur laquelle tu peux agir.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
 
-{"key": "honte", "sign": "○", "color": "#8fdad3", "name": "La honte", "need": "Peut-être un besoin d’accueil et de dignité, au-delà du regard des autres.", "body": "Remarquez votre souffle, votre posture et les sensations présentes, sans chercher à les changer.", "gesture": "Écrivez une phrase bienveillante que vous diriez à un ami dans cette situation.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
+{"key": "honte", "sign": "○", "color": "#8fdad3", "name": "La honte", "need": "Peut-être un besoin d’accueil et de dignité, au-delà du regard des autres.", "body": "Remarque ton souffle, ta posture et les sensations présentes, sans chercher à les changer.", "gesture": "Écris une phrase bienveillante que tu dirais à un ami dans cette situation.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
 
-{"key": "solitude", "sign": "○", "color": "#8fdad3", "name": "La solitude", "need": "Peut-être un besoin de lien, de présence ou d’être entendu.", "body": "Remarquez votre souffle, votre posture et les sensations présentes, sans chercher à les changer.", "gesture": "Si vous le souhaitez, envoyez un petit message à une personne de confiance.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
+{"key": "solitude", "sign": "○", "color": "#8fdad3", "name": "La solitude", "need": "Peut-être un besoin de lien, de présence ou d’être entendu.", "body": "Remarque ton souffle, ta posture et les sensations présentes, sans chercher à les changer.", "gesture": "Si tu le souhaites, envoie un petit message à une personne de confiance.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
 
-{"key": "frustration", "sign": "○", "color": "#8fdad3", "name": "La frustration", "need": "Peut-être un besoin de progression, de choix ou d’une limite plus claire.", "body": "Remarquez votre souffle, votre posture et les sensations présentes, sans chercher à les changer.", "gesture": "Distinguez ce qui dépend de vous et choisissez un pas réalisable aujourd’hui.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
+{"key": "frustration", "sign": "○", "color": "#8fdad3", "name": "La frustration", "need": "Peut-être un besoin de progression, de choix ou d’une limite plus claire.", "body": "Remarque ton souffle, ta posture et les sensations présentes, sans chercher à les changer.", "gesture": "Distingue ce qui dépend de toi et choisis un pas réalisable aujourd’hui.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
 
-{"key": "fatigue", "sign": "○", "color": "#8fdad3", "name": "La fatigue", "need": "Peut-être un besoin de repos ou de réduire les sollicitations.", "body": "Remarquez votre souffle, votre posture et les sensations présentes, sans chercher à les changer.", "gesture": "Choisissez une pause courte ou une tâche que vous pouvez remettre à plus tard.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
+{"key": "fatigue", "sign": "○", "color": "#8fdad3", "name": "La fatigue", "need": "Peut-être un besoin de repos ou de réduire les sollicitations.", "body": "Remarque ton souffle, ta posture et les sensations présentes, sans chercher à les changer.", "gesture": "Choisis une pause courte ou une tâche que tu peux remettre à plus tard.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
 
-{"key": "gratitude", "sign": "○", "color": "#8fdad3", "name": "La gratitude", "need": "Peut-être l’envie de reconnaître un appui, un lien ou un moment précieux.", "body": "Remarquez votre souffle, votre posture et les sensations présentes, sans chercher à les changer.", "gesture": "Notez un détail précis que vous appréciez, sans nier ce qui reste difficile.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
+{"key": "gratitude", "sign": "○", "color": "#8fdad3", "name": "La gratitude", "need": "Peut-être l’envie de reconnaître un appui, un lien ou un moment précieux.", "body": "Remarque ton souffle, ta posture et les sensations présentes, sans chercher à les changer.", "gesture": "Note un détail précis que tu apprécies, sans nier ce qui reste difficile.", "phrase": "Je peux accueillir ce que je ressens et choisir un petit geste qui me respecte."},
 ];
 
 export type EmotionEntry = { day: string; key: EmotionKey; at: string };

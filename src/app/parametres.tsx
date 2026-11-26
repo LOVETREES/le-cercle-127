@@ -36,7 +36,7 @@ export default function Parametres() {
 
   const report = async () => {
     const err = await readWebError().catch(() => undefined);
-    const body = `${t('Décrivez le problème ici :')}\n\n\n— Le Cercle 127 ${version}${err ? `\n${err.message} (${err.page})` : ''}`;
+    const body = `${t('Décris le problème ici :')}\n\n\n— Le Cercle 127 ${version}${err ? `\n${err.message} (${err.page})` : ''}`;
     Linking.openURL(`mailto:contact@lecercle127.com?subject=${encodeURIComponent(t('Signaler un problème'))}&body=${encodeURIComponent(body)}`).catch(() => undefined);
   };
   const open = (path: string, title: string) => router.push({ pathname: '/page', params: { path, title } });

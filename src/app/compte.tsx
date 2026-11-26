@@ -42,7 +42,7 @@ export default function Compte() {
     const ok = await saveReminder(next);
     if (!ok) {
       setReminder({ ...next, enabled: false });
-      setNotice({ tone: 'error', text: 'Les notifications sont refusées. Autorisez-les dans les réglages du téléphone.' });
+      setNotice({ tone: 'error', text: 'Les notifications sont refusées. Autorise-les dans les réglages du téléphone.' });
     } else setNotice(null);
   };
 
@@ -51,7 +51,7 @@ export default function Compte() {
     setBusy(true);
     setNotice(null);
     try { await action(); setNotice({ tone: 'success', text: t(message) }); }
-    catch (e) { setNotice({ tone: 'error', text: e instanceof Error ? e.message : t('L’opération a échoué. Réessayez.') }); }
+    catch (e) { setNotice({ tone: 'error', text: e instanceof Error ? e.message : t('L’opération a échoué. Réessaie.') }); }
     finally { setBusy(false); }
   };
 
@@ -98,7 +98,7 @@ export default function Compte() {
             })}
           </View>
         )}
-        <Body muted style={{ fontSize: textSize.sm }}>{Platform.OS === 'web' ? t('Le rappel est disponible dans l’application iPhone et Android.') : t('Le rappel est programmé sur votre téléphone : aucune donnée n’est envoyée.')}</Body>
+        <Body muted style={{ fontSize: textSize.sm }}>{Platform.OS === 'web' ? t('Le rappel est disponible dans l’application iPhone et Android.') : t('Le rappel est programmé sur ton téléphone : aucune donnée n’est envoyée.')}</Body>
       </Card>
 
       {notice && <Notice tone={notice.tone} text={notice.text} />}
@@ -108,7 +108,7 @@ export default function Compte() {
         <Card>
           <Eyebrow>{t('Brouillons locaux à associer')}</Eyebrow>
           <Body muted>
-            {t('Ces brouillons ne sont associés à aucun compte. Ils restent sur cet appareil et ne seront pas envoyés sans votre accord.')}
+            {t('Ces brouillons ne sont associés à aucun compte. Ils restent sur cet appareil et ne seront pas envoyés sans ton accord.')}
           </Body>
           <Body muted>
             {t('Nombre de brouillons locaux :')} {unassignedDrafts.length}
@@ -120,8 +120,8 @@ export default function Compte() {
               const count = unassignedDrafts.length;
               const title = count === 1 ? 'Importer ce brouillon ?' : 'Importer ces brouillons ?';
               const message = count === 1
-                ? 'Ce brouillon sera associé à votre compte et envoyé au serveur.'
-                : 'Ces ' + count + ' brouillons seront associés à votre compte et envoyés au serveur.';
+                ? 'Ce brouillon sera associé à ton compte et envoyé au serveur.'
+                : 'Ces ' + count + ' brouillons seront associés à ton compte et envoyés au serveur.';
               if (!await confirm(title, message, 'Importer', false)) return;
               await runAccountAction(claimLocalDrafts, 'Brouillons associés. La synchronisation continue en arrière-plan.');
             }}
@@ -136,7 +136,7 @@ export default function Compte() {
             label={isDemo ? t('Quitter et effacer la démo') : t('Me déconnecter')}
             disabled={busy}
             onPress={async () => {
-              await runAccountAction(signOut, isDemo ? 'Démonstration effacée. Vos données personnelles sont conservées.' : 'Vous êtes déconnecté·e.');
+              await runAccountAction(signOut, isDemo ? 'Démonstration effacée. Tes données personnelles sont conservées.' : 'Tu es déconnecté·e.');
             }}
           />
           <OutlineButton
@@ -146,15 +146,15 @@ export default function Compte() {
             onPress={async () => {
               const ok = await confirm(
                 isDemo ? 'Effacer la démonstration ?' : 'Supprimer mon compte ?',
-                isDemo ? 'Les exemples de démonstration seront effacés. Vos données personnelles ne seront pas modifiées.' : 'Cette demande supprime votre compte et vos rêves sur le serveur, puis efface les données locales et les audios de cet appareil. Les sauvegardes techniques peuvent suivre les délais de la politique de confidentialité.',
+                isDemo ? 'Les exemples de démonstration seront effacés. Tes données personnelles ne seront pas modifiées.' : 'Cette demande supprime ton compte et tes rêves sur le serveur, puis efface les données locales et les audios de cet appareil. Les sauvegardes techniques peuvent suivre les délais de la politique de confidentialité.',
                 'Supprimer',
               );
               if (!ok) return;
-              await runAccountAction(deleteAccount, isDemo ? 'Démonstration effacée.' : 'Votre compte a été supprimé.');
+              await runAccountAction(deleteAccount, isDemo ? 'Démonstration effacée.' : 'Ton compte a été supprimé.');
             }}
           />
           <Body muted style={{ fontSize: textSize.sm }}>
-            {t('Vous pouvez aussi écrire à contact@lecercle127.com pour exercer vos droits (accès, rectification, export).')}
+            {t('Tu peux aussi écrire à contact@lecercle127.com pour exercer tes droits (accès, rectification, export).')}
           </Body>
         </Card>
       )}
@@ -163,7 +163,7 @@ export default function Compte() {
         <Eyebrow>{t('Sur cet appareil')}</Eyebrow>
         <Body muted>{t('Efface les brouillons, le journal de vérification, les textes temporaires, le cache et les enregistrements locaux. Les rêves déjà synchronisés restent sur le serveur jusqu’à leur suppression depuis le Grimoire ou le compte.')}</Body>
         <OutlineButton danger disabled={busy} label={t('Effacer les données de cet appareil')} onPress={async () => {
-          if (await confirm('Effacer les données locales ?', isDemo ? 'Seules les données de démonstration seront effacées.' : 'Les brouillons non synchronisés, les enregistrements vocaux, les lectures de la main et les jours de présence de cet appareil seront effacés. Les rêves et lectures enregistrés dans votre compte sont conservés.', 'Effacer')) {
+          if (await confirm('Effacer les données locales ?', isDemo ? 'Seules les données de démonstration seront effacées.' : 'Les brouillons non synchronisés, les enregistrements vocaux, les lectures de la main et les jours de présence de cet appareil seront effacés. Les rêves et lectures enregistrés dans ton compte sont conservés.', 'Effacer')) {
             await runAccountAction(clearLocalData, 'Données locales effacées.');
           }
         }} />

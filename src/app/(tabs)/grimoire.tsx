@@ -284,8 +284,8 @@ export default function Grimoire() {
         {!user && (
           <Card>
             <Eyebrow>{t('Un espace privé')}</Eyebrow>
-            <Title size={28}>{t('Votre Grimoire vous attend')}</Title>
-            <Body muted>{t('Connectez-vous pour conserver vos rêves, observer les symboles qui reviennent et les retrouver aussi sur lecercle127.com.')}</Body>
+            <Title size={28}>{t('Ton Grimoire t’attend')}</Title>
+            <Body muted>{t('Connecte-toi pour conserver tes rêves, observer les symboles qui reviennent et les retrouver aussi sur lecercle127.com.')}</Body>
             <GoldButton label={t('Entrer dans mon Grimoire')} onPress={() => router.push('/connexion')} />
             <OutlineButton label={t('Créer mon compte gratuit')} onPress={() => router.push({ pathname: '/connexion', params: { mode: 'register' } })} />
           </Card>
@@ -429,7 +429,7 @@ export default function Grimoire() {
 
         <View style={st.card}>
           <Text style={st.h}>{t('OMBRE ET POLARITÉS')}</Text>
-          <Body muted>{t('Quelques mots français qui reviennent dans votre journal privé, rapprochés pour ouvrir des questions. Le contexte, y compris une négation, peut changer leur sens : vous restez libre de les interpréter.')}</Body>
+          <Body muted>{t('Quelques mots français qui reviennent dans ton journal privé, rapprochés pour ouvrir des questions. Le contexte, y compris une négation, peut changer leur sens : tu restes libre de les interpréter.')}</Body>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.ms }}>
             {([
               [t('Mots de tension'), shadow.tensions],
@@ -440,7 +440,7 @@ export default function Grimoire() {
               {items.length ? items.map(({ word, occurrences }) => <Pressable key={word} accessibilityRole="button" accessibilityLabel={t('Voir les pages pour {mot} : {n}', { mot: t(shadowLabel(word)), n: occurrences })} onPress={() => router.push({ pathname: '/journal-intime', params: { motif: word } })}><Text style={st.recN}>{t(shadowLabel(word))} · {occurrences} ›</Text></Pressable>) : <Body muted>{t('Aucun mot récurrent repéré pour l’instant.')}</Body>}
             </View>)}
           </View>
-          <Body muted>{t('Chaque nombre indique le nombre de notes contenant ce mot. Ce repérage local ne déduit ni vos intentions ni vos ressources réelles.')}</Body>
+          <Body muted>{t('Chaque nombre indique le nombre de notes contenant ce mot. Ce repérage local ne déduit ni tes intentions ni tes ressources réelles.')}</Body>
           <OutlineButton label={t('Explorer dans mon journal privé')} onPress={() => router.push('/journal-intime')} />
         </View>
         <EchoGrimoire key={palmOwnerFor(isDemo, user?.id)} echoes={echoes} owner={palmOwnerFor(isDemo, user?.id)} />

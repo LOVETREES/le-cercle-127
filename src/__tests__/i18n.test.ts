@@ -25,7 +25,7 @@ describe('traductions', () => {
   it('traduisent, remplacent les variables et retombent sur le français', () => {
     setCurrentLang('en');
     expect(t('Bonjour')).toBe('Good morning');
-    expect(t('{n} jours d’affilée : votre mémoire des rêves se muscle.', { n: 3 })).toBe('3 days in a row: your dream memory is getting stronger.');
+    expect(t('{n} jours d’affilée : ta mémoire des rêves se muscle.', { n: 3 })).toBe('3 days in a row: your dream memory is getting stronger.');
     expect(t('Texte absent du dictionnaire')).toBe('Texte absent du dictionnaire');
     setCurrentLang('de');
     expect(t('Paramètres')).toBe('Einstellungen');

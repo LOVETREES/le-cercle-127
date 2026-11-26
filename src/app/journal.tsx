@@ -30,16 +30,16 @@ export default function Journal() {
       await saveRealityChecks(next, isDemo);
       setEntries(next); setContext(''); setObservation('');
       setMessage({ text: 'Vérification gardée sur cet appareil.', error: false });
-    } catch (error) { setMessage({ text: error instanceof Error ? error.message : 'Enregistrement impossible. Réessayez.', error: true }); }
+    } catch (error) { setMessage({ text: error instanceof Error ? error.message : 'Enregistrement impossible. Réessaie.', error: true }); }
     finally { setBusy(false); }
   };
   return <Screen>
     <Title>{t('Mon journal de vérification')}</Title>
-    <Body>{t('Prenez un instant pour observer ce qui vous entoure et noter votre ressenti.')}</Body>
+    <Body>{t('Prends un instant pour observer ce qui t’entoure et noter ton ressenti.')}</Body>
     <Body muted>{t('Ce journal fonctionne sans inscription. Ses notes restent sur cet appareil, séparément du journal du site.')}</Body>
-    {isDemo && <Notice text={t('Démonstration : ces notes sont séparées de votre journal personnel.')} />}
+    {isDemo && <Notice text={t('Démonstration : ces notes sont séparées de ton journal personnel.')} />}
     {!user && <Card>
-      <Body>{t('Vous pouvez aussi créer votre compte pour le Grimoire de rêves.')}</Body>
+      <Body>{t('Tu peux aussi créer ton compte pour le Grimoire de rêves.')}</Body>
       <GoldButton label={t('Créer mon compte')} onPress={() => router.push({ pathname: '/connexion', params: { mode: 'register' } })} />
       <OutlineButton label={t('J’ai déjà un compte')} onPress={() => router.push('/connexion')} />
     </Card>}
@@ -64,7 +64,7 @@ export default function Journal() {
       <OutlineButton label={t('Supprimer cette vérification')} danger disabled={busy} onPress={async () => {
         setBusy(true);
         try { const next = entries.filter((item) => item.id !== entry.id); await saveRealityChecks(next, isDemo); setEntries(next); }
-        catch { setMessage({ text: 'Suppression impossible. Réessayez.', error: true }); }
+        catch { setMessage({ text: 'Suppression impossible. Réessaie.', error: true }); }
         finally { setBusy(false); }
       }} />
     </Card>)}

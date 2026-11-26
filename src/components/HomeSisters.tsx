@@ -113,7 +113,7 @@ function EmotionSlider({ value, onPick, disabled }: { value?: EmotionKey; onPick
   return (
     <View style={{ gap: 6 }}>
       <Text style={[st.sliderValue, { color: e?.color ?? colors.muted }]} accessibilityLiveRegion="polite">
-        {e ? `${e.sign}  ${t(e.name)}` : t('Faites glisser vers ce que vous ressentez')}
+        {e ? `${e.sign}  ${t(e.name)}` : t('Fais glisser vers ce que tu ressens')}
       </Text>
       <View
         {...touch}
@@ -179,10 +179,10 @@ export function NaiaCard({ onRecorded, folded = false }: { onRecorded?: () => vo
   return (
     <Card accent="naia" style={st.sisterCard}>
       <Text style={[st.kicker, { color: NAIA }]}>{t('NAÏA · RÉGULER MES ÉMOTIONS')}</Text>
-      <Text style={st.title}>{t('Qu’est-ce qui vous traverse en ce moment ?')}</Text>
+      <Text style={st.title}>{t('Qu’est-ce qui te traverse en ce moment ?')}</Text>
       {folded && <EmotionSlider value={open ?? todays} onPick={(k) => void choose(k)} disabled={saving} />}
       {more && <>
-      <Text style={st.text}>{t('Choisissez le mot le plus proche. Ces besoins possibles sont des pistes, pas une explication imposée.')}</Text>
+      <Text style={st.text}>{t('Choisis le mot le plus proche. Ces besoins possibles sont des pistes, pas une explication imposée.')}</Text>
       {expanded && <TextInput value={query} onChangeText={setQuery} accessibilityLabel={t('Chercher une émotion')} placeholder={t('Chercher une émotion')} placeholderTextColor={colors.muted} style={{ color: colors.text, borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: space.ms, fontFamily: fonts.body }} />}
       <View style={st.chips} accessibilityRole="radiogroup">
         {palette.map((e) => {
@@ -204,12 +204,12 @@ export function NaiaCard({ onRecorded, folded = false }: { onRecorded?: () => vo
           );
         })}
       </View>
-      {palette.length === 0 && <Text style={st.text}>{t('Aucun mot ne correspond ? Vous pouvez décrire votre ressenti dans le journal privé.')}</Text>}
+      {palette.length === 0 && <Text style={st.text}>{t('Aucun mot ne correspond ? Tu peux décrire ton ressenti dans le journal privé.')}</Text>}
       <Pressable accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => { setExpanded(!expanded); setQuery(''); }}>
         <Text style={[st.link, { color: NAIA }]}>{t(expanded ? 'Réduire la palette' : 'Explorer toutes les émotions')}</Text>
       </Pressable>
       </>}
-      {saveError && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{t('Votre émotion n’a pas pu être gardée. Réessayez.')}</Text>}
+      {saveError && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{t('Ton émotion n’a pas pu être gardée. Réessaie.')}</Text>}
 
       {shown && (
         <View style={st.ritual}>
@@ -286,7 +286,7 @@ export function TerraCard() {
       <View style={{ gap: space.xs }}>
         {doneToday ? (
           <>
-            <Text style={st.title}>{t('Votre main a parlé aujourd’hui')}</Text>
+            <Text style={st.title}>{t('Ta main a parlé aujourd’hui')}</Text>
             {last?.mantra ? <Text style={st.text} numberOfLines={2}>{last.mantra}</Text> : null}
             <Text style={[st.link, { color: TERRA }]}>{t('Revoir ma lecture ›')}</Text>
           </>

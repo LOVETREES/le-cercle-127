@@ -45,7 +45,7 @@ export default function MesLectures() {
   const remove = (p: PalmReading) => {
     const go = () => deletePalmEverywhere(p.id, token).then(setPalms, () => undefined);
     if (Platform.OS === 'web') go();
-    else Alert.alert(t('Retirer cette lecture ?'), t('Elle sera supprimée de ce téléphone et de votre compte.'), [{ text: 'Annuler', style: 'cancel' }, { text: 'Retirer', style: 'destructive', onPress: go }]);
+    else Alert.alert(t('Retirer cette lecture ?'), t('Elle sera supprimée de ce téléphone et de ton compte.'), [{ text: 'Annuler', style: 'cancel' }, { text: 'Retirer', style: 'destructive', onPress: go }]);
   };
 
   return (
@@ -54,7 +54,7 @@ export default function MesLectures() {
         <Eyebrow>{t('Oni et Terra')}</Eyebrow>
         <Title size={34}>{t('Mes lectures')}</Title>
         <Body muted>
-          {t('Vos rêves et votre main sont deux miroirs. Les relire, c’est revenir à vous-même et devenir, pas à pas, pleinement qui vous êtes.')}
+          {t('Tes rêves et ta main sont deux miroirs. Les relire, c’est revenir à toi-même et devenir, pas à pas, pleinement qui tu es.')}
         </Body>
       </View>
 
@@ -75,7 +75,7 @@ export default function MesLectures() {
         read.length === 0 ? (
           <Card>
             <Eyebrow>Oni</Eyebrow>
-            <Body>{t('Les lectures de vos rêves par Oni, relues par une personne du Cercle, apparaîtront ici.')}</Body>
+            <Body>{t('Les lectures de tes rêves par Oni, relues par une personne du Cercle, apparaîtront ici.')}</Body>
             <OutlineButton label={t('Ouvrir mon Grimoire')} onPress={() => router.navigate('/grimoire')} />
           </Card>
         ) : (
@@ -95,10 +95,10 @@ export default function MesLectures() {
           <GoldButton label={t('Lire ma main avec Terra')} onPress={() => router.push({ pathname: '/page', params: TERRA })} />
           <Body muted style={{ fontSize: 12, textAlign: 'center' }}>
             {synced === 'ok'
-              ? t('Gardées dans votre compte : vous les retrouvez sur tous vos téléphones.')
+              ? t('Gardées dans ton compte : tu les retrouves sur tous tes téléphones.')
               : synced === 'error'
-                ? t('Gardées sur ce téléphone. La sauvegarde dans votre compte reprendra plus tard.')
-                : t('Gardées sur ce téléphone. Connectez-vous pour les retrouver partout.')}
+                ? t('Gardées sur ce téléphone. La sauvegarde dans ton compte reprendra plus tard.')
+                : t('Gardées sur ce téléphone. Connecte-toi pour les retrouver partout.')}
           </Body>
           {FEATURES.palmDetailed ? (
             <Pressable onPress={() => router.push('/lecture-main')} accessibilityRole="link">
@@ -111,7 +111,7 @@ export default function MesLectures() {
           {palms.length === 0 ? (
             <Card>
               <Eyebrow>Terra</Eyebrow>
-              <Body>{t('Photographiez votre paume avec Terra. Quand elle vous donne sa parole, la lecture de votre main est gardée ici.')}</Body>
+              <Body>{t('Photographie ta paume avec Terra. Quand elle te donne sa parole, la lecture de ta main est gardée ici.')}</Body>
             </Card>
           ) : (
             palms.map((p) => {

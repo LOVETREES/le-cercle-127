@@ -46,8 +46,8 @@ export async function saveReminder(r: Reminder): Promise<boolean> {
     }
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Un rêve vous attend ?',
-        body: 'Notez-le dans votre Grimoire avant qu’il ne s’efface.',
+        title: 'Un rêve t’attend ?',
+        body: 'Note-le dans ton Grimoire avant qu’il ne s’efface.',
         data: { url: '/reve' },
       },
       trigger: {

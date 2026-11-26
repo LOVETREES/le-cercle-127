@@ -47,7 +47,7 @@ export default function DreamDetail() {
     // Consentement explicite à chaque envoi au service d'IA (politique de confidentialité).
     const ok = await ask(
       t('Demander une lecture à Oni ?'),
-      t('La demande passe par Make, qui reçoit votre identifiant de rêve et votre jeton de session pour retrouver le récit. Le titre, le récit et son contexte sont ensuite traités par OpenAI pour préparer une lecture. Votre lecture du jour s’affiche tout de suite et une personne du Cercle la relit ensuite ; les suivantes sont relues avant de vous parvenir. Les données de l’API OpenAI ne servent pas à entraîner les modèles par défaut ; des journaux techniques peuvent être conservés selon les réglages du prestataire. Aucun enregistrement audio n’est envoyé. Acceptez-vous cet envoi pour ce rêve ?'),
+      t('La demande passe par Make, qui reçoit ton identifiant de rêve et ton jeton de session pour retrouver le récit. Le titre, le récit et son contexte sont ensuite traités par OpenAI pour préparer une lecture. Ta lecture du jour s’affiche tout de suite et une personne du Cercle la relit ensuite ; les suivantes sont relues avant de te parvenir. Les données de l’API OpenAI ne servent pas à entraîner les modèles par défaut ; des journaux techniques peuvent être conservés selon les réglages du prestataire. Aucun enregistrement audio n’est envoyé. Acceptes-tu cet envoi pour ce rêve ?'),
       t('Envoyer à Oni'),
     );
     if (!ok) return;
@@ -74,7 +74,7 @@ export default function DreamDetail() {
   if (!dream) {
     return (
       <View style={st.empty}>
-        <Body muted>{t('Ce rêve n’est plus dans votre Grimoire.')}</Body>
+        <Body muted>{t('Ce rêve n’est plus dans ton Grimoire.')}</Body>
       </View>
     );
   }
@@ -93,7 +93,7 @@ export default function DreamDetail() {
           {dream.intensity ? t(' · intensité {v0}/5', { v0: dream.intensity }) : ''}
         </Eyebrow>
         <Title>{dream.title}</Title>
-        {dream.pending && <Notice text={t('Ce rêve est gardé sur cet appareil. Il sera ajouté à votre Grimoire en ligne dès que vous serez connecté·e.')} />}
+        {dream.pending && <Notice text={t('Ce rêve est gardé sur cet appareil. Il sera ajouté à ton Grimoire en ligne dès que tu seras connecté·e.')} />}
       </View>
 
       <Text style={st.story} selectable>
@@ -102,7 +102,7 @@ export default function DreamDetail() {
 
       {splitContext(dream.story).context ? (
         <Card>
-          <Eyebrow>{t('Vos précisions pour Oni')}</Eyebrow>
+          <Eyebrow>{t('Tes précisions pour Oni')}</Eyebrow>
           <Text style={st.symbols} selectable>{splitContext(dream.story).context?.split('\n').slice(1).join('\n')}</Text>
         </Card>
       ) : null}
@@ -134,7 +134,7 @@ export default function DreamDetail() {
             </View>
           ))}
           <Body muted style={{ fontSize: 12 }}>
-            {t('Des pistes, pas des vérités : vous gardez la main sur le sens. Réponse préparée avec l’aide d’une intelligence artificielle.')}
+            {t('Des pistes, pas des vérités : tu gardes la main sur le sens. Réponse préparée avec l’aide d’une intelligence artificielle.')}
           </Body>
           <Pressable onPress={() => report(dream.title)} accessibilityRole="link">
             <Text style={st.report}>{t('Signaler cette lecture ou demander une relecture')}</Text>
@@ -154,9 +154,9 @@ export default function DreamDetail() {
           )}
           {outcome.closing ? <Text style={st.closing}>{outcome.closing}</Text> : null}
           <Body muted style={{ fontSize: 12 }}>
-            {t('Lecture immédiate, préparée avec l’aide d’une intelligence artificielle : une personne du Cercle la relit ensuite. Des pistes, pas des vérités : vous gardez la main sur le sens.')}
+            {t('Lecture immédiate, préparée avec l’aide d’une intelligence artificielle : une personne du Cercle la relit ensuite. Des pistes, pas des vérités : tu gardes la main sur le sens.')}
           </Body>
-          {!outcome.saved && <Body muted style={{ fontSize: 12 }}>{t('Elle sera aussi rangée dans votre Grimoire dès que possible.')}</Body>}
+          {!outcome.saved && <Body muted style={{ fontSize: 12 }}>{t('Elle sera aussi rangée dans ton Grimoire dès que possible.')}</Body>}
           <Pressable onPress={() => report(dream.title)} accessibilityRole="link">
             <Text style={st.report}>{t('Signaler cette lecture ou demander une relecture')}</Text>
           </Pressable>
@@ -169,17 +169,17 @@ export default function DreamDetail() {
           ))}
           <GoldButton label={t('Appeler le 3114')} onPress={() => Linking.openURL('tel:3114').catch(() => undefined)} />
           <Body muted style={{ fontSize: 12 }}>
-            {t('Le 3114 est le numéro national de prévention du suicide : gratuit, 24 h/24. En cas de danger immédiat, appelez le 112. Une personne du Cercle lira aussi votre rêve.')}
+            {t('Le 3114 est le numéro national de prévention du suicide : gratuit, 24 h/24. En cas de danger immédiat, appelle le 112. Une personne du Cercle lira aussi ton rêve.')}
           </Body>
         </Card>
       ) : user && !dream.pending && oniRequested.includes(dream.id) ? (
         <Card>
           <Eyebrow>{t('Lecture en préparation')}</Eyebrow>
           {outcome && 'afterDaily' in outcome && outcome.afterDaily ? (
-            <Body muted>{t('Votre lecture du jour a déjà été utilisée aujourd’hui.')}</Body>
+            <Body muted>{t('Ta lecture du jour a déjà été utilisée aujourd’hui.')}</Body>
           ) : null}
           <Body muted>
-            {t('Oni lit votre rêve. Sa lecture est relue par une personne du Cercle avant d’arriver ici et dans l’onglet Lectures, en général sous 48 heures. Tirez l’écran du Grimoire vers le bas pour actualiser.')}
+            {t('Oni lit ton rêve. Sa lecture est relue par une personne du Cercle avant d’arriver ici et dans l’onglet Lectures, en général sous 48 heures. Tire l’écran du Grimoire vers le bas pour actualiser.')}
           </Body>
         </Card>
       ) : oniEnabled && user && !dream.pending ? (
@@ -187,19 +187,19 @@ export default function DreamDetail() {
           <Eyebrow>{dailyUsed ? 'Oni' : t('Lecture du jour d’Oni')}</Eyebrow>
           <Body muted>
             {dailyUsed
-              ? t('Votre lecture du jour est utilisée. Oni peut quand même lire ce rêve : sa lecture sera relue par une personne avant de vous parvenir, en général sous 48 heures. Une nouvelle lecture immédiate vous attend demain.')
-              : t('Une fois par jour, Oni vous répond tout de suite, en une trentaine de secondes : des hypothèses et des questions, sans vous dire quoi penser. Une personne du Cercle relit ensuite sa lecture.')}
+              ? t('Ta lecture du jour est utilisée. Oni peut quand même lire ce rêve : sa lecture sera relue par une personne avant de te parvenir, en général sous 48 heures. Une nouvelle lecture immédiate t’attend demain.')
+              : t('Une fois par jour, Oni te répond tout de suite, en une trentaine de secondes : des hypothèses et des questions, sans te dire quoi penser. Une personne du Cercle relit ensuite sa lecture.')}
           </Body>
           <GoldButton label={dailyUsed ? t('Demander une lecture relue') : t('Qu’en dit Oni ? Lecture immédiate')} onPress={explore} loading={busy} />
-          {busy && !dailyUsed ? <Body muted style={{ fontSize: 12 }}>{t('Oni lit votre rêve…')}</Body> : null}
+          {busy && !dailyUsed ? <Body muted style={{ fontSize: 12 }}>{t('Oni lit ton rêve…')}</Body> : null}
         </Card>
       ) : !dream.pending ? (
         <Card>
           <Eyebrow>{t('Lecture d’Oni')}</Eyebrow>
           <Body muted>
             {user
-              ? isDemo ? t('La démonstration présente une lecture d’exemple dans le premier rêve.') : t('Les nouvelles demandes de lecture sont actuellement indisponibles. Vos rêves restent consultables.')
-              : t('Connectez-vous pour qu’Oni puisse lire ce rêve.')}
+              ? isDemo ? t('La démonstration présente une lecture d’exemple dans le premier rêve.') : t('Les nouvelles demandes de lecture sont actuellement indisponibles. Tes rêves restent consultables.')
+              : t('Connecte-toi pour qu’Oni puisse lire ce rêve.')}
           </Body>
         </Card>
       ) : null}
@@ -214,7 +214,7 @@ export default function DreamDetail() {
         danger
         label={t('Supprimer ce rêve')}
         onPress={async () => {
-          const ok = await ask(t('Supprimer ce rêve ?'), t('Il sera effacé définitivement de votre Grimoire.'), 'Supprimer');
+          const ok = await ask(t('Supprimer ce rêve ?'), t('Il sera effacé définitivement de ton Grimoire.'), 'Supprimer');
           if (!ok) return;
           try {
             await removeDream(dream.id);

@@ -11,13 +11,13 @@ export default function NuitNoire() {
       <View style={{ gap: space.sm }}>
         <Eyebrow>{t('NUIT NOIRE · APRÈS UN CAUCHEMAR')}</Eyebrow>
         <Title>{t('Revenir doucement au présent')}</Title>
-        <Body muted>{t('Vous venez de traverser un moment difficile. Prenez le temps dont vous avez besoin : vous n’avez rien à interpréter tout de suite.')}</Body>
+        <Body muted>{t('Tu viens de traverser un moment difficile. Prends le temps dont tu as besoin : tu n’as rien à interpréter tout de suite.')}</Body>
       </View>
       <Card style={{ gap: space.md }}>
-        <Title size={24}>{t('Un instant pour vous')}</Title>
-        <Body>{t('Regardez autour de vous et nommez quelques objets que vous reconnaissez.')}</Body>
-        <Body>{t('Si cela vous convient, posez les pieds au sol ou sentez un appui sous votre corps.')}</Body>
-        <Body>{t('Laissez votre respiration trouver son rythme, sans la forcer.')}</Body>
+        <Title size={24}>{t('Un instant pour toi')}</Title>
+        <Body>{t('Regarde autour de toi et nomme quelques objets que tu reconnais.')}</Body>
+        <Body>{t('Si cela te convient, pose les pieds au sol ou sens un appui sous ton corps.')}</Body>
+        <Body>{t('Laisse ta respiration trouver son rythme, sans la forcer.')}</Body>
       </Card>
       <GoldButton label={t('Raconter mon rêve')} onPress={() => router.navigate('/reve')} />
       <OutlineButton label={t('Cauchemar : comprendre et s’apaiser')} onPress={() => router.push({ pathname: '/page', params: { path: '/cauchemar-comprendre-et-sapaiser-lonirologue/', title: t('Cauchemar : comprendre et s’apaiser') } })} />

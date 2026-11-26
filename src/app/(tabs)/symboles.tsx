@@ -53,7 +53,7 @@ export default function Symboles() {
       <View style={{ gap: space.sm }}>
         <Eyebrow>{t('Dictionnaire des symboles oniriques')}</Eyebrow>
         <Title>{t('Le sens des symboles')}</Title>
-        <Body muted>{t('Sens possibles, pas une interprétation de votre rêve.')}</Body>
+        <Body muted>{t('Sens possibles, pas une interprétation de ton rêve.')}</Body>
       </View>
 
       <TextInput
@@ -71,8 +71,8 @@ export default function Symboles() {
 
       {q.trim().toLocaleLowerCase() === 'lune' && (
         <View style={st.moonNote}>
-          <Text style={st.itemTitle}>{t('La Lune et vos nuits')}</Text>
-          <Body muted>{t('La Lune évoque les cycles et invite à observer ce qui change ou revient dans vos nuits. Sa phase est un repère : elle ne permet pas de prédire ni d’expliquer à elle seule un rêve.')}</Body>
+          <Text style={st.itemTitle}>{t('La Lune et tes nuits')}</Text>
+          <Body muted>{t('La Lune évoque les cycles et invite à observer ce qui change ou revient dans tes nuits. Sa phase est un repère : elle ne permet pas de prédire ni d’expliquer à elle seule un rêve.')}</Body>
         </View>
       )}
 

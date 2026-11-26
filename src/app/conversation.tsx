@@ -60,7 +60,7 @@ function ConversationForSister({ slug }: { slug?: string }) {
             <Text style={st.title}>{sister.name}</Text>
             <Text style={st.muted}>{t(sister.role)}</Text>
           </View>
-          <View style={st.assistant}><Text style={st.text}>{t('Que souhaitez-vous partager avec moi aujourd’hui ?')}</Text></View>
+          <View style={st.assistant}><Text style={st.text}>{t('Que souhaites-tu partager avec moi aujourd’hui ?')}</Text></View>
           {messages.map((message, i) => <View key={i} style={message.role === 'user' ? st.user : st.assistant}><Text style={message.role === 'user' ? st.userText : st.text}>{message.content}</Text></View>)}
           {busy && <ActivityIndicator color={colors.gold} accessibilityLabel={t('Demande en cours…')} />}
           {error ? <Notice tone="error" text={error} /> : null}

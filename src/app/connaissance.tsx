@@ -23,7 +23,7 @@ export default function Connaissance() {
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
   const [step, setStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const steps = ['Vous', 'Votre quotidien', 'Vos rêves'];
+  const steps = ['Toi', 'Ton quotidien', 'Tes rêves'];
   const go = (next: number) => { setStep(next); scroll.current?.scrollTo({ y: 0, animated: true }); };
   const [p, setP] = useState<DreamerProfile>({ ...EMPTY_PROFILE });
   const [saved, setSaved] = useState(false);
@@ -56,7 +56,7 @@ export default function Connaissance() {
       setP(await saveDreamer(p));
       setSaved(true);
     } catch {
-      setError(t('Votre profil n’a pas pu être gardé. Vos réponses restent ici pour réessayer.'));
+      setError(t('Ton profil n’a pas pu être gardé. Tes réponses restent ici pour réessayer.'));
     } finally {
       setBusy(false);
     }
@@ -70,7 +70,7 @@ export default function Connaissance() {
     };
     if (Platform.OS === 'web') void go();
     else
-      Alert.alert(t('Effacer ce qu’Oni sait de vous ?'), t('Votre profil de rêveur sera supprimé de cet appareil. Vos rêves ne changent pas.'), [
+      Alert.alert(t('Effacer ce qu’Oni sait de toi ?'), t('Ton profil de rêveur sera supprimé de cet appareil. Tes rêves ne changent pas.'), [
         { text: t('Annuler'), style: 'cancel' },
         { text: t('Effacer'), style: 'destructive', onPress: () => void go() },
       ]);
@@ -85,10 +85,10 @@ export default function Connaissance() {
           <Image source={require('../../assets/images/oni.webp')} style={st.portrait} />
           <View style={{ flex: 1, gap: 5 }}>
             <Text style={st.kicker}>{t('ONI · FAISONS CONNAISSANCE')}</Text>
-            <Text style={st.title}>{t('Un peu de vous, à votre rythme.')}</Text>
+            <Text style={st.title}>{t('Un peu de toi, à ton rythme.')}</Text>
           </View>
         </View>
-        <Body muted>{t('Quelques repères pour donner du contexte à vos rêves. Tout est facultatif et modifiable.')}</Body>
+        <Body muted>{t('Quelques repères pour donner du contexte à tes rêves. Tout est facultatif et modifiable.')}</Body>
         <View style={st.steps} accessibilityRole="tablist">
           {steps.map((label, i) => <Pressable key={label} onPress={() => go(i)} style={[st.step, i === step && st.optOn]} accessibilityRole="tab" accessibilityState={{ selected: i === step }} aria-selected={i === step}>
             <Text style={[st.optT, i === step && st.optTOn]}>{i + 1} · {t(label)}</Text>
@@ -97,12 +97,12 @@ export default function Connaissance() {
         <View style={st.card}>
           {step === 0 && <>
           <View style={st.block}>
-            <Text style={st.q}>{t('Comment souhaitez-vous qu’Oni vous appelle ?')}</Text>
+            <Text style={st.q}>{t('Comment souhaites-tu qu’Oni t’appelle ?')}</Text>
             <TextInput accessibilityLabel={t('Prénom ou pseudonyme')} value={p.name ?? ''} onChangeText={(name) => edit({ name: name.slice(0, 60) })} placeholder={t('Prénom ou pseudonyme')} placeholderTextColor={colors.muted} style={st.input} />
           </View>
 
           <View style={st.block}>
-            <Text style={st.q}>{t('Votre tranche d’âge (facultatif)')}</Text>
+            <Text style={st.q}>{t('Ta tranche d’âge (facultatif)')}</Text>
             <View style={st.opts}>
               {AGE_RANGES.map((a) => (
                 <Choice key={a.value} label={a.label} on={p.age === a.value} onPress={() => edit({ age: p.age === a.value ? undefined : a.value })} />
@@ -113,7 +113,7 @@ export default function Connaissance() {
           </>}
           {step === 1 && <>
           <View style={st.block}>
-            <Text style={st.q}>{t('Quels domaines occupent votre vie en ce moment ?')}</Text>
+            <Text style={st.q}>{t('Quels domaines occupent ta vie en ce moment ?')}</Text>
             <View style={st.opts}>
               {LIFE_AREAS.map((a) => (
                 <Choice key={a} multi label={a} on={p.areas.includes(a)} onPress={() => toggleArea(a)} />
@@ -122,10 +122,10 @@ export default function Connaissance() {
           </View>
 
           <View style={st.block}>
-            <Text style={st.q}>{t('Y a-t-il quelque chose d’important dans votre vie actuelle ?')}</Text>
+            <Text style={st.q}>{t('Y a-t-il quelque chose d’important dans ta vie actuelle ?')}</Text>
             <TextInput
               value={p.now ?? ''}
-              accessibilityLabel={t('Y a-t-il quelque chose d’important dans votre vie actuelle ?')}
+              accessibilityLabel={t('Y a-t-il quelque chose d’important dans ta vie actuelle ?')}
               onChangeText={(now) => edit({ now: now.slice(0, 800) })}
               placeholder={t('Un événement, une relation, un changement, une décision…')}
               placeholderTextColor={colors.muted}
@@ -137,7 +137,7 @@ export default function Connaissance() {
           </>}
           {step === 2 && <>
           <View style={st.block}>
-            <Text style={st.q}>{t('Vos rêves et votre sommeil')}</Text>
+            <Text style={st.q}>{t('Tes rêves et ton sommeil')}</Text>
             <View style={st.opts}>
               {DREAM_HABITS.map((h) => (
                 <Choice key={h} multi label={h} on={habits.includes(t(h))} onPress={() => toggleHabit(h)} />
@@ -145,20 +145,20 @@ export default function Connaissance() {
             </View>
           </View>
           </>}
-          <Body muted style={{ fontSize: 12 }}>{t('Vous pouvez passer une étape. Aucune identité civile n’est nécessaire.')}</Body>
+          <Body muted style={{ fontSize: 12 }}>{t('Tu peux passer une étape. Aucune identité civile n’est nécessaire.')}</Body>
           {step < 2 ? <GoldButton label={t('Continuer')} onPress={() => go(step + 1)} disabled={busy} /> : null}
           {step > 0 ? <OutlineButton label={t('Revenir à l’étape précédente')} onPress={() => go(step - 1)} disabled={busy} /> : null}
           {error && <Notice tone="error" text={error} />}
           <View style={st.block}>
-            <Text style={st.q}>{t('Comment souhaitez-vous utiliser ces informations ?')}</Text>
+            <Text style={st.q}>{t('Comment souhaites-tu utiliser ces informations ?')}</Text>
             <Choice label="Oni peut s’en servir pour lire mes rêves" on={p.use === 'lectures'} onPress={() => edit({ use: 'lectures' })} />
             <Choice label="Les garder pour moi seulement" on={p.use === 'aucun'} onPress={() => edit({ use: 'aucun' })} />
             <Body muted style={{ fontSize: 12.5 }}>
-              {t('Gardé sur cet appareil. Oni ne le lit qu’avec un rêve que vous lui confiez, avec votre accord, et ses lectures sont relues par une personne.')}
+              {t('Gardé sur cet appareil. Oni ne le lit qu’avec un rêve que tu lui confies, avec ton accord, et ses lectures sont relues par une personne.')}
             </Body>
           </View>
 
-          {saved && <Notice tone="success" text={p.name ? t('Merci, {n}. Oni vous connaît un peu mieux.', { n: p.name }) : t('Merci. Oni vous connaît un peu mieux.')} />}
+          {saved && <Notice tone="success" text={p.name ? t('Merci, {n}. Oni te connaît un peu mieux.', { n: p.name }) : t('Merci. Oni te connaît un peu mieux.')} />}
           <GoldButton label={t('Enregistrer')} onPress={save} loading={busy} />
           {saved ? <OutlineButton label={t('Raconter un rêve à Oni')} onPress={() => router.navigate('/reve')} /> : null}
           {!isEmptyProfile(p) ? (

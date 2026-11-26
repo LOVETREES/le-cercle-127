@@ -30,7 +30,7 @@ function pageHtml(mode: 'camera' | 'gallery'): string {
     cancel: t('Annuler'),
     shoot: t('Prendre la photo'),
     pick: t('Choisir une photo'),
-    fail: t('L’appareil photo n’a pas pu démarrer. Fermez puis rouvrez cet écran, ou utilisez « Choisir une photo ».'),
+    fail: t('L’appareil photo n’a pas pu démarrer. Ferme puis rouvre cet écran, ou utilise « Choisir une photo ».'),
   }).replace(/</g, '\\u003c');
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
@@ -113,7 +113,7 @@ export function PalmCamera({ mode, onPhoto, onError, onClose }: Props) {
           try { msg = JSON.parse(e.nativeEvent.data); } catch { return; }
           if (msg.type === 'photo' && msg.base64) onPhoto(msg.base64);
           else if (msg.type === 'close') onClose();
-          else if (msg.type === 'error') onError(t('Cette photo n’a pas pu être préparée. Essayez-en une autre, au format JPEG ou HEIC.'));
+          else if (msg.type === 'error') onError(t('Cette photo n’a pas pu être préparée. Essaies-en une autre, au format JPEG ou HEIC.'));
         }}
       />
     </View>

@@ -83,7 +83,7 @@ async function request(url: string, { method = 'GET', body, token, timeoutMs = 2
     });
     text = await res.text();
   } catch {
-    throw new ApiError(t('Connexion impossible. Vérifiez votre réseau et réessayez.'), 0);
+    throw new ApiError(t('Connexion impossible. Vérifie ton réseau et réessaie.'), 0);
   } finally {
     clearTimeout(timer);
   }
@@ -96,9 +96,9 @@ async function request(url: string, { method = 'GET', body, token, timeoutMs = 2
     unreadable = true;
   }
   // Une page HTML (erreur, maintenance, portail Wi-Fi) renvoyée avec un statut 200 n'est pas une réussite.
-  if (res.ok && unreadable) throw new ApiError(t('Réponse inattendue du serveur. Réessayez dans un instant.'), res.status);
+  if (res.ok && unreadable) throw new ApiError(t('Réponse inattendue du serveur. Réessaie dans un instant.'), res.status);
   if (!res.ok) {
-    const fallback = res.status === 401 ? 'Votre session a expiré. Reconnectez-vous.' : 'Une erreur est survenue.';
+    const fallback = res.status === 401 ? 'Ta session a expiré. Reconnecte-toi.' : 'Une erreur est survenue.';
     throw new ApiError(apiErrorMessage(json, fallback), res.status);
   }
   return json;
@@ -222,19 +222,19 @@ export const api = {
   // Demande de lecture d'Oni : Make vérifie que le rêve appartient à la personne, Oni le lit,
   // puis la lecture est relue par une personne avant d'apparaître dans le Grimoire.
   async requestOniReading(token: string, id: string, consent: boolean): Promise<'en_attente' | 'deja_demandee'> {
-    if (consent !== true) throw new ApiError(t('Votre accord est nécessaire avant l’envoi à Oni.'), 400);
+    if (consent !== true) throw new ApiError(t('Ton accord est nécessaire avant l’envoi à Oni.'), 400);
     const body = (await request(ONI_REQUEST_URL, {
       method: 'POST',
       body: { dream_id: Number(id), token, consent },
       timeoutMs: 30000,
     })) as { ok?: boolean; status?: string } | undefined;
     if (body?.ok && (body.status === 'en_attente' || body.status === 'deja_demandee')) return body.status;
-    throw new ApiError(t('Ce rêve n’a pas pu être confié à Oni. Actualisez votre Grimoire et réessayez.'), 400);
+    throw new ApiError(t('Ce rêve n’a pas pu être confié à Oni. Actualise ton Grimoire et réessaie.'), 400);
   },
 
   // Lecture du jour : Oni répond tout de suite (environ 30 s) ; une personne la relit ensuite.
   async requestDailyReading(token: string, id: string, consent: boolean): Promise<DailyReading> {
-    if (consent !== true) throw new ApiError(t('Votre accord est nécessaire avant l’envoi à Oni.'), 400);
+    if (consent !== true) throw new ApiError(t('Ton accord est nécessaire avant l’envoi à Oni.'), 400);
     let body: unknown;
     try {
       body = await request(ONI_DAILY_URL, { method: 'POST', body: { dream_id: Number(id), token, consent }, timeoutMs: 120000 });
@@ -260,7 +260,7 @@ export const api = {
       body: { dream_id: Number(claim.dreamId), product_id: claim.productId, transaction_id: claim.transactionId, consent: true },
     })) as { status?: string } | undefined;
     if (b?.status === 'en_preparation' || b?.status === 'deja_confirmee') return b.status;
-    throw new ApiError(t('Votre achat n’a pas encore pu être confirmé. Il sera réessayé automatiquement.'), 400);
+    throw new ApiError(t('Ton achat n’a pas encore pu être confirmé. Il sera réessayé automatiquement.'), 400);
   },
 
   async privacy(): Promise<{ url: string; oniEnabled: boolean }> {

@@ -104,16 +104,16 @@ export function RituelDuJour({ refreshKey = 0, onEmotion }: { refreshKey?: numbe
       <Text style={st.foot}>{foot}</Text>
       <View style={{ gap: space.sm, paddingTop: space.sm }}>
         <Text style={st.title}>{t('Bilan du soir')}</Text>
-        <Text style={st.foot}>{t('En une phrase, comment un éclairage ou un geste a-t-il pris place dans votre journée ?')}</Text>
-        <TextInput accessibilityLabel={t('Bilan du soir')} value={evening} onChangeText={(text) => { eveningDirty.current = true; setEvening(text.slice(0, 500)); setEveningMessage(''); }} multiline placeholder={t('Quelques mots, si vous le souhaitez…')} placeholderTextColor={colors.muted} style={st.input} />
+        <Text style={st.foot}>{t('En une phrase, comment un éclairage ou un geste a-t-il pris place dans ta journée ?')}</Text>
+        <TextInput accessibilityLabel={t('Bilan du soir')} value={evening} onChangeText={(text) => { eveningDirty.current = true; setEvening(text.slice(0, 500)); setEveningMessage(''); }} multiline placeholder={t('Quelques mots, si tu le souhaites…')} placeholderTextColor={colors.muted} style={st.input} />
         <Pressable accessibilityRole="button" disabled={!evening.trim() || eveningBusy} onPress={async () => {
           if (!evening.trim() || eveningBusy) return;
           setEveningBusy(true);
           try {
             const list = await saveEntry({ id: eveningId, text: evening, prompt: 'Bilan du soir' });
             const note = list.find(e => e.prompt === 'Bilan du soir' && dayKey(new Date(e.at)) === dayKey(new Date()));
-            setEveningId(note?.id); eveningDirty.current = false; setEveningMessage(t('Bilan gardé dans votre journal privé.'));
-          } catch { setEveningMessage(t('Le bilan n’a pas pu être gardé. Réessayez.')); }
+            setEveningId(note?.id); eveningDirty.current = false; setEveningMessage(t('Bilan gardé dans ton journal privé.'));
+          } catch { setEveningMessage(t('Le bilan n’a pas pu être gardé. Réessaie.')); }
           finally { setEveningBusy(false); }
         }} style={{ opacity: !evening.trim() || eveningBusy ? 0.5 : 1 }}><Text style={{ color: colors.gold, fontFamily: fonts.bodyBold }}>{t('Garder mon bilan')}</Text></Pressable>
         {eveningMessage ? <Text accessibilityLiveRegion="polite" style={st.foot}>{eveningMessage}</Text> : null}

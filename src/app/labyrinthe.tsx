@@ -191,15 +191,15 @@ export default function Labyrinthe() {
   const saveSky = async () => {
     setSkyError(null);
     const date = normalizeBirthDate(form.date);
-    if (!date) { setSkyError(t('Indiquez une date valide : JJ/MM/AAAA ou AAAA-MM-JJ.')); return; }
+    if (!date) { setSkyError(t('Indique une date valide : JJ/MM/AAAA ou AAAA-MM-JJ.')); return; }
     const b: Birth = { date, time: form.time?.trim() || undefined, place: villeByName(form.place) ? form.place : undefined };
-    if (!acquis(b)) { setSkyError(t('Vérifiez l’heure : HH:MM, de 00:00 à 23:59, ou laissez ce champ vide.')); return; }
+    if (!acquis(b)) { setSkyError(t('Vérifie l’heure : HH:MM, de 00:00 à 23:59, ou laisse ce champ vide.')); return; }
     try {
       await saveBirth(b);
       setBirth(b);
       setForm(b);
       setEditBirth(false);
-    } catch { setSkyError(t('Votre ciel n’a pas pu être gardé. Réessayez.')); }
+    } catch { setSkyError(t('Ton ciel n’a pas pu être gardé. Réessaie.')); }
   };
   const ready = answers.every((x) => x >= 0);
   const saveWeek = async () => {

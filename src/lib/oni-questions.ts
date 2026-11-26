@@ -48,13 +48,13 @@ export function oniQuestions(story: string, emotion?: Emotion): OniQuestion[] {
   if (place && (UNKNOWN_PLACE.test(s) || !person)) {
     picks.push({
       id: 'lieu', kind: 'reconnaissance', label: 'Reconnaissance',
-      text: UNKNOWN_PLACE.test(s) ? 'Ce lieu inconnu vous rappelle-t-il quand même un endroit réel ou une période de votre vie ?' : 'Ce lieu vous rappelle-t-il un endroit réel ou une période de votre vie ?',
+      text: UNKNOWN_PLACE.test(s) ? 'Ce lieu inconnu te rappelle-t-il quand même un endroit réel ou une période de ta vie ?' : 'Ce lieu te rappelle-t-il un endroit réel ou une période de ta vie ?',
       options: ['Un lieu que je connais', 'Une période de ma vie', 'Ça ne me dit rien'],
     });
   } else if (person) {
     picks.push({
       id: 'personne', kind: 'personne', label: 'Reconnaissance',
-      text: 'Quelle place cette personne occupe-t-elle dans votre vie en ce moment ?',
+      text: 'Quelle place cette personne occupe-t-elle dans ta vie en ce moment ?',
       options: ['Très proche', 'Quelqu’un du passé', 'Une relation compliquée', 'Je ne la connais pas'],
     });
   }
@@ -63,28 +63,28 @@ export function oniQuestions(story: string, emotion?: Emotion): OniQuestion[] {
   if (RECURRENT.test(s)) {
     picks.push({
       id: 'recurrence', kind: 'recurrence', label: 'Récurrence',
-      text: 'Depuis quand ce rêve revient-il ? Que se passait-il dans votre vie la première fois ?',
+      text: 'Depuis quand ce rêve revient-il ? Que se passait-il dans ta vie la première fois ?',
       options: ['Depuis l’enfance', 'Depuis quelques années', 'Depuis peu'],
     });
   } else if (!emotion || emotion === 'aucune' || emotion === 'autre') {
     picks.push({
       id: 'emotion', kind: 'emotion', label: 'Émotion',
-      text: PASSAGE.test(s) ? 'Comment vous sentiez-vous devant ce passage (porte, chemin, escalier…) ?' : 'Quelle émotion vous a accompagné·e dans ce rêve, jusqu’au réveil ?',
+      text: PASSAGE.test(s) ? 'Comment te sentais-tu devant ce passage (porte, chemin, escalier…) ?' : 'Quelle émotion t’a accompagné·e dans ce rêve, jusqu’au réveil ?',
       options: DREAM_FEELINGS.map((f) => f.label), setsEmotion: true,
     });
   } else if (ANXIOUS.test(s) || HEAVY.includes(emotion)) {
     picks.push({
       id: 'moment', kind: 'emotion', label: 'Émotion',
-      text: 'À quel moment du rêve ce que vous ressentiez était-il le plus fort ? Et au réveil, qu’en restait-il ?',
+      text: 'À quel moment du rêve ce que tu ressentais était-il le plus fort ? Et au réveil, qu’en restait-il ?',
     });
   } else if (PASSAGE.test(s)) {
-    picks.push({ id: 'passage', kind: 'emotion', label: 'Émotion', text: 'Que ressentiez-vous devant ce passage (porte, chemin, escalier…) ? Vouliez-vous le franchir ?' });
+    picks.push({ id: 'passage', kind: 'emotion', label: 'Émotion', text: 'Que ressentais-tu devant ce passage (porte, chemin, escalier…) ? Voulais-tu le franchir ?' });
   }
 
   // 3. Contexte de vie : toujours la dernière, toujours facultative.
   picks.push({
     id: 'contexte', kind: 'contexte', label: 'Contexte',
-    text: 'Vivez-vous en ce moment quelque chose qui pourrait résonner avec ce rêve ?',
+    text: 'Vis-tu en ce moment quelque chose qui pourrait résonner avec ce rêve ?',
     options: LIFE_AREAS, multi: true,
   });
   return picks.slice(0, 3);

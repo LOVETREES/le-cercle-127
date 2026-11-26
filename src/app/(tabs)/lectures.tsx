@@ -30,17 +30,17 @@ export default function Lectures() {
       >
         <View style={{ gap: space.sm, alignItems: 'center' }}>
           <Image source={require('../../../assets/images/oni.webp')} style={st.oni} />
-          <Eyebrow>{t('Oni lit vos rêves')}</Eyebrow>
+          <Eyebrow>{t('Oni lit tes rêves')}</Eyebrow>
           <Title size={36}>{t('Lectures d’Oni')}</Title>
           <Body muted style={{ textAlign: 'center' }}>
-            {t('Chaque lecture d’Oni arrive ici, et dans le rêve concerné de votre Grimoire.')}
+            {t('Chaque lecture d’Oni arrive ici, et dans le rêve concerné de ton Grimoire.')}
           </Body>
         </View>
 
         {isDemo && <Notice text={t('Lecture fictive de démonstration. Aucun envoi à l’IA ni relecture réelle n’a lieu dans ce mode.')} />}
         {!user && (
           <Card>
-            <Body>{t('Connectez-vous pour retrouver les lectures liées à vos rêves.')}</Body>
+            <Body>{t('Connecte-toi pour retrouver les lectures liées à tes rêves.')}</Body>
             <GoldButton label={t('Entrer dans mon Grimoire')} onPress={() => router.push('/connexion')} />
           </Card>
         )}
@@ -48,15 +48,15 @@ export default function Lectures() {
         {user && read.length === 0 && (
           <Card>
             <Eyebrow>{t('Comment ça marche')}</Eyebrow>
-            <Text style={st.step}>{t('1. Confiez un rêve dans l’onglet Rêve.')}</Text>
-            <Text style={st.step}>{t('2. Il rejoint votre Grimoire.')}</Text>
+            <Text style={st.step}>{t('1. Confie un rêve dans l’onglet Rêve.')}</Text>
+            <Text style={st.step}>{t('2. Il rejoint ton Grimoire.')}</Text>
             <Text style={st.step}>
-              3. {oniEnabled ? t('Ouvrez-le et touchez « Demander une lecture à Oni ».') : t('Quand Oni l’aura lu, sa lecture apparaîtra ici.')}
+              3. {oniEnabled ? t('Ouvre-le et touche « Demander une lecture à Oni ».') : t('Quand Oni l’aura lu, sa lecture apparaîtra ici.')}
             </Text>
-            <Text style={st.step}>{t('4. Votre lecture du jour arrive tout de suite, puis une personne du Cercle la relit ; les suivantes sont relues avant d’arriver ici.')}
+            <Text style={st.step}>{t('4. Ta lecture du jour arrive tout de suite, puis une personne du Cercle la relit ; les suivantes sont relues avant d’arriver ici.')}
             </Text>
             {!oniEnabled && (
-              <Notice text={isDemo ? t('La démonstration utilise une lecture déjà préparée dans un rêve d’exemple.') : t('Les nouvelles demandes de lecture sont actuellement indisponibles. Votre Grimoire reste accessible.')} />
+              <Notice text={isDemo ? t('La démonstration utilise une lecture déjà préparée dans un rêve d’exemple.') : t('Les nouvelles demandes de lecture sont actuellement indisponibles. Ton Grimoire reste accessible.')} />
             )}
             <OutlineButton label={t('Confier un rêve')} onPress={() => router.navigate('/reve')} />
           </Card>

@@ -15,7 +15,7 @@ export default function Explorer() {
       <View style={{ gap: space.sm }}>
         <Eyebrow>{t('Le Cercle 127')}</Eyebrow>
         <Title>{t('Apprendre et explorer')}</Title>
-        <Body muted>{t('Des pratiques et des parcours pour aller plus loin, à votre rythme.')}</Body>
+        <Body muted>{t('Des pratiques et des parcours pour aller plus loin, à ton rythme.')}</Body>
       </View>
       <Eyebrow>Apprendre</Eyebrow>
       <View style={{ gap: space.sm }}>

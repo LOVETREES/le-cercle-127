@@ -39,7 +39,7 @@ export default function Menu() {
         <LinkRow
           icon="☾"
           title={t('Faisons connaissance')}
-          subtitle={t('Ce qu’Oni sait de vous, pour mieux lire vos rêves')}
+          subtitle={t('Ce qu’Oni sait de toi, pour mieux lire tes rêves')}
           onPress={() => {
             router.back();
             router.push('/connaissance');

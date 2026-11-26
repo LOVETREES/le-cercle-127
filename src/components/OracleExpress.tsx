@@ -56,7 +56,7 @@ export function OracleExpress({ onDraw }: { onDraw: () => void }) {
     <View style={st.card}>
       <Text style={st.kicker}>{t('Carte du jour').toUpperCase()} · {t('ORACLE EXPRESS · SANS INSCRIPTION')}</Text>
       <Text style={st.title}>{t('Pas de souvenir cette nuit ?')}</Text>
-      <Text style={st.text}>{t('Découvrez une carte pour éclairer votre journée.')}</Text>
+      <Text style={st.text}>{t('Découvre une carte pour éclairer ta journée.')}</Text>
       {card && words ? (
         <>
           <View style={st.reveal}>
@@ -70,7 +70,7 @@ export function OracleExpress({ onDraw }: { onDraw: () => void }) {
           <Pressable onPress={() => router.navigate('/oracle')} accessibilityRole="button" style={st.button}>
             <Text style={st.buttonText}>{t('Voir le conseil et garder mon tirage ›')}</Text>
           </Pressable>
-          <Text style={st.note}>{t('Le tirage gardé dans votre Grimoire reste sur cet appareil.')}</Text>
+          <Text style={st.note}>{t('Le tirage gardé dans ton Grimoire reste sur cet appareil.')}</Text>
           {!user && !isDemo && <Pressable onPress={() => router.push({ pathname: '/connexion', params: { mode: 'register' } })} accessibilityRole="link"><Text style={st.link}>{t('Créer un compte gratuit ›')}</Text></Pressable>}
         </>
       ) : (
@@ -78,7 +78,7 @@ export function OracleExpress({ onDraw }: { onDraw: () => void }) {
           <Text style={st.buttonText}>{t('Découvrir ma carte du jour ›')}</Text>
         </Pressable>
       )}
-      {error && <Text accessibilityRole="alert" style={st.text}>{t('Impossible de préparer le tirage. Réessayez.')}</Text>}
+      {error && <Text accessibilityRole="alert" style={st.text}>{t('Impossible de préparer le tirage. Réessaie.')}</Text>}
     </View>
   );
 }

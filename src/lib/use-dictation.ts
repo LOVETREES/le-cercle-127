@@ -6,7 +6,7 @@ import { appendTranscript, speechErrorMessage } from './dictation';
 import { getSpeechModule } from './speech-module';
 import { locale, t } from '../i18n';
 function allowSpeechService(): Promise<boolean> {
-  const message = 'La transcription sur cet appareil n’est pas disponible. Le service vocal de votre téléphone ou navigateur peut envoyer cet audio à Apple, Google ou son fournisseur pour le convertir en texte. Autoriser cette transcription ?';
+  const message = 'La transcription sur cet appareil n’est pas disponible. Le service vocal de ton téléphone ou navigateur peut envoyer cet audio à Apple, Google ou son fournisseur pour le convertir en texte. Autoriser cette transcription ?';
   if (Platform.OS === 'web') return Promise.resolve(window.confirm(message));
   return new Promise((resolve) => Alert.alert(t('Transcription vocale'), message, [
     { text: 'Annuler', style: 'cancel', onPress: () => resolve(false) },
@@ -55,7 +55,7 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
         if (!capture.current || !focused.current) return;
         capture.current = false;
         if (event.uri) onRecording?.({ uri: event.uri, text: latest.current, durationMillis: Math.max(0, event.timestamp - recordingStartedAt.current) });
-        else setError(t('Aucun fichier audio n’a été créé. Le texte reconnu reste utilisable dans votre Grimoire.'));
+        else setError(t('Aucun fichier audio n’a été créé. Le texte reconnu reste utilisable dans ton Grimoire.'));
       }),
       module.addListener('result', (event) => {
         if (!active.current) return;
@@ -75,7 +75,7 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
         if (relaunch()) return;
         active.current = false; keepGoing.current = false; setPhase('idle');
         if (watchdog.current) clearTimeout(watchdog.current);
-        if (!latest.current) setError(t('Aucun texte reconnu. Réessayez ou écrivez votre récit.'));
+        if (!latest.current) setError(t('Aucun texte reconnu. Réessaie ou écris ton récit.'));
       }),
     ] : [];
     return () => {
@@ -96,7 +96,7 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
       const module = getSpeechModule();
       if (!module) throw new Error(t('La dictée nécessite la nouvelle version native de l’app. Elle n’est pas disponible dans Expo Go.'));
       if (!module.isRecognitionAvailable()) throw new Error(t('La dictée n’est pas disponible sur cet appareil ou navigateur.'));
-      if (uri && Platform.OS !== 'ios' && !(Platform.OS === 'android' && module.supportsRecording() && /\.wav$/i.test(uri))) throw new Error(t('Pour cet audio, utilisez « Dicter en texte ». Les nouveaux enregistrements Android 13 ou plus peuvent conserver audio et texte ensemble.'));
+      if (uri && Platform.OS !== 'ios' && !(Platform.OS === 'android' && module.supportsRecording() && /\.wav$/i.test(uri))) throw new Error(t('Pour cet audio, utilise « Dicter en texte ». Les nouveaux enregistrements Android 13 ou plus peuvent conserver audio et texte ensemble.'));
       if (persistRecording && !module.supportsRecording()) throw new Error(t('Cet appareil permet la dictée en texte, mais pas sa sauvegarde audio simultanée.'));
       const permission = await module.requestPermissionsAsync();
       if (!focused.current || current !== generation.current) return;
@@ -131,7 +131,7 @@ export function useDictation({ onTranscript, onFinal, onRecording }: { onTranscr
       watchdog.current = setTimeout(() => {
         if (!active.current) return;
         module.stop(); setPhase('stopping');
-        watchdog.current = setTimeout(() => { module.abort(); active.current = false; setPhase('idle'); if (!latest.current) setError(t('La dictée n’a pas répondu. Réessayez ou écrivez votre récit.')); }, 5000);
+        watchdog.current = setTimeout(() => { module.abort(); active.current = false; setPhase('idle'); if (!latest.current) setError(t('La dictée n’a pas répondu. Réessaie ou écris ton récit.')); }, 5000);
       }, uri ? 180000 : 120000);
     } catch (cause) {
       active.current = false; capture.current = false; keepGoing.current = false; setPhase('idle');

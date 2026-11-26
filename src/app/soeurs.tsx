@@ -10,7 +10,7 @@ import { SISTER_ECHOES } from '../lib/echos';
 export default function Soeurs() {
   return <Screen>
     <Title>{t('Le Cercle des 7 Sœurs')}</Title>
-    <Body>{t('Sept regards, une même trame vivante. Choisissez la Sœur qui rejoint votre besoin du moment.')}</Body>
+    <Body>{t('Sept regards, une même trame vivante. Choisis la Sœur qui rejoint ton besoin du moment.')}</Body>
     {SISTERS.map((sister) => <Pressable key={sister.slug} accessibilityRole="button" accessibilityLabel={t('Découvrir {v0}', { v0: sister.name })} onPress={() => router.push({ pathname: '/page', params: { path: sister.path, title: sister.name } })}>
       <Card>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>

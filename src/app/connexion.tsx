@@ -41,7 +41,7 @@ export default function Connexion() {
   const submit = () =>
     run(async () => {
       if (mode === 'forgot') {
-        if (!validateEmail(email)) throw new Error(t('Indiquez une adresse e-mail valide.'));
+        if (!validateEmail(email)) throw new Error(t('Indique une adresse e-mail valide.'));
         setInfo(await api.forgotPassword(email));
         return;
       }
@@ -51,18 +51,18 @@ export default function Connexion() {
         router.back();
         return;
       }
-      if (pseudonym.trim().length < 2) throw new Error(t('Choisissez un pseudonyme (2 caractères au moins).'));
-      if (!validateEmail(email)) throw new Error(t('Indiquez une adresse e-mail valide.'));
+      if (pseudonym.trim().length < 2) throw new Error(t('Choisis un pseudonyme (2 caractères au moins).'));
+      if (!validateEmail(email)) throw new Error(t('Indique une adresse e-mail valide.'));
       if (password.length < 10) throw new Error(t('Le mot de passe doit contenir au moins 10 caractères.'));
       if (password !== password2) throw new Error(t('Les deux mots de passe ne sont pas identiques.'));
-      if (!consent) throw new Error(t('Merci d’accepter la politique de confidentialité pour créer votre compte.'));
+      if (!consent) throw new Error(t('Merci d’accepter la politique de confidentialité pour créer ton compte.'));
       if (!adult) throw new Error(t('Le Grimoire est réservé aux personnes de 15 ans et plus.'));
       const r = await signUp(pseudonym, email, password, adult);
       if (r === 'signed-in') {
         router.back();
       } else {
         setMode('login');
-        setInfo('Votre compte est créé. Connectez-vous pour entrer dans votre Grimoire.');
+        setInfo('Ton compte est créé. Connecte-toi pour entrer dans ton Grimoire.');
       }
     });
 
@@ -74,9 +74,9 @@ export default function Connexion() {
         </Title>
         <Body muted>
           {mode === 'register'
-            ? t('Gratuit. Vos rêves sont privés. Une lecture par l’IA nécessite un accord séparé.')
+            ? t('Gratuit. Tes rêves sont privés. Une lecture par l’IA nécessite un accord séparé.')
             : mode === 'forgot'
-              ? t('Indiquez votre adresse : vous recevrez un lien pour choisir un nouveau mot de passe.')
+              ? t('Indique ton adresse : tu recevras un lien pour choisir un nouveau mot de passe.')
               : t('Le même compte que sur lecercle127.com.')}
         </Body>
 

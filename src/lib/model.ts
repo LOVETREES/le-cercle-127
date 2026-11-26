@@ -149,7 +149,7 @@ export function dreamPayload(d: DreamInput): Json {
 }
 
 export function validateDream(d: DreamInput): string | undefined {
-  if (d.story.trim().length < 3) return 'Racontez au moins quelques mots de votre rêve.';
+  if (d.story.trim().length < 3) return 'Raconte au moins quelques mots de ton rêve.';
   if (d.story.length > 20000) return 'Le récit est trop long (20 000 caractères au maximum).';
   if (!/^\d{4}-\d{2}-\d{2}$/.test(d.dreamDate)) return 'La date doit être au format AAAA-MM-JJ.';
   if (d.intensity !== undefined && (d.intensity < 1 || d.intensity > 5)) return 'L’intensité va de 1 à 5.';

@@ -17,14 +17,14 @@ async function withVoiceStore<T>(mode: IDBTransactionMode, operation: (store: ID
     request.onupgradeneeded = () => request.result.createObjectStore('notes', { keyPath: 'id' });
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(new Error(t('Impossible d’ouvrir le carnet vocal local.')));
-    request.onblocked = () => reject(new Error(t('Fermez les autres onglets du carnet vocal puis réessayez.')));
+    request.onblocked = () => reject(new Error(t('Ferme les autres onglets du carnet vocal puis réessaie.')));
   });
   try {
     return await new Promise<T>((resolve, reject) => {
       const transaction = db.transaction('notes', mode);
       const request = operation(transaction.objectStore('notes'));
       transaction.oncomplete = () => resolve(request.result);
-      transaction.onerror = () => reject(new Error(t('Le carnet vocal n’a pas pu être enregistré. Vérifiez l’espace disponible.')));
+      transaction.onerror = () => reject(new Error(t('Le carnet vocal n’a pas pu être enregistré. Vérifie l’espace disponible.')));
       transaction.onabort = () => reject(new Error(t('L’enregistrement local a été interrompu.')));
     });
   } finally { db.close(); }
@@ -51,7 +51,7 @@ export async function saveVoiceNote(uri: string, durationMillis: number, demo = 
     const response = await fetch(uri);
     if (!response.ok) throw new Error(t('Le fichier audio n’est plus disponible.'));
     const blob = await response.blob();
-    if (blob.size === 0) throw new Error(t('L’enregistrement est vide. Réessayez.'));
+    if (blob.size === 0) throw new Error(t('L’enregistrement est vide. Réessaie.'));
     await withVoiceStore('readwrite', (store) => { assertCurrent(); return store.put({ ...note, blob }); }, demo);
     return id;
   }

@@ -86,7 +86,7 @@ export default function LectureMain() {
         setQuota(r.quota);
         setOpen((o) => o ?? r.items[0] ?? null);
       },
-      (e) => setNotice({ tone: 'error', text: e instanceof Error ? e.message : t('Connexion impossible. Vérifiez votre réseau et réessayez.') }),
+      (e) => setNotice({ tone: 'error', text: e instanceof Error ? e.message : t('Connexion impossible. Vérifie ton réseau et réessaie.') }),
     );
   }, [token]);
   useFocusEffect(load);
@@ -103,7 +103,7 @@ export default function LectureMain() {
       if (small.base64) setPhoto({ uri: small.uri, base64: small.base64 });
       else throw new Error('vide');
     } catch {
-      setNotice({ tone: 'error', text: t('Cette photo n’a pas pu être préparée. Essayez-en une autre, au format JPEG ou HEIC.') });
+      setNotice({ tone: 'error', text: t('Cette photo n’a pas pu être préparée. Essaies-en une autre, au format JPEG ou HEIC.') });
     }
   };
 
@@ -120,7 +120,7 @@ export default function LectureMain() {
       try {
         shot = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1, allowsEditing: false });
       } catch {
-        setNotice({ tone: 'error', text: t('L’appareil photo n’a pas pu démarrer. Fermez puis rouvrez cet écran, ou utilisez « Choisir une photo ».') });
+        setNotice({ tone: 'error', text: t('L’appareil photo n’a pas pu démarrer. Ferme puis rouvre cet écran, ou utilise « Choisir une photo ».') });
         return;
       }
       if (shot.canceled || !shot.assets?.[0]) return;
@@ -129,7 +129,7 @@ export default function LectureMain() {
     }
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted && perm.accessPrivileges !== 'limited') {
-      setNotice({ tone: 'error', text: t('Autorisez l’accès aux photos dans les réglages du téléphone pour choisir la photo de votre main.') });
+      setNotice({ tone: 'error', text: t('Autorise l’accès aux photos dans les réglages du téléphone pour choisir la photo de ta main.') });
       return;
     }
     let res: ImagePicker.ImagePickerResult;
@@ -140,7 +140,7 @@ export default function LectureMain() {
         preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
       });
     } catch {
-      setNotice({ tone: 'error', text: t('La galerie n’a pas pu s’ouvrir. Utilisez « Photographier ».') });
+      setNotice({ tone: 'error', text: t('La galerie n’a pas pu s’ouvrir. Utilise « Photographier ».') });
       return;
     }
     if (res.canceled || !res.assets?.[0]) return;
@@ -168,7 +168,7 @@ export default function LectureMain() {
   };
 
   const remove = (item: DetailedReading) =>
-    Alert.alert(t('Supprimer cette lecture ?'), t('La lecture et sa fiche d’observations seront effacées de votre compte.'), [
+    Alert.alert(t('Supprimer cette lecture ?'), t('La lecture et sa fiche d’observations seront effacées de ton compte.'), [
       { text: t('Annuler'), style: 'cancel' },
       {
         text: t('Supprimer'),

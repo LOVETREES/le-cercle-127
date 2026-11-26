@@ -54,10 +54,10 @@ export function PerleCard({ dreamId, userId, token }: { dreamId: string; userId:
         <Eyebrow>{t('La Perle d’Oni')}</Eyebrow>
         <Body muted>
           {mine.status === 'livree'
-            ? t('Votre Perle a été livrée : elle se trouve dans la lecture de ce rêve.')
+            ? t('Ta Perle a été livrée : elle se trouve dans la lecture de ce rêve.')
             : mine.status === 'remboursee'
               ? t('Cette Perle a été remboursée.')
-              : t('Votre Perle est en préparation. Une personne du Cercle la relit : elle arrive ici sous 48 heures.')}
+              : t('Ta Perle est en préparation. Une personne du Cercle la relit : elle arrive ici sous 48 heures.')}
         </Body>
       </Card>
     );
@@ -65,7 +65,7 @@ export function PerleCard({ dreamId, userId, token }: { dreamId: string; userId:
   if (!status || !offer) return null;
 
   const pay = async () => {
-    if (!consentsComplete(consents)) { setMsg({ tone: 'error', text: t('Cochez les trois accords pour continuer.') }); return; }
+    if (!consentsComplete(consents)) { setMsg({ tone: 'error', text: t('Coche les trois accords pour continuer.') }); return; }
     setBusy(true); setMsg(null);
     try {
       const bought = await buyPerle(userId, offer);
@@ -75,13 +75,13 @@ export function PerleCard({ dreamId, userId, token }: { dreamId: string; userId:
       try {
         await api.claimPerle(token, claim);
         await removePendingPerle(claim.transactionId);
-        setMsg({ tone: 'success', text: t('Merci ! Votre Perle est en préparation : elle arrive ici sous 48 heures.') });
+        setMsg({ tone: 'success', text: t('Merci ! Ta Perle est en préparation : elle arrive ici sous 48 heures.') });
       } catch {
-        setMsg({ tone: 'success', text: t('Paiement reçu. La confirmation sera envoyée dès que le réseau le permet : votre Perle n’est pas perdue.') });
+        setMsg({ tone: 'success', text: t('Paiement reçu. La confirmation sera envoyée dès que le réseau le permet : ta Perle n’est pas perdue.') });
       }
       await refresh().catch(() => undefined);
     } catch {
-      setMsg({ tone: 'error', text: t('Le paiement n’a pas abouti. Vous n’avez pas été débité·e.') });
+      setMsg({ tone: 'error', text: t('Le paiement n’a pas abouti. Tu n’as pas été débité·e.') });
     } finally {
       setBusy(false);
     }
@@ -92,7 +92,7 @@ export function PerleCard({ dreamId, userId, token }: { dreamId: string; userId:
       <Eyebrow>{t('La Perle d’Oni')}</Eyebrow>
       <Text style={st.title}>{t('Une lecture approfondie, relue par une personne')}</Text>
       <Body muted>
-        {t('Oni explore votre rêve en profondeur (symboles, climat, liens avec votre vie), puis une personne du Cercle relit, ajuste et valide la lecture. Elle arrive ici sous 48 heures.')}
+        {t('Oni explore ton rêve en profondeur (symboles, climat, liens avec ta vie), puis une personne du Cercle relit, ajuste et valide la lecture. Elle arrive ici sous 48 heures.')}
       </Body>
       {status.welcomeEligible ? <Text style={st.welcome}>{t('Première Perle : prix de bienvenue')}</Text> : null}
       {!open ? (
@@ -114,7 +114,7 @@ export function PerleCard({ dreamId, userId, token }: { dreamId: string; userId:
       )}
       {msg ? <Notice tone={msg.tone} text={msg.text} /> : null}
       <Body muted style={{ fontSize: 12 }}>
-        {t('Paiement unique, sans abonnement. Ni diagnostic ni prédiction : une lecture symbolique pour nourrir votre réflexion.')}
+        {t('Paiement unique, sans abonnement. Ni diagnostic ni prédiction : une lecture symbolique pour nourrir ta réflexion.')}
       </Body>
     </Card>
   );

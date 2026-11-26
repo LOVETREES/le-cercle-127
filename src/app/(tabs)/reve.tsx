@@ -107,19 +107,19 @@ export default function Reve() {
       <Screen scrollRef={scrollRef}>
         <View style={{ gap: space.sm }}>
           <Eyebrow>{t('Le Cercle des 7 Sœurs')}</Eyebrow>
-          <Title>{t('Confiez-lui votre rêve')}</Title>
+          <Title>{t('Confie-lui ton rêve')}</Title>
           <Body muted>
-            {t('Posez votre rêve ici comme il vient. Il n’a pas besoin d’être clair, complet ou bien raconté. Les fragments, les sensations et les étrangetés ont aussi leur place.')}
+            {t('Pose ton rêve ici comme il vient. Il n’a pas besoin d’être clair, complet ou bien raconté. Les fragments, les sensations et les étrangetés ont aussi leur place.')}
           </Body>
         </View>
 
         {saved && user && oniEnabled && !isDemo && lastId ? (
           <Card style={{ gap: space.sm }}>
-            <Eyebrow>{dailyUsed ? t('Votre rêve est dans votre Grimoire') : t('Lecture du jour d’Oni')}</Eyebrow>
+            <Eyebrow>{dailyUsed ? t('Ton rêve est dans ton Grimoire') : t('Lecture du jour d’Oni')}</Eyebrow>
             <Body muted>
               {dailyUsed
-                ? t('Votre lecture immédiate du jour est déjà utilisée. Oni peut quand même lire ce rêve : sa lecture sera relue avant de vous parvenir, en général sous 48 heures.')
-                : t('Votre rêve est gardé. Oni peut vous répondre tout de suite, une fois par jour : votre accord vous sera demandé avant l’envoi.')}
+                ? t('Ta lecture immédiate du jour est déjà utilisée. Oni peut quand même lire ce rêve : sa lecture sera relue avant de te parvenir, en général sous 48 heures.')
+                : t('Ton rêve est gardé. Oni peut te répondre tout de suite, une fois par jour : ton accord te sera demandé avant l’envoi.')}
             </Body>
             <GoldButton
               label={dailyUsed ? t('Ouvrir mon rêve') : t('Qu’en dit Oni ? Lecture immédiate')}
@@ -130,7 +130,7 @@ export default function Reve() {
                 try {
                   const id = await resolveDreamId(lastId);
                   if (!id) {
-                    setError(t('Votre rêve n’est pas encore arrivé dans votre Grimoire en ligne. Vérifiez votre réseau, puis ouvrez-le depuis le Grimoire.'));
+                    setError(t('Ton rêve n’est pas encore arrivé dans ton Grimoire en ligne. Vérifie ton réseau, puis ouvre-le depuis le Grimoire.'));
                     return;
                   }
                   router.push({ pathname: '/reve/[id]', params: { id, lire: dailyUsed ? undefined : '1' } });
@@ -145,11 +145,11 @@ export default function Reve() {
           <Notice
             tone="success"
             text={
-              isDemo ? t('Rêve gardé dans la démonstration locale, séparément de vos données personnelles.') : user
+              isDemo ? t('Rêve gardé dans la démonstration locale, séparément de tes données personnelles.') : user
                 ? oniEnabled
-                  ? t('Votre rêve est dans votre Grimoire. Pour demander une lecture à Oni, ouvrez-le : votre accord sera demandé avant l’envoi. La lecture sera accessible dans l’écran Lectures.')
-                  : t('Votre rêve est dans votre Grimoire. Les nouvelles demandes de lecture à Oni sont actuellement indisponibles.')
-                : t('Votre rêve est gardé sur cet appareil. Connectez-vous pour le synchroniser avec votre Grimoire.')
+                  ? t('Ton rêve est dans ton Grimoire. Pour demander une lecture à Oni, ouvre-le : ton accord sera demandé avant l’envoi. La lecture sera accessible dans l’écran Lectures.')
+                  : t('Ton rêve est dans ton Grimoire. Les nouvelles demandes de lecture à Oni sont actuellement indisponibles.')
+                : t('Ton rêve est gardé sur cet appareil. Connecte-toi pour le synchroniser avec ton Grimoire.')
             }
           />
         )}
@@ -172,15 +172,15 @@ export default function Reve() {
           <Pressable onPress={() => router.push('/connaissance')} style={st.meet} accessibilityRole="link">
             <Text style={st.meetKicker}>{t('ONI NE VOUS CONNAÎT PAS ENCORE')}</Text>
             <Text style={st.meetTitle}>{t('Faisons connaissance ›')}</Text>
-            <Body muted style={{ fontSize: textSize.sm }}>{t('Quelques mots sur vous, et Oni pourra relier vos rêves à votre vie. Tout est facultatif.')}</Body>
+            <Body muted style={{ fontSize: textSize.sm }}>{t('Quelques mots sur toi, et Oni pourra relier tes rêves à ta vie. Tout est facultatif.')}</Body>
           </Pressable>
         ) : null}
         <Card style={{ gap: space.lg }}>
-          <Text style={st.oniListens}>{t('Oni vous écoute.')}</Text>
+          <Text style={st.oniListens}>{t('Oni t’écoute.')}</Text>
           <OutlineButton label={t('Ouvrir mon carnet vocal')} onPress={() => router.push('/carnet-vocal')} />
-          <Field label={t('Si votre rêve avait un nom…')} placeholder={t('Un titre, même provisoire')} value={title} onChangeText={setTitle} maxLength={140} />
+          <Field label={t('Si ton rêve avait un nom…')} placeholder={t('Un titre, même provisoire')} value={title} onChangeText={setTitle} maxLength={140} />
           <Field
-            label={t('Vous souvenez-vous de la nuit où il est venu ?')}
+            label={t('Te souviens-tu de la nuit où il est venu ?')}
             placeholder="AAAA-MM-JJ"
             value={dreamDate}
             onChangeText={setDreamDate}
@@ -204,10 +204,10 @@ export default function Reve() {
             if (speech.active) speech.stop();
             else { dictationBase.current = story; void speech.start(); }
           }} />
-          {speech.active && <Notice text={t('Dictée en cours : le texte reconnu apparaît dans votre récit.')} />}
+          {speech.active && <Notice text={t('Dictée en cours : le texte reconnu apparaît dans ton récit.')} />}
           {speech.error && <Notice tone="error" text={speech.error} />}
           <Body muted style={{ fontSize: textSize.sm }}>
-            {t('Racontez sans chercher à comprendre. Qui était là ? Où étiez-vous ? Que voyiez-vous, entendiez-vous ou ressentiez-vous ? Vous pouvez écrire dans le désordre, utiliser la dictée ci-dessus ou celle du clavier.')}
+            {t('Raconte sans chercher à comprendre. Qui était là ? Où étais-tu ? Que voyais-tu, entendais-tu ou ressentais-tu ? Tu peux écrire dans le désordre, utiliser la dictée ci-dessus ou celle du clavier.')}
           </Body>
 
           <View style={{ gap: space.sm }}>
@@ -256,7 +256,7 @@ export default function Reve() {
           {error && <Notice tone="error" text={error} />}
           <GoldButton label={t('Continuer avec Oni')} onPress={submit} disabled={speech.active} />
           <Body muted style={{ fontSize: textSize.sm }}>
-            {t('Votre récit reste sur cet appareil tant que vous n’êtes pas connecté·e. Il n’est jamais envoyé à Oni sans votre accord.')}
+            {t('Ton récit reste sur cet appareil tant que tu n’es pas connecté·e. Il n’est jamais envoyé à Oni sans ton accord.')}
           </Body>
         </Card>
         </>

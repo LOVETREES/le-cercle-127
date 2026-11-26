@@ -100,8 +100,8 @@ export default function Rencontre() {
       <>
         <Oni size={170} />
         <Text style={st.kicker}>{t('LE CERCLE 127')}</Text>
-        <Text style={st.h1}>{t('Je suis Oni, gardienne de vos rêves.')}</Text>
-        <Text style={st.vow}>{t('Je ne cherche pas à tout savoir de vous. Je cherche à comprendre ce que vos rêves signifient pour vous.')}</Text>
+        <Text style={st.h1}>{t('Je suis Oni, gardienne de tes rêves.')}</Text>
+        <Text style={st.vow}>{t('Je ne cherche pas à tout savoir de toi. Je cherche à comprendre ce que tes rêves signifient pour toi.')}</Text>
       </>
     );
     cta = t('Commencer');
@@ -109,7 +109,7 @@ export default function Rencontre() {
     body = (
       <>
         <Oni size={110} />
-        <Text style={st.h1}>{t('Comment souhaitez-vous que je vous appelle ?')}</Text>
+        <Text style={st.h1}>{t('Comment souhaites-tu que je t’appelle ?')}</Text>
         <TextInput
           value={p.name ?? ''}
           onChangeText={(v) => setP((x) => ({ ...x, name: v.slice(0, 60) }))}
@@ -120,7 +120,7 @@ export default function Rencontre() {
           returnKeyType="next"
           onSubmitEditing={next}
         />
-        <Text style={st.small}>🔒 {t('Vos réponses restent sur votre téléphone.')}</Text>
+        <Text style={st.small}>🔒 {t('Tes réponses restent sur ton téléphone.')}</Text>
       </>
     );
     cta = name ? t('Continuer') : t('Passer');
@@ -129,14 +129,14 @@ export default function Rencontre() {
       <>
         <Oni size={150} />
         <Text style={st.h1}>{name ? t('Enchantée, {n}.', { n: name }) : t('Enchantée.')}</Text>
-        <Text style={st.lead}>{t('Un rêve parle toujours de la vie de celui ou celle qui le fait. Si vous me confiez un peu de la vôtre, mes lectures pourront s’y relier.')}</Text>
+        <Text style={st.lead}>{t('Un rêve parle toujours de la vie de celui ou celle qui le fait. Si tu me confies un peu de la tienne, mes lectures pourront s’y relier.')}</Text>
       </>
     );
   } else if (step === 3) {
     body = (
       <>
         <Text style={st.h1}>{t('Ce que je peux inclure dans mes lectures…')}</Text>
-        <Text style={st.small}>{t('Rien n’est coché d’avance. Vous pourrez tout changer ou effacer plus tard.')}</Text>
+        <Text style={st.small}>{t('Rien n’est coché d’avance. Tu pourras tout changer ou effacer plus tard.')}</Text>
         <View style={st.grid}>
           {TOPICS.map((x) => {
             const on = topics.includes(x.key);
@@ -163,7 +163,7 @@ export default function Rencontre() {
   } else if (topicAt === 'areas') {
     body = (
       <>
-        <Text style={st.h1}>{t('Quels domaines occupent votre vie en ce moment ?')}</Text>
+        <Text style={st.h1}>{t('Quels domaines occupent ta vie en ce moment ?')}</Text>
         <View style={st.chips}>
           {LIFE_AREAS.map((a) => (
             <Chip key={a} label={a} on={p.areas.includes(a)} onPress={() => setP((x) => ({ ...x, areas: x.areas.includes(a) ? x.areas.filter((y) => y !== a) : [...x.areas, a] }))} />
@@ -174,7 +174,7 @@ export default function Rencontre() {
   } else if (topicAt === 'now') {
     body = (
       <>
-        <Text style={st.h1}>{t('Y a-t-il quelque chose d’important dans votre vie actuelle ?')}</Text>
+        <Text style={st.h1}>{t('Y a-t-il quelque chose d’important dans ta vie actuelle ?')}</Text>
         <TextInput
           value={p.now ?? ''}
           onChangeText={(v) => setP((x) => ({ ...x, now: v.slice(0, 800) }))}
@@ -188,7 +188,7 @@ export default function Rencontre() {
   } else if (topicAt === 'sleep') {
     body = (
       <>
-        <Text style={st.h1}>{t('Vos rêves et votre sommeil')}</Text>
+        <Text style={st.h1}>{t('Tes rêves et ton sommeil')}</Text>
         <View style={st.chips}>
           {DREAM_HABITS.map((h) => (
             <Chip
@@ -207,7 +207,7 @@ export default function Rencontre() {
   } else if (topicAt === 'age') {
     body = (
       <>
-        <Text style={st.h1}>{t('Votre tranche d’âge')}</Text>
+        <Text style={st.h1}>{t('Ta tranche d’âge')}</Text>
         <View style={st.chips}>
           {AGE_RANGES.map((a) => (
             <Chip key={a.value} label={a.label} on={p.age === a.value} onPress={() => setP((x) => ({ ...x, age: x.age === a.value ? undefined : a.value }))} />
@@ -219,8 +219,8 @@ export default function Rencontre() {
     body = (
       <>
         <Oni size={150} />
-        <Text style={st.h1}>{name ? t('Merci, {n}. Racontez-moi votre premier rêve.', { n: name }) : t('Merci. Racontez-moi votre premier rêve.')}</Text>
-        <Text style={st.lead}>{t('Comme il vient, même en fragments. Je vous poserai peut-être une ou deux questions, toujours facultatives.')}</Text>
+        <Text style={st.h1}>{name ? t('Merci, {n}. Raconte-moi ton premier rêve.', { n: name }) : t('Merci. Raconte-moi ton premier rêve.')}</Text>
+        <Text style={st.lead}>{t('Comme il vient, même en fragments. Je te poserai peut-être une ou deux questions, toujours facultatives.')}</Text>
       </>
     );
     cta = t('Raconter un rêve');
