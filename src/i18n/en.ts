@@ -362,6 +362,7 @@ export const en: Record<string, string> = {
   "RETROUVER MES ENREGISTREMENTS": "FIND MY RECORDINGS",
   "ENREGISTRER UN RÊVE": "RECORD A DREAM",
   "Confier ce rêve à Oni": "Share this dream with Oni",
+  "L’appareil photo n’a pas pu s’ouvrir. Prenez la photo avec l’app Appareil photo, puis touchez « Choisir une photo ».": "The camera could not open. Take the photo with the Camera app, then tap “Choose a photo”.",
   "Gêne / embarras": "Embarrassment",
   "Surprise": "Surprise",
   "Symboles": "Symbols",

@@ -97,8 +97,21 @@ export default function LectureMain() {
       setNotice({ tone: 'error', text: t('Autorisez l’accès dans les réglages du téléphone pour photographier votre main.') });
       return;
     }
-    const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 1, allowsEditing: false };
-    const res = camera ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
+    // iPhone : l'appareil photo s'ouvre en plein écran (en « feuille », l'aperçu restait noir) et seulement
+    // une fois la fenêtre d'autorisation refermée.
+    const opts: ImagePicker.ImagePickerOptions = {
+      mediaTypes: ['images'], quality: 1, allowsEditing: false,
+      presentationStyle: ImagePicker.UIImagePickerPresentationStyle.FULL_SCREEN,
+      cameraType: ImagePicker.CameraType.back,
+    };
+    if (camera) await new Promise((r) => setTimeout(r, 350));
+    let res: ImagePicker.ImagePickerResult;
+    try {
+      res = camera ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
+    } catch {
+      setNotice({ tone: 'error', text: t('L’appareil photo n’a pas pu s’ouvrir. Prenez la photo avec l’app Appareil photo, puis touchez « Choisir une photo ».') });
+      return;
+    }
     if (res.canceled || !res.assets?.[0]) return;
     // Réduite à 1400 px et recompressée : assez fine pour les lignes, légère à envoyer.
     const a = res.assets[0];

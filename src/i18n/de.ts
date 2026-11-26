@@ -362,6 +362,7 @@ export const de: Record<string, string> = {
   "RETROUVER MES ENREGISTREMENTS": "MEINE AUFNAHMEN FINDEN",
   "ENREGISTRER UN RÊVE": "EINEN TRAUM AUFNEHMEN",
   "Confier ce rêve à Oni": "Diesen Traum Oni anvertrauen",
+  "L’appareil photo n’a pas pu s’ouvrir. Prenez la photo avec l’app Appareil photo, puis touchez « Choisir une photo ».": "Die Kamera konnte nicht geöffnet werden. Mach das Foto mit der Kamera-App und tippe dann auf „Foto auswählen“.",
   "Gêne / embarras": "Verlegenheit",
   "Surprise": "Überraschung",
   "Symboles": "Symbole",
