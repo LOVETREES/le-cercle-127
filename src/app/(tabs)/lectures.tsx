@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader, Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Title } from '../../components/ui';
 import { readingSummary } from '../../lib/model';
 import { useSession } from '../../lib/session';
-import { colors, fonts, radius, space } from '../../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../../lib/theme';
 import { locale, t } from '../../i18n';
 
 function formatDate(iso: string) {
@@ -103,12 +103,12 @@ export default function Lectures() {
 
 const st = StyleSheet.create({
   oni: { width: 84, height: 84, borderRadius: 42, borderWidth: 1, borderColor: colors.gold },
-  step: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.text },
+  step: { fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 22, color: colors.text },
   item: { padding: space.md, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, gap: 6 },
-  date: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 1.2, color: colors.gold, textTransform: 'uppercase' },
+  date: { fontFamily: fonts.bodyMedium, fontSize: textSize.xs, letterSpacing: 1.2, color: colors.gold, textTransform: 'uppercase' },
   title: { fontFamily: fonts.title, fontSize: 21, color: colors.text },
   reading: { fontFamily: fonts.titleItalic, fontSize: 17, lineHeight: 24, color: colors.text },
-  more: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold, marginTop: 4 },
-  waiting: { fontFamily: fonts.body, fontSize: 15, color: colors.muted, paddingVertical: 4 },
-  preparing: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.gold },
+  more: { fontFamily: fonts.bodyBold, fontSize: textSize.sm, color: colors.gold, marginTop: space.xs },
+  waiting: { fontFamily: fonts.body, fontSize: textSize.md, color: colors.muted, paddingVertical: space.xs },
+  preparing: { fontFamily: fonts.bodyMedium, fontSize: textSize.sm, color: colors.gold },
 });

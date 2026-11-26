@@ -20,7 +20,7 @@ import { LAME_IMAGES } from '../lib/oracle/images';
 import { lameText } from '../lib/oracle/localize';
 import { listPalmReadings } from '../lib/palm';
 import { useSession } from '../lib/session';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { t } from '../i18n';
 
 const GOLD2 = '#f3dca0';
@@ -213,7 +213,7 @@ export default function Labyrinthe() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen>
-        <View style={{ alignItems: 'center', gap: 4 }}>
+        <View style={{ alignItems: 'center', gap: space.xs }}>
           <Text style={st.title}>{t('Le Cercle des 7 Sœurs')}</Text>
           <Text style={st.kicker}>{t('TON VÉCU, SŒUR PAR SŒUR')}</Text>
         </View>
@@ -371,7 +371,7 @@ export default function Labyrinthe() {
             {syncMsg ? <Text style={st.small}>{syncMsg}</Text> : null}
             {!sync ? (
               <Pressable onPress={() => void eraseAccount()} accessibilityRole="button" hitSlop={6}>
-                <Text style={[st.link, { color: colors.danger, fontSize: 13 }]}>{t('Effacer mes bilans de mon compte')}</Text>
+                <Text style={[st.link, { color: colors.danger, fontSize: textSize.sm }]}>{t('Effacer mes bilans de mon compte')}</Text>
               </Pressable>
             ) : null}
           </View>
@@ -383,43 +383,43 @@ export default function Labyrinthe() {
 }
 
 const st = StyleSheet.create({
-  kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8, color: colors.gold, textAlign: 'center' },
-  title: { fontFamily: fonts.title, fontSize: 28, lineHeight: 32, color: colors.text, textAlign: 'center' },
+  kicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.8, color: colors.gold, textAlign: 'center' },
+  title: { fontFamily: fonts.title, fontSize: textSize.xxl, lineHeight: 32, color: colors.text, textAlign: 'center' },
   card: { backgroundColor: CARD, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: space.md, gap: space.sm },
-  h: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8, color: colors.gold },
-  legend: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center' },
+  h: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.8, color: colors.gold },
+  legend: { flexDirection: 'row', flexWrap: 'wrap', gap: space.ms, justifyContent: 'center' },
   legendT: { fontFamily: fonts.bodyMedium, fontSize: 12 },
   readLead: { fontFamily: fonts.titleItalic, fontSize: 19, lineHeight: 26, color: colors.text },
-  read: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.text },
-  doors: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  door: { flex: 1, alignItems: 'center', gap: 4 },
+  read: { fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 22, color: colors.text },
+  doors: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm },
+  door: { flex: 1, alignItems: 'center', gap: space.xs },
   doorK: { fontFamily: fonts.bodyBold, fontSize: 10, letterSpacing: 1.4, color: colors.muted, textAlign: 'center' },
   doorImg: { width: 112, height: 106, borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(240,214,140,0.55)', backgroundColor: '#0b0d1e' },
-  doorName: { fontFamily: fonts.title, fontSize: 18, color: colors.text, textAlign: 'center' },
-  doorSis: { fontFamily: fonts.body, fontSize: 11, color: colors.muted, textAlign: 'center' },
+  doorName: { fontFamily: fonts.title, fontSize: textSize.lg, color: colors.text, textAlign: 'center' },
+  doorSis: { fontFamily: fonts.body, fontSize: textSize.xs, color: colors.muted, textAlign: 'center' },
   arrow: { fontFamily: fonts.title, fontSize: 26, color: colors.gold },
   path: { fontFamily: fonts.bodyMedium, fontSize: 13.5, lineHeight: 19, color: GOLD2, textAlign: 'center' },
   small: { fontFamily: fonts.body, fontSize: 12.5, lineHeight: 18, color: colors.muted },
   link: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.gold },
-  q: { gap: 6, paddingTop: 8, borderTopWidth: 1, borderTopColor: 'rgba(216,182,107,0.15)' },
+  q: { gap: 6, paddingTop: space.sm, borderTopWidth: 1, borderTopColor: 'rgba(216,182,107,0.15)' },
   qT: { fontFamily: fonts.body, fontSize: 14.5, lineHeight: 20, color: colors.text },
   qS: { fontFamily: fonts.bodyBold, color: colors.gold },
-  scale: { flexDirection: 'row', gap: 8 },
+  scale: { flexDirection: 'row', gap: space.sm },
   dot: { width: 40, height: 36, borderRadius: 10, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
-  dotOn: { backgroundColor: '#e8cf8f', borderColor: '#e8cf8f' },
+  dotOn: { backgroundColor: colors.goldSoft, borderColor: colors.goldSoft },
   dotT: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.text },
-  dotTOn: { color: '#1b1730' },
-  cta: { backgroundColor: '#e8cf8f', borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', marginTop: 4 },
-  ctaT: { fontFamily: fonts.title, fontSize: 19, color: '#1b1730' },
+  dotTOn: { color: colors.onGold },
+  cta: { backgroundColor: colors.goldSoft, borderRadius: radius.pill, paddingVertical: 14, alignItems: 'center', marginTop: space.xs },
+  ctaT: { fontFamily: fonts.title, fontSize: 19, color: colors.onGold },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  sisterRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(216,182,107,0.12)' },
+  sisterRow: { flexDirection: 'row', alignItems: 'center', gap: space.ms, paddingVertical: space.sm, borderBottomWidth: 1, borderBottomColor: 'rgba(216,182,107,0.12)' },
   sisterPortrait: { width: 46, height: 46, borderRadius: 23, borderWidth: 1, borderColor: colors.border },
-  sisterDetails: { flex: 1, gap: 4 },
+  sisterDetails: { flex: 1, gap: space.xs },
   sisterName: { fontFamily: fonts.title, fontSize: 20, color: colors.text },
-  sisterSource: { fontFamily: fonts.body, fontSize: 11, color: colors.muted },
+  sisterSource: { fontFamily: fonts.body, fontSize: textSize.xs, color: colors.muted },
   syncRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   syncBox: { fontSize: 20, color: colors.gold, lineHeight: 22 },
-  rowS: { width: 52, fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.text },
+  rowS: { width: 52, fontFamily: fonts.bodyMedium, fontSize: textSize.sm, color: colors.text },
   track: { flex: 1, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.08)' },
   fill: { height: 8, borderRadius: 4, backgroundColor: GOLD2, opacity: 0.85 },
   tick: { position: 'absolute', top: -3, width: 2, height: 14, marginLeft: -1, backgroundColor: colors.gold },
@@ -427,6 +427,6 @@ const st = StyleSheet.create({
   place: { fontFamily: fonts.body, fontSize: 14, lineHeight: 21, color: colors.text },
   sugg: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, overflow: 'hidden' },
   suggI: { paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(216,182,107,0.12)' },
-  suggT: { fontFamily: fonts.body, fontSize: 15, color: colors.text },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 12, color: colors.text, fontFamily: fonts.body, fontSize: 16 },
+  suggT: { fontFamily: fonts.body, fontSize: textSize.md, color: colors.text },
+  input: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: space.ms, color: colors.text, fontFamily: fonts.body, fontSize: 16 },
 });

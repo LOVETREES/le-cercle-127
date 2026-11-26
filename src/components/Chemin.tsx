@@ -5,7 +5,7 @@ import Svg, { Circle } from 'react-native-svg';
 
 import { SISTERS } from '../lib/content';
 import { LEVEL_LABEL, type Chemin, type StationState } from '../lib/chemin';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { t } from '../i18n';
 
 const IMG = Object.fromEntries(SISTERS.map((s) => [s.slug, s.image])) as Record<string, number>;
@@ -67,7 +67,7 @@ export function CheminCard({ chemin }: { chemin: Chemin }) {
       </Pressable>
       <Pressable style={st.next} onPress={() => router.push({ pathname: '/chemin', params: { s: next.slug } })} accessibilityRole="button">
         <SisterRing s={next} size={46} />
-        <View style={{ flex: 1, gap: 2 }}>
+        <View style={{ flex: 1, gap: space.xxs }}>
           <Text style={[st.nextKicker, { color: next.color }]}>{t('TON PROCHAIN PAS')}</Text>
           <Text style={st.nextText}>{next.name} : {t(next.next)}</Text>
         </View>
@@ -80,17 +80,17 @@ export function CheminCard({ chemin }: { chemin: Chemin }) {
 const st = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: radius.lg, padding: space.md, gap: 14 },
   head: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
-  title: { fontFamily: fonts.title, fontSize: 28, color: colors.text },
+  title: { fontFamily: fonts.title, fontSize: textSize.xxl, color: colors.text },
   intro: { fontFamily: fonts.body, fontSize: 14, lineHeight: 21, color: colors.muted },
   gridRow: { flexDirection: 'row', justifyContent: 'center' },
   node: { width: '25%', alignItems: 'center', gap: 3, minHeight: 100 },
   name: { fontFamily: fonts.bodyBold, fontSize: 12 },
-  count: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold },
+  count: { fontFamily: fonts.bodyBold, fontSize: textSize.sm, color: colors.gold },
   level: { fontFamily: fonts.bodyBold, fontSize: 10 },
   evolutionLink: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  evolutionLinkText: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold },
-  next: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: radius.md, backgroundColor: colors.surfaceRaised },
-  nextKicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.4 },
+  evolutionLinkText: { fontFamily: fonts.bodyBold, fontSize: textSize.sm, color: colors.gold },
+  next: { flexDirection: 'row', alignItems: 'center', gap: space.ms, padding: space.ms, borderRadius: radius.md, backgroundColor: colors.surfaceRaised },
+  nextKicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.4 },
   nextText: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.text },
   chevron: { fontFamily: fonts.title, fontSize: 26, color: colors.gold },
 });

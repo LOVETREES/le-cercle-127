@@ -7,7 +7,7 @@ import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, Tex
 import { Notice, Screen } from '../components/ui';
 import { appendTranscript } from '../lib/dictation';
 import { deleteEntry, FEELINGS, listEntries, promptOfDay, saveEntry, type JournalEntry } from '../lib/journal-intime';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { useDictation } from '../lib/use-dictation';
 import { locale, t } from '../i18n';
 import { isShadowWord, shadowLabel, shadowMatches } from '../lib/ombre';
@@ -81,7 +81,7 @@ export default function JournalIntime() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen>
-        <View style={{ gap: 4, alignItems: 'center' }}>
+        <View style={{ gap: space.xs, alignItems: 'center' }}>
           <Text style={st.kicker}>{t('MON JOURNAL INTIME')}</Text>
           <Text style={st.title}>{t('Ce que je vis')}</Text>
           <Text style={st.lead}>{t('Tes pensées, tes ressentis, tes prises de conscience. Ce journal reste sur ton téléphone : il n’est envoyé ni à Oni, ni au site.')}</Text>
@@ -144,7 +144,7 @@ export default function JournalIntime() {
           {savedMsg ? <Notice tone="success" text={t('Page gardée dans ton journal.')} /> : null}
         </View>
 
-        {filter ? <View style={{ gap: 8 }}><Text style={st.lead}>{t('Pages contenant « {mot} » et ses variantes', { mot: t(shadowLabel(filter)) })}</Text><Pressable accessibilityRole="button" onPress={() => setFilter('')}><Text style={st.action}>{t('Voir toutes mes pages')}</Text></Pressable></View> : null}
+        {filter ? <View style={{ gap: space.sm }}><Text style={st.lead}>{t('Pages contenant « {mot} » et ses variantes', { mot: t(shadowLabel(filter)) })}</Text><Pressable accessibilityRole="button" onPress={() => setFilter('')}><Text style={st.action}>{t('Voir toutes mes pages')}</Text></Pressable></View> : null}
         <Text style={st.kicker}>{shownEntries.length ? t('MES PAGES · {n}', { n: shownEntries.length }) : t('MES PAGES')}</Text>
         {shownEntries.length === 0 ? (
           <Text style={st.muted}>{t('Tes pages s’afficheront ici, de la plus récente à la plus ancienne.')}</Text>
@@ -180,33 +180,33 @@ export default function JournalIntime() {
 }
 
 const st = StyleSheet.create({
-  kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8, color: colors.gold, textAlign: 'center' },
+  kicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.8, color: colors.gold, textAlign: 'center' },
   title: { fontFamily: fonts.title, fontSize: 32, color: colors.text },
   lead: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.muted, textAlign: 'center' },
   card: { backgroundColor: CARD, borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(216,182,107,0.45)', padding: space.md, gap: space.sm },
-  date: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.6, color: colors.muted },
-  prompt: { borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: 12, gap: 2 },
+  date: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.6, color: colors.muted },
+  prompt: { borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: space.ms, gap: space.xxs },
   promptOn: { borderColor: 'rgba(243,220,160,0.7)', backgroundColor: '#15142c' },
   promptK: { fontFamily: fonts.bodyBold, fontSize: 11.5, color: colors.gold },
-  promptT: { fontFamily: fonts.titleItalic, fontSize: 18, lineHeight: 24, color: GOLD2 },
+  promptT: { fontFamily: fonts.titleItalic, fontSize: textSize.lg, lineHeight: 24, color: GOLD2 },
   input: { minHeight: 180, borderWidth: 1, borderColor: 'rgba(216,182,107,0.3)', borderRadius: radius.md, padding: 14, color: colors.text, fontFamily: fonts.body, fontSize: 16, lineHeight: 24, textAlignVertical: 'top' },
   ghost: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingVertical: 11, alignItems: 'center' },
   ghostT: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.gold },
-  label: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.text, marginTop: 4 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { borderWidth: 1, borderColor: 'rgba(170,160,230,0.45)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
-  chipOn: { backgroundColor: '#e8cf8f', borderColor: '#e8cf8f' },
-  chipT: { fontFamily: fonts.body, fontSize: 13, color: colors.text },
-  chipTOn: { color: '#1b1730', fontFamily: fonts.bodyBold },
-  cta: { backgroundColor: '#e8cf8f', borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center', marginTop: 4 },
-  ctaT: { fontFamily: fonts.title, fontSize: 20, color: '#1b1730' },
+  label: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.text, marginTop: space.xs },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  chip: { borderWidth: 1, borderColor: 'rgba(170,160,230,0.45)', borderRadius: radius.pill, paddingHorizontal: space.ms, paddingVertical: 7 },
+  chipOn: { backgroundColor: colors.goldSoft, borderColor: colors.goldSoft },
+  chipT: { fontFamily: fonts.body, fontSize: textSize.sm, color: colors.text },
+  chipTOn: { color: colors.onGold, fontFamily: fonts.bodyBold },
+  cta: { backgroundColor: colors.goldSoft, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center', marginTop: space.xs },
+  ctaT: { fontFamily: fonts.title, fontSize: 20, color: colors.onGold },
   muted: { fontFamily: fonts.body, fontSize: 13.5, color: colors.muted, textAlign: 'center' },
   entry: { backgroundColor: CARD, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: space.md, gap: 6 },
-  entryHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+  entryHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.sm },
   entryDate: { fontFamily: fonts.bodyBold, fontSize: 12, color: colors.gold, textTransform: 'capitalize', flexShrink: 1 },
   entryFeel: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.muted },
-  entryPrompt: { fontFamily: fonts.titleItalic, fontSize: 15, color: GOLD2 },
-  entryText: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.text },
-  entryActions: { flexDirection: 'row', gap: space.lg, marginTop: 4 },
+  entryPrompt: { fontFamily: fonts.titleItalic, fontSize: textSize.md, color: GOLD2 },
+  entryText: { fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 22, color: colors.text },
+  entryActions: { flexDirection: 'row', gap: space.lg, marginTop: space.xs },
   action: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.gold },
 });

@@ -15,7 +15,7 @@ import { doorStates, readPortes, type Door, type PortesStore } from '../../lib/p
 import { loadRealityChecks } from '../../lib/reality-journal';
 import { readRitual, type RitualStore } from '../../lib/rituel';
 import { useSession } from '../../lib/session';
-import { colors, fonts, radius, space } from '../../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../../lib/theme';
 import { listVoiceNotes } from '../../lib/voice-notes';
 import { splitContext } from '../../lib/oni-questions';
 import { lameByNumber } from '../../lib/oracle/engine';
@@ -273,7 +273,7 @@ export default function Grimoire() {
             ))}
           </Svg>
           <View style={st.archBox} pointerEvents="none"><Arch /></View>
-          <View style={{ flex: 1, gap: 4, paddingRight: 64 }}>
+          <View style={{ flex: 1, gap: space.xs, paddingRight: 64 }}>
             <Text style={st.hello}>{first ? t('Bienvenue, {name}, dans ton', { name: first }) : t('Bienvenue dans ton')}</Text>
             <Text style={st.heroTitle} accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{t('GRIMOIRE')}</Text>
             <View style={st.rule} />
@@ -334,7 +334,7 @@ export default function Grimoire() {
               <View key={name} style={st.rec}>
                 {tab === 'sym' ? <SymbolIcon name={iconKey(name)} /> : <View style={st.recDot} />}
                 <View style={{ flex: 1, gap: 6 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: space.sm }}>
                     <Text style={st.recName} numberOfLines={1}>{name}</Text>
                     <Text style={st.recN}>{t(n > 1 ? '{n} apparitions' : '{n} apparition', { n })}</Text>
                   </View>
@@ -399,7 +399,7 @@ export default function Grimoire() {
         <View style={st.card}>
           <Text style={st.h}>{t('JOURNAL INTIME')}</Text>
           {extra.journal[0] ? (
-            <View style={{ gap: 2 }}>
+            <View style={{ gap: space.xxs }}>
               <Text style={st.dMotifs}>
                 {new Date(extra.journal[0].at).toLocaleDateString(locale(), { day: 'numeric', month: 'long' })}
                 {extra.journal.length > 1 ? ` · ${t('{n} pages', { n: extra.journal.length })}` : ''}
@@ -430,12 +430,12 @@ export default function Grimoire() {
         <View style={st.card}>
           <Text style={st.h}>{t('OMBRE ET POLARITÉS')}</Text>
           <Body muted>{t('Quelques mots français qui reviennent dans votre journal privé, rapprochés pour ouvrir des questions. Le contexte, y compris une négation, peut changer leur sens : vous restez libre de les interpréter.')}</Body>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.ms }}>
             {([
               [t('Mots de tension'), shadow.tensions],
               [t('Mots de ressource'), shadow.ressources],
               [t('Mots de mouvement'), shadow.mouvements],
-            ] as const).map(([label, items]) => <View key={label} style={{ flex: 1, minWidth: 130, gap: 8 }}>
+            ] as const).map(([label, items]) => <View key={label} style={{ flex: 1, minWidth: 130, gap: space.sm }}>
               <Text style={st.recName}>{label}</Text>
               {items.length ? items.map(({ word, occurrences }) => <Pressable key={word} accessibilityRole="button" accessibilityLabel={t('Voir les pages pour {mot} : {n}', { mot: t(shadowLabel(word)), n: occurrences })} onPress={() => router.push({ pathname: '/journal-intime', params: { motif: word } })}><Text style={st.recN}>{t(shadowLabel(word))} · {occurrences} ›</Text></Pressable>) : <Body muted>{t('Aucun mot récurrent repéré pour l’instant.')}</Body>}
             </View>)}
@@ -470,7 +470,7 @@ export default function Grimoire() {
                       </View>
                     ))}
                   </View>
-                  <View style={{ flex: 1, gap: 2 }}>
+                  <View style={{ flex: 1, gap: space.xxs }}>
                     <Text style={st.dTitle} numberOfLines={2}>{cards.map((c) => lameText(c).name).join(' · ')}</Text>
                     <Text style={st.dMotifs} numberOfLines={1}>
                       {when.toLocaleDateString(locale(), { day: 'numeric', month: 'long' })}
@@ -519,7 +519,7 @@ export default function Grimoire() {
             )}
             {shown.map((d) => (
               <Pressable key={d.id} style={({ pressed }) => [st.row, pressed && { opacity: 0.7 }]} onPress={() => openDream(d)} accessibilityRole="link" accessibilityLabel={`${d.title}, ${formatDate(d.dreamDate)}`}>
-                <View style={{ flex: 1, gap: 2 }}>
+                <View style={{ flex: 1, gap: space.xxs }}>
                   <Text style={st.dDate}>{formatDate(d.dreamDate).toUpperCase()}</Text>
                   <Text style={st.rowTitle} numberOfLines={1}>{d.title}</Text>
                 </View>
@@ -550,54 +550,54 @@ const st = StyleSheet.create({
   laby: { borderColor: 'rgba(216,182,107,0.6)', backgroundColor: '#14132b' },
   labyT: { fontFamily: fonts.title, fontSize: 24, color: colors.text },
   drawRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingVertical: 6 },
-  drawThumbs: { flexDirection: 'row', gap: 4 },
+  drawThumbs: { flexDirection: 'row', gap: space.xs },
   drawThumb: { width: 40, height: 40, borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(240,214,140,0.45)' },
   drawImg: { width: 45, height: 78, marginLeft: -3, marginTop: -13 },
   hero: { flexDirection: 'row', alignItems: 'center', gap: space.sm, padding: space.lg, minHeight: 170, borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(216,182,107,0.22)', backgroundColor: '#0e0f23', overflow: 'hidden' },
-  hello: { fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.text },
+  hello: { fontFamily: fonts.bodyMedium, fontSize: textSize.md, color: colors.text },
   heroTitle: { fontFamily: fonts.title, fontSize: 40, lineHeight: 46, letterSpacing: 2, color: colors.gold },
   archBox: { position: 'absolute', right: 6, top: 0, bottom: 0, justifyContent: 'center', opacity: 0.95 },
-  rule: { width: 46, height: 1, backgroundColor: colors.gold, opacity: 0.7, marginVertical: 4 },
-  heroSub: { fontFamily: fonts.body, fontSize: 13, lineHeight: 19, color: colors.muted },
+  rule: { width: 46, height: 1, backgroundColor: colors.gold, opacity: 0.7, marginVertical: space.xs },
+  heroSub: { fontFamily: fonts.body, fontSize: textSize.sm, lineHeight: 19, color: colors.muted },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  stat: { flexBasis: '48%', flexGrow: 1, alignItems: 'center', gap: 6, paddingVertical: 18, paddingHorizontal: 8, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(216,182,107,0.2)', backgroundColor: CARD },
-  statN: { fontFamily: fonts.title, fontSize: 34, lineHeight: 38, color: colors.text },
+  stat: { flexBasis: '48%', flexGrow: 1, alignItems: 'center', gap: 6, paddingVertical: 18, paddingHorizontal: space.sm, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(216,182,107,0.2)', backgroundColor: CARD },
+  statN: { fontFamily: fonts.title, fontSize: textSize.display, lineHeight: 38, color: colors.text },
   statL: { fontFamily: fonts.bodyBold, fontSize: 10, letterSpacing: 1.6, color: colors.muted, textAlign: 'center' },
   card: { gap: space.sm, padding: space.md, borderRadius: radius.md + 2, borderWidth: 1, borderColor: 'rgba(216,182,107,0.2)', backgroundColor: CARD },
   h: { fontFamily: fonts.title, fontSize: 17, letterSpacing: 2.4, color: colors.gold },
-  tabs: { flexDirection: 'row', gap: 18, borderBottomWidth: 1, borderBottomColor: 'rgba(216,182,107,0.2)', marginBottom: 4 },
-  tab: { paddingVertical: 8, borderBottomWidth: 2, borderBottomColor: 'transparent', marginBottom: -1 },
+  tabs: { flexDirection: 'row', gap: 18, borderBottomWidth: 1, borderBottomColor: 'rgba(216,182,107,0.2)', marginBottom: space.xs },
+  tab: { paddingVertical: space.sm, borderBottomWidth: 2, borderBottomColor: 'transparent', marginBottom: -1 },
   tabOn: { borderBottomColor: colors.gold },
-  tabT: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.6, color: colors.muted },
-  rec: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 4 },
+  tabT: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.6, color: colors.muted },
+  rec: { flexDirection: 'row', alignItems: 'center', gap: space.ms, paddingVertical: space.xs },
   recDot: { width: 14, height: 14, borderRadius: 7, marginHorizontal: 7, backgroundColor: VIOLET },
-  recName: { fontFamily: fonts.bodyBold, fontSize: 15, color: colors.text, flexShrink: 1 },
+  recName: { fontFamily: fonts.bodyBold, fontSize: textSize.md, color: colors.text, flexShrink: 1 },
   recN: { fontFamily: fonts.body, fontSize: 12, color: colors.muted },
   track: { height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.07)', overflow: 'hidden' },
   fill: { height: 6, borderRadius: 3, backgroundColor: VIOLET2 },
-  legend: { flexDirection: 'row', gap: 16, flexWrap: 'wrap', justifyContent: 'center' },
+  legend: { flexDirection: 'row', gap: space.md, flexWrap: 'wrap', justifyContent: 'center' },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 10, height: 10, borderRadius: 5, borderColor: '#6d6c85' },
   legendT: { fontFamily: fonts.body, fontSize: 12, color: colors.muted },
   hint: { fontFamily: fonts.body, fontSize: 12, color: colors.muted, textAlign: 'center' },
-  dream: { flexDirection: 'row', gap: 12, padding: 10, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', backgroundColor: 'rgba(255,255,255,0.02)' },
+  dream: { flexDirection: 'row', gap: space.ms, padding: 10, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', backgroundColor: 'rgba(255,255,255,0.02)' },
   thumb: { width: 84, height: 84, borderRadius: 10, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   dDate: { fontFamily: fonts.bodyBold, fontSize: 10, letterSpacing: 1.4, color: colors.muted },
   dTitle: { fontFamily: fonts.title, fontSize: 21, color: colors.text },
   dMotifs: { fontFamily: fonts.body, fontSize: 12, color: colors.muted },
-  dExcerpt: { fontFamily: fonts.titleItalic, fontSize: 15, lineHeight: 20, color: '#cfc8b4' },
-  ghost: { alignSelf: 'flex-start', marginTop: 4, paddingVertical: 10, paddingHorizontal: 26, borderRadius: 6, borderWidth: 1, borderColor: colors.gold },
-  ghostT: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 2.2, color: GOLD2 },
-  cta: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 16, paddingHorizontal: 22, borderRadius: radius.pill, backgroundColor: '#dcc285', borderWidth: 1, borderColor: GOLD2, shadowColor: colors.gold, shadowOpacity: 0.35, shadowRadius: 18, shadowOffset: { width: 0, height: 6 } },
+  dExcerpt: { fontFamily: fonts.titleItalic, fontSize: textSize.md, lineHeight: 20, color: '#cfc8b4' },
+  ghost: { alignSelf: 'flex-start', marginTop: space.xs, paddingVertical: 10, paddingHorizontal: 26, borderRadius: 6, borderWidth: 1, borderColor: colors.gold },
+  ghostT: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 2.2, color: GOLD2 },
+  cta: { flexDirection: 'row', alignItems: 'center', gap: space.ms, paddingVertical: space.md, paddingHorizontal: 22, borderRadius: radius.pill, backgroundColor: '#dcc285', borderWidth: 1, borderColor: GOLD2, shadowColor: colors.gold, shadowOpacity: 0.35, shadowRadius: 18, shadowOffset: { width: 0, height: 6 } },
   ctaT: { fontFamily: fonts.title, fontSize: 21, color: '#241a0c' },
   ctaS: { fontFamily: fonts.bodyBold, fontSize: 10, letterSpacing: 1.8, color: '#4a3a1c' },
-  ctaArrow: { fontFamily: fonts.bodyBold, fontSize: 28, color: '#241a0c' },
+  ctaArrow: { fontFamily: fonts.bodyBold, fontSize: textSize.xxl, color: '#241a0c' },
   search: { minHeight: 50, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: '#0d1124', color: colors.text, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 20 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: 12, paddingHorizontal: space.md, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
-  rowTitle: { fontFamily: fonts.title, fontSize: 18, color: colors.text },
-  rowEmo: { fontFamily: fonts.body, fontSize: 11, color: colors.muted },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.ms, paddingHorizontal: space.md, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)' },
+  rowTitle: { fontFamily: fonts.title, fontSize: textSize.lg, color: colors.text },
+  rowEmo: { fontFamily: fonts.body, fontSize: textSize.xs, color: colors.muted },
   quote: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: space.md },
   quoteLine: { flex: 1, height: 1, backgroundColor: colors.gold, opacity: 0.45 },
   quoteT: { flexShrink: 1, maxWidth: 240, fontFamily: fonts.titleItalic, fontSize: 17, lineHeight: 23, color: colors.text, textAlign: 'center' },
-  foot: { fontFamily: fonts.body, fontSize: 11, color: colors.muted, textAlign: 'center' },
+  foot: { fontFamily: fonts.body, fontSize: textSize.xs, color: colors.muted, textAlign: 'center' },
 });

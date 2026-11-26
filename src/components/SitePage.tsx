@@ -9,7 +9,7 @@ import { lastPalmScript, storePalmMessage } from '../lib/palm';
 import { recordSister, sisterFromMessage } from '../lib/portes';
 import { isOracleReveal, isPalmSeance, recordGesture } from '../lib/rituel';
 import { decideNavigation, decidePageRequest, injectedScript, nativeRouteFor, siteUrl } from '../lib/webpage';
-import { colors, fonts, space } from '../lib/theme';
+import { colors, fonts, space, textSize } from '../lib/theme';
 import { OutlineButton } from './ui';
 import { prepareAppHtml } from '../lib/app-html';
 import { useSession } from '../lib/session';
@@ -215,14 +215,14 @@ function SitePageContent({ path }: { path: string }) {
 
 const st = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space.lg, gap: space.md, backgroundColor: colors.night },
-  msg: { fontFamily: fonts.body, color: colors.text, textAlign: 'center', fontSize: 15 },
+  msg: { fontFamily: fonts.body, color: colors.text, textAlign: 'center', fontSize: textSize.md },
   toast: {
     position: 'absolute', left: space.md, right: space.md, bottom: space.lg,
-    backgroundColor: '#1d2238', borderColor: colors.gold, borderWidth: 1, borderRadius: 14, padding: space.md, gap: 8,
+    backgroundColor: '#1d2238', borderColor: colors.gold, borderWidth: 1, borderRadius: 14, padding: space.md, gap: space.sm,
   },
-  toastText: { fontFamily: fonts.bodyMedium, color: colors.text, fontSize: 15 },
-  toastRow: { flexDirection: 'row', gap: 24 },
-  toastLink: { fontFamily: fonts.bodyBold, color: colors.gold, fontSize: 15 },
-  toastClose: { fontFamily: fonts.body, color: colors.muted, fontSize: 15 },
+  toastText: { fontFamily: fonts.bodyMedium, color: colors.text, fontSize: textSize.md },
+  toastRow: { flexDirection: 'row', gap: space.lg },
+  toastLink: { fontFamily: fonts.bodyBold, color: colors.gold, fontSize: textSize.md },
+  toastClose: { fontFamily: fonts.body, color: colors.muted, fontSize: textSize.md },
   loader: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.night },
 });

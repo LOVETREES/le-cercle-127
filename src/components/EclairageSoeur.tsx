@@ -6,7 +6,7 @@ import { getLang, t } from '../i18n';
 import { api } from '../lib/api';
 import { explicitCrisis } from '../lib/renouveau';
 import { useSession } from '../lib/session';
-import { colors, fonts, radius } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { Notice, OutlineButton } from './ui';
 
 const NAMES: Record<string, string> = { oni: 'Oni', alka: 'Alka', naia: 'Naïa', terra: 'Terra', irma: 'Irma', astria: 'Astria', ignis: 'Ignis' };
@@ -66,9 +66,9 @@ export function EclairageSoeur({ sister, text }: { sister: string; text: string 
 }
 
 const st = StyleSheet.create({
-  muted: { color: colors.muted, fontFamily: fonts.body, fontSize: 13, lineHeight: 20, flexShrink: 1 },
-  answer: { color: colors.text, fontFamily: fonts.body, fontSize: 15, lineHeight: 23 },
+  muted: { color: colors.muted, fontFamily: fonts.body, fontSize: textSize.sm, lineHeight: 20, flexShrink: 1 },
+  answer: { color: colors.text, fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 23 },
   link: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 14 },
   check: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  input: { minHeight: 100, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, color: colors.text, fontFamily: fonts.body, fontSize: 15, padding: 12, textAlignVertical: 'top' },
+  input: { minHeight: 100, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, color: colors.text, fontFamily: fonts.body, fontSize: textSize.md, padding: space.ms, textAlignVertical: 'top' },
 });

@@ -6,7 +6,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text
 import { Body, Card, Eyebrow, Field, GoldButton, Notice, OutlineButton, Screen, Title } from '../../components/ui';
 import { EMOTIONS, validateDream, type Emotion } from '../../lib/model';
 import { useSession } from '../../lib/session';
-import { colors, fonts, radius, space } from '../../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../../lib/theme';
 import { useDictation } from '../../lib/use-dictation';
 import { appendTranscript } from '../../lib/dictation';
 import { KEYS, local } from '../../lib/storage';
@@ -172,7 +172,7 @@ export default function Reve() {
           <Pressable onPress={() => router.push('/connaissance')} style={st.meet} accessibilityRole="link">
             <Text style={st.meetKicker}>{t('ONI NE VOUS CONNAÎT PAS ENCORE')}</Text>
             <Text style={st.meetTitle}>{t('Faisons connaissance ›')}</Text>
-            <Body muted style={{ fontSize: 13 }}>{t('Quelques mots sur vous, et Oni pourra relier vos rêves à votre vie. Tout est facultatif.')}</Body>
+            <Body muted style={{ fontSize: textSize.sm }}>{t('Quelques mots sur vous, et Oni pourra relier vos rêves à votre vie. Tout est facultatif.')}</Body>
           </Pressable>
         ) : null}
         <Card style={{ gap: space.lg }}>
@@ -206,7 +206,7 @@ export default function Reve() {
           }} />
           {speech.active && <Notice text={t('Dictée en cours : le texte reconnu apparaît dans votre récit.')} />}
           {speech.error && <Notice tone="error" text={speech.error} />}
-          <Body muted style={{ fontSize: 13 }}>
+          <Body muted style={{ fontSize: textSize.sm }}>
             {t('Racontez sans chercher à comprendre. Qui était là ? Où étiez-vous ? Que voyiez-vous, entendiez-vous ou ressentiez-vous ? Vous pouvez écrire dans le désordre, utiliser la dictée ci-dessus ou celle du clavier.')}
           </Body>
 
@@ -255,7 +255,7 @@ export default function Reve() {
 
           {error && <Notice tone="error" text={error} />}
           <GoldButton label={t('Continuer avec Oni')} onPress={submit} disabled={speech.active} />
-          <Body muted style={{ fontSize: 13 }}>
+          <Body muted style={{ fontSize: textSize.sm }}>
             {t('Votre récit reste sur cet appareil tant que vous n’êtes pas connecté·e. Il n’est jamais envoyé à Oni sans votre accord.')}
           </Body>
         </Card>
@@ -279,15 +279,15 @@ export default function Reve() {
 }
 
 const st = StyleSheet.create({
-  oniListens: { fontFamily: fonts.body, fontSize: 13, color: colors.muted },
+  oniListens: { fontFamily: fonts.body, fontSize: textSize.sm, color: colors.muted },
   label: { fontFamily: fonts.bodyMedium, fontSize: 16, color: colors.text },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  chip: { borderWidth: 1, borderColor: 'rgba(170,160,230,0.45)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 8 },
-  chipOn: { backgroundColor: '#e8cf8f', borderColor: '#e8cf8f' },
-  chipText: { fontFamily: fonts.body, fontSize: 13, color: colors.text },
-  chipTextOn: { color: '#1b1730', fontFamily: fonts.bodyBold },
-  meet: { borderWidth: 1, borderColor: 'rgba(216,182,107,0.5)', backgroundColor: '#11122a', borderRadius: radius.lg, padding: space.md, gap: 4 },
-  meetKicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8, color: colors.gold },
+  chip: { borderWidth: 1, borderColor: 'rgba(170,160,230,0.45)', borderRadius: radius.pill, paddingHorizontal: space.ms, paddingVertical: space.sm },
+  chipOn: { backgroundColor: colors.goldSoft, borderColor: colors.goldSoft },
+  chipText: { fontFamily: fonts.body, fontSize: textSize.sm, color: colors.text },
+  chipTextOn: { color: colors.onGold, fontFamily: fonts.bodyBold },
+  meet: { borderWidth: 1, borderColor: 'rgba(216,182,107,0.5)', backgroundColor: '#11122a', borderRadius: radius.lg, padding: space.md, gap: space.xs },
+  meetKicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.8, color: colors.gold },
   meetTitle: { fontFamily: fonts.title, fontSize: 24, color: colors.text },
   frame: { borderLeftWidth: 3, borderLeftColor: '#7fd1c4', backgroundColor: colors.surface, borderRadius: radius.md, padding: space.lg, gap: space.sm },
   frameTitle: { fontFamily: fonts.bodyBold, fontSize: 16, color: '#cfeee8' },

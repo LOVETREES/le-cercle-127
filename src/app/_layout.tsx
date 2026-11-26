@@ -12,7 +12,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { installCrashGuard } from '../lib/crash';
 import { I18nProvider } from '../i18n/provider';
 import { SessionProvider, useSession } from '../lib/session';
-import { colors, fonts } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { wasWelcomed } from '../lib/welcome';
 import { t } from '../i18n';
 
@@ -22,18 +22,18 @@ installCrashGuard();
 // Une erreur d'affichage montre cet écran au lieu de fermer l'application.
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   return (
-    <View style={{ flex: 1, backgroundColor: colors.night, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 }}>
+    <View style={{ flex: 1, backgroundColor: colors.night, alignItems: 'center', justifyContent: 'center', padding: space.lg, gap: space.md }}>
       <Text style={{ color: colors.gold, fontSize: 40 }}>☾</Text>
-      <Text style={{ color: colors.text, fontSize: 18, textAlign: 'center' }}>{t('Une erreur est survenue.')}</Text>
-      <Text selectable style={{ color: colors.muted, fontSize: 13, textAlign: 'center' }}>
+      <Text style={{ color: colors.text, fontSize: textSize.lg, textAlign: 'center' }}>{t('Une erreur est survenue.')}</Text>
+      <Text selectable style={{ color: colors.muted, fontSize: textSize.sm, textAlign: 'center' }}>
         {error.message}
       </Text>
       <Pressable
         onPress={retry}
         accessibilityRole="button"
-        style={{ backgroundColor: '#e8cf8f', borderRadius: 999, paddingHorizontal: 28, paddingVertical: 14 }}
+        style={{ backgroundColor: colors.goldSoft, borderRadius: radius.pill, paddingHorizontal: 28, paddingVertical: 14 }}
       >
-        <Text style={{ color: '#1b1730', fontSize: 16 }}>{t('Réessayer')}</Text>
+        <Text style={{ color: colors.onGold, fontSize: 16 }}>{t('Réessayer')}</Text>
       </Pressable>
     </View>
   );

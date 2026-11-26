@@ -7,7 +7,7 @@ import { Body, Card, Eyebrow, Notice, OutlineButton, SiteFooter, Title } from '.
 import { clearLastError, clearWebError, readLastError, readWebError, type LastError, type WebError } from '../lib/crash';
 import { DEFAULT_REMINDER, loadReminder, saveReminder, type Reminder } from '../lib/reminders';
 import { useSession } from '../lib/session';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { t } from '../i18n';
 
 const HOURS = [6, 7, 8, 9];
@@ -98,7 +98,7 @@ export default function Compte() {
             })}
           </View>
         )}
-        <Body muted style={{ fontSize: 13 }}>{Platform.OS === 'web' ? t('Le rappel est disponible dans l’application iPhone et Android.') : t('Le rappel est programmé sur votre téléphone : aucune donnée n’est envoyée.')}</Body>
+        <Body muted style={{ fontSize: textSize.sm }}>{Platform.OS === 'web' ? t('Le rappel est disponible dans l’application iPhone et Android.') : t('Le rappel est programmé sur votre téléphone : aucune donnée n’est envoyée.')}</Body>
       </Card>
 
       {notice && <Notice tone={notice.tone} text={notice.text} />}
@@ -153,7 +153,7 @@ export default function Compte() {
               await runAccountAction(deleteAccount, isDemo ? 'Démonstration effacée.' : 'Votre compte a été supprimé.');
             }}
           />
-          <Body muted style={{ fontSize: 13 }}>
+          <Body muted style={{ fontSize: textSize.sm }}>
             {t('Vous pouvez aussi écrire à contact@lecercle127.com pour exercer vos droits (accès, rectification, export).')}
           </Body>
         </Card>
@@ -221,9 +221,9 @@ const st = StyleSheet.create({
   content: { padding: space.md, gap: space.lg, paddingBottom: 60 },
   switchRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   hours: { flexDirection: 'row', gap: space.sm, flexWrap: 'wrap' },
-  hour: { borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 14, paddingVertical: 8 },
+  hour: { borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 14, paddingVertical: space.sm },
   hourOn: { backgroundColor: colors.gold, borderColor: colors.gold },
   hourText: { fontFamily: fonts.bodyMedium, color: colors.text },
-  diag: { fontFamily: fonts.body, fontSize: 11, lineHeight: 16, color: colors.muted },
+  diag: { fontFamily: fonts.body, fontSize: textSize.xs, lineHeight: 16, color: colors.muted },
   version: { fontFamily: fonts.body, color: colors.muted, textAlign: 'center', fontSize: 12 },
 });

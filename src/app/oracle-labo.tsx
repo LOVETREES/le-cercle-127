@@ -7,7 +7,7 @@ import { Screen } from '../components/ui';
 import { lameByMask, SISTERS } from '../lib/oracle/engine';
 import { lameText } from '../lib/oracle/localize';
 import { H, X, isSuperposed, ket, measure, outcomes, type QState } from '../lib/oracle/qubits';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { t } from '../i18n';
 
 const GOLD2 = '#f3dca0';
@@ -88,23 +88,23 @@ export default function OracleLabo() {
 }
 
 const st = StyleSheet.create({
-  kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8, color: colors.gold, textAlign: 'center' },
+  kicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.8, color: colors.gold, textAlign: 'center' },
   title: { fontFamily: fonts.title, fontSize: 30, color: colors.text },
   lead: { fontFamily: fonts.body, fontSize: 14.5, lineHeight: 21, color: colors.muted, textAlign: 'center' },
   card: { backgroundColor: CARD, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: space.md, gap: 10 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  sname: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: 15, color: colors.text },
+  sname: { flex: 1, fontFamily: fonts.bodyMedium, fontSize: textSize.md, color: colors.text },
   ket: { width: 44, fontFamily: fonts.title, fontSize: 20, color: colors.text, textAlign: 'center' },
   gate: { width: 40, height: 36, borderRadius: 10, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
-  gateT: { fontFamily: fonts.bodyBold, fontSize: 15, color: colors.gold },
+  gateT: { fontFamily: fonts.bodyBold, fontSize: textSize.md, color: colors.gold },
   bit: { width: 18, fontFamily: fonts.bodyBold, fontSize: 16, color: GOLD2, textAlign: 'center' },
   small: { fontFamily: fonts.body, fontSize: 12.5, color: colors.muted },
   btns: { flexDirection: 'row', gap: space.sm },
-  ghost: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingVertical: 12, alignItems: 'center' },
+  ghost: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingVertical: space.ms, alignItems: 'center' },
   ghostT: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.gold },
-  cta: { backgroundColor: '#e8cf8f', borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' },
-  ctaT: { fontFamily: fonts.title, fontSize: 20, color: '#1b1730' },
-  lname: { fontFamily: fonts.title, fontSize: 22, color: colors.text },
-  text: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.text },
+  cta: { backgroundColor: colors.goldSoft, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' },
+  ctaT: { fontFamily: fonts.title, fontSize: 20, color: colors.onGold },
+  lname: { fontFamily: fonts.title, fontSize: textSize.xl, color: colors.text },
+  text: { fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 22, color: colors.text },
   veil: { fontFamily: fonts.body, fontSize: 12, color: colors.muted, textAlign: 'center' },
 });

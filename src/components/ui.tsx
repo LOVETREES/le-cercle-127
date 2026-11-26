@@ -16,7 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { DISCLAIMER, IMAGES, LEGAL } from '../lib/content';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, sisters, space, textSize, tint } from '../lib/theme';
 import { useSession } from '../lib/session';
 import { t } from '../i18n';
 
@@ -34,7 +34,7 @@ export function AppHeader() {
         <Image source={IMAGES.logo} style={s.logo} />
         <View>
           <Text style={s.brandText} numberOfLines={1}>Le Cercle 127</Text>
-          {isDemo && <Text style={{ fontFamily: fonts.body, fontSize: 11, color: colors.gold }}>{t('Démonstration locale')}</Text>}
+          {isDemo && <Text style={{ fontFamily: fonts.body, fontSize: textSize.xs, color: colors.gold }}>{t('Démonstration locale')}</Text>}
         </View>
       </Pressable>
       <Pressable
@@ -96,17 +96,42 @@ export function Body({ children, muted, style }: { children: ReactNode; muted?: 
   return <Text style={[s.body, muted && { color: colors.muted }, style]}>{children}</Text>;
 }
 
-export function GoldButton({ label, onPress, loading, disabled }: { label: string; onPress: () => void; loading?: boolean; disabled?: boolean }) {
+type GoldButtonProps = {
+  label: string;
+  onPress: () => void;
+  loading?: boolean;
+  disabled?: boolean;
+  /** md : bouton principal d'un écran ; sm : action secondaire ou dans une carte. */
+  size?: 'md' | 'sm';
+  /** solid : fond doré ; ghost : contour doré (ou de la couleur `color`) sur fond transparent. */
+  variant?: 'solid' | 'ghost';
+  color?: string;
+  accessibilityLabel?: string;
+  style?: StyleProp<ViewStyle>;
+};
+
+export function GoldButton({ label, onPress, loading, disabled, size = 'md', variant = 'solid', color = colors.gold, accessibilityLabel, style }: GoldButtonProps) {
+  const ghost = variant === 'ghost';
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       disabled={disabled || loading}
       onPress={onPress}
-      style={({ pressed }) => [s.gold, (pressed || disabled) && { opacity: 0.75 }]}
+      style={({ pressed }) => [
+        s.gold,
+        size === 'sm' && s.goldSm,
+        ghost && [s.goldGhost, { borderColor: color }],
+        style,
+        (pressed || disabled) && { opacity: 0.75 },
+      ]}
     >
-      {loading ? <ActivityIndicator color={colors.night} /> : <Text style={s.goldText}>{label}</Text>}
+      {loading ? (
+        <ActivityIndicator color={ghost ? color : colors.night} />
+      ) : (
+        <Text style={[s.goldText, size === 'sm' && s.goldTextSm, ghost && [s.goldTextGhost, { color }]]}>{label}</Text>
+      )}
     </Pressable>
   );
 }
@@ -126,8 +151,9 @@ export function OutlineButton({ label, onPress, danger, disabled }: { label: str
   );
 }
 
-export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
-  return <View style={[s.card, style]}>{children}</View>;
+/** Une carte ; `accent` la borde de la couleur d'une Sœur. */
+export function Card({ children, style, accent }: { children: ReactNode; style?: StyleProp<ViewStyle>; accent?: keyof typeof sisters }) {
+  return <View style={[s.card, accent && { borderColor: tint(sisters[accent], 0.35) }, style]}>{children}</View>;
 }
 
 export function LinkRow({ icon, title, subtitle, onPress }: { icon?: string; title: string; subtitle?: string; onPress: () => void }) {
@@ -213,9 +239,9 @@ export const s = StyleSheet.create({
     borderBottomColor: 'rgba(216,182,107,0.35)',
     backgroundColor: colors.night,
   },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  brand: { flexDirection: 'row', alignItems: 'center', gap: space.ms },
   logo: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, borderColor: colors.gold },
-  brandText: { fontFamily: fonts.title, fontSize: 22, color: colors.text, letterSpacing: 1 },
+  brandText: { fontFamily: fonts.title, fontSize: textSize.xl, color: colors.text, letterSpacing: 1 },
   menuBtn: {
     width: 42,
     height: 42,
@@ -224,16 +250,16 @@ export const s = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: space.xs,
   },
   menuLine: { width: 18, height: 2, borderRadius: 1, backgroundColor: colors.text },
-  eyebrow: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 2.5, color: colors.muted, textTransform: 'uppercase' },
+  eyebrow: { fontFamily: fonts.bodyMedium, fontSize: textSize.xs, letterSpacing: 2.5, color: colors.muted, textTransform: 'uppercase' },
   title: { fontFamily: fonts.title, color: colors.text },
-  body: { fontFamily: fonts.body, fontSize: 15, lineHeight: 23, color: colors.text },
+  body: { fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 23, color: colors.text },
   gold: {
     minHeight: 56,
     borderRadius: radius.pill,
-    backgroundColor: '#e8cf8f',
+    backgroundColor: colors.goldSoft,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: space.lg,
@@ -243,7 +269,11 @@ export const s = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
   },
-  goldText: { fontFamily: fonts.title, fontSize: 21, color: '#1b1730' },
+  goldText: { fontFamily: fonts.title, fontSize: 21, color: colors.onGold },
+  goldSm: { minHeight: 46, paddingHorizontal: space.md, shadowOpacity: 0, elevation: 0 },
+  goldGhost: { backgroundColor: 'transparent', borderWidth: 1, shadowOpacity: 0, elevation: 0 },
+  goldTextSm: { fontSize: textSize.lg },
+  goldTextGhost: { fontFamily: fonts.bodyBold, fontSize: textSize.md },
   outline: {
     minHeight: 46,
     borderRadius: radius.sm,
@@ -283,18 +313,18 @@ export const s = StyleSheet.create({
   },
   rowIconText: { color: colors.text, fontSize: 16 },
   rowTitle: { fontFamily: fonts.title, fontSize: 19, color: colors.text },
-  rowSub: { fontFamily: fonts.body, fontSize: 13, color: colors.muted, marginTop: 2 },
-  chevron: { color: colors.text, fontSize: 22 },
+  rowSub: { fontFamily: fonts.body, fontSize: textSize.sm, color: colors.muted, marginTop: space.xxs },
+  chevron: { color: colors.text, fontSize: textSize.xl },
   label: { fontFamily: fonts.bodyMedium, fontSize: 16, color: colors.text },
   required: {
     alignSelf: 'flex-start',
     borderWidth: 1,
     borderColor: 'rgba(216,182,107,0.6)',
     borderRadius: radius.pill,
-    paddingHorizontal: 8,
+    paddingHorizontal: space.sm,
     paddingVertical: 1,
   },
-  requiredText: { fontFamily: fonts.bodyBold, fontSize: 11, color: colors.gold },
+  requiredText: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, color: colors.gold },
   input: {
     minHeight: 50,
     borderRadius: radius.sm,
@@ -305,7 +335,7 @@ export const s = StyleSheet.create({
     fontFamily: fonts.body,
     fontSize: 16,
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingVertical: space.ms,
   },
   notice: {
     borderLeftWidth: 3,
@@ -315,7 +345,7 @@ export const s = StyleSheet.create({
   },
   footer: { paddingTop: space.lg, gap: space.md, alignItems: 'center' },
   footerLinks: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: space.md },
-  footerLink: { fontFamily: fonts.body, fontSize: 13, color: colors.gold },
-  footerNote: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.text, textAlign: 'center' },
+  footerLink: { fontFamily: fonts.body, fontSize: textSize.sm, color: colors.gold },
+  footerNote: { fontFamily: fonts.bodyBold, fontSize: textSize.sm, color: colors.text, textAlign: 'center' },
   footerCopy: { fontFamily: fonts.body, fontSize: 12, color: colors.muted },
 });

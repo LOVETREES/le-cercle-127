@@ -16,7 +16,7 @@ import { computeChemin, loadChemin, type Chemin } from '../../lib/chemin';
 import { addPresence, allRecurringMotifs, dailyThought, greetingKey, journey } from '../../lib/insights';
 import { useSession } from '../../lib/session';
 import { KEYS, local } from '../../lib/storage';
-import { colors, fonts, radius, space } from '../../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../../lib/theme';
 import { locale, quote, t } from '../../i18n';
 import { moonAt } from '../../lib/moon';
 
@@ -157,7 +157,7 @@ export default function Home() {
       {/* Dernier rêve */}
       {last && (
         <Pressable style={st.card} onPress={() => router.push({ pathname: '/reve/[id]', params: { id: last.id } })} accessibilityRole="link" accessibilityLabel={t('Dernier rêve : {v0}', { v0: last.title })}>
-          <View style={{ flex: 1, gap: 2 }}>
+          <View style={{ flex: 1, gap: space.xxs }}>
             <Text style={st.kickerMuted}>{t('DERNIER RÊVE ·')} {formatDate(last.dreamDate).toUpperCase()}</Text>
             <Text style={st.cardTitle} numberOfLines={1}>
               {last.title}
@@ -192,9 +192,7 @@ export default function Home() {
       </View>
 
       {/* Le reste de l'accueil, replié : comme sur le site (« Découvrir le Cercle »). */}
-      <Pressable onPress={() => setShowMore((v) => !v)} accessibilityRole="button" accessibilityState={{ expanded: showMore }} aria-expanded={showMore} style={st.moreToggle}>
-        <Text style={st.moreToggleText}>{showMore ? t('Replier') : t('Découvrir le Cercle')} {showMore ? '▴' : '▾'}</Text>
-      </Pressable>
+      <GoldButton variant="ghost" size="sm" style={st.moreToggle} label={`${showMore ? t('Replier') : t('Découvrir le Cercle')} ${showMore ? '▴' : '▾'}`} onPress={() => setShowMore((v) => !v)} />
       {showMore && (
         <>
       <Pressable onPress={() => router.push('/parcours')} accessibilityRole="link" accessibilityLabel={t('Mon parcours onirique : ce qui se dessine')} style={st.journeyBanner}>
@@ -274,7 +272,7 @@ export default function Home() {
 
       {/* Mes lectures : rêve et main */}
       <Pressable style={st.card} onPress={() => router.push('/mes-lectures')} accessibilityRole="link" accessibilityLabel={t('Mes lectures : mes rêves et ma main')}>
-        <View style={{ flex: 1, gap: 2 }}>
+        <View style={{ flex: 1, gap: space.xxs }}>
           <Text style={st.kickerMuted}>{t('ONI ET TERRA')}</Text>
           <Text style={st.cardTitle}>{t('Mes lectures')}</Text>
           <Text style={st.cardSub}>{t('Mes rêves avec Oni · Ma main avec Terra')}</Text>
@@ -284,7 +282,7 @@ export default function Home() {
 
       {/* Le reste, rangé sur une page dédiée */}
       <Pressable style={st.card} onPress={() => router.push('/explorer')} accessibilityRole="link" accessibilityLabel={t('Apprendre et explorer')}>
-        <View style={{ flex: 1, gap: 2 }}>
+        <View style={{ flex: 1, gap: space.xxs }}>
           <Text style={st.cardTitle}>{t('Apprendre et explorer')}</Text>
           <Text style={st.cardSub}>{t('Rêve lucide · Laboratoire · Carnet vocal · Labyrinthe · 127 portes')}</Text>
         </View>
@@ -309,56 +307,55 @@ const st = StyleSheet.create({
   heroCaption: { maxWidth: '100%', backgroundColor: 'rgba(8, 11, 23, 0.82)', borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 10, gap: 3 },
   heroEyebrow: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 9, letterSpacing: 1.2 },
   heroText: { color: colors.text, fontFamily: fonts.title, fontSize: 23, lineHeight: 27 },
-  dreamEntry: { gap: 8 },
-  moreToggle: { alignSelf: 'center', minHeight: 48, paddingHorizontal: 22, justifyContent: 'center', borderRadius: 999, borderWidth: 1, borderColor: colors.gold },
-  moreToggleText: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 15 },
+  dreamEntry: { gap: space.sm },
+  moreToggle: { alignSelf: 'center', paddingHorizontal: 22 },
   homeGrimoire: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 76, paddingHorizontal: 14, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, backgroundColor: colors.surface },
   homeGrimoireIcon: { width: 48, height: 48 },
   nightButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, minHeight: 44 },
   nightButtonText: { fontFamily: fonts.bodyMedium, fontSize: 12, color: colors.muted },
-  dreamInput: { minHeight: 48, maxHeight: 92, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, color: colors.text, fontFamily: fonts.body, fontSize: 15, paddingHorizontal: 14, paddingVertical: 11, textAlignVertical: 'top' },
-  draftToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 36 },
-  draftToggleText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.gold },
-  date: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 2, color: colors.muted },
-  hello: { fontFamily: fonts.title, fontSize: 34, color: colors.text },
+  dreamInput: { minHeight: 48, maxHeight: 92, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, color: colors.text, fontFamily: fonts.body, fontSize: textSize.md, paddingHorizontal: 14, paddingVertical: 11, textAlignVertical: 'top' },
+  draftToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm, minHeight: 36 },
+  draftToggleText: { fontFamily: fonts.bodyMedium, fontSize: textSize.sm, color: colors.gold },
+  date: { fontFamily: fonts.bodyMedium, fontSize: textSize.xs, letterSpacing: 2, color: colors.muted },
+  hello: { fontFamily: fonts.title, fontSize: textSize.display, color: colors.text },
   progress: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.gold },
   thought: { padding: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: 'rgba(216,182,107,0.06)', gap: 6 },
-  kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 2, color: colors.gold },
-  kickerMuted: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 1.8, color: colors.muted },
+  kicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 2, color: colors.gold },
+  kickerMuted: { fontFamily: fonts.bodyMedium, fontSize: textSize.xs, letterSpacing: 1.8, color: colors.muted },
   thoughtText: { fontFamily: fonts.titleItalic, fontSize: 19, lineHeight: 26, color: colors.text },
   sectionHeading: { fontFamily: fonts.title, fontSize: 25, lineHeight: 30, color: colors.text, marginBottom: -12 },
-  stats: { flexDirection: 'row', gap: 8 },
+  stats: { flexDirection: 'row', gap: space.sm },
   stat: { flex: 1, gap: 7, padding: 10, minHeight: 76, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, backgroundColor: '#0c121e' },
   statTop: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   moonPhase: { fontFamily: fonts.body, fontSize: 12, lineHeight: 17, color: colors.text },
   statValue: { fontFamily: fonts.title, fontSize: 27, lineHeight: 31, color: '#e5d4b2' },
-  statLabel: { fontFamily: fonts.body, fontSize: 11, lineHeight: 16, color: colors.muted },
+  statLabel: { fontFamily: fonts.body, fontSize: textSize.xs, lineHeight: 16, color: colors.muted },
   journeyBanner: { borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, overflow: 'hidden', backgroundColor: colors.surface },
-  journeyBannerImage: { minHeight: 108, paddingHorizontal: 15, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  journeyBannerImage: { minHeight: 108, paddingHorizontal: 15, paddingVertical: space.ms, flexDirection: 'row', alignItems: 'center', gap: space.sm },
   journeyBannerFill: { width: '100%', height: '100%', opacity: 0.28 },
   journeyBannerIcon: { width: 54, height: 54 },
-  journeyBannerText: { flex: 1, alignItems: 'flex-start', gap: 2 },
+  journeyBannerText: { flex: 1, alignItems: 'flex-start', gap: space.xxs },
   journeyBannerKicker: { fontFamily: fonts.bodyBold, fontSize: 10, letterSpacing: 1.3, color: colors.gold },
   journeyBannerTitle: { fontFamily: fonts.title, fontSize: 23, lineHeight: 27, color: colors.text },
-  journeyBannerSub: { fontFamily: fonts.body, fontSize: 11, lineHeight: 15, color: colors.text },
+  journeyBannerSub: { fontFamily: fonts.body, fontSize: textSize.xs, lineHeight: 15, color: colors.text },
   card,
-  cardTitle: { fontFamily: fonts.title, fontSize: 22, color: colors.text },
-  cardSub: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18, color: colors.muted },
+  cardTitle: { fontFamily: fonts.title, fontSize: textSize.xl, color: colors.text },
+  cardSub: { fontFamily: fonts.body, fontSize: textSize.sm, lineHeight: 18, color: colors.muted },
   chevron: { color: colors.gold, fontSize: 24 },
   tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   tile: { flexBasis: '48%', flexGrow: 1, minHeight: 100, flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(216,182,107,0.22)', backgroundColor: colors.surface },
   tileIcon: { width: 52, minHeight: 100, alignItems: 'center', justifyContent: 'center' },
   dreamerIcon: { width: 52, height: 52 },
-  tileFoot: { flex: 1, padding: 6, gap: 2 },
+  tileFoot: { flex: 1, padding: 6, gap: space.xxs },
   tileLabel: { fontFamily: fonts.title, fontSize: 16, color: colors.text },
-  tileSub: { fontFamily: fonts.body, fontSize: 11, lineHeight: 15, color: colors.muted },
-  tileArrow: { color: colors.gold, fontSize: 18, paddingRight: 5 },
+  tileSub: { fontFamily: fonts.body, fontSize: textSize.xs, lineHeight: 15, color: colors.muted },
+  tileArrow: { color: colors.gold, fontSize: textSize.lg, paddingRight: 5 },
   moonBanner: { borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   moonBannerContent: { minHeight: 108, padding: space.md, flexDirection: 'row', alignItems: 'center', gap: 14 },
-  moonHint: { fontFamily: fonts.body, fontSize: 11, lineHeight: 15, color: colors.muted },
+  moonHint: { fontFamily: fonts.body, fontSize: textSize.xs, lineHeight: 15, color: colors.muted },
   exploreHeading: { textAlign: 'center', color: colors.gold, fontFamily: fonts.title, fontSize: 23 },
   exploreTiles: { flexDirection: 'row', gap: space.sm },
-  exploreTile: { flex: 1, minHeight: 92, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, borderRadius: radius.md, justifyContent: 'center', alignItems: 'center', padding: 8, gap: 6 },
+  exploreTile: { flex: 1, minHeight: 92, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, borderRadius: radius.md, justifyContent: 'center', alignItems: 'center', padding: space.sm, gap: 6 },
   exploreIcon: { width: 48, height: 48 },
-  exploreTileText: { color: colors.text, fontFamily: fonts.title, fontSize: 15, textAlign: 'center' },
+  exploreTileText: { color: colors.text, fontFamily: fonts.title, fontSize: textSize.md, textAlign: 'center' },
 });

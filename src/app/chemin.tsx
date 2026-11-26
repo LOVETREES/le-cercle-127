@@ -10,7 +10,7 @@ import { Body, Screen } from '../components/ui';
 import { computeChemin, LEVEL_LABEL, loadChemin, MEETINGS, type Chemin } from '../lib/chemin';
 import { allRecurringMotifs } from '../lib/insights';
 import { useSession } from '../lib/session';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { t } from '../i18n';
 
 const EMPTY = computeChemin({ dreams: [], motifs: 0, motifDreams: [], emotions: [], palms: [], gestes: [], bilans: [], draws: [] });
@@ -48,7 +48,7 @@ export default function CheminScreen() {
 
   return (
     <Screen>
-      <View style={{ gap: 8 }}>
+      <View style={{ gap: space.sm }}>
         <Text style={st.h1}>{t('Devenir pleinement toi-même')}</Text>
         <Body muted>
           {t('Tes rêves te parlent de parts de toi encore dans l’ombre. Les accueillir, les relier, les vivre et choisir avec elles : c’est ton chemin. Il ne monte pas en ligne droite, il tourne autour de ton centre, comme une spirale.')}
@@ -84,9 +84,9 @@ export default function CheminScreen() {
         </Pressable>
       </View>
       <View style={[st.panel, { borderColor: cur.color }]} accessibilityLiveRegion="polite">
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.ms }}>
           <SisterRing s={cur} size={56} />
-          <View style={{ flex: 1, gap: 2 }}>
+          <View style={{ flex: 1, gap: space.xxs }}>
             <Text style={[st.kicker, { color: cur.color }]}>{t(MEETINGS[cur.meeting - 1].title).toUpperCase()}</Text>
             <Text style={st.h2}>{cur.name} · {t(cur.verb)}</Text>
           </View>
@@ -112,7 +112,7 @@ export default function CheminScreen() {
             <Text style={st.axis}>{t('cette semaine')}</Text>
           </View>
           <Text style={st.text}><Text style={{ fontFamily: fonts.bodyBold }}>{unit}</Text> · <Text style={{ color: cur.trend === 'up' ? colors.success : colors.muted }}>{t(TREND[cur.trend])}</Text></Text>
-          <View style={{ flexDirection: 'row', gap: 4 }}>
+          <View style={{ flexDirection: 'row', gap: space.xs }}>
             {['Graine', 'Pousse', 'Arbre'].map((l, i) => (
               <View key={l} style={[st.step, cur.level > i ? { backgroundColor: cur.color, borderColor: cur.color } : null]}>
                 <Text style={[st.stepTxt, { color: cur.level > i ? colors.night : colors.muted }]}>{t(l)}</Text>
@@ -121,7 +121,7 @@ export default function CheminScreen() {
           </View>
         </View>
 
-        <View style={{ gap: 8 }}>
+        <View style={{ gap: space.sm }}>
           <Text style={st.label}>{t('SES OUTILS DANS LE CERCLE')}</Text>
           {cur.tools.map((tool) => (
             <Pressable key={tool.title} style={st.tool} onPress={() => router.navigate(tool.route as never)} accessibilityRole="link" accessibilityLabel={t(tool.title)}>
@@ -140,9 +140,9 @@ export default function CheminScreen() {
         </Pressable>
       </View>
 
-      <View style={{ gap: 12 }}>
+      <View style={{ gap: space.ms }}>
         <Text style={st.h2}>{t('Les quatre rencontres du chemin')}</Text>
-        <Body muted style={{ fontSize: 13 }}>{t('Inspirées de Carl Gustav Jung. On les traverse plusieurs fois, à des profondeurs différentes.')}</Body>
+        <Body muted style={{ fontSize: textSize.sm }}>{t('Inspirées de Carl Gustav Jung. On les traverse plusieurs fois, à des profondeurs différentes.')}</Body>
         {MEETINGS.map((m) => (
           <View key={m.n} style={st.meeting}>
             <Text style={st.meetingN}>{m.n}</Text>
@@ -163,21 +163,21 @@ export default function CheminScreen() {
 }
 
 const st = StyleSheet.create({
-  h1: { fontFamily: fonts.title, fontSize: 34, lineHeight: 39, color: colors.text },
+  h1: { fontFamily: fonts.title, fontSize: textSize.display, lineHeight: 39, color: colors.text },
   h2: { fontFamily: fonts.title, fontSize: 26, lineHeight: 30, color: colors.text },
   self: { position: 'absolute', width: 104, height: 104, alignItems: 'center', justifyContent: 'center' },
   selfKicker: { fontFamily: fonts.bodyBold, fontSize: 10, letterSpacing: 2, color: colors.gold },
   selfPct: { fontFamily: fonts.title, fontSize: 30, color: colors.text, lineHeight: 34 },
   selfSub: { fontFamily: fonts.body, fontSize: 10, color: colors.muted },
-  node: { position: 'absolute', width: 80, alignItems: 'center', gap: 2 },
+  node: { position: 'absolute', width: 80, alignItems: 'center', gap: space.xxs },
   nodeName: { fontFamily: fonts.bodyBold, fontSize: 12 },
-  panel: { backgroundColor: colors.surface, borderWidth: 1, borderRadius: radius.lg, padding: space.md, gap: 16 },
-  kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.6 },
-  label: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.6, color: colors.muted },
-  text: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.text },
+  panel: { backgroundColor: colors.surface, borderWidth: 1, borderRadius: radius.lg, padding: space.md, gap: space.md },
+  kicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.6 },
+  label: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.6, color: colors.muted },
+  text: { fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 22, color: colors.text },
   evo: { gap: 10, padding: 14, borderRadius: radius.md, backgroundColor: colors.surfaceRaised },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  levelTxt: { fontFamily: fonts.bodyBold, fontSize: 13 },
+  levelTxt: { fontFamily: fonts.bodyBold, fontSize: textSize.sm },
   bars: { flexDirection: 'row', alignItems: 'flex-end', gap: 6, height: 56 },
   bar: { flex: 1, borderTopLeftRadius: 6, borderTopRightRadius: 6, borderBottomLeftRadius: 2, borderBottomRightRadius: 2 },
   axis: { fontFamily: fonts.body, fontSize: 10, color: colors.muted },
@@ -187,10 +187,10 @@ const st = StyleSheet.create({
   toolTitle: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.text },
   toolSub: { fontFamily: fonts.body, fontSize: 12, lineHeight: 17, color: colors.muted },
   chevron: { fontFamily: fonts.title, fontSize: 26, color: colors.gold },
-  nextBtn: { padding: 16, borderRadius: 18, backgroundColor: '#e8cf8f', gap: 4 },
-  nextKicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.6, color: '#1b1730' },
-  nextText: { fontFamily: fonts.title, fontSize: 21, lineHeight: 26, color: '#1b1730' },
-  meeting: { flexDirection: 'row', gap: 12, padding: 14, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(216,182,107,0.18)' },
+  nextBtn: { padding: space.md, borderRadius: 18, backgroundColor: colors.goldSoft, gap: space.xs },
+  nextKicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.6, color: colors.onGold },
+  nextText: { fontFamily: fonts.title, fontSize: 21, lineHeight: 26, color: colors.onGold },
+  meeting: { flexDirection: 'row', gap: space.ms, padding: 14, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(216,182,107,0.18)' },
   meetingN: { width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: colors.gold, color: colors.gold, textAlign: 'center', lineHeight: 26, fontFamily: fonts.title, fontSize: 16 },
   meetingSis: { fontFamily: fonts.bodyBold, fontSize: 12, color: colors.gold },
 });

@@ -5,7 +5,7 @@ import { t } from '../i18n';
 import { saveEntry, type JournalEntry } from '../lib/journal-intime';
 import { currentOwner } from '../lib/palm';
 import { explicitCrisis, RENEWAL_PROMPTS, renewalEntry, renewalSuggested } from '../lib/renouveau';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { Notice, OutlineButton } from './ui';
 import { EclairageSoeur } from './EclairageSoeur';
 import { draftKey } from '../lib/local-draft';
@@ -97,13 +97,13 @@ export function NouveauChapitre({ entries, onChanged }: { entries: JournalEntry[
 }
 
 const st = StyleSheet.create({
-  card: { padding: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, gap: 12 },
-  kicker: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.5 },
+  card: { padding: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, gap: space.ms },
+  kicker: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.5 },
   voices: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 14 },
   title: { color: colors.text, fontFamily: fonts.title, fontSize: 25 },
-  text: { color: colors.text, fontFamily: fonts.body, fontSize: 15, lineHeight: 23 },
-  muted: { color: colors.muted, fontFamily: fonts.body, fontSize: 13, lineHeight: 20 },
+  text: { color: colors.text, fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 23 },
+  muted: { color: colors.muted, fontFamily: fonts.body, fontSize: textSize.sm, lineHeight: 20 },
   input: { minHeight: 130, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, color: colors.text, fontFamily: fonts.body, fontSize: 16, padding: 14, textAlignVertical: 'top' },
-  navigation: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 16 },
+  navigation: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: space.md },
   link: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 14 },
 });

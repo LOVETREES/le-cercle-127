@@ -3,7 +3,7 @@ import type { ComponentProps } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors, fonts } from '../../lib/theme';
+import { colors, fonts, space, textSize } from '../../lib/theme';
 import { t } from '../../i18n';
 
 // Barre du bas : Accueil · Oracle · Rêve (au centre) · Grimoire · Symboles.
@@ -86,12 +86,12 @@ const st = StyleSheet.create({
     backgroundColor: '#0b0f22',
     borderTopWidth: 1,
     borderTopColor: 'rgba(216,182,107,0.25)',
-    paddingTop: 4,
+    paddingTop: space.xs,
   },
-  item: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: 2, minHeight: 92, paddingTop: 4, paddingBottom: 4 },
+  item: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', gap: space.xxs, minHeight: 92, paddingTop: space.xs, paddingBottom: space.xs },
   indicator: { position: 'absolute', top: -8, width: 22, height: 2, backgroundColor: colors.gold, borderRadius: 1 },
   icon: { width: 30, height: 31 },
-  label: { fontFamily: fonts.bodyMedium, fontSize: 11, color: '#c9c3e8' },
+  label: { fontFamily: fonts.bodyMedium, fontSize: textSize.xs, color: '#c9c3e8' },
   centerWrap: {
     width: 74,
     height: 74,

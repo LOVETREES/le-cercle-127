@@ -3,7 +3,7 @@ import { Image, Pressable, Text, View } from 'react-native';
 
 import { Body, Card, OutlineButton, Screen, Title } from '../components/ui';
 import { SISTERS } from '../lib/content';
-import { colors, fonts, space } from '../lib/theme';
+import { colors, fonts, space, textSize } from '../lib/theme';
 import { t } from '../i18n';
 import { SISTER_ECHOES } from '../lib/echos';
 
@@ -18,9 +18,9 @@ export default function Soeurs() {
           <View style={{ flex: 1 }}>
             <Text style={{ color: colors.gold, fontFamily: fonts.title, fontSize: 30 }}>{sister.name}</Text>
             <Body>{t(sister.role)}</Body>
-            {SISTER_ECHOES[sister.slug] && <Text style={{ color: colors.muted, fontFamily: fonts.body, fontSize: 13, lineHeight: 19 }}>{t(SISTER_ECHOES[sister.slug])}</Text>}
+            {SISTER_ECHOES[sister.slug] && <Text style={{ color: colors.muted, fontFamily: fonts.body, fontSize: textSize.sm, lineHeight: 19 }}>{t(SISTER_ECHOES[sister.slug])}</Text>}
           </View>
-          <Text style={{ color: colors.gold, fontSize: 28 }}>›</Text>
+          <Text style={{ color: colors.gold, fontSize: textSize.xxl }}>›</Text>
         </View>
       </Card>
     </Pressable>)}

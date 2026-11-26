@@ -7,7 +7,7 @@ import { readingSummary } from '../lib/model';
 import { deletePalmEverywhere, formatPalmSummary, listPalmReadings, syncPalmReadings, type PalmReading } from '../lib/palm';
 import { FEATURES } from '../lib/features';
 import { useSession } from '../lib/session';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { locale, t } from '../i18n';
 
 const TERRA = { path: '/terra-gardienne-de-lancrage/', title: 'Terra' };
@@ -167,17 +167,17 @@ export default function MesLectures() {
 }
 
 const st = StyleSheet.create({
-  switch: { flexDirection: 'row', borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, padding: 4 },
+  switch: { flexDirection: 'row', borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, padding: space.xs },
   switchBtn: { flex: 1, paddingVertical: 10, borderRadius: radius.pill, alignItems: 'center' },
   switchOn: { backgroundColor: colors.gold },
   switchText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.text },
   switchTextOn: { color: '#23182d' },
   item: { padding: space.md, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, gap: 6 },
-  date: { fontFamily: fonts.bodyMedium, fontSize: 11, letterSpacing: 1.2, color: colors.gold, textTransform: 'uppercase' },
+  date: { fontFamily: fonts.bodyMedium, fontSize: textSize.xs, letterSpacing: 1.2, color: colors.gold, textTransform: 'uppercase' },
   title: { fontFamily: fonts.title, fontSize: 21, color: colors.text },
-  reading: { fontFamily: fonts.titleItalic, fontSize: 18, lineHeight: 25, color: colors.text },
-  more: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold, marginTop: 4 },
-  line: { gap: 2 },
+  reading: { fontFamily: fonts.titleItalic, fontSize: textSize.lg, lineHeight: 25, color: colors.text },
+  more: { fontFamily: fonts.bodyBold, fontSize: textSize.sm, color: colors.gold, marginTop: space.xs },
+  line: { gap: space.xxs },
   lineLabel: { fontFamily: fonts.bodyBold, fontSize: 10, letterSpacing: 1.5, color: colors.muted },
   lineText: { fontFamily: fonts.body, fontSize: 14, lineHeight: 21, color: colors.text },
   remove: { fontFamily: fonts.body, fontSize: 12, color: colors.muted, marginTop: space.sm },

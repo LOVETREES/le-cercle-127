@@ -192,7 +192,7 @@ export default function Connexion() {
 const st = StyleSheet.create({
   content: { padding: space.lg, gap: space.lg, paddingBottom: 60 },
   consent: { flexDirection: 'row', gap: space.md, alignItems: 'flex-start' },
-  box: { width: 24, height: 24, borderRadius: 6, borderWidth: 1, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  box: { width: 24, height: 24, borderRadius: 6, borderWidth: 1, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', marginTop: space.xxs },
   boxOn: { backgroundColor: colors.gold },
   check: { color: colors.night, fontWeight: '700' },
   consentText: { flex: 1, fontFamily: fonts.body, fontSize: 14, lineHeight: 21, color: colors.text },

@@ -12,7 +12,7 @@ import { getLang, locale, t } from '../i18n';
 import { api } from '../lib/api';
 import { createDetailed, LINE_COLOR, LINE_LABEL, lineTimeline, listDetailed, SECTIONS, type DetailedReading, type Quota } from '../lib/palm-detailed';
 import { useSession } from '../lib/session';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 
 const fmt = (iso: string, long = true) =>
   new Date(iso).toLocaleDateString(locale(), long ? { day: 'numeric', month: 'long', year: 'numeric' } : { day: 'numeric', month: 'short' });
@@ -234,13 +234,13 @@ export default function LectureMain() {
           </View>
           <Pressable style={st.consent} onPress={() => setConsent((c) => !c)} accessibilityRole="checkbox" accessibilityState={{ checked: consent }}>
             <View style={[st.box, consent && st.boxOn]}>{consent ? <Text style={st.tick}>✓</Text> : null}</View>
-            <Text style={[st.text, { flex: 1, fontSize: 13 }]}>
+            <Text style={[st.text, { flex: 1, fontSize: textSize.sm }]}>
               {t('J’accepte que Terra analyse cette photo pour ma lecture. Elle est transmise de façon sécurisée à un service d’analyse d’image (OpenAI), puis n’est pas conservée : seules les observations de mes lignes sont gardées dans mon compte, et je peux les effacer.')}
             </Text>
           </Pressable>
           <Pressable style={st.consent} onPress={() => setRemember((c) => !c)} accessibilityRole="checkbox" accessibilityState={{ checked: remember }}>
             <View style={[st.box, remember && st.boxOn]}>{remember ? <Text style={st.tick}>✓</Text> : null}</View>
-            <Text style={[st.text, { flex: 1, fontSize: 13 }]}>
+            <Text style={[st.text, { flex: 1, fontSize: textSize.sm }]}>
               {t('Les Sœurs peuvent se souvenir de cette lecture pour suivre mon chemin : seules les observations de mes lignes, jamais la photo ni le texte. Je peux l’effacer en supprimant la lecture.')}
             </Text>
           </Pressable>
@@ -296,34 +296,34 @@ export default function LectureMain() {
 }
 
 const st = StyleSheet.create({
-  back: { fontFamily: fonts.bodyMedium, color: colors.gold, fontSize: 15 },
+  back: { fontFamily: fonts.bodyMedium, color: colors.gold, fontSize: textSize.md },
   text: { fontFamily: fonts.body, fontSize: 16, lineHeight: 25, color: colors.text },
-  section: { borderLeftWidth: 3, paddingLeft: 12, gap: 6 },
+  section: { borderLeftWidth: 3, paddingLeft: space.ms, gap: 6 },
   sectionGap: { marginTop: 6 },
-  letterHead: { alignItems: 'center', gap: 6, paddingBottom: 4 },
+  letterHead: { alignItems: 'center', gap: 6, paddingBottom: space.xs },
   medal: { width: 58, height: 58, borderRadius: 29, alignItems: 'center', justifyContent: 'center', backgroundColor: '#786a58', borderWidth: 1, borderColor: 'rgba(230,201,127,0.45)' },
-  medalGlyph: { fontSize: 28, color: '#f2dea8' },
+  medalGlyph: { fontSize: textSize.xxl, color: '#f2dea8' },
   signature: { fontFamily: fonts.title, fontSize: 20, fontStyle: 'italic', color: colors.gold, textAlign: 'right' },
   sectionTitle: { fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 1.4, textTransform: 'uppercase' },
   ritual: { gap: 10, padding: space.md, borderRadius: radius.md, backgroundColor: 'rgba(216,182,107,0.08)' },
-  label: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.6, color: colors.gold },
+  label: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.6, color: colors.gold },
   mantra: { fontFamily: fonts.title, fontSize: 21, lineHeight: 27, color: colors.text, fontStyle: 'italic' },
   evolution: { gap: 6, padding: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: 'rgba(143,200,232,0.45)', backgroundColor: 'rgba(143,200,232,0.08)' },
   remove: { fontFamily: fonts.body, fontSize: 14, color: colors.muted },
   hands: { flexDirection: 'row', gap: space.sm },
-  chip: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' },
+  chip: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: radius.pill, borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' },
   chipOn: { borderColor: colors.gold, backgroundColor: 'rgba(216,182,107,0.1)' },
   chipText: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.text },
   photo: { width: '100%', height: 320, borderRadius: radius.md, backgroundColor: '#0b0f20' },
   consent: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
-  box: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  box: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', marginTop: space.xxs },
   boxOn: { backgroundColor: colors.gold },
   tick: { color: colors.night, fontWeight: '700' },
-  tlRow: { gap: 4 },
-  tlLabel: { fontFamily: fonts.bodyBold, fontSize: 13 },
+  tlRow: { gap: space.xs },
+  tlLabel: { fontFamily: fonts.bodyBold, fontSize: textSize.sm },
   tlCells: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  tlCell: { paddingVertical: 6, paddingHorizontal: 8, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.05)', minWidth: 92 },
+  tlCell: { paddingVertical: 6, paddingHorizontal: space.sm, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.05)', minWidth: 92 },
   tlChanged: { borderWidth: 1, borderColor: '#8fc8e8', backgroundColor: 'rgba(143,200,232,0.12)' },
-  tlDate: { fontFamily: fonts.body, fontSize: 11, color: colors.muted },
-  tlText: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.text },
+  tlDate: { fontFamily: fonts.body, fontSize: textSize.xs, color: colors.muted },
+  tlText: { fontFamily: fonts.bodyMedium, fontSize: textSize.sm, color: colors.text },
 });

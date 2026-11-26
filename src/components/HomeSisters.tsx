@@ -9,11 +9,12 @@ import { dayKey } from '../lib/insights';
 import { useSession } from '../lib/session';
 import { EMOTIONS, emotionOf, lastSevenDays, listEmotions, recordEmotion, type EmotionEntry, type EmotionKey } from '../lib/naia';
 import { listPalmReadings, type PalmReading } from '../lib/palm';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, sisters, space, textSize, tint } from '../lib/theme';
+import { Card, GoldButton } from './ui';
 import { getLang, quote, t } from '../i18n';
 
-const NAIA = '#8fdad3';
-const TERRA = '#a9c98a';
+const NAIA = sisters.naia;
+const TERRA = sisters.terra;
 
 const openSister = (path: string, title: string) => router.push({ pathname: '/page', params: { path, title } });
 
@@ -53,14 +54,14 @@ function AskSister({ emotion, entries }: { emotion: EmotionKey; entries: Emotion
     );
   }
   return (
-    <View style={{ gap: 8 }}>
+    <View style={{ gap: space.sm }}>
       <Pressable onPress={() => setConsent((c) => !c)} accessibilityRole="checkbox" accessibilityState={{ checked: consent }} style={st.check}>
         <Text style={st.box}>{consent ? '☑' : '☐'}</Text>
-        <Text style={[st.text, { flex: 1, fontSize: 13 }]}>{t('J’accepte que mon émotion soit confiée aux Sœurs (service d’IA) pour recevoir une réponse.')}</Text>
+        <Text style={[st.text, { flex: 1, fontSize: textSize.sm }]}>{t('J’accepte que mon émotion soit confiée aux Sœurs (service d’IA) pour recevoir une réponse.')}</Text>
       </Pressable>
       <Pressable onPress={() => setRemember((c) => !c)} accessibilityRole="checkbox" accessibilityState={{ checked: remember }} style={st.check}>
         <Text style={st.box}>{remember ? '☑' : '☐'}</Text>
-        <Text style={[st.text, { flex: 1, fontSize: 13 }]}>{t('Les Sœurs peuvent s’en souvenir pour suivre mon chemin (effaçable à tout moment).')}</Text>
+        <Text style={[st.text, { flex: 1, fontSize: textSize.sm }]}>{t('Les Sœurs peuvent s’en souvenir pour suivre mon chemin (effaçable à tout moment).')}</Text>
       </Pressable>
       <Pressable disabled={!consent || busy} onPress={ask} accessibilityRole="button" style={[st.askBtn, (!consent || busy) && { opacity: 0.45 }]}>
         <Text style={st.askText}>{busy ? t('La Conscience choisit la Sœur…') : t('Demander à la Sœur la plus juste ›')}</Text>
@@ -176,13 +177,13 @@ export function NaiaCard({ onRecorded, folded = false }: { onRecorded?: () => vo
   const palette = expanded ? EMOTIONS.filter(e => normalize(t(e.name)).includes(normalize(query.trim()))) : EMOTIONS.filter(e => ['peur', 'colere', 'tristesse', 'culpabilite', 'confusion', 'soulagement', 'joie', 'serenite'].includes(e.key));
 
   return (
-    <View style={[st.card, { borderColor: 'rgba(143,218,211,0.35)' }]}>
+    <Card accent="naia" style={st.sisterCard}>
       <Text style={[st.kicker, { color: NAIA }]}>{t('NAÏA · RÉGULER MES ÉMOTIONS')}</Text>
       <Text style={st.title}>{t('Qu’est-ce qui vous traverse en ce moment ?')}</Text>
       {folded && <EmotionSlider value={open ?? todays} onPick={(k) => void choose(k)} disabled={saving} />}
       {more && <>
       <Text style={st.text}>{t('Choisissez le mot le plus proche. Ces besoins possibles sont des pistes, pas une explication imposée.')}</Text>
-      {expanded && <TextInput value={query} onChangeText={setQuery} accessibilityLabel={t('Chercher une émotion')} placeholder={t('Chercher une émotion')} placeholderTextColor={colors.muted} style={{ color: colors.text, borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: 12, fontFamily: fonts.body }} />}
+      {expanded && <TextInput value={query} onChangeText={setQuery} accessibilityLabel={t('Chercher une émotion')} placeholder={t('Chercher une émotion')} placeholderTextColor={colors.muted} style={{ color: colors.text, borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: space.ms, fontFamily: fonts.body }} />}
       <View style={st.chips} accessibilityRole="radiogroup">
         {palette.map((e) => {
           const on = (open ?? todays) === e.key;
@@ -217,7 +218,7 @@ export function NaiaCard({ onRecorded, folded = false }: { onRecorded?: () => vo
             ['LOCALISER', shown.body],
             ['UN GESTE DOUX', shown.gesture],
           ].map(([label, text]) => (
-            <View key={label} style={{ gap: 2 }}>
+            <View key={label} style={{ gap: space.xxs }}>
               <Text style={[st.label, { color: shown.color }]}>{t(label)}</Text>
               <Text style={st.text}>{t(text)}</Text>
             </View>
@@ -242,7 +243,7 @@ export function NaiaCard({ onRecorded, folded = false }: { onRecorded?: () => vo
           <View style={st.moreLine} />
         </Pressable>
       )}
-    </View>
+    </Card>
   );
 }
 
@@ -270,7 +271,7 @@ export function TerraCard() {
 
   return (
     <Pressable
-      style={[st.card, { borderColor: 'rgba(169,201,138,0.35)' }]}
+      style={[st.card, { borderColor: tint(TERRA, 0.35) }]}
       onPress={() => (doneToday ? router.push({ pathname: '/mes-lectures', params: { tab: 'main' } }) : openSister('/terra-gardienne-de-lancrage/', 'Terra'))}
       accessibilityRole="link"
       accessibilityLabel={doneToday ? t('Terra : revoir la lecture de ma main du jour') : t('Terra : lire les lignes de ma main')}
@@ -282,7 +283,7 @@ export function TerraCard() {
           {LINES.map((l) => <Text key={l.name} style={[st.handLegendText, { color: l.color }]}>● {t(l.name)}</Text>)}
         </View>
       </View>
-      <View style={{ gap: 4 }}>
+      <View style={{ gap: space.xs }}>
         {doneToday ? (
           <>
             <Text style={st.title}>{t('Votre main a parlé aujourd’hui')}</Text>
@@ -305,17 +306,12 @@ export function TerraCard() {
   );
 }
 
-const ASTRIA = '#f2dea8';
+const ASTRIA = sisters.astria;
 
 /** Astria en avant : sa carte du Cercle (le quiz du site, calculé sur le téléphone). */
 export function AstriaCard() {
   return (
-    <Pressable
-      style={st.astria}
-      onPress={() => openSister('/quiz-astria/', 'Astria')}
-      accessibilityRole="link"
-      accessibilityLabel={t('Astria : découvrir ma carte du Cercle')}
-    >
+    <Card accent="astria" style={st.astria}>
       <View style={st.astriaHead}>
         <View style={st.astriaHalo}>
           <Image source={require('../../assets/images/astria.webp')} style={st.astriaPic} resizeMode="cover" accessible={false} />
@@ -326,38 +322,40 @@ export function AstriaCard() {
         </View>
       </View>
       <Text style={st.text}>{t('Sept questions, et Astria trace ta carte : ton Soleil, ta Lune, ton ascendant, la Sœur qui te guide et ta porte parmi les 127.')}</Text>
-      <View style={st.astriaBtn}>
-        <Text style={st.astriaBtnText}>{t('Lire ma carte avec Astria  ›')}</Text>
-      </View>
+      <GoldButton
+        size="sm"
+        label={t('Lire ma carte avec Astria  ›')}
+        accessibilityLabel={t('Astria : découvrir ma carte du Cercle')}
+        onPress={() => openSister('/quiz-astria/', 'Astria')}
+      />
       <Text style={st.astriaMeta}>{t('2 minutes · calculé sur ton téléphone, rien n’est envoyé')}</Text>
-    </Pressable>
+    </Card>
   );
 }
 
 const st = StyleSheet.create({
-  astria: { padding: space.md, borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(242,222,168,0.55)', backgroundColor: '#15122a', gap: 12, shadowColor: ASTRIA, shadowOpacity: 0.18, shadowRadius: 18, shadowOffset: { width: 0, height: 6 } },
+  astria: { borderRadius: radius.lg, borderColor: tint(ASTRIA, 0.55), backgroundColor: '#15122a', gap: space.ms, shadowColor: ASTRIA, shadowOpacity: 0.18, shadowRadius: 18, shadowOffset: { width: 0, height: 6 } },
   astriaHead: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   astriaHalo: { width: 68, height: 68, borderRadius: 34, borderWidth: 1.5, borderColor: ASTRIA, overflow: 'hidden', backgroundColor: colors.night },
   astriaPic: { width: '100%', height: '100%' },
-  astriaBtn: { minHeight: 50, borderRadius: 999, backgroundColor: '#e8cf8f', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
-  astriaBtnText: { fontFamily: fonts.title, fontSize: 20, color: '#1b1730' },
   astriaMeta: { fontFamily: fonts.body, fontSize: 11.5, color: colors.muted, textAlign: 'center' },
   sliderValue: { fontFamily: fonts.title, fontSize: 21, lineHeight: 26, textAlign: 'center' },
   sliderTrack: { height: 48, justifyContent: 'center' },
-  sliderBar: { flexDirection: 'row', height: 8, marginHorizontal: THUMB / 2, borderRadius: 999, overflow: 'hidden' },
+  sliderBar: { flexDirection: 'row', height: 8, marginHorizontal: THUMB / 2, borderRadius: radius.pill, overflow: 'hidden' },
   sliderThumb: { position: 'absolute', top: (48 - THUMB) / 2, width: THUMB, height: THUMB, borderRadius: THUMB / 2, borderWidth: 2, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.4, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } },
-  sliderSign: { fontSize: 15, lineHeight: 18 },
+  sliderSign: { fontSize: textSize.md, lineHeight: 18 },
   sliderEnds: { flexDirection: 'row', justifyContent: 'space-between' },
-  sliderEnd: { fontFamily: fonts.body, fontSize: 11, color: colors.muted, letterSpacing: 0.4 },
+  sliderEnd: { fontFamily: fonts.body, fontSize: textSize.xs, color: colors.muted, letterSpacing: 0.4 },
   moreRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 40 },
   moreLine: { flex: 1, height: 1, backgroundColor: 'rgba(143,218,211,0.3)' },
   moreText: { fontFamily: fonts.bodyBold, fontSize: 14, letterSpacing: 0.4, color: NAIA },
   card: { padding: space.md, borderRadius: radius.md, borderWidth: 1, backgroundColor: colors.surface, gap: space.sm },
+  sisterCard: { gap: space.sm },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8 },
-  title: { fontFamily: fonts.title, fontSize: 22, lineHeight: 26, color: colors.text },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)' },
+  kicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.8 },
+  title: { fontFamily: fonts.title, fontSize: textSize.xl, lineHeight: 26, color: colors.text },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  chip: { paddingVertical: space.sm, paddingHorizontal: space.ms, borderRadius: radius.pill, borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)' },
   chipText: { fontFamily: fonts.bodyMedium, fontSize: 14 },
   ritual: { gap: 10, padding: space.md, borderRadius: radius.md, backgroundColor: 'rgba(143,218,211,0.07)' },
   label: { fontFamily: fonts.bodyBold, fontSize: 10.5, letterSpacing: 1.6 },
@@ -368,11 +366,11 @@ const st = StyleSheet.create({
   legendItem: { fontFamily: fonts.bodyMedium, fontSize: 12.5 },
   handVisual: { flexDirection: 'row', alignItems: 'center', overflow: 'hidden', borderRadius: radius.md, backgroundColor: colors.night },
   handPhoto: { width: '55%', height: 180 },
-  handLegend: { flex: 1, padding: 12, gap: 10 },
-  handLegendText: { fontFamily: fonts.bodyMedium, fontSize: 13 },
+  handLegend: { flex: 1, padding: space.ms, gap: 10 },
+  handLegendText: { fontFamily: fonts.bodyMedium, fontSize: textSize.sm },
   chevron: { color: colors.gold, fontSize: 24 },
-  check: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
-  box: { fontSize: 18, color: NAIA, lineHeight: 20 },
-  askBtn: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: NAIA, alignSelf: 'flex-start' },
+  check: { flexDirection: 'row', gap: space.sm, alignItems: 'flex-start' },
+  box: { fontSize: textSize.lg, color: NAIA, lineHeight: 20 },
+  askBtn: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: radius.pill, borderWidth: 1, borderColor: NAIA, alignSelf: 'flex-start' },
   askText: { fontFamily: fonts.bodyBold, fontSize: 14, color: NAIA },
 });

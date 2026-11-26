@@ -6,7 +6,7 @@ import { Body, Card, Eyebrow, GoldButton, Notice } from './ui';
 import { api, type PerleStatus } from '../lib/api';
 import { buyPerle, loadPerleOffer, perleAvailable, type PerleOffer } from '../lib/perle';
 import { addPendingPerle, consentsComplete, listPendingPerles, pickPerleProduct, removePendingPerle, type PerleConsents } from '../lib/perle-logic';
-import { colors, fonts, space } from '../lib/theme';
+import { colors, fonts, space, textSize } from '../lib/theme';
 import { t } from '../i18n';
 
 const CGV = 'https://lecercle127.com/conditions-generales-de-vente/';
@@ -122,7 +122,7 @@ export function PerleCard({ dreamId, userId, token }: { dreamId: string; userId:
 
 const st = StyleSheet.create({
   title: { fontFamily: fonts.title, fontSize: 21, lineHeight: 27, color: colors.text },
-  welcome: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold },
+  welcome: { fontFamily: fonts.bodyBold, fontSize: textSize.sm, color: colors.gold },
   tick: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   box: { width: 22, height: 22, borderRadius: 6, borderWidth: 1, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   boxOn: { backgroundColor: colors.gold },

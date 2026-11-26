@@ -8,7 +8,7 @@ import { splitContext } from '../../lib/oni-questions';
 import { useSession, type OniOutcome } from '../../lib/session';
 import { dailyReadingUsed } from '../../lib/oni-daily';
 import { PerleCard } from '../../components/PerleCard';
-import { colors, fonts, space } from '../../lib/theme';
+import { colors, fonts, space, textSize } from '../../lib/theme';
 import { t } from '../../i18n';
 
 function ask(title: string, message: string, action: string): Promise<boolean> {
@@ -232,10 +232,10 @@ const st = StyleSheet.create({
   content: { padding: space.md, gap: space.lg, paddingBottom: 60 },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.night, padding: space.lg },
   story: { fontFamily: fonts.body, fontSize: 16, lineHeight: 26, color: colors.text },
-  symbols: { fontFamily: fonts.title, fontSize: 18, lineHeight: 26, color: colors.gold },
+  symbols: { fontFamily: fonts.title, fontSize: textSize.lg, lineHeight: 26, color: colors.gold },
   reading: { fontFamily: fonts.titleItalic, fontSize: 19, lineHeight: 27, color: colors.text },
-  readingHeading: { fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: colors.gold, marginTop: 8 },
+  readingHeading: { fontFamily: fonts.bodyBold, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: colors.gold, marginTop: space.sm },
   closing: { fontFamily: fonts.titleItalic, fontSize: 17, lineHeight: 24, color: colors.gold },
-  report: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold, paddingVertical: 4 },
-  readingLine: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.text },
+  report: { fontFamily: fonts.bodyBold, fontSize: textSize.sm, color: colors.gold, paddingVertical: space.xs },
+  readingLine: { fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 22, color: colors.text },
 });

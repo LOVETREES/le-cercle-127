@@ -9,7 +9,7 @@ import { LAME_IMAGES } from '../lib/oracle/images';
 import { lameText } from '../lib/oracle/localize';
 import { recordGesture } from '../lib/rituel';
 import { useSession } from '../lib/session';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { mirrorForSister } from '../lib/echos';
 import { sistersOfMask } from '../lib/oracle/engine';
 
@@ -66,7 +66,7 @@ export function OracleExpress({ onDraw }: { onDraw: () => void }) {
               <Text style={st.text}>{words.definition}</Text>
             </View>
           </View>
-          {mirror && <View style={{ gap: 4 }}><Text style={st.kicker}>{t('MIROIR SYMBOLIQUE')} · {t(mirror.name)}</Text><Text style={st.text}>{t(mirror.question)}</Text></View>}
+          {mirror && <View style={{ gap: space.xs }}><Text style={st.kicker}>{t('MIROIR SYMBOLIQUE')} · {t(mirror.name)}</Text><Text style={st.text}>{t(mirror.question)}</Text></View>}
           <Pressable onPress={() => router.navigate('/oracle')} accessibilityRole="button" style={st.button}>
             <Text style={st.buttonText}>{t('Voir le conseil et garder mon tirage ›')}</Text>
           </Pressable>
@@ -85,13 +85,13 @@ export function OracleExpress({ onDraw }: { onDraw: () => void }) {
 
 const st = StyleSheet.create({
   card: { padding: space.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, gap: 10 },
-  kicker: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.5 },
+  kicker: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.5 },
   title: { color: colors.text, fontFamily: fonts.title, fontSize: 24 },
   text: { color: colors.text, fontFamily: fonts.body, fontSize: 14, lineHeight: 21 },
   note: { color: colors.muted, fontFamily: fonts.body, fontSize: 12, lineHeight: 18 },
   reveal: { flexDirection: 'row', gap: 14, alignItems: 'center' },
   image: { width: 90, height: 145, borderRadius: 8 },
-  button: { borderWidth: 1, borderColor: colors.gold, borderRadius: radius.md, padding: 12, alignItems: 'center' },
+  button: { borderWidth: 1, borderColor: colors.gold, borderRadius: radius.md, padding: space.ms, alignItems: 'center' },
   buttonText: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 14, textAlign: 'center' },
   link: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 14 },
 });

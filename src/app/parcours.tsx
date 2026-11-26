@@ -8,7 +8,7 @@ import { iconKey, SYMBOL_HINT, SymbolIcon } from '../components/SymbolIcon';
 import { journey } from '../lib/insights';
 import { EMOTIONS, type Dream } from '../lib/model';
 import { useSession } from '../lib/session';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { locale, t } from '../i18n';
 
 // « Mon parcours onirique » : ce qui se dessine au fil des nuits, lu dans VOS rêves. Tout est calculé sur l'appareil.
@@ -183,7 +183,7 @@ export default function Parcours() {
                   <View style={st.symIcon}>
                     <SymbolIcon name={iconKey(s)} size={26} />
                   </View>
-                  <View style={{ flex: 1, gap: 2 }}>
+                  <View style={{ flex: 1, gap: space.xxs }}>
                     <Text style={st.symName}>
                       {s} <Text style={st.symCount}>· {t('{n} fois', { n })}</Text>
                     </Text>
@@ -257,31 +257,31 @@ const st = StyleSheet.create({
   hero: { alignItems: 'center', gap: space.xs, paddingTop: space.sm },
   card: { backgroundColor: CARD, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: space.md, gap: space.sm },
   readingCard: { borderColor: 'rgba(216,182,107,0.5)', backgroundColor: '#14132b' },
-  kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8, color: colors.gold },
+  kicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.8, color: colors.gold },
   skyRow: { flexDirection: 'row', justifyContent: 'space-around' },
   skyStat: { alignItems: 'center' },
   skyValue: { fontFamily: fonts.title, fontSize: 30, color: GOLD2 },
   skyLabel: { fontFamily: fonts.body, fontSize: 12, color: colors.muted },
   readLead: { fontFamily: fonts.titleItalic, fontSize: 21, lineHeight: 28, color: colors.text },
-  readLine: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.text },
+  readLine: { fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 22, color: colors.text },
   orn: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: space.xs },
   ornLine: { flex: 1, height: 1, backgroundColor: colors.gold, opacity: 0.45 },
   ornStar: { color: colors.gold, fontSize: 14 },
   symRow: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: 6 },
   symIcon: { width: 46, height: 46, borderRadius: 23, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(216,182,107,0.06)' },
   symName: { fontFamily: fonts.title, fontSize: 20, color: colors.text },
-  symCount: { fontFamily: fonts.body, fontSize: 13, color: colors.gold },
-  hint: { fontFamily: fonts.body, fontSize: 13, lineHeight: 18, color: colors.muted },
+  symCount: { fontFamily: fonts.body, fontSize: textSize.sm, color: colors.gold },
+  hint: { fontFamily: fonts.body, fontSize: textSize.sm, lineHeight: 18, color: colors.muted },
   moons: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: space.xs },
-  moonCol: { alignItems: 'center', gap: 4, flex: 1 },
-  moonCount: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.text },
-  moonLabel: { fontFamily: fonts.body, fontSize: 11, color: colors.muted },
+  moonCol: { alignItems: 'center', gap: space.xs, flex: 1 },
+  moonCount: { fontFamily: fonts.bodyBold, fontSize: textSize.sm, color: colors.text },
+  moonLabel: { fontFamily: fonts.body, fontSize: textSize.xs, color: colors.muted },
   emoRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   emoDot: { width: 8, height: 8, borderRadius: 4 },
-  emoLabel: { width: 104, fontFamily: fonts.body, fontSize: 13, color: colors.text },
+  emoLabel: { width: 104, fontFamily: fonts.body, fontSize: textSize.sm, color: colors.text },
   emoTrack: { flex: 1, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' },
   emoFill: { height: 6, borderRadius: 3, opacity: 0.85 },
-  emoCount: { width: 24, textAlign: 'right', fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.muted },
+  emoCount: { width: 24, textAlign: 'right', fontFamily: fonts.bodyMedium, fontSize: textSize.sm, color: colors.muted },
   quote: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: space.sm },
   quoteT: { flexShrink: 1, maxWidth: 240, fontFamily: fonts.titleItalic, fontSize: 17, lineHeight: 23, color: colors.text, textAlign: 'center' },
 });

@@ -5,7 +5,7 @@ import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, St
 import { Body, GoldButton, Notice, OutlineButton, Screen } from '../components/ui';
 import { AGE_RANGES, DREAM_HABITS, EMPTY_PROFILE, clearDreamer, isEmptyProfile, readDreamer, saveDreamer, type DreamerProfile } from '../lib/dreamer';
 import { LIFE_AREAS } from '../lib/oni-questions';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { t } from '../i18n';
 
 // « Oni · Faisons connaissance » : ton histoire donne du sens à tes rêves.
@@ -175,19 +175,19 @@ export default function Connaissance() {
 const st = StyleSheet.create({
   welcome: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   portrait: { width: 64, height: 64, borderRadius: 32 },
-  steps: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  step: { borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 12, paddingVertical: 10 },
+  steps: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  step: { borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, paddingHorizontal: space.ms, paddingVertical: 10 },
   card: { backgroundColor: CARD, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: space.md, gap: space.md },
-  kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8, color: colors.gold },
+  kicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.8, color: colors.gold },
   title: { fontFamily: fonts.title, fontSize: 25, lineHeight: 29, color: colors.text },
   block: { gap: space.sm, paddingTop: space.sm },
   q: { fontFamily: fonts.bodyMedium, fontSize: 16, lineHeight: 22, color: colors.text },
-  opts: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  opt: { borderWidth: 1, borderColor: 'rgba(170,160,230,0.45)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 8, alignSelf: 'flex-start' },
-  optOn: { backgroundColor: '#e8cf8f', borderColor: '#e8cf8f' },
+  opts: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  opt: { borderWidth: 1, borderColor: 'rgba(170,160,230,0.45)', borderRadius: radius.pill, paddingHorizontal: space.ms, paddingVertical: space.sm, alignSelf: 'flex-start' },
+  optOn: { backgroundColor: colors.goldSoft, borderColor: colors.goldSoft },
   optT: { fontFamily: fonts.body, fontSize: 13.5, color: colors.text },
-  optTOn: { color: '#1b1730', fontFamily: fonts.bodyBold },
-  input: { borderWidth: 1, borderColor: 'rgba(216,182,107,0.3)', borderRadius: radius.md, paddingHorizontal: 16, paddingVertical: 12, color: colors.text, fontFamily: fonts.body, fontSize: 15 },
+  optTOn: { color: colors.onGold, fontFamily: fonts.bodyBold },
+  input: { borderWidth: 1, borderColor: 'rgba(216,182,107,0.3)', borderRadius: radius.md, paddingHorizontal: space.md, paddingVertical: space.ms, color: colors.text, fontFamily: fonts.body, fontSize: textSize.md },
   area: { borderRadius: radius.md, minHeight: 84, textAlignVertical: 'top' },
   erase: { fontFamily: fonts.bodyMedium, fontSize: 13.5, color: colors.danger },
 });

@@ -19,7 +19,7 @@ import { recordGesture } from '../lib/rituel';
 import { listGestes, recordGeste } from '../lib/labyrinthe/store';
 import { parisDayKey } from '../lib/oracle/engine';
 import { KEYS, local } from '../lib/storage';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { t } from '../i18n';
 
 const GOLD2 = '#f3dca0';
@@ -349,7 +349,7 @@ export default function OracleNatif() {
                     accessibilityRole="checkbox"
                     accessibilityState={{ checked: gesteFait }}
                   >
-                    <Text style={[st.gesteT, gesteFait && { color: '#1b1730' }]}>{gesteFait ? t('Geste accompli ✓ · Ignis s’en souvient') : t('J’ai fait ce geste')}</Text>
+                    <Text style={[st.gesteT, gesteFait && { color: colors.onGold }]}>{gesteFait ? t('Geste accompli ✓ · Ignis s’en souvient') : t('J’ai fait ce geste')}</Text>
                   </Pressable>
                 ) : null}
                 {more ? (
@@ -400,18 +400,18 @@ export default function OracleNatif() {
 }
 
 const st = StyleSheet.create({
-  head: { alignItems: 'center', gap: 4 },
-  kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8, color: colors.gold, textAlign: 'center' },
-  title: { fontFamily: fonts.title, fontSize: 28, color: colors.text, textAlign: 'center' },
+  head: { alignItems: 'center', gap: space.xs },
+  kicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.8, color: colors.gold, textAlign: 'center' },
+  title: { fontFamily: fonts.title, fontSize: textSize.xxl, color: colors.text, textAlign: 'center' },
   logo: { position: 'absolute', width: 92, height: 92, left: SIZE / 2 - 46, top: SIZE / 2 - 46, borderRadius: 46 },
-  modes: { flexDirection: 'row', gap: 8, justifyContent: 'center', flexWrap: 'wrap' },
-  mode: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: 16, paddingVertical: 10 },
-  modeOn: { backgroundColor: '#e8cf8f', borderColor: '#e8cf8f' },
+  modes: { flexDirection: 'row', gap: space.sm, justifyContent: 'center', flexWrap: 'wrap' },
+  mode: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: space.md, paddingVertical: 10 },
+  modeOn: { backgroundColor: colors.goldSoft, borderColor: colors.goldSoft },
   modeT: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.text },
-  modeTOn: { color: '#1b1730', fontFamily: fonts.bodyBold },
+  modeTOn: { color: colors.onGold, fontFamily: fonts.bodyBold },
   hint: { fontFamily: fonts.body, fontSize: 14, color: colors.muted, textAlign: 'center' },
   link: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.gold, textAlign: 'center' },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 14, minHeight: 80, color: colors.text, fontFamily: fonts.body, fontSize: 15, textAlignVertical: 'top' },
+  input: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 14, minHeight: 80, color: colors.text, fontFamily: fonts.body, fontSize: textSize.md, textAlignVertical: 'top' },
   peek: { alignSelf: 'center', borderTopWidth: 1, borderTopColor: 'rgba(216,182,107,0.2)', paddingTop: space.sm },
   peekT: { fontFamily: fonts.titleItalic, fontSize: 17, color: GOLD2, textAlign: 'center' },
   lame: { alignItems: 'center', gap: 6 },
@@ -420,29 +420,29 @@ const st = StyleSheet.create({
   spreadPos: { fontFamily: fonts.bodyBold, fontSize: 9.5, letterSpacing: 1.1, lineHeight: 13, height: 26, color: colors.muted, textAlign: 'center', textAlignVertical: 'bottom' },
   spreadOn: { borderColor: GOLD2, borderWidth: 2 },
   spreadOff: { opacity: 0.72 },
-  spreadName: { fontFamily: fonts.title, fontSize: 15, lineHeight: 18, height: 36, color: colors.muted, textAlign: 'center' },
+  spreadName: { fontFamily: fonts.title, fontSize: textSize.md, lineHeight: 18, height: 36, color: colors.muted, textAlign: 'center' },
   spreadDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: 'transparent' },
   artBox: { position: 'relative', aspectRatio: 7 / 12, borderRadius: radius.md, overflow: 'hidden', backgroundColor: '#0b0d1e', borderWidth: 1, borderColor: 'rgba(240,214,140,0.55)' },
-  num: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.6, color: colors.muted, marginTop: 4 },
+  num: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 1.6, color: colors.muted, marginTop: space.xs },
   name: { fontFamily: fonts.title, fontSize: 30, color: colors.text, textAlign: 'center' },
-  def: { fontFamily: fonts.titleItalic, fontSize: 18, lineHeight: 25, color: GOLD2, textAlign: 'center', paddingHorizontal: space.md },
-  sisters: { fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.muted, textAlign: 'center' },
+  def: { fontFamily: fonts.titleItalic, fontSize: textSize.lg, lineHeight: 25, color: GOLD2, textAlign: 'center', paddingHorizontal: space.md },
+  sisters: { fontFamily: fonts.bodyMedium, fontSize: textSize.sm, color: colors.muted, textAlign: 'center' },
   card: { backgroundColor: CARD, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: space.md, gap: space.sm },
-  text: { fontFamily: fonts.body, fontSize: 15, lineHeight: 22, color: colors.text },
-  regard: { gap: 2, paddingTop: space.sm, borderTopWidth: 1, borderTopColor: 'rgba(216,182,107,0.15)' },
-  regardName: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold },
-  question: { fontFamily: fonts.titleItalic, fontSize: 18, lineHeight: 24, color: GOLD2, marginTop: space.xs },
-  cta: { backgroundColor: '#e8cf8f', borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' },
-  ctaT: { fontFamily: fonts.title, fontSize: 20, color: '#1b1730' },
-  geste: { alignSelf: 'flex-start', borderWidth: 1, borderColor: colors.gold, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 8 },
-  gesteOn: { backgroundColor: '#e8cf8f', borderColor: '#e8cf8f' },
+  text: { fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 22, color: colors.text },
+  regard: { gap: space.xxs, paddingTop: space.sm, borderTopWidth: 1, borderTopColor: 'rgba(216,182,107,0.15)' },
+  regardName: { fontFamily: fonts.bodyBold, fontSize: textSize.sm, color: colors.gold },
+  question: { fontFamily: fonts.titleItalic, fontSize: textSize.lg, lineHeight: 24, color: GOLD2, marginTop: space.xs },
+  cta: { backgroundColor: colors.goldSoft, borderRadius: radius.pill, paddingVertical: 15, alignItems: 'center' },
+  ctaT: { fontFamily: fonts.title, fontSize: 20, color: colors.onGold },
+  geste: { alignSelf: 'flex-start', borderWidth: 1, borderColor: colors.gold, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: space.sm },
+  gesteOn: { backgroundColor: colors.goldSoft, borderColor: colors.goldSoft },
   gesteT: { fontFamily: fonts.bodyBold, fontSize: 13.5, color: colors.gold },
-  daily: { borderTopWidth: 1, borderTopColor: 'rgba(216,182,107,0.2)', paddingTop: space.sm, gap: 2, alignItems: 'center' },
+  daily: { borderTopWidth: 1, borderTopColor: 'rgba(216,182,107,0.2)', paddingTop: space.sm, gap: space.xxs, alignItems: 'center' },
   dailyT: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 20, color: colors.text, textAlign: 'center' },
   dailyS: { fontFamily: fonts.titleItalic, fontSize: 16, color: GOLD2, textAlign: 'center' },
   ghost: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingVertical: 13, alignItems: 'center' },
-  ghostT: { fontFamily: fonts.bodyBold, fontSize: 15, color: colors.gold },
-  qchip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 12, gap: 4 },
+  ghostT: { fontFamily: fonts.bodyBold, fontSize: textSize.md, color: colors.gold },
+  qchip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: space.ms, gap: space.xs },
   qchipOn: { borderColor: 'rgba(243,220,160,0.7)', backgroundColor: '#15142c' },
   qchipT: { fontFamily: fonts.bodyBold, fontSize: 14, color: colors.text },
   qchipS: { fontFamily: fonts.body, fontSize: 12.5, lineHeight: 18, color: colors.muted },
@@ -450,5 +450,5 @@ const st = StyleSheet.create({
   veil: { fontFamily: fonts.body, fontSize: 12, color: colors.muted, textAlign: 'center', opacity: 0.8 },
   zoomBg: { flex: 1, backgroundColor: 'rgba(5,4,12,0.94)', alignItems: 'center', justifyContent: 'center', padding: space.md },
   zoomImg: { width: '92%', height: '82%' },
-  zoomClose: { position: 'absolute', top: 54, right: 22, color: colors.gold, fontSize: 34 },
+  zoomClose: { position: 'absolute', top: 54, right: 22, color: colors.gold, fontSize: textSize.display },
 });

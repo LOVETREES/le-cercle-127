@@ -9,7 +9,7 @@ import { LANGUAGES, t } from '../i18n';
 import { useLanguage } from '../i18n/provider';
 import { readWebError } from '../lib/crash';
 import { useSession } from '../lib/session';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 
 function Row({ icon, tint, title, subtitle, danger, onPress }: { icon: string; tint: string; title: string; subtitle?: string; danger?: boolean; onPress: () => void }) {
   return (
@@ -53,7 +53,7 @@ export default function Parametres() {
             <Pressable key={l.code} style={st.lang} onPress={() => setLang(l.code)} accessibilityRole="radio" accessibilityState={{ checked: l.code === lang }} accessibilityLabel={l.label}>
               <Text style={st.langFlag}>{l.flag}</Text>
               <Text style={[st.title, { flex: 1 }]}>{l.label}</Text>
-              {l.code === lang ? <Text style={{ color: colors.gold, fontSize: 18 }}>✓</Text> : null}
+              {l.code === lang ? <Text style={{ color: colors.gold, fontSize: textSize.lg }}>✓</Text> : null}
             </Pressable>
           ))}
         <Row icon="☾" tint="#a9c2f7" title={t('Rappel du matin')} subtitle={t('Une notification douce au réveil')} onPress={() => router.push('/compte')} />
@@ -88,11 +88,11 @@ const st = StyleSheet.create({
   group: { borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: colors.surface, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: 14, paddingHorizontal: space.md, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.1)' },
   icon: { width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
-  iconText: { fontSize: 20, color: '#1b1730' },
+  iconText: { fontSize: 20, color: colors.onGold },
   title: { fontFamily: fonts.bodyBold, fontSize: 16, color: colors.text },
-  subtitle: { fontFamily: fonts.body, fontSize: 13, color: colors.muted, marginTop: 2 },
-  chevron: { color: colors.muted, fontSize: 22 },
-  lang: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: 12, paddingHorizontal: space.lg, backgroundColor: 'rgba(216,182,107,0.05)', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.08)' },
-  langFlag: { fontSize: 22 },
+  subtitle: { fontFamily: fonts.body, fontSize: textSize.sm, color: colors.muted, marginTop: space.xxs },
+  chevron: { color: colors.muted, fontSize: textSize.xl },
+  lang: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.ms, paddingHorizontal: space.lg, backgroundColor: 'rgba(216,182,107,0.05)', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.08)' },
+  langFlag: { fontSize: textSize.xl },
   version: { fontFamily: fonts.body, fontSize: 12, color: colors.muted, textAlign: 'center', marginTop: space.md },
 });

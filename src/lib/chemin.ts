@@ -2,6 +2,7 @@
 // Chaque Sœur veille sur une part du chemin ; son indice d'évolution vient de ce que la personne fait déjà
 // dans le Cercle. Le calcul est pur (testé) ; loadChemin() rassemble les données gardées sur l'appareil.
 import type { Dream } from './model';
+import { sisters } from './theme';
 
 export type SisterSlug = 'oni' | 'alka' | 'naia' | 'terra' | 'ignis' | 'astria' | 'irma';
 export type Level = 0 | 1 | 2 | 3; // à éveiller, graine, pousse, arbre
@@ -32,7 +33,7 @@ export const MEETINGS: { n: 1 | 2 | 3 | 4; title: string; text: string }[] = [
 
 export const STATIONS: Station[] = [
   {
-    slug: 'oni', name: 'Oni', verb: 'Lire', color: '#d9cdfb', meeting: 1,
+    slug: 'oni', name: 'Oni', verb: 'Lire', color: sisters.oni, meeting: 1,
     role: 'Tes rêves sont les lettres de ton inconscient. Oni t’aide à les garder et à les lire : c’est la porte d’entrée de tout le chemin.',
     unit: ['{n} rêve gardé', '{n} rêves gardés'], thresholds: [1, 5, 15],
     tools: [
@@ -43,7 +44,7 @@ export const STATIONS: Station[] = [
     next: 'Note ton prochain rêve dès le réveil, avant qu’il ne s’efface.',
   },
   {
-    slug: 'alka', name: 'Alka', verb: 'Relier', color: '#a9c2f7', meeting: 1,
+    slug: 'alka', name: 'Alka', verb: 'Relier', color: sisters.alka, meeting: 1,
     role: 'Ce qui revient d’un rêve à l’autre insiste en toi. Alka relie les symboles et les motifs pour montrer ce qui cherche à être vu.',
     unit: ['{n} motif qui revient', '{n} motifs qui reviennent'], thresholds: [1, 3, 6],
     tools: [
@@ -54,7 +55,7 @@ export const STATIONS: Station[] = [
     next: 'Ouvre ton parcours et regarde le symbole qui revient le plus.',
   },
   {
-    slug: 'naia', name: 'Naïa', verb: 'Apaiser', color: '#8fdad3', meeting: 2,
+    slug: 'naia', name: 'Naïa', verb: 'Apaiser', color: sisters.naia, meeting: 2,
     role: 'Naïa aide à nommer les nuances de tes émotions et les besoins possibles. Tu peux aussi explorer ce que tu tiens à distance, sans faire de chaque émotion un signe de ton Ombre.',
     unit: ['{n} émotion nommée', '{n} émotions nommées'], thresholds: [1, 7, 21],
     tools: [
@@ -64,14 +65,14 @@ export const STATIONS: Station[] = [
     next: 'Nomme l’émotion avec laquelle tu t’es réveillé·e ce matin.',
   },
   {
-    slug: 'terra', name: 'Terra', verb: 'Enraciner', color: '#a9c98a', meeting: 2,
+    slug: 'terra', name: 'Terra', verb: 'Enraciner', color: sisters.terra, meeting: 2,
     role: 'Ce que le rêve révèle doit descendre dans le corps pour devenir réel. Terra te ramène à tes mains, à ton souffle, au sol.',
     unit: ['{n} lecture de la main', '{n} lectures de la main'], thresholds: [1, 4, 10],
     tools: [{ title: 'Ta main du jour', sub: 'Ce que ta main dit aujourd’hui', route: '/lecture-main' }],
     next: 'Pose ta main et écoute ce que Terra en lit aujourd’hui.',
   },
   {
-    slug: 'ignis', name: 'Ignis', verb: 'Agir', color: '#eb9a68', meeting: 3,
+    slug: 'ignis', name: 'Ignis', verb: 'Agir', color: sisters.ignis, meeting: 3,
     role: 'Une prise de conscience sans geste reste une idée. Ignis transforme ce que tu as compris en un acte, même tout petit.',
     unit: ['{n} geste accompli', '{n} gestes accomplis'], thresholds: [1, 4, 10],
     tools: [
@@ -81,14 +82,14 @@ export const STATIONS: Station[] = [
     next: 'Choisis un geste de cinq minutes inspiré de ton dernier rêve.',
   },
   {
-    slug: 'astria', name: 'Astria', verb: 'Orienter', color: '#f2dea8', meeting: 3,
+    slug: 'astria', name: 'Astria', verb: 'Orienter', color: sisters.astria, meeting: 3,
     role: 'Derrière tes rêves, une direction se dessine : ce qui t’appelle à devenir. Astria met en regard ton ciel de naissance et ta semaine vécue.',
     unit: ['{n} bilan de la semaine', '{n} bilans de la semaine'], thresholds: [1, 3, 8],
     tools: [{ title: 'Le Labyrinthe vivant', sub: 'Ton ciel et ta semaine', route: '/labyrinthe' }],
     next: 'Fais ton bilan de la semaine dans le Labyrinthe : deux minutes.',
   },
   {
-    slug: 'irma', name: 'Irma', verb: 'Choisir', color: '#f3f1fb', meeting: 4,
+    slug: 'irma', name: 'Irma', verb: 'Choisir', color: sisters.irma, meeting: 4,
     role: 'Le chemin aboutit à des choix faits en conscience, fidèles à qui tu es. Irma éclaire tes décisions sans jamais les prendre à ta place.',
     unit: ['{n} tirage pour éclairer un choix', '{n} tirages pour éclairer un choix'], thresholds: [1, 5, 15],
     tools: [

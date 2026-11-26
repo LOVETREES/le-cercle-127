@@ -4,7 +4,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 
 
 import { Body, Eyebrow, Notice, Screen, Title } from '../../components/ui';
 import { api, type Symbol127 } from '../../lib/api';
-import { colors, fonts, radius, space } from '../../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../../lib/theme';
 import { t } from '../../i18n';
 
 const SUGGESTIONS = ['arbre', 'eau', 'maison', 'serpent', 'chute', 'dents', 'lune', 'forêt'];
@@ -131,12 +131,12 @@ const st = StyleSheet.create({
     paddingHorizontal: 20,
   },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  chip: { borderRadius: radius.pill, borderWidth: 1, borderColor: 'rgba(170,160,230,0.45)', paddingHorizontal: 14, paddingVertical: 8 },
+  chip: { borderRadius: radius.pill, borderWidth: 1, borderColor: 'rgba(170,160,230,0.45)', paddingHorizontal: 14, paddingVertical: space.sm },
   chipText: { fontFamily: fonts.body, color: colors.text, fontSize: 14 },
   item: { padding: space.md, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', gap: 6 },
   moonNote: { padding: space.md, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, gap: 6 },
   itemTitle: { fontFamily: fonts.title, fontSize: 21, color: colors.text },
   itemText: { fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.muted },
   all: { alignItems: 'center', padding: space.md },
-  allText: { fontFamily: fonts.bodyBold, color: colors.gold, fontSize: 15 },
+  allText: { fontFamily: fonts.bodyBold, color: colors.gold, fontSize: textSize.md },
 });

@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { t } from '../i18n';
 import { SISTERS } from '../lib/content';
 import { archetypalEchoes } from '../lib/echos';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 
 type Echo = ReturnType<typeof archetypalEchoes>[number];
 // Une préférence temporaire par personne ; aucun texte du journal n'est conservé ici.
@@ -22,7 +22,7 @@ export function EchoGrimoire({ echoes, owner }: { echoes: Echo[]; owner: string 
     if (expanded === key) setExpanded(null);
     update((n) => n + 1);
   };
-  return <View style={{ gap: 8 }}>
+  return <View style={{ gap: space.sm }}>
     {visible.map((echo) => {
       const isExpanded = expanded === echo.key;
       return <View key={echo.key} style={st.card}>
@@ -52,13 +52,13 @@ const st = StyleSheet.create({
   card: { borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, overflow: 'hidden' },
   summary: { flexDirection: 'row', alignItems: 'center', padding: space.md, gap: 10 },
   badge: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 10, letterSpacing: 1.4 },
-  title: { color: colors.text, fontFamily: fonts.title, fontSize: 22 },
+  title: { color: colors.text, fontFamily: fonts.title, fontSize: textSize.xl },
   chevron: { color: colors.gold, fontSize: 24 },
-  body: { padding: space.md, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border, gap: 10 },
-  text: { color: colors.text, fontFamily: fonts.body, fontSize: 15, lineHeight: 22 },
+  body: { padding: space.md, paddingTop: space.ms, borderTopWidth: 1, borderTopColor: colors.border, gap: 10 },
+  text: { color: colors.text, fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 22 },
   muted: { color: colors.muted, fontFamily: fonts.body, fontSize: 12, lineHeight: 18 },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  tag: { color: colors.text, fontFamily: fonts.body, fontSize: 12, borderColor: colors.border, borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 4 },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
-  link: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 13 },
+  tag: { color: colors.text, fontFamily: fonts.body, fontSize: 12, borderColor: colors.border, borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: space.xs },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: space.ms },
+  link: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: textSize.sm },
 });

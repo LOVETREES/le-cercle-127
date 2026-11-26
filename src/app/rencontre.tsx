@@ -11,7 +11,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import { AGE_RANGES, DREAM_HABITS, EMPTY_PROFILE, readDreamer, saveDreamer, type DreamerProfile } from '../lib/dreamer';
 import { LIFE_AREAS } from '../lib/oni-questions';
 import { markWelcomed } from '../lib/welcome';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 import { t } from '../i18n';
 
 const GOLD2 = '#f3dca0';
@@ -272,12 +272,12 @@ const st = StyleSheet.create({
   later: { fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.muted },
   body: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: space.lg, paddingVertical: space.lg },
   halo: { position: 'absolute', borderWidth: 1, borderColor: 'rgba(216,182,107,0.35)', backgroundColor: 'rgba(216,182,107,0.06)' },
-  kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 2.4, color: colors.gold, marginTop: space.sm },
+  kicker: { fontFamily: fonts.bodyBold, fontSize: textSize.xs, letterSpacing: 2.4, color: colors.gold, marginTop: space.sm },
   h1: { fontFamily: fonts.title, fontSize: 32, lineHeight: 37, color: colors.text, textAlign: 'center' },
   vow: { fontFamily: fonts.titleItalic, fontSize: 19, lineHeight: 26, color: GOLD2, textAlign: 'center' },
   lead: { fontFamily: fonts.body, fontSize: 16, lineHeight: 24, color: colors.text, textAlign: 'center', opacity: 0.9 },
-  small: { fontFamily: fonts.body, fontSize: 13, color: colors.muted, textAlign: 'center' },
-  input: { width: '100%', borderWidth: 1, borderColor: 'rgba(216,182,107,0.45)', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: radius.md, paddingHorizontal: 18, paddingVertical: 16, color: colors.text, fontFamily: fonts.body, fontSize: 18 },
+  small: { fontFamily: fonts.body, fontSize: textSize.sm, color: colors.muted, textAlign: 'center' },
+  input: { width: '100%', borderWidth: 1, borderColor: 'rgba(216,182,107,0.45)', backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: radius.md, paddingHorizontal: 18, paddingVertical: space.md, color: colors.text, fontFamily: fonts.body, fontSize: textSize.lg },
   area: { minHeight: 130, textAlignVertical: 'top', fontSize: 16 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, justifyContent: 'center', width: '100%' },
   tile: { width: '47%', aspectRatio: 1, borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(216,182,107,0.3)', backgroundColor: '#11122a', alignItems: 'center', justifyContent: 'center', gap: 10, padding: space.sm },
@@ -285,13 +285,13 @@ const st = StyleSheet.create({
   tileT: { fontFamily: fonts.bodyMedium, fontSize: 14, lineHeight: 19, color: colors.text, textAlign: 'center' },
   tick: { position: 'absolute', top: 10, right: 10, width: 24, height: 24, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(216,182,107,0.5)', alignItems: 'center', justifyContent: 'center' },
   tickOn: { backgroundColor: colors.gold, borderColor: colors.gold },
-  tickT: { color: '#1b1730', fontSize: 13, fontWeight: '700' },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
+  tickT: { color: colors.onGold, fontSize: textSize.sm, fontWeight: '700' },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, justifyContent: 'center' },
   chip: { borderWidth: 1, borderColor: 'rgba(170,160,230,0.45)', borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 10 },
-  chipOn: { backgroundColor: '#e8cf8f', borderColor: '#e8cf8f' },
+  chipOn: { backgroundColor: colors.goldSoft, borderColor: colors.goldSoft },
   chipT: { fontFamily: fonts.body, fontSize: 14.5, color: colors.text },
-  chipTOn: { color: '#1b1730', fontFamily: fonts.bodyBold },
+  chipTOn: { color: colors.onGold, fontFamily: fonts.bodyBold },
   foot: { paddingHorizontal: space.lg, paddingBottom: space.md, gap: space.sm, alignItems: 'center' },
-  cta: { alignSelf: 'stretch', backgroundColor: '#e8cf8f', borderRadius: radius.pill, paddingVertical: 17, alignItems: 'center' },
-  ctaT: { fontFamily: fonts.title, fontSize: 21, color: '#1b1730' },
+  cta: { alignSelf: 'stretch', backgroundColor: colors.goldSoft, borderRadius: radius.pill, paddingVertical: 17, alignItems: 'center' },
+  ctaT: { fontFamily: fonts.title, fontSize: 21, color: colors.onGold },
 });

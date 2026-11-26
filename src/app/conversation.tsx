@@ -10,7 +10,7 @@ import { api } from '../lib/api';
 import { SISTERS } from '../lib/content';
 import { recordSister } from '../lib/portes';
 import { explicitCrisis } from '../lib/renouveau';
-import { colors, fonts, radius, space } from '../lib/theme';
+import { colors, fonts, radius, space, textSize } from '../lib/theme';
 
 type Message = { role: 'user' | 'assistant'; content: string };
 
@@ -83,23 +83,23 @@ function ConversationForSister({ slug }: { slug?: string }) {
 
 const st = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.night },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.md, paddingVertical: 10, gap: 12, borderBottomWidth: 1, borderColor: colors.border },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.md, paddingVertical: 10, gap: space.ms, borderBottomWidth: 1, borderColor: colors.border },
   back: { color: colors.gold, fontSize: 36, lineHeight: 40 },
-  headerTitle: { flex: 1, fontFamily: fonts.title, fontSize: 22, color: colors.text },
+  headerTitle: { flex: 1, fontFamily: fonts.title, fontSize: textSize.xl, color: colors.text },
   title: { fontFamily: fonts.title, fontSize: 30, color: colors.gold },
-  content: { padding: space.md, gap: 12, paddingBottom: 24 },
-  identity: { alignItems: 'center', gap: 4, paddingVertical: 10 },
+  content: { padding: space.md, gap: space.ms, paddingBottom: space.lg },
+  identity: { alignItems: 'center', gap: space.xs, paddingVertical: 10 },
   portrait: { width: 96, height: 96, borderRadius: 48, borderWidth: 2, borderColor: colors.gold },
   assistant: { alignSelf: 'flex-start', maxWidth: '90%', borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 14, backgroundColor: colors.surface },
-  user: { alignSelf: 'flex-end', maxWidth: '90%', borderRadius: radius.md, padding: 14, backgroundColor: '#e8cf8f' },
-  text: { color: colors.text, fontFamily: fonts.body, fontSize: 15, lineHeight: 22 },
-  userText: { color: colors.night, fontFamily: fonts.body, fontSize: 15, lineHeight: 22 },
+  user: { alignSelf: 'flex-end', maxWidth: '90%', borderRadius: radius.md, padding: 14, backgroundColor: colors.goldSoft },
+  text: { color: colors.text, fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 22 },
+  userText: { color: colors.night, fontFamily: fonts.body, fontSize: textSize.md, lineHeight: 22 },
   muted: { color: colors.muted, fontFamily: fonts.body, fontSize: 12, lineHeight: 17, flexShrink: 1 },
   link: { color: colors.gold, fontFamily: fonts.bodyBold, fontSize: 12 },
-  composer: { padding: 12, gap: 8, borderTopWidth: 1, borderColor: colors.border, backgroundColor: colors.night },
-  consent: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
-  inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 6 },
-  input: { flex: 1, maxHeight: 110, minHeight: 42, color: colors.text, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 10, paddingVertical: 8 },
+  composer: { padding: space.ms, gap: space.sm, borderTopWidth: 1, borderColor: colors.border, backgroundColor: colors.night },
+  consent: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
+  inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: space.sm, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 6 },
+  input: { flex: 1, maxHeight: 110, minHeight: 42, color: colors.text, fontFamily: fonts.body, fontSize: 16, paddingHorizontal: 10, paddingVertical: space.sm },
   send: { width: 42, height: 42, alignItems: 'center', justifyContent: 'center', borderRadius: 21, backgroundColor: colors.gold },
   sendText: { color: colors.night, fontSize: 19 },
 });
