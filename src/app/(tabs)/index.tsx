@@ -4,11 +4,10 @@ import { AppState, Image, ImageBackground, Pressable, ScrollView, StyleSheet, Te
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { CheminCard } from '../../components/Chemin';
-import { NaiaCard, TerraCard } from '../../components/HomeSisters';
+import { AstriaCard, NaiaCard, TerraCard } from '../../components/HomeSisters';
 import { MoonPhase } from '../../components/MoonPhase';
 import { RituelDuJour } from '../../components/RituelDuJour';
 import { GoldButton, Notice, Screen, SiteFooter } from '../../components/ui';
-import { OracleExpress } from '../../components/OracleExpress';
 import { appendTranscript } from '../../lib/dictation';
 import { draftKey } from '../../lib/local-draft';
 import { palmOwnerFor } from '../../lib/palm';
@@ -177,11 +176,12 @@ export default function Home() {
       {/* Rituel du jour : carte, émotion, main */}
       <RituelDuJour refreshKey={ritualTick} onEmotion={() => scrollRef.current?.scrollTo({ y: Math.max(0, naiaY.current - 12), animated: true })} />
 
-      <OracleExpress onDraw={() => setRitualTick((n) => n + 1)} />
+      {/* Astria et sa carte du Cercle, à la place de l'Oracle (toujours dans l'onglet Oracle) */}
+      <AstriaCard />
 
-      {/* Naïa : l'émotion du moment ; Terra : la main du jour */}
+      {/* Naïa : un curseur d'émotion, le reste sous « Lire la suite » ; Terra : la main du jour */}
       <View onLayout={(e) => { naiaY.current = e.nativeEvent.layout.y; }}>
-        <NaiaCard onRecorded={() => setRitualTick((n) => n + 1)} />
+        <NaiaCard folded onRecorded={() => setRitualTick((n) => n + 1)} />
       </View>
       <TerraCard />
 

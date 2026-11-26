@@ -1,7 +1,7 @@
 // Deux Sœurs sur l'accueil : Naïa (réguler l'émotion du moment) et Terra (la main du jour).
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { type GestureResponderEvent, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { FEATURES } from '../lib/features';
 import { api } from '../lib/api';
@@ -70,7 +70,80 @@ function AskSister({ emotion, entries }: { emotion: EmotionKey; entries: Emotion
   );
 }
 
-export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
+// Du plus lourd au plus léger : l'ordre du curseur d'émotion.
+const SPECTRUM: EmotionKey[] = ['colere', 'peur', 'culpabilite', 'tristesse', 'confusion', 'soulagement', 'joie', 'serenite'];
+const THUMB = 34;
+
+/** Un curseur à glisser (ou toucher) pour nommer l'émotion du moment ; il se fixe sur le mot le plus proche. */
+function EmotionSlider({ value, onPick, disabled }: { value?: EmotionKey; onPick: (k: EmotionKey) => void; disabled?: boolean }) {
+  const [width, setWidth] = useState(0);
+  const [drag, setDrag] = useState<number | null>(null);
+  const [picked, setPicked] = useState<number | null>(null);
+  const live = useRef({ width: 0, idx: -1, x0: 0, disabled, onPick });
+  useEffect(() => { live.current.disabled = disabled; live.current.onPick = onPick; }, [disabled, onPick]);
+  const idx = drag ?? picked ?? (value ? SPECTRUM.indexOf(value) : -1);
+
+  // x0 : décalage entre la page et le début du curseur, relevé au premier contact.
+  const at = (pageX: number) => {
+    const w = live.current.width;
+    if (!w) return 0;
+    return Math.max(0, Math.min(SPECTRUM.length - 1, Math.round((pageX - live.current.x0 - THUMB / 2) / ((w - THUMB) / (SPECTRUM.length - 1)))));
+  };
+  const move = (i: number) => { live.current.idx = i; setDrag(i); };
+  const touch = {
+    onStartShouldSetResponder: () => !live.current.disabled,
+    onMoveShouldSetResponder: () => !live.current.disabled,
+    onResponderTerminationRequest: () => false,
+    onResponderGrant: (ev: GestureResponderEvent) => { live.current.x0 = ev.nativeEvent.pageX - ev.nativeEvent.locationX; move(at(ev.nativeEvent.pageX)); },
+    onResponderMove: (ev: GestureResponderEvent) => move(at(ev.nativeEvent.pageX)),
+    onResponderRelease: () => { const i = live.current.idx; setPicked(i); setDrag(null); if (i >= 0) live.current.onPick(SPECTRUM[i]); },
+    onResponderTerminate: () => setDrag(null),
+  };
+  const step = (w: number) => (w - THUMB) / (SPECTRUM.length - 1);
+  const dragging = drag !== null;
+
+  const e = idx >= 0 ? emotionOf(SPECTRUM[idx]) : undefined;
+  const left = width ? (idx >= 0 ? idx * step(width) : (width - THUMB) / 2) : 0;
+  const nudge = (d: number) => {
+    const i = Math.max(0, Math.min(SPECTRUM.length - 1, (idx < 0 ? 4 : idx) + d));
+    live.current.idx = i; setPicked(i); onPick(SPECTRUM[i]);
+  };
+
+  return (
+    <View style={{ gap: 6 }}>
+      <Text style={[st.sliderValue, { color: e?.color ?? colors.muted }]} accessibilityLiveRegion="polite">
+        {e ? `${e.sign}  ${t(e.name)}` : t('Faites glisser vers ce que vous ressentez')}
+      </Text>
+      <View
+        {...touch}
+        onLayout={(ev) => { live.current.width = ev.nativeEvent.layout.width; setWidth(ev.nativeEvent.layout.width); }}
+        style={st.sliderTrack}
+        accessible
+        accessibilityRole="adjustable"
+        accessibilityLabel={t('Curseur d’émotion')}
+        accessibilityValue={{ text: e ? t(e.name) : t('Aucune émotion choisie') }}
+        accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+        onAccessibilityAction={(ev) => nudge(ev.nativeEvent.actionName === 'increment' ? 1 : -1)}
+      >
+        <View pointerEvents="none" style={st.sliderBar}>
+          {SPECTRUM.map((k) => <View key={k} style={{ flex: 1, backgroundColor: emotionOf(k)?.color, opacity: e?.key === k ? 1 : 0.45 }} />)}
+        </View>
+        {width > 0 && (
+          <View pointerEvents="none" style={[st.sliderThumb, { left, borderColor: e?.color ?? colors.gold, transform: [{ scale: dragging ? 1.12 : 1 }] }]}>
+            <Text style={[st.sliderSign, { color: e?.color ?? colors.gold }]}>{e?.sign ?? '✦'}</Text>
+          </View>
+        )}
+      </View>
+      <View style={st.sliderEnds} pointerEvents="none">
+        <Text style={st.sliderEnd}>{t('Ce qui pèse')}</Text>
+        <Text style={st.sliderEnd}>{t('Ce qui apaise')}</Text>
+      </View>
+    </View>
+  );
+}
+
+export function NaiaCard({ onRecorded, folded = false }: { onRecorded?: () => void; folded?: boolean } = {}) {
+  const [more, setMore] = useState(!folded);
   const [expanded, setExpanded] = useState(false);
   const [query, setQuery] = useState('');
   const [saving, setSaving] = useState(false);
@@ -106,6 +179,8 @@ export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
     <View style={[st.card, { borderColor: 'rgba(143,218,211,0.35)' }]}>
       <Text style={[st.kicker, { color: NAIA }]}>{t('NAÏA · RÉGULER MES ÉMOTIONS')}</Text>
       <Text style={st.title}>{t('Qu’est-ce qui vous traverse en ce moment ?')}</Text>
+      {folded && <EmotionSlider value={open ?? todays} onPick={(k) => void choose(k)} disabled={saving} />}
+      {more && <>
       <Text style={st.text}>{t('Choisissez le mot le plus proche. Ces besoins possibles sont des pistes, pas une explication imposée.')}</Text>
       {expanded && <TextInput value={query} onChangeText={setQuery} accessibilityLabel={t('Chercher une émotion')} placeholder={t('Chercher une émotion')} placeholderTextColor={colors.muted} style={{ color: colors.text, borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: 12, fontFamily: fonts.body }} />}
       <View style={st.chips} accessibilityRole="radiogroup">
@@ -132,6 +207,7 @@ export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
       <Pressable accessibilityRole="button" accessibilityState={{ expanded }} onPress={() => { setExpanded(!expanded); setQuery(''); }}>
         <Text style={[st.link, { color: NAIA }]}>{t(expanded ? 'Réduire la palette' : 'Explorer toutes les émotions')}</Text>
       </Pressable>
+      </>}
       {saveError && <Text accessibilityRole="alert" style={{ color: colors.danger }}>{t('Votre émotion n’a pas pu être gardée. Réessayez.')}</Text>}
 
       {shown && (
@@ -152,11 +228,20 @@ export function NaiaCard({ onRecorded }: { onRecorded?: () => void } = {}) {
             : <Text style={st.text}>{t('Ce repère et son geste restent sur cet appareil.')}</Text>}
         </View>
       )}
+      {more && <>
       <Pressable accessibilityRole="link" onPress={() => router.push('/journal-intime')}><Text style={[st.link, { color: NAIA }]}>{t('Mettre mes propres mots dans mon journal privé ›')}</Text></Pressable>
 
       <Pressable onPress={() => openSister('/naia-gardienne-des-emotions/', 'Naïa')} accessibilityRole="link">
         <Text style={[st.link, { color: NAIA }]}>{t('Aller plus loin avec Naïa ›')}</Text>
       </Pressable>
+      </>}
+      {folded && (
+        <Pressable onPress={() => setMore((v) => !v)} accessibilityRole="button" accessibilityState={{ expanded: more }} aria-expanded={more} hitSlop={6} style={st.moreRow}>
+          <View style={st.moreLine} />
+          <Text style={st.moreText}>{more ? `✦ ${t('Replier')} ⌃` : `✦ ${t('Lire la suite')} ⌄`}</Text>
+          <View style={st.moreLine} />
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -220,7 +305,53 @@ export function TerraCard() {
   );
 }
 
+const ASTRIA = '#f2dea8';
+
+/** Astria en avant : sa carte du Cercle (le quiz du site, calculé sur le téléphone). */
+export function AstriaCard() {
+  return (
+    <Pressable
+      style={st.astria}
+      onPress={() => openSister('/quiz-astria/', 'Astria')}
+      accessibilityRole="link"
+      accessibilityLabel={t('Astria : découvrir ma carte du Cercle')}
+    >
+      <View style={st.astriaHead}>
+        <View style={st.astriaHalo}>
+          <Image source={require('../../assets/images/astria.webp')} style={st.astriaPic} resizeMode="cover" accessible={false} />
+        </View>
+        <View style={{ flex: 1, gap: 3 }}>
+          <Text style={[st.kicker, { color: ASTRIA }]}>{t('✦ ASTRIA · TA CARTE DU CERCLE')}</Text>
+          <Text style={st.title}>{t('Que dit ton ciel ?')}</Text>
+        </View>
+      </View>
+      <Text style={st.text}>{t('Sept questions, et Astria trace ta carte : ton Soleil, ta Lune, ton ascendant, la Sœur qui te guide et ta porte parmi les 127.')}</Text>
+      <View style={st.astriaBtn}>
+        <Text style={st.astriaBtnText}>{t('Lire ma carte avec Astria  ›')}</Text>
+      </View>
+      <Text style={st.astriaMeta}>{t('2 minutes · calculé sur ton téléphone, rien n’est envoyé')}</Text>
+    </Pressable>
+  );
+}
+
 const st = StyleSheet.create({
+  astria: { padding: space.md, borderRadius: radius.lg, borderWidth: 1, borderColor: 'rgba(242,222,168,0.55)', backgroundColor: '#15122a', gap: 12, shadowColor: ASTRIA, shadowOpacity: 0.18, shadowRadius: 18, shadowOffset: { width: 0, height: 6 } },
+  astriaHead: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  astriaHalo: { width: 68, height: 68, borderRadius: 34, borderWidth: 1.5, borderColor: ASTRIA, overflow: 'hidden', backgroundColor: colors.night },
+  astriaPic: { width: '100%', height: '100%' },
+  astriaBtn: { minHeight: 50, borderRadius: 999, backgroundColor: '#e8cf8f', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
+  astriaBtnText: { fontFamily: fonts.title, fontSize: 20, color: '#1b1730' },
+  astriaMeta: { fontFamily: fonts.body, fontSize: 11.5, color: colors.muted, textAlign: 'center' },
+  sliderValue: { fontFamily: fonts.title, fontSize: 21, lineHeight: 26, textAlign: 'center' },
+  sliderTrack: { height: 48, justifyContent: 'center' },
+  sliderBar: { flexDirection: 'row', height: 8, marginHorizontal: THUMB / 2, borderRadius: 999, overflow: 'hidden' },
+  sliderThumb: { position: 'absolute', top: (48 - THUMB) / 2, width: THUMB, height: THUMB, borderRadius: THUMB / 2, borderWidth: 2, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.4, shadowRadius: 6, shadowOffset: { width: 0, height: 2 } },
+  sliderSign: { fontSize: 15, lineHeight: 18 },
+  sliderEnds: { flexDirection: 'row', justifyContent: 'space-between' },
+  sliderEnd: { fontFamily: fonts.body, fontSize: 11, color: colors.muted, letterSpacing: 0.4 },
+  moreRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 40 },
+  moreLine: { flex: 1, height: 1, backgroundColor: 'rgba(143,218,211,0.3)' },
+  moreText: { fontFamily: fonts.bodyBold, fontSize: 14, letterSpacing: 0.4, color: NAIA },
   card: { padding: space.md, borderRadius: radius.md, borderWidth: 1, backgroundColor: colors.surface, gap: space.sm },
   row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   kicker: { fontFamily: fonts.bodyBold, fontSize: 11, letterSpacing: 1.8 },
