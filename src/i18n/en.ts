@@ -374,6 +374,7 @@ export const en: Record<string, string> = {
   "Cette photo n’a pas pu être préparée. Essayez-en une autre, au format JPEG ou HEIC.": "This photo could not be prepared. Try another one, in JPEG or HEIC format.",
   "Autorisez l’accès aux photos dans les réglages du téléphone pour choisir la photo de votre main.": "Allow access to photos in your phone settings to choose the photo of your hand.",
   "La galerie n’a pas pu s’ouvrir. Utilisez « Photographier ».": "The gallery could not open. Use “Take a photo”.",
+  "Avancer vers toi-même, pas à pas, avec le soutien des Sœurs. Chacune apparaît peu à peu, au fil de tes gestes.": "Move toward yourself, step by step, with the Sisters’ support. Each one appears little by little, with your gestures.",
   "Gêne / embarras": "Embarrassment",
   "Surprise": "Surprise",
   "Symboles": "Symbols",

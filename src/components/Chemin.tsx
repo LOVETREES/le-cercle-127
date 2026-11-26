@@ -11,6 +11,9 @@ import { t } from '../i18n';
 const IMG = Object.fromEntries(SISTERS.map((s) => [s.slug, s.image])) as Record<string, number>;
 
 /** Portrait de la Sœur entouré d'un anneau qui se remplit avec son niveau. */
+/** Les Sœurs apparaissent en transparence au fil de l'usage : à peine visibles, puis de plus en plus nettes. */
+const REVEAL = [0.28, 0.55, 0.8, 1];
+
 export function SisterRing({ s, size = 62, selected = false }: { s: StationState; size?: number; selected?: boolean }) {
   const stroke = 4;
   const r = (size - stroke) / 2;
@@ -27,8 +30,7 @@ export function SisterRing({ s, size = 62, selected = false }: { s: StationState
         {selected ? <Circle cx={size / 2} cy={size / 2} r={size / 2 - 0.5} stroke={s.color} strokeWidth={1} fill="none" /> : null}
       </Svg>
       <View style={{ width: size - 12, height: size - 12, borderRadius: (size - 12) / 2, overflow: 'hidden', backgroundColor: colors.night }}>
-        <Image source={IMG[s.slug]} style={{ width: '100%', height: '100%' }} />
-        {s.level ? null : <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(8,11,23,0.45)' }]} />}
+        <Image source={IMG[s.slug]} style={{ width: '100%', height: '100%', opacity: REVEAL[Math.max(0, Math.min(3, s.level))] }} />
       </View>
     </View>
   );
@@ -45,15 +47,17 @@ export function CheminCard({ chemin }: { chemin: Chemin }) {
     <View style={st.card}>
       <View style={st.head}>
         <Text style={st.title}>{t('Mon chemin')}</Text>
+        <Text style={st.count}>{t('{n} / 7 éveillées', { n: chemin.awakened })}</Text>
       </View>
-      <Text style={st.intro}>{t('Avancer vers toi-même, pas à pas, avec le soutien des Sœurs.')}</Text>
+      <Text style={st.intro}>{t('Avancer vers toi-même, pas à pas, avec le soutien des Sœurs. Chacune apparaît peu à peu, au fil de tes gestes.')}</Text>
       {[stations.slice(0, 4), stations.slice(4)].map((row, i) => (
         <View key={i} style={st.gridRow}>
           {row.map((s) => (
             <Pressable key={s.slug} style={st.node} onPress={() => router.push({ pathname: '/conversation', params: { sister: s.slug } })}
               accessibilityRole="link" accessibilityLabel={t('{v0}, {v1} : {v2}', { v0: s.name, v1: t(s.verb), v2: levelText(s) })}>
-              <Image source={IMG[s.slug]} style={st.portrait} accessible={false} />
+              <SisterRing s={s} size={56} />
               <Text style={[st.name, { color: s.color }]}>{s.name}</Text>
+              <Text style={[st.level, { color: s.level ? colors.gold : colors.muted }]}>{levelText(s)}</Text>
             </Pressable>
           ))}
         </View>
@@ -79,9 +83,10 @@ const st = StyleSheet.create({
   title: { fontFamily: fonts.title, fontSize: 28, color: colors.text },
   intro: { fontFamily: fonts.body, fontSize: 14, lineHeight: 21, color: colors.muted },
   gridRow: { flexDirection: 'row', justifyContent: 'center' },
-  node: { width: '25%', alignItems: 'center', gap: 4, minHeight: 76 },
-  portrait: { width: 52, height: 52, borderRadius: 26, borderWidth: 3, borderColor: '#35394b', backgroundColor: colors.night },
+  node: { width: '25%', alignItems: 'center', gap: 3, minHeight: 100 },
   name: { fontFamily: fonts.bodyBold, fontSize: 12 },
+  count: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold },
+  level: { fontFamily: fonts.bodyBold, fontSize: 10 },
   evolutionLink: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   evolutionLinkText: { fontFamily: fonts.bodyBold, fontSize: 13, color: colors.gold },
   next: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: radius.md, backgroundColor: colors.surfaceRaised },
