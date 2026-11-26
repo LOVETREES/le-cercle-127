@@ -61,8 +61,8 @@ body.home .m1 > .wrap > .c127a-unfold{order:11}
 /* ===== Accueil identique à l'application (portée .c127h) ===== */
 .c127h{background:#080b17;color:#f2ede2;font:400 16px/1.5 "Manrope",system-ui,sans-serif;padding:22px 0 30px}
 .c127h *{box-sizing:border-box}
-.c127h-wrap{width:min(1180px,calc(100% - 32px));margin:0 auto;display:grid;gap:18px;grid-template-columns:minmax(0,1fr);grid-template-areas:"hello" "ctas" "chemin" "rituel" "thought" "tiles" "more"}
-@media (min-width:900px){.c127h-wrap{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:32px;grid-template-areas:"hello chemin" "ctas chemin" "rituel chemin" "thought chemin" "tiles tiles" "more more";grid-template-rows:auto auto auto 1fr auto auto;align-items:start}}
+.c127h-wrap{width:min(1180px,calc(100% - 32px));margin:0 auto;display:grid;gap:18px;grid-template-columns:minmax(0,1fr);grid-template-areas:"hello" "ctas" "quiz" "chemin" "rituel" "thought" "tiles" "more"}
+@media (min-width:900px){.c127h-wrap{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:32px;grid-template-areas:"hello chemin" "ctas chemin" "quiz chemin" "rituel chemin" "thought chemin" "tiles tiles" "more more";grid-template-rows:auto auto auto auto 1fr auto auto;align-items:start}}
 .c127h-hello{grid-area:hello;display:flex;flex-direction:column;gap:4px}
 .c127h-ctas{grid-area:ctas;display:flex;flex-wrap:wrap;gap:12px}
 .c127h-chemin{grid-area:chemin}
@@ -107,3 +107,12 @@ body.home .m1 > .wrap > .c127a-unfold{order:11}
 .c127h-hidden{display:none!important}
 .c127h section,.c127h .c127h-thought,.c127h .c127a-rituel{margin:0}
 .c127h .c127h-thought{padding:4px 2px}
+
+/* 1.2.4 : raccourci vers le Quiz d'Astria */
+.c127h-quiz{grid-area:quiz;display:flex;align-items:center;gap:12px;margin:0;padding:12px 14px;border:1px solid rgba(216,182,107,.45);border-radius:18px;background:radial-gradient(120% 120% at 0% 0%,rgba(124,92,210,.22),transparent 60%),#15122a;color:#f4efe2;text-decoration:none}
+.c127h-quiz img{flex:0 0 52px;width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid #d8b66b;box-shadow:0 0 18px rgba(242,222,168,.3)}
+.c127h-quiz span{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.c127h-quiz small{font:700 10.5px/1.3 Manrope,system-ui,sans-serif;letter-spacing:.14em;color:#e6c97f}
+.c127h-quiz b{font:500 19px/1.2 "Cormorant Garamond",Georgia,serif;color:#f4efe2}
+.c127h-quiz em{font:400 13px/1.35 Manrope,system-ui,sans-serif;font-style:normal;color:#b9b3c6}
+.c127h-quiz .c127h-quiz__go{flex:0 0 auto;font-size:26px;color:#e6c97f}

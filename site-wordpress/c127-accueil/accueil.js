@@ -166,6 +166,8 @@
       '<p class="c127h-sub">' + (LOGGED ? 'Ton chemin t’attend : chaque rêve noté le fait avancer.' : 'Comprendre tes rêves, voir ce qui revient, avancer.') + '</p></div>' +
       '<div class="c127h-ctas"><a class="c127h-main" href="' + esc(L.raconter || L.grimoire) + '">Raconter un rêve <span aria-hidden="true">›</span></a>' +
       '<a class="c127h-sec" href="' + esc(L.grimoire) + '">' + (IMG.grimoire ? '<img src="' + esc(IMG.grimoire) + '" alt="" width="28" height="28">' : '') + 'Ouvrir mon Grimoire</a></div>' +
+      (L.quiz ? '<a class="c127h-quiz" href="' + esc(L.quiz) + '">' + ((IMG.sisters || {}).astria ? '<img src="' + esc(IMG.sisters.astria) + '" alt="" width="52" height="52">' : '') +
+        '<span><small>✦ QUIZ D’ASTRIA · 2 MIN</small><b>Découvre ta carte du Cercle</b><em>Ton ciel, ta Sœur guide, ta porte parmi les 127</em></span><span aria-hidden="true" class="c127h-quiz__go">›</span></a>' : '') +
       '<div class="c127h-chemin">' + cheminHtml({}) + '</div>' +
       '<div class="c127h-rituel"></div>' +
       '<section class="c127h-thought" aria-label="Pensée du jour"><small>✦ PENSÉE DU JOUR</small><p>«\u00a0' + esc(thought(now)) + '\u00a0»</p></section>' +
