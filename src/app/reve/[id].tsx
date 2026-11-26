@@ -7,6 +7,7 @@ import { EMOTIONS, readingSections } from '../../lib/model';
 import { splitContext } from '../../lib/oni-questions';
 import { useSession, type OniOutcome } from '../../lib/session';
 import { dailyReadingUsed } from '../../lib/oni-daily';
+import { premiumPurchasable, usePremium } from '../../lib/premium';
 import { PerleCard } from '../../components/PerleCard';
 import { colors, fonts, space, textSize } from '../../lib/theme';
 import { t } from '../../i18n';
@@ -34,12 +35,13 @@ export default function DreamDetail() {
   const [error, setError] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<OniOutcome | null>(null);
   const [dailyUsed, setDailyUsed] = useState(false);
+  const premium = usePremium();
   const autoAsked = useRef(false);
   useEffect(() => {
     let active = true;
-    dailyReadingUsed().then((u) => active && setDailyUsed(u), () => undefined);
+    dailyReadingUsed().then((u) => active && setDailyUsed(u && !premium.premium), () => undefined);
     return () => { active = false; };
-  }, [outcome]);
+  }, [outcome, premium.premium]);
   const canAsk = !!dream && oniEnabled && !!user && !isDemo && !dream.pending && !dream.oniReading && !oniRequested.includes(dream.id);
 
   async function explore() {
@@ -191,6 +193,11 @@ export default function DreamDetail() {
               : t('Une fois par jour, Oni te répond tout de suite, en une trentaine de secondes : des hypothèses et des questions, sans te dire quoi penser. Une personne du Cercle relit ensuite sa lecture.')}
           </Body>
           <GoldButton label={dailyUsed ? t('Demander une lecture relue') : t('Qu’en dit Oni ? Lecture immédiate')} onPress={explore} loading={busy} />
+          {dailyUsed && premiumPurchasable() ? (
+            <Pressable onPress={() => router.push('/premium')} accessibilityRole="link" hitSlop={6}>
+              <Body style={{ color: colors.gold, fontSize: 14 }}>{t('✦ Avec le Premium, Oni lit chacun de tes rêves tout de suite ›')}</Body>
+            </Pressable>
+          ) : null}
           {busy && !dailyUsed ? <Body muted style={{ fontSize: 12 }}>{t('Oni lit ton rêve…')}</Body> : null}
         </Card>
       ) : !dream.pending ? (

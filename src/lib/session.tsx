@@ -372,10 +372,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           return { status, afterDaily };
         };
         // Une lecture immédiate par jour ; ensuite, la lecture relue avant envoi (sous 48 h).
-        if (await dailyReadingUsed()) return deferred(true);
+        // Cercle Premium : une lecture immédiate pour chaque rêve (le site et Make le vérifient aussi).
+        const premium = await api.premiumStatus(token).then((s) => s.premium, () => false);
+        if (!premium && (await dailyReadingUsed())) return deferred(true);
         const daily = await api.requestDailyReading(token, id, consent);
         if (daily.status === 'lue') {
-          await markDailyReadingUsed();
+          if (!premium) await markDailyReadingUsed();
           void sync(token, user.id);
           return daily;
         }

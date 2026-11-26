@@ -129,6 +129,12 @@ export const api = {
     await request(`${PALM}/${encodeURIComponent(id)}`, { method: 'DELETE', token });
   },
 
+  // Cercle Premium : l'accès du compte tel que le site le connaît (tenu à jour par RevenueCat).
+  async premiumStatus(token: string): Promise<{ premium: boolean; until: string | null }> {
+    const r = (await request(`${BASE}/c127-premium/v1/status`, { token })) as { premium?: unknown; until?: unknown } | null;
+    return { premium: r?.premium === true, until: typeof r?.until === 'string' ? r.until : null };
+  },
+
   // Lecture détaillée de la main sur photo (Terra). La photo n'est pas conservée par le site.
   async palmDetailedList(token: string): Promise<unknown> {
     return request(PALM_DETAILED, { token });

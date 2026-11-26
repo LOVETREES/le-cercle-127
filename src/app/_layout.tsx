@@ -97,6 +97,7 @@ function Root() {
         <Stack.Screen name="nuit-noire" options={{ title: 'Nuit noire', headerShown: false }} />
         <Stack.Screen name="mes-lectures" options={{ title: 'Mes lectures', headerShown: false }} />
         <Stack.Screen name="parametres" options={{ title: 'Paramètres', headerShown: false }} />
+        <Stack.Screen name="premium" options={{ title: 'Cercle Premium', headerShown: false }} />
         <Stack.Screen name="lecture-main" options={{ title: 'Lecture de la main', headerShown: false }} />
         <Stack.Screen name="labyrinthe" options={{ title: 'Labyrinthe vivant', headerShown: false }} />
         <Stack.Screen name="journal-intime" options={{ title: 'Journal intime', headerShown: false }} />

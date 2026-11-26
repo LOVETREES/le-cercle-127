@@ -7,7 +7,7 @@ import { SessionProvider, useSession } from '../lib/session';
 const mocks = vi.hoisted(() => ({
   data: new Map<string, unknown>(),
   getSecret: vi.fn(),
-  api: { privacy: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn(), createDream: vi.fn(), listDreams: vi.fn(), deleteDream: vi.fn(), deleteAccount: vi.fn(), requestOniReading: vi.fn(), requestDailyReading: vi.fn() },
+  api: { privacy: vi.fn(), login: vi.fn(), register: vi.fn(), logout: vi.fn(), createDream: vi.fn(), listDreams: vi.fn(), deleteDream: vi.fn(), deleteAccount: vi.fn(), requestOniReading: vi.fn(), requestDailyReading: vi.fn(), premiumStatus: vi.fn(async () => ({ premium: false, until: null })) },
   clearVoice: vi.fn(),
 }));
 vi.mock('../lib/api', () => ({ api: mocks.api, ApiError: class extends Error { constructor(message: string, public status: number) { super(message); } } }));

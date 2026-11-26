@@ -10,4 +10,8 @@ export const FEATURES = {
   // La Perle d'Oni en achat intégré Google Play (Android seulement) : ouverte dès que la clé RevenueCat
   // (extra.revenuecatAndroidKey) est renseignée et le produit créé dans la Play Console.
   perleAndroid: true,
+  // Cercle Premium (abonnement mensuel ou annuel, RevenueCat) : visible dès que la clé RevenueCat de la plateforme
+  // est renseignée (extra.revenuecatIosKey / revenuecatAndroidKey / revenuecatWebKey) et l'offre « default » créée.
+  // La page n'annonce que les avantages réellement ouverts (palmDetailed, sisters).
+  premium: true,
 } as const;

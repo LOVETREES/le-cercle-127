@@ -8,6 +8,7 @@ import { Screen, Title } from '../components/ui';
 import { LANGUAGES, t } from '../i18n';
 import { useLanguage } from '../i18n/provider';
 import { readWebError } from '../lib/crash';
+import { premiumPurchasable, usePremium } from '../lib/premium';
 import { useSession } from '../lib/session';
 import { colors, fonts, radius, space, textSize } from '../lib/theme';
 
@@ -29,6 +30,7 @@ function Row({ icon, tint, title, subtitle, danger, onPress }: { icon: string; t
 // Paramètres : langue, compte et informations, au style du Cercle 127.
 export default function Parametres() {
   const { user } = useSession();
+  const premium = usePremium();
   const { lang, setLang } = useLanguage();
   const [choosing, setChoosing] = useState(false);
   const current = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
@@ -66,6 +68,9 @@ export default function Parametres() {
         ) : (
           <Row icon="◐" tint="#f2dea8" title={t('Se connecter')} subtitle={t('Retrouver mon Grimoire partout')} onPress={() => router.push('/connexion')} />
         )}
+        {premium.premium || premiumPurchasable() ? (
+          <Row icon="✦" tint="#f2dea8" title={t('Cercle Premium')} subtitle={premium.premium ? t('Actif') : t('Oni lit chacun de tes rêves')} onPress={() => router.push('/premium')} />
+        ) : null}
         {user ? <Row icon="✕" tint="#e48a8a" title={t('Supprimer mon compte')} danger onPress={() => router.push('/compte')} /> : null}
       </View>
 
