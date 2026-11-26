@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Le Cercle 127 — Grimoire
  * Description: Le tableau de bord du Grimoire : rêves, symboles et émotions qui reviennent, carte des portes (les 7 Sœurs), rêves récents, suivi émotionnel. Construit avec les vraies données de la personne connectée ; le reste de la page (dictée, labyrinthe…) est conservé.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Le Cercle 127
  */
 if (!defined('ABSPATH')) { exit; }
@@ -121,7 +121,26 @@ function c127g_guest_content($html) {
         $registration = wp_registration_url();
     }
     if (!$login) {
-        $login = '<section class="core127 core127-login"><h2>Me connecter</h2><p>Connectez-vous pour retrouver vos rêves.</p><a class="c127g-btn" href="' . esc_url(wp_login_url($redirect)) . '">Me connecter à mon Grimoire</a></section>';
+        // Formulaire de connexion WordPress directement dans la page, aux couleurs du site : plus de détour
+        // par l'écran de connexion de WordPress (et son bouton « WordPress.com » qui déroutait).
+        $notice = (isset($_GET['connexion']) && 'echec' === $_GET['connexion'])
+            ? '<p class="c127g-entry__alert" role="alert">Adresse e-mail, pseudonyme ou mot de passe incorrect. Réessayez, ou réinitialisez votre mot de passe.</p>'
+            : '';
+        $form = function_exists('wp_login_form') ? wp_login_form([
+            'echo' => false,
+            'redirect' => $redirect,
+            'form_id' => 'c127g-loginform',
+            'label_username' => 'Adresse e-mail ou pseudonyme',
+            'label_password' => 'Mot de passe',
+            'label_remember' => 'Rester connecté(e) sur cet appareil',
+            'label_log_in' => 'Me connecter',
+            'remember' => true,
+            'required_username' => true,
+            'required_password' => true,
+        ]) : '';
+        $login = '<section class="core127 core127-login"><h2>Me connecter</h2><p>Retrouvez vos rêves avec l’adresse e-mail et le mot de passe de votre compte du Cercle (les mêmes que dans l’application).</p>'
+            . $notice . $form
+            . '<p class="c127g-entry__alt"><a href="' . esc_url(wp_login_url($redirect)) . '">Autre façon de se connecter</a></p></section>';
     }
 
     ob_start(); ?>
@@ -144,6 +163,14 @@ function c127g_guest_content($html) {
     return (string) ob_get_clean();
 }
 add_filter('the_content', 'c127g_guest_content', PHP_INT_MAX);
+
+/** Un échec de connexion lancé depuis le Grimoire revient au Grimoire, avec un message clair. */
+add_action('wp_login_failed', function () {
+    $referer = wp_get_referer();
+    if (!$referer || false === strpos((string) $referer, '/grimoire/') || !isset($_POST['log'])) { return; }
+    wp_safe_redirect(add_query_arg('connexion', 'echec', home_url('/grimoire/')) . '#c127g-entry-login');
+    exit;
+});
 
 
 /**

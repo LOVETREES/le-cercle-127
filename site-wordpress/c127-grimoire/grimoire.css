@@ -136,3 +136,12 @@ body.c127g-on.c127g-ready .page-hero,.c127g-old,body.c127g-on #c127-map:not(.is-
 .c127g-entry__help{margin:16px 0 0;text-align:center;font-size:.88rem}
 .c127g-entry a:focus-visible,.c127g-entry input:focus-visible,.c127g-entry button:focus-visible{outline:2px solid var(--g-gold2);outline-offset:4px}
 @media(max-width:540px){.c127g-entry__actions{align-items:stretch;flex-direction:column}.c127g-entry__actions .c127g-btn{text-align:center}.c127g-entry__link{text-align:center}}
+
+/* 1.0.2 : formulaire de connexion intégré */
+#c127g-loginform p{margin:0 0 14px}
+#c127g-loginform label{display:block;font-weight:600;margin-bottom:6px;color:var(--g-text)}
+#c127g-loginform .login-remember label{display:flex;align-items:center;gap:8px;font-weight:400}
+#c127g-loginform .login-submit{margin-top:18px}
+#c127g-loginform input[type=submit]{width:100%;cursor:pointer;border:0;border-radius:999px;padding:14px 22px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#1a1424;background:linear-gradient(135deg,#f2dea8,#d8b66b)}
+.c127g-entry__alert{margin:0 0 14px;padding:10px 14px;border-radius:10px;border:1px solid rgba(235,154,104,.6);background:rgba(235,154,104,.1);color:#f4efe2}
+.c127g-entry__alt{margin:12px 0 0;font-size:.9rem;opacity:.8}
