@@ -4,7 +4,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { PalmCamera } from '../components/PalmCamera';
 import { Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Screen, Title } from '../components/ui';
@@ -91,7 +91,8 @@ export default function LectureMain() {
   }, [token]);
   useFocusEffect(load);
 
-  const [cameraOpen, setCameraOpen] = useState(false);
+  // iOS : caméra et galerie passent par le moteur web (voir PalmCamera) ; Android garde les fenêtres natives.
+  const [webPicker, setWebPicker] = useState<'camera' | 'gallery' | null>(null);
 
   /** Réduite à 1400 px et recompressée : assez fine pour les lignes, légère à envoyer. */
   const applyPhoto = async (uri: string, width: number, height: number) => {
@@ -108,8 +109,24 @@ export default function LectureMain() {
 
   const pick = async (camera: boolean) => {
     setNotice(null);
-    // Appareil photo : notre propre écran (expo-camera). La fenêtre photo d'iOS restait noire sur certains iPhone.
-    if (camera) { setCameraOpen(true); return; }
+    if (Platform.OS === 'ios') { setWebPicker(camera ? 'camera' : 'gallery'); return; }
+    if (camera) {
+      const cam = await ImagePicker.requestCameraPermissionsAsync();
+      if (!cam.granted) {
+        setNotice({ tone: 'error', text: t('Le Cercle 127 a besoin de l’appareil photo pour photographier ta main.') });
+        return;
+      }
+      let shot: ImagePicker.ImagePickerResult;
+      try {
+        shot = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1, allowsEditing: false });
+      } catch {
+        setNotice({ tone: 'error', text: t('L’appareil photo n’a pas pu démarrer. Fermez puis rouvrez cet écran, ou utilisez « Choisir une photo ».') });
+        return;
+      }
+      if (shot.canceled || !shot.assets?.[0]) return;
+      await applyPhoto(shot.assets[0].uri, shot.assets[0].width, shot.assets[0].height);
+      return;
+    }
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted && perm.accessPrivileges !== 'limited') {
       setNotice({ tone: 'error', text: t('Autorisez l’accès aux photos dans les réglages du téléphone pour choisir la photo de votre main.') });
@@ -266,10 +283,12 @@ export default function LectureMain() {
         </Card>
       ) : null}
     </Screen>
-    {cameraOpen ? (
+    {webPicker ? (
       <PalmCamera
-        onClose={() => setCameraOpen(false)}
-        onTaken={(uri, w, h) => { setCameraOpen(false); void applyPhoto(uri, w, h); }}
+        mode={webPicker}
+        onClose={() => setWebPicker(null)}
+        onPhoto={(base64) => { setWebPicker(null); setPhoto({ uri: `data:image/jpeg;base64,${base64}`, base64 }); }}
+        onError={(text) => { setWebPicker(null); setNotice({ tone: 'error', text }); }}
       />
     ) : null}
     </View>
