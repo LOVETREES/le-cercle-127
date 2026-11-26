@@ -43,3 +43,4 @@ yarn-error.*
 # Dossiers natifs générés (Continuous Native Generation)
 /ios
 /android
+site-wordpress/c127-app-web/dist/

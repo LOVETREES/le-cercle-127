@@ -168,7 +168,8 @@
       "expo-asset"
     ],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "baseUrl": "/app"
     },
     "extra": {
       "apiBaseUrl": "https://lecercle127.com/wp-json",
