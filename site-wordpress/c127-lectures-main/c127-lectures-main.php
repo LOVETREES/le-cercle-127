@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cercle 127 - Lectures de la main (compte)
  * Description: Sauvegarde dans le compte de la personne les lectures de la main faites avec Terra, et propose la lecture détaillée de la main sur photo (analyse par Terra, photo jamais conservée, première lecture offerte) avec son évolution dans le temps. Authentification identique à l'application (jeton Bearer vérifié par /cercle127/v1/me). Désactiver l'extension n'efface aucune donnée.
- * Version: 1.2.2
+ * Version: 1.2.3
  * Author: Le Cercle 127
  * License: GPL-2.0-or-later
  */
@@ -181,6 +181,9 @@ function c127_palm_detailed_items( $user_id ) {
 }
 
 function c127_palm_is_plus( $user_id ) {
+	if ( function_exists( 'c127_is_premium' ) ) {
+		return c127_is_premium( (int) $user_id );
+	}
 	return '1' === (string) get_user_meta( $user_id, 'c127_plus', true ) || user_can( $user_id, 'manage_options' );
 }
 

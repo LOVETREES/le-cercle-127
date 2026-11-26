@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Le Cercle 127 — Lecture du jour d'Oni
  * Description: Une lecture de rêve immédiate par jour et par compte, sur le Grimoire du site comme dans l'application (même scénario Make, même quota, relue après coup). Le site vérifie le compte et le rêve pour Make (REST c127-oni/v1/reve), sans jamais confier de mot de passe ni de jeton de session au navigateur ; garde-fou de détresse (3114 / 112).
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: Le Cercle 127
  */
 if (!defined('ABSPATH')) { exit; }
@@ -71,6 +71,7 @@ add_action('rest_api_init', function () {
                     'dream_date' => (string) ($d['dream_date'] ?? ''),
                     'symbols' => is_array($d['symbols'] ?? null) ? implode(', ', array_map('strval', $d['symbols'])) : (string) ($d['symbols'] ?? ''),
                     'has_reading' => !empty($d['interpretation']),
+                    'premium' => function_exists('c127_is_premium') && c127_is_premium($uid),
                 ]);
             }
             return new WP_Error('c127od_notfound', 'Rêve introuvable.', ['status' => 404]);
@@ -241,6 +242,8 @@ add_action('rest_api_init', function () {
             $tx = (string) ($e['transaction_id'] ?? ($e['original_transaction_id'] ?? ''));
             $uid = preg_match('/^wp-(\d+)$/', (string) ($e['app_user_id'] ?? ''), $m) ? absint($m[1]) : 0;
             if ($type === 'TEST') { return rest_ensure_response(['ok' => true, 'test' => true]); }
+            // Les autres extensions (Cercle Premium) reçoivent aussi chaque événement.
+            do_action('c127_rc_event', $e, $uid);
             if (!$uid || $tx === '' || !in_array($product, C127OD_PERLE_PRODUCTS, true)) { return rest_ensure_response(['ok' => true, 'ignored' => true]); }
             $v = c127od_verified();
             if ($type === 'NON_RENEWING_PURCHASE') {
