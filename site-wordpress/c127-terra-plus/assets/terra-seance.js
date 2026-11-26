@@ -41,57 +41,146 @@
   }
 
   /* ---------- 2. Le texte : la voix d'une chiromancienne ---------- */
+  // Chaque main reçoit ses propres variantes, choisies d'après ses mesures : même main, même texte ; autre main, autre texte.
+  var SEED = '';
+  function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function vary(x, salt) { return Array.isArray(x) ? x[hash(SEED + '|' + salt) % x.length] : x; }
+  function seedOf(F) {
+    var H = F.lines.heart || {}, T = F.lines.head || {}, V = F.lines.life || {};
+    return [F.ratio, F.fingers, F.thumbLen, F.thumbOpen, F.indexRing, H.length, H.curve, H.endK, T.slope, T.length, V.inner, V.low]
+      .map(function (x) { return x == null || isNaN(x) ? '' : (+x).toFixed(2); }).join('|');
+  }
+  function near(x, t, w) { return x != null && Math.abs(x - t) <= w; }
+  function share(x) { return x >= 1 ? 'toute la largeur de ta paume, et même un peu plus' : Math.round(x * 100) + ' % de la largeur de ta paume'; }
+
   var ELEMENT = {
-    terre: { name: 'main de Terre', icon: '△', key: 'concrète et fiable',
-      text: 'Paume carrée, doigts plutôt courts : c’est une <b>main de Terre</b>. On y lit une personne concrète, fiable, qui a besoin de toucher, de faire, de construire. Tu crois ce que tu vois pousser, et les grandes théories te laissent souvent froide ou froid. Ta force, c’est la constance. Ton piège : continuer à porter ce qui ne te nourrit plus, par simple fidélité.',
+    terre: { name: 'main de Terre', part: 'de Terre', icon: '△', key: 'concrète et fiable',
+      text: ['Paume carrée, doigts plutôt courts : c’est une <b>main de Terre</b>. On y lit une personne concrète, fiable, qui a besoin de toucher, de faire, de construire. Tu crois ce que tu vois pousser, et les grandes théories te laissent souvent froide ou froid. Ta force, c’est la constance. Ton piège : continuer à porter ce qui ne te nourrit plus, par simple fidélité.',
+        'Ta paume est plutôt carrée et tes doigts restent courts par rapport à elle : c’est une <b>main de Terre</b>, la main de celles et ceux qui font. Tu as besoin de résultats tangibles, d’un rythme stable, de choses qui tiennent, et on peut compter sur toi. Ton piège : confondre solidité et immobilité, et rester là où tu n’as plus envie d’être.'],
       force: 'ta constance', defi: 'lâcher ce qui pèse sans le trahir' },
-    air: { name: 'main d’Air', icon: '◇', key: 'curieuse et vive',
-      text: 'Paume carrée, doigts longs : c’est une <b>main d’Air</b>. L’esprit est vif, curieux, communicant. Tu as besoin de comprendre, d’échanger, de mettre des mots sur ce que tu vis. Les idées te portent. Ton piège : vivre dans ta tête et oublier ton corps, ou analyser une émotion au lieu de la ressentir.',
+    air: { name: 'main d’Air', part: 'd’Air', icon: '◇', key: 'curieuse et vive',
+      text: ['Paume carrée, doigts longs : c’est une <b>main d’Air</b>. L’esprit est vif, curieux, communicant. Tu as besoin de comprendre, d’échanger, de mettre des mots sur ce que tu vis. Les idées te portent. Ton piège : vivre dans ta tête et oublier ton corps, ou analyser une émotion au lieu de la ressentir.',
+        'Une paume carrée prolongée par des doigts longs : c’est une <b>main d’Air</b>. La tradition y voit un esprit qui relie, questionne et traduit : tu comprends vite et tu aimes faire comprendre. Les conversations te nourrissent autant qu’un repas. Ton piège : tout passer au filtre de la pensée, au point de ne plus savoir ce que tu ressens.'],
       force: 'ta clarté', defi: 'redescendre de la tête vers le corps' },
-    feu: { name: 'main de Feu', icon: '▲', key: 'élan et intuition',
-      text: 'Paume allongée, doigts plus courts qu’elle : c’est une <b>main de Feu</b>. Il y a de l’élan, de l’enthousiasme, une intuition rapide et l’envie d’agir. Tu démarres vite, tu entraînes les autres, tu as besoin que ça bouge. Ton piège : l’impatience, et cette façon de brûler ton énergie avant d’avoir rechargé.',
+    feu: { name: 'main de Feu', part: 'de Feu', icon: '▲', key: 'élan et intuition',
+      text: ['Paume allongée, doigts plus courts qu’elle : c’est une <b>main de Feu</b>. Il y a de l’élan, de l’enthousiasme, une intuition rapide et l’envie d’agir. Tu démarres vite, tu entraînes les autres, tu as besoin que ça bouge. Ton piège : l’impatience, et cette façon de brûler ton énergie avant d’avoir rechargé.',
+        'Ta paume s’allonge et tes doigts restent plus courts qu’elle : c’est une <b>main de Feu</b>. Tu sens avant d’expliquer, tu démarres avant les autres, et ton enthousiasme est contagieux. Ton piège : te lancer dans trois projets à la fois et t’essouffler avant d’avoir fini le premier.'],
       force: 'ton élan', defi: 'ralentir assez pour durer' },
-    eau: { name: 'main d’Eau', icon: '▽', key: 'sensible et intuitive',
-      text: 'Paume allongée, doigts longs et fins : c’est une <b>main d’Eau</b>. Sensibilité, imagination, intuition : tu perçois les ambiances avant qu’on te les dise, et tu ressens beaucoup. C’est une main d’artiste et d’écoute. Ton piège : absorber les émotions des autres comme si elles étaient les tiennes.',
+    eau: { name: 'main d’Eau', part: 'd’Eau', icon: '▽', key: 'sensible et intuitive',
+      text: ['Paume allongée, doigts longs et fins : c’est une <b>main d’Eau</b>. Sensibilité, imagination, intuition : tu perçois les ambiances avant qu’on te les dise, et tu ressens beaucoup. C’est une main d’artiste et d’écoute. Ton piège : absorber les émotions des autres comme si elles étaient les tiennes.',
+        'Une paume allongée et des doigts longs : c’est une <b>main d’Eau</b>. Tu captes les nuances, les non-dits, les atmosphères ; ton imagination est riche et ton écoute précieuse. Ton piège : te laisser envahir par l’humeur des autres jusqu’à oublier la tienne.'],
       force: 'ta sensibilité', defi: 'distinguer ce qui est à toi de ce qui vient des autres' }
   };
+  // Une mesure proche d'un seuil : la main est mixte, et on le dit.
+  function mixed(F) {
+    var nearShape = near(F.ratio, 1.42, 0.05), nearFing = near(F.fingers, 0.9, 0.03);
+    if (!nearShape && !nearFing) return '';
+    var k = [F.ratio < 1.42 ? 'C' : 'L', F.fingers >= 0.9 ? 'l' : 'c'];
+    if (nearShape) k[0] = k[0] === 'C' ? 'L' : 'C'; else k[1] = k[1] === 'l' ? 'c' : 'l';
+    var O = ELEMENT[{ Cc: 'terre', Cl: 'air', Lc: 'feu', Ll: 'eau' }[k.join('')]];
+    var why = nearShape ? 'ta paume est à la limite entre carrée et allongée (' + num(F.ratio, 2) + ' fois plus longue que large)'
+      : 'tes doigts sont à la limite entre courts et longs (ton majeur mesure ' + num(F.fingers, 2) + ' fois ta paume)';
+    return 'Une nuance pourtant : ' + why + '. Ta main est mixte, avec une part ' + O.part + ', ' + O.key + '. La plupart des mains sont ainsi, et c’est une richesse.';
+  }
   var HEART = {
     end: {
-      jupiter: 'Ta ligne de cœur file jusque sous l’index, vers le mont de Jupiter. C’est le <b>cœur idéaliste</b> : tu aimes avec des valeurs, tu cherches une relation qui te fait grandir, et tu peux être exigeant·e, envers l’autre comme envers toi.',
-      entre: 'Ta ligne de cœur s’achève <b>entre l’index et le majeur</b>. C’est la fin que les chiromanciens aiment le plus, celle de l’équilibre entre l’élan et la raison : tu sais donner sans t’oublier, et tu choisis avec ton cœur, mais les yeux ouverts.',
-      saturne: 'Ta ligne de cœur s’arrête <b>sous le majeur</b>, vers le mont de Saturne. C’est un cœur qui se protège : tu aimes concrètement, par des actes plus que par des mots, et tu as besoin de temps avant d’ouvrir ta porte. Une fois qu’elle est ouverte, ta loyauté est profonde.'
+      jupiter: ['Ta ligne de cœur file jusque sous l’index, vers le mont de Jupiter. C’est le <b>cœur idéaliste</b> : tu aimes avec des valeurs, tu cherches une relation qui te fait grandir, et tu peux être exigeant·e, envers l’autre comme envers toi.',
+        'Ta ligne de cœur monte jusque <b>sous l’index</b>, au pied de Jupiter. La tradition y lit un amour porté par un idéal : tu veux admirer ceux que tu aimes, et qu’ils t’aident à grandir. Garde un peu d’indulgence pour les imperfections, les tiennes comprises.'],
+      entre: ['Ta ligne de cœur s’achève <b>entre l’index et le majeur</b>. C’est la fin que les chiromanciens aiment le plus, celle de l’équilibre entre l’élan et la raison : tu sais donner sans t’oublier, et tu choisis avec ton cœur, mais les yeux ouverts.',
+        'Ta ligne de cœur s’arrête <b>entre l’index et le majeur</b>. Les chiromanciens y voient un cœur qui a trouvé sa mesure : chaleureux sans se perdre, lucide sans se fermer. Tu sais dire oui, et tu sais aussi dire non.'],
+      saturne: ['Ta ligne de cœur s’arrête <b>sous le majeur</b>, vers le mont de Saturne. C’est un cœur qui se protège : tu aimes concrètement, par des actes plus que par des mots, et tu as besoin de temps avant d’ouvrir ta porte. Une fois qu’elle est ouverte, ta loyauté est profonde.',
+        'Ta ligne de cœur vient se poser <b>sous le majeur</b>, au pied du mont de Saturne. La tradition y lit un cœur sérieux, qui observe avant de s’engager : ta tendresse passe par la présence et les services rendus plus que par les déclarations.',
+        'Ta ligne de cœur s’achève <b>sous le majeur</b>, sous Saturne, le mont de la patience. Tu n’offres pas ta confiance au premier venu : tu la construis pierre après pierre, et ceux qui l’ont obtenue savent qu’elle tient.']
     },
     form: {
-      courbe: 'Sa courbe remonte vers les doigts : tes émotions se voient. Tu exprimes ce que tu ressens, avec chaleur et spontanéité.',
-      souple: 'Son tracé reste souple, ni tout droit ni très arqué : tu passes de la retenue à l’élan selon la confiance que tu accordes.',
-      droite: 'Son tracé est plutôt droit : une affectivité pudique et réfléchie. Tu ressens fort mais tu le dis peu ; ceux qui te connaissent savent lire tes gestes.'
-    },
-    len: {
-      longue: 'Longue, elle traverse presque toute la paume : un cœur vaste, capable d’aimer large, que ce soit la famille, les amis ou les causes.',
-      moyenne: 'Sa longueur est mesurée : un juste milieu entre ouverture et intimité.',
-      courte: 'Plutôt courte, elle dit un cœur sélectif : peu d’élus, mais des liens choisis et intenses.'
+      courbe: ['Sa courbe remonte vers les doigts : tes émotions se voient. Tu exprimes ce que tu ressens, avec chaleur et spontanéité.',
+        'Son tracé s’arrondit vers les doigts : tu montres ce que tu ressens, et ta chaleur se voit avant même que tu parles.'],
+      souple: ['Son tracé reste souple, ni tout droit ni très arqué : tu passes de la retenue à l’élan selon la confiance que tu accordes.',
+        'Son tracé ondule doucement, ni rigide ni très arqué : tu t’ouvres par étapes, au rythme de la confiance.'],
+      droite: ['Son tracé est plutôt droit : une affectivité pudique et réfléchie. Tu ressens fort mais tu le dis peu ; ceux qui te connaissent savent lire tes gestes.',
+        'Son tracé file presque à l’horizontale : tu gardes tes émotions pour toi, et c’est dans les gestes du quotidien que ton attachement se lit.']
     },
     depth: { profonde: 'Bien marquée, elle signale des émotions vécues pleinement.', fine: 'Fine et délicate, elle trahit une grande sensibilité, parfois gardée pour toi.', moyenne: '' },
     broken: 'On y voit une coupure, souvent lue comme un tournant : une manière d’aimer qui s’est transformée.'
   };
+  function heartNuance(H, end) {
+    var k = H.endK;
+    if (end === 'saturne' && near(k, 0.08, 0.03)) return 'Son extrémité frôle pourtant l’espace entre majeur et index : derrière ta réserve, il y a une vraie envie d’équilibre et d’échange.';
+    if (end === 'entre' && near(k, 0.08, 0.03)) return 'Elle penche un peu vers le majeur : ton équilibre garde une part de pudeur.';
+    if (end === 'entre' && near(k, 0.22, 0.04)) return 'Elle s’avance presque sous l’index : ton équilibre a une pointe d’idéal.';
+    if (end === 'jupiter' && near(k, 0.22, 0.04)) return 'Elle atteint l’index tout juste : un idéal qui garde les pieds sur terre.';
+    return '';
+  }
+  function heartLen(len, H) {
+    var opts = {
+      longue: ['un cœur vaste, capable d’aimer large, que ce soit la famille, les amis ou les causes.', 'tu as de la place pour beaucoup de monde, et tu t’attaches pour longtemps.'],
+      moyenne: near(H.length, 1.0, 0.05) ? ['presque d’un bord à l’autre, un cœur qui s’ouvre plus largement qu’il ne le montre.', 'à un souffle d’un cœur « long », signe que tu aimes plus largement que tu ne le laisses voir.']
+        : near(H.length, 0.8, 0.05) ? ['juste au-dessus d’un cœur sélectif, et tu choisis tes proches avec soin.', 'tout près d’un cœur sélectif, avec un petit cercle tenu avec soin.']
+        : ['un juste milieu entre ouverture et intimité.', 'assez pour accueillir, sans te disperser.'],
+      courte: ['un cœur sélectif, avec peu d’élus mais des liens choisis et intenses.', 'tu réserves ta tendresse à un petit cercle, et tu t’y donnes entièrement.']
+    };
+    return 'Elle couvre ' + share(H.length) + ' : ' + vary(opts[len], 'hlen');
+  }
+  // Ce que le cœur devient quand on le lit avec le reste de la main.
+  function heartCross(t) {
+    var h = t.heart, hd = t.head;
+    if (h.end === 'saturne' && t.thumbOpen === 'tres') return 'Avec ton pouce très ouvert, cette réserve cache une vraie générosité : tu donnes beaucoup, simplement pas tes confidences.';
+    if (h.end === 'jupiter' && t.thumbOpen === 'serre') return 'Ton pouce resserré tempère cet idéal : tu vises haut, mais tu protèges ton espace.';
+    if (hd && h.form === 'droite' && hd.slope === 'descendante') return 'Cœur pudique et tête imaginative : ce que tu ne dis pas, tu le rêves, l’écris ou le crées.';
+    if (hd && h.form === 'courbe' && hd.slope === 'droite') return 'Un cœur qui s’exprime et une tête qui raisonne : tu ressens d’abord, tu vérifies ensuite.';
+    var byEl = {
+      saturne: { air: 'Main d’Air et cœur sous Saturne : tu parles volontiers de tout, sauf de ce que tu ressens vraiment.',
+        eau: 'Main d’Eau et cœur sous Saturne : tu ressens énormément, et tu as appris à le garder à l’abri.',
+        feu: 'Main de Feu et cœur sous Saturne : ton élan est vif partout, sauf en amour, où tu prends ton temps.',
+        terre: 'Main de Terre et cœur sous Saturne : ta tendresse se mesure en fidélité, en présence, en choses faites ensemble.' },
+      jupiter: { air: 'Main d’Air et cœur sous Jupiter : tu tombes souvent amoureuse ou amoureux d’un esprit avant tout.',
+        eau: 'Main d’Eau et cœur sous Jupiter : tu aimes avec intensité et tu idéalises vite ; laisse aux autres le droit d’être simples.',
+        feu: 'Main de Feu et cœur sous Jupiter : quand tu aimes, tu veux construire quelque chose de grand, et vite.',
+        terre: 'Main de Terre et cœur sous Jupiter : ton idéal amoureux a les pieds sur terre, un foyer, des projets, du solide.' },
+      entre: { air: 'Main d’Air et cœur équilibré : tu sais parler de tes liens sans les abîmer.',
+        eau: 'Main d’Eau et cœur équilibré : ta sensibilité trouve sa juste distance.',
+        feu: 'Main de Feu et cœur équilibré : l’élan est là, mais tu sais choisir où le mettre.',
+        terre: 'Main de Terre et cœur équilibré : un amour simple, fiable, qui ne fait pas de bruit.' }
+    };
+    return byEl[h.end][t.element];
+  }
   var HEAD = {
     slope: {
-      droite: 'Ta ligne de tête est <b>droite</b> : une pensée logique et pragmatique. Tu analyses avant de décider et tu aimes les faits.',
-      inclinee: 'Ta ligne de tête s’incline <b>doucement vers le poignet</b> : tu allies raisonnement et imagination. Tu sais rêver un projet, puis le mettre en plan.',
-      descendante: 'Ta ligne de tête <b>plonge vers le mont de la Lune</b> : imagination fertile, pensée créative et symbolique. Les idées te viennent en images ; prends garde seulement à ne pas t’y perdre.'
+      droite: ['Ta ligne de tête est <b>droite</b> : une pensée logique et pragmatique. Tu analyses avant de décider et tu aimes les faits.',
+        'Ta ligne de tête traverse la paume <b>presque à plat</b> : tu penses par étapes, tu aimes les faits vérifiés et les plans qui tiennent.'],
+      inclinee: ['Ta ligne de tête s’incline <b>doucement vers le poignet</b> : tu allies raisonnement et imagination. Tu sais rêver un projet, puis le mettre en plan.',
+        'Ta ligne de tête descend <b>en pente douce</b> : la raison tient la barre, l’imagination gonfle les voiles.'],
+      descendante: ['Ta ligne de tête <b>plonge vers le mont de la Lune</b> : imagination fertile, pensée créative et symbolique. Les idées te viennent en images ; prends garde seulement à ne pas t’y perdre.',
+        'Ta ligne de tête <b>plonge franchement vers le mont de la Lune</b> : tu penses en images, en intuitions, en histoires. Donne-leur une forme, sinon elles tournent en boucle.']
     },
-    len: { longue: 'Longue, elle montre que tu aimes approfondir et peser chaque option. Penses-tu parfois trop ?', moyenne: '', courte: 'Plutôt courte, elle montre que tu décides vite, à l’instinct, et que tu vas à l’essentiel.' },
+    len: { longue: 'Longue, elle montre que tu aimes approfondir et peser chaque option. Penses-tu parfois trop ?', moyenne: ['', 'De longueur moyenne, elle dit une réflexion qui sait s’arrêter au bon moment.'], courte: 'Plutôt courte, elle montre que tu décides vite, à l’instinct, et que tu vas à l’essentiel.' },
     joint: {
       liees: 'Elle naît collée à ta ligne de vie : c’est un signe de prudence et d’un attachement fort aux tiens. Tu as pris ton temps avant de voler de tes propres ailes.',
       proches: 'Elle démarre tout près de ta ligne de vie, sans s’y coller : un équilibre entre prudence et indépendance.',
       separees: 'Un espace la sépare de ta ligne de vie au départ : indépendance d’esprit, audace, goût de décider par toi-même, parfois un peu vite.'
     }
   };
+  function headNuance(slope, T) {
+    var d = Math.round(T.slope) + '°';
+    if (slope === 'droite' && near(T.slope, 30, 3)) return 'Avec une pente de ' + d + ', elle est à la frontière d’une pensée plus imaginative : la logique domine, mais l’intuition n’est pas loin.';
+    if (slope === 'inclinee' && near(T.slope, 30, 3)) return 'À ' + d + ', elle reste proche d’une ligne droite : ton imagination demande toujours un plan.';
+    if (slope === 'inclinee' && near(T.slope, 40, 3)) return 'À ' + d + ', elle approche de la Lune : l’imagination prend souvent le dessus.';
+    if (slope === 'descendante' && near(T.slope, 40, 3)) return 'À ' + d + ', elle vient tout juste de basculer vers la Lune : un esprit créatif qui garde un fil logique.';
+    return '';
+  }
   var LIFE = {
     arc: {
-      large: 'Ta ligne de vie dessine un <b>large arc</b> qui s’avance vers le centre de la paume : une vitalité généreuse, de l’enthousiasme, le besoin de mouvement et de liens.',
-      moyen: 'Ta ligne de vie trace un <b>arc équilibré</b> : une énergie régulière, que tu sais doser.',
-      serre: 'Ta ligne de vie <b>reste proche du pouce</b> : une énergie qui se protège et qui a besoin de calme pour se recharger. Tu donnes mieux quand tu t’es d’abord ressourcé·e.'
+      large: ['Ta ligne de vie dessine un <b>large arc</b> qui s’avance vers le centre de la paume : une vitalité généreuse, de l’enthousiasme, le besoin de mouvement et de liens.',
+        'Ta ligne de vie <b>s’ouvre largement</b> vers le centre de ta paume : tu as besoin d’espace, de mouvement et de gens autour de toi pour te sentir en forme.'],
+      moyen: ['Ta ligne de vie trace un <b>arc équilibré</b> : une énergie régulière, que tu sais doser.',
+        'Ta ligne de vie trace <b>un arc régulier</b> autour du pouce : ton énergie est stable, tu sais la répartir sur la journée.'],
+      serre: ['Ta ligne de vie <b>reste proche du pouce</b> : une énergie qui se protège et qui a besoin de calme pour se recharger. Tu donnes mieux quand tu t’es d’abord ressourcé·e.',
+        'Ta ligne de vie <b>épouse de près la base du pouce</b> : ton énergie est précieuse et tu la dépenses avec soin. Les moments seuls ne sont pas un luxe pour toi, ce sont des recharges.']
+    },
+    nuance: function (arc, V) {
+      if (arc === 'moyen' && near(V.inner, 0.02, 0.015)) return 'Son arc tire vers le large : quand tu es bien entouré·e, ton énergie décolle.';
+      if (arc === 'moyen' && near(V.inner, 0.1, 0.02)) return 'Son arc tend à se rapprocher du pouce : garde des temps calmes dans ta semaine.';
+      return '';
     },
     len: { longue: 'Elle descend loin vers le poignet : endurance et ancrage solide.', moyenne: '', courte: 'Elle s’efface tôt sur la photo, ce qui n’annonce rien d’inquiétant : on y lit plutôt une énergie qui fonctionne par élans, et qu’il faut écouter.' },
     depth: { profonde: 'Bien creusée, elle dit force de caractère et résistance.', fine: 'Fine, elle dit un corps sensible, qui demande de la douceur.', moyenne: '' }
@@ -108,10 +197,11 @@
     absente: 'Pas de ligne du destin visible : c’est très courant. Elle dit une vie que tu inventes au jour le jour, sans scénario imposé.'
   };
   var QUESTION = {
-    jupiter: 'Qu’attends-tu vraiment de ceux que tu aimes, et te l’accordes-tu à toi-même ?',
-    entre: 'Dans quelle relation pourrais-tu donner un peu moins, et recevoir un peu plus ?',
-    saturne: 'À qui pourrais-tu dire avec des mots, cette semaine, ce que tu montres déjà par tes actes ?'
+    jupiter: ['Qu’attends-tu vraiment de ceux que tu aimes, et te l’accordes-tu à toi-même ?', 'Quelle part de ton idéal pourrais-tu vivre dès cette semaine, telle quelle, sans attendre qu’elle soit parfaite ?'],
+    entre: ['Dans quelle relation pourrais-tu donner un peu moins, et recevoir un peu plus ?', 'Qu’est-ce qui t’aide à rester toi-même au milieu de ceux que tu aimes ?'],
+    saturne: ['À qui pourrais-tu dire avec des mots, cette semaine, ce que tu montres déjà par tes actes ?', 'Quelle porte de ton cœur pourrais-tu entrouvrir, et pour qui ?']
   };
+  function question(end) { return vary(QUESTION[end], 'q'); }
   var HEAD_KEY = { droite: 'une pensée claire et pratique', inclinee: 'une pensée qui unit raison et imagination', descendante: 'une pensée créative' };
   var HEART_KEY = { jupiter: 'un cœur idéaliste', entre: 'un cœur équilibré', saturne: 'un cœur qui se protège' };
   var LIFE_KEY = { large: 'une énergie généreuse', moyen: 'une énergie régulière', serre: 'une énergie à préserver' };
@@ -176,22 +266,25 @@
       rows.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '<small>' + r[2] + '</small></dd>'; }).join('') + '</dl></details>';
   }
   function reading(t, F, hasScene) {
-    var E = ELEMENT[t.element], H = F.lines.heart, T = F.lines.head, h = '';
+    var E = ELEMENT[t.element], H = F.lines.heart, T = F.lines.head, V = F.lines.life, h = '';
     var end = t.heart ? t.heart.end : 'entre';
+    SEED = seedOf(F);
     h += '<p class="c127s-eyebrow">Ta lecture de la main</p>';
     h += '<h3 class="c127s-title">Une ' + E.name + ', ' + E.key + '</h3>';
     h += '<div class="c127s-rgrid"><div class="c127s-rside">';
     if (hasScene) h += '<div class="c127s-scenebox"><div data-c127s-scene></div><button type="button" class="c127s-replay" data-c127s="replay">Revoir le scan</button></div>';
     h += measures(F, t) + '</div><div class="c127s-rmain">';
-    h += '<section class="c127s-elem"><span class="c127s-sigil" aria-hidden="true">' + E.icon + '</span><div><p class="c127s-k">Ta main en un regard</p><p>' + E.text + '</p></div></section>';
+    h += '<section class="c127s-elem"><span class="c127s-sigil" aria-hidden="true">' + E.icon + '</span><div><p class="c127s-k">Ta main en un regard</p><p>' + join([vary(E.text, 'el'), mixed(F)]) + '</p></div></section>';
     if (t.heart) h += sec('heart', 'Ligne de cœur', 'ta manière d’aimer',
-      [HEART.end[t.heart.end], join([HEART.form[t.heart.form], HEART.len[t.heart.len], HEART.depth[t.heart.depth], t.heart.broken && HEART.broken])],
+      [join([vary(HEART.end[t.heart.end], 'hend'), heartNuance(H, t.heart.end)]),
+        join([vary(HEART.form[t.heart.form], 'hform'), heartLen(t.heart.len, H), HEART.depth[t.heart.depth], t.heart.broken && HEART.broken]),
+        heartCross(t)],
       [t.heart.len + ' · ' + num(H.length, 2) + ' paume', { droite: 'droite', souple: 'souple', courbe: 'courbe' }[t.heart.form] + ' · courbure ' + num(H.curve, 2), 'finit ' + L_END[t.heart.end]]);
     if (t.head) h += sec('head', 'Ligne de tête', 'ta manière de penser',
-      [join([HEAD.slope[t.head.slope], HEAD.len[t.head.len]]), t.joint ? join([HEAD.joint[t.joint], JOINT_COMBO[t.joint] && JOINT_COMBO[t.joint][t.element]]) : ''],
+      [join([vary(HEAD.slope[t.head.slope], 'hs'), headNuance(t.head.slope, T), vary(HEAD.len[t.head.len], 'hl')]), t.joint ? join([HEAD.joint[t.joint], JOINT_COMBO[t.joint] && JOINT_COMBO[t.joint][t.element]]) : ''],
       ['pente ' + Math.round(T.slope) + '° · ' + { droite: 'droite', inclinee: 'inclinée', descendante: 'descendante' }[t.head.slope], t.joint && { liees: 'départ lié à la vie', proches: 'départ proche de la vie', separees: 'départ séparé de la vie' }[t.joint]]);
     if (t.life) h += sec('life', 'Ligne de vie', 'ton énergie',
-      [join([LIFE.arc[t.life.arc], LIFE.len[t.life.len], LIFE.depth[t.life.depth]]), 'Elle ne dit rien de la durée de ta vie : elle parle de la façon dont tu dépenses et recharges ton énergie. ' + LIFE_COMBO[t.element]],
+      [join([vary(LIFE.arc[t.life.arc], 'la'), LIFE.nuance(t.life.arc, V), LIFE.len[t.life.len], LIFE.depth[t.life.depth]]), 'Elle ne dit rien de la durée de ta vie : elle parle de la façon dont tu dépenses et recharges ton énergie. ' + LIFE_COMBO[t.element]],
       [L_ARC[t.life.arc], L_LIFELEN[t.life.len]]);
     h += sec('fingers', 'Pouce et doigts', 'ta volonté, tes talents',
       [join([HAND.thumb[t.thumb], HAND.open[t.thumbOpen]]), join([HAND.ir[t.indexRing], fingersCombo(t), HAND.pinky[t.pinky]])],
@@ -203,7 +296,7 @@
       'Une ' + E.name + ', ' + (t.heart ? HEART_KEY[t.heart.end] : 'un cœur à écouter') + ', ' + (t.head ? HEAD_KEY[t.head.slope] : 'une pensée à découvrir') + (t.life ? ' et ' + LIFE_KEY[t.life.arc] : '') + '. ' +
       (t.head ? HEAD_COMBO[t.element][t.head.slope] + ' ' : '') + VERB[t.element] + ', et ' + HEART_CLAUSE[end] + '.</p>' +
       '<p>Ta force du moment, c’est <b>' + E.force + '</b>. Ce que ta main t’invite à travailler : <b>' + E.defi + '</b>.</p>' +
-      '<p class="c127s-q"><span>Question pour ton Grimoire</span>' + QUESTION[end] + '</p>' +
+      '<p class="c127s-q"><span>Question pour ton Grimoire</span>' + question(end) + '</p>' +
       '<div class="c127s-talk"><button type="button" class="c127s-cta" data-c127s="talk-terra">En parler avec Terra</button>' +
       '<button type="button" class="c127s-link" data-c127s="talk-naia">Ou avec Naïa, si ton cœur a été touché</button></div></section>';
     h += '<p class="c127s-note">Lecture symbolique inspirée de la chiromancie traditionnelle, à partir des proportions et des lignes mesurées sur ta photo, directement sur ton appareil. C’est un miroir pour réfléchir, jamais une prédiction ni un avis médical.</p>';
@@ -416,8 +509,8 @@
       var E = ELEMENT[T.element], end = T.heart ? T.heart.end : 'entre';
       var seen = 'une ' + E.name + ', ' + (T.heart ? HEART_KEY[T.heart.end] : 'un cœur à écouter') + (T.head ? ', ' + HEAD_KEY[T.head.slope] : '');
       return who === 'naia'
-        ? 'Terra vient de lire ma main : ' + seen + '. Sa question m’a touché·e : « ' + QUESTION[end] + ' » Ce que je ressens en la lisant : '
-        : 'Tu viens de lire ma main : ' + seen + '. Ta question : « ' + QUESTION[end] + ' » Voici ce que j’en pense : ';
+        ? 'Terra vient de lire ma main : ' + seen + '. Sa question m’a touché·e : « ' + question(end) + ' » Ce que je ressens en la lisant : '
+        : 'Tu viens de lire ma main : ' + seen + '. Ta question : « ' + question(end) + ' » Voici ce que j’en pense : ';
     }
     function talk(who) {
       if (!T) return;
