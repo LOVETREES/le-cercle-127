@@ -6,6 +6,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { PalmCamera } from '../components/PalmCamera';
 import { Body, Card, Eyebrow, GoldButton, Notice, OutlineButton, Screen, Title } from '../components/ui';
 import { getLang, locale, t } from '../i18n';
 import { api } from '../lib/api';
@@ -90,35 +91,44 @@ export default function LectureMain() {
   }, [token]);
   useFocusEffect(load);
 
+  const [cameraOpen, setCameraOpen] = useState(false);
+
+  /** Réduite à 1400 px et recompressée : assez fine pour les lignes, légère à envoyer. */
+  const applyPhoto = async (uri: string, width: number, height: number) => {
+    try {
+      const big = Math.max(width || 0, height || 0);
+      const actions = big > 1400 ? [width >= height ? { resize: { width: 1400 } } : { resize: { height: 1400 } }] : [];
+      const small = await ImageManipulator.manipulateAsync(uri, actions, { compress: 0.86, format: ImageManipulator.SaveFormat.JPEG, base64: true });
+      if (small.base64) setPhoto({ uri: small.uri, base64: small.base64 });
+      else throw new Error('vide');
+    } catch {
+      setNotice({ tone: 'error', text: t('Cette photo n’a pas pu être préparée. Essayez-en une autre, au format JPEG ou HEIC.') });
+    }
+  };
+
   const pick = async (camera: boolean) => {
     setNotice(null);
-    const perm = camera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) {
-      setNotice({ tone: 'error', text: t('Autorisez l’accès dans les réglages du téléphone pour photographier votre main.') });
+    // Appareil photo : notre propre écran (expo-camera). La fenêtre photo d'iOS restait noire sur certains iPhone.
+    if (camera) { setCameraOpen(true); return; }
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted && perm.accessPrivileges !== 'limited') {
+      setNotice({ tone: 'error', text: t('Autorisez l’accès aux photos dans les réglages du téléphone pour choisir la photo de votre main.') });
       return;
     }
-    // iPhone : l'appareil photo s'ouvre en plein écran (en « feuille », l'aperçu restait noir) et seulement
-    // une fois la fenêtre d'autorisation refermée.
-    const opts: ImagePicker.ImagePickerOptions = {
-      mediaTypes: ['images'], quality: 1, allowsEditing: false,
-      presentationStyle: ImagePicker.UIImagePickerPresentationStyle.FULL_SCREEN,
-      cameraType: ImagePicker.CameraType.back,
-    };
-    if (camera) await new Promise((r) => setTimeout(r, 350));
     let res: ImagePicker.ImagePickerResult;
     try {
-      res = camera ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
+      res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'], quality: 1, allowsEditing: false,
+        presentationStyle: ImagePicker.UIImagePickerPresentationStyle.FULL_SCREEN,
+        preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
+      });
     } catch {
-      setNotice({ tone: 'error', text: t('L’appareil photo n’a pas pu s’ouvrir. Prenez la photo avec l’app Appareil photo, puis touchez « Choisir une photo ».') });
+      setNotice({ tone: 'error', text: t('La galerie n’a pas pu s’ouvrir. Utilisez « Photographier ».') });
       return;
     }
     if (res.canceled || !res.assets?.[0]) return;
-    // Réduite à 1400 px et recompressée : assez fine pour les lignes, légère à envoyer.
     const a = res.assets[0];
-    const big = Math.max(a.width || 0, a.height || 0);
-    const actions = big > 1400 ? [a.width >= a.height ? { resize: { width: 1400 } } : { resize: { height: 1400 } }] : [];
-    const small = await ImageManipulator.manipulateAsync(a.uri, actions, { compress: 0.86, format: ImageManipulator.SaveFormat.JPEG, base64: true });
-    if (small.base64) setPhoto({ uri: small.uri, base64: small.base64 });
+    await applyPhoto(a.uri, a.width, a.height);
   };
 
   const send = async () => {
@@ -159,6 +169,7 @@ export default function LectureMain() {
   const timeline = lineTimeline(items);
 
   return (
+    <View style={{ flex: 1 }}>
     <Screen>
       <Pressable onPress={() => router.back()} accessibilityRole="button">
         <Text style={st.back}>‹ {t('Retour')}</Text>
@@ -255,6 +266,13 @@ export default function LectureMain() {
         </Card>
       ) : null}
     </Screen>
+    {cameraOpen ? (
+      <PalmCamera
+        onClose={() => setCameraOpen(false)}
+        onTaken={(uri, w, h) => { setCameraOpen(false); void applyPhoto(uri, w, h); }}
+      />
+    ) : null}
+    </View>
   );
 }
 

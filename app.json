@@ -151,6 +151,14 @@
         }
       ],
       [
+        "expo-camera",
+        {
+          "cameraPermission": "Le Cercle 127 utilise l'appareil photo pour photographier votre main pour la lecture de Terra.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
         "expo-image-picker",
         {
           "photosPermission": "Le Cercle 127 vous permet de choisir une photo de votre main pour la lecture de Terra.",
