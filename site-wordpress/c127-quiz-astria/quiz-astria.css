@@ -1,0 +1,170 @@
+/* Le Cercle 127 — Quiz d'Astria. Tout est rangé sous .c127qa. */
+.c127qa {
+  --qa-night: #0f0d1c;
+  --qa-card: #17142a;
+  --qa-ink: #f4efe2;
+  --qa-muted: #b9b3c6;
+  --qa-gold: #e6c97f;
+  --qa-gold-soft: #f2dea8;
+  --qa-gold-deep: #d8b66b;
+  --qa-line: rgb(230 201 127 / .3);
+  --qa-line-soft: rgb(230 201 127 / .14);
+  --qa-serif: "Cormorant Garamond", Georgia, serif;
+  --qa-sans: Manrope, Inter, system-ui, sans-serif;
+  position: relative;
+  max-inline-size: 560px;
+  margin: 24px auto 40px;
+  padding: 22px 20px 28px;
+  border: 1px solid var(--qa-line);
+  border-radius: 26px;
+  background:
+    url("ciel.webp") 0 0 / 900px 900px repeat,
+    radial-gradient(ellipse 80% 45% at 50% 0%, rgb(124 92 210 / .14), transparent 70%),
+    var(--qa-night);
+  color: var(--qa-ink);
+  font: 400 16px/1.55 var(--qa-sans);
+  box-shadow: 0 1px 0 rgb(255 255 255 / .04) inset, 0 24px 60px rgb(0 0 0 / .4);
+  overflow: hidden;
+}
+.c127qa * { box-sizing: border-box; }
+.c127qa h2 { margin: 4px 0 10px; font: 500 clamp(30px, 8vw, 40px)/1.1 var(--qa-serif); color: var(--qa-ink); text-align: center; letter-spacing: normal; text-transform: none; }
+.c127qa p { margin: 0; }
+.c127qa a { color: var(--qa-gold-soft); }
+.c127qa__fallback { display: flex; align-items: center; gap: 14px; color: var(--qa-muted); }
+.c127qa__fallback img { border-radius: 50%; }
+.c127qa__screen { animation: c127qa-in .35s ease both; display: flex; flex-direction: column; gap: 16px; }
+@keyframes c127qa-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.c127qa__kicker { text-align: center; font: 700 12px/1.4 var(--qa-sans); letter-spacing: .22em; text-transform: uppercase; color: var(--qa-gold); }
+.c127qa__small { font-size: 13.5px; color: var(--qa-muted); }
+.c127qa__center { text-align: center; }
+
+/* En-tête : retour, nom, compteur, barre */
+.c127qa__head { display: grid; grid-template-columns: 40px 1fr 56px; align-items: center; }
+.c127qa__back { inline-size: 40px; block-size: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--qa-muted); font-size: 22px; cursor: pointer; }
+.c127qa__back:hover { color: var(--qa-gold-soft); }
+.c127qa__brand { text-align: center; font: 600 20px/1 var(--qa-serif); color: var(--qa-ink); }
+.c127qa__count { text-align: right; font-size: 14px; color: var(--qa-muted); font-variant-numeric: tabular-nums; }
+.c127qa__bar { block-size: 6px; border-radius: 6px; background: rgb(255 255 255 / .1); overflow: hidden; }
+.c127qa__bar span { display: block; block-size: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--qa-gold-deep), var(--qa-gold-soft)); transition: width .4s ease; }
+
+/* Astria (ou une autre Sœur) qui parle */
+.c127qa__guide { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-block: 6px 4px; }
+.c127qa__bubble {
+  position: relative;
+  padding: 16px 20px;
+  border-radius: 22px;
+  background: #fbf6ea;
+  color: #1c1830;
+  font: 500 clamp(17px, 4.6vw, 20px)/1.4 var(--qa-sans);
+  text-align: center;
+  box-shadow: 0 10px 30px rgb(0 0 0 / .35);
+}
+.c127qa__bubble::after { content: ""; position: absolute; left: 50%; bottom: -9px; translate: -50% 0; border: 10px solid transparent; border-top-color: #fbf6ea; border-bottom: 0; }
+.c127qa__bubble:focus { outline: none; }
+.c127qa__bubble--flat::after { display: none; }
+.c127qa__avatar { inline-size: 56px; block-size: 56px; border-radius: 50%; object-fit: cover; border: 1px solid var(--qa-gold); box-shadow: 0 0 0 4px rgb(230 201 127 / .12); }
+
+/* Accueil */
+.c127qa__intro { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.c127qa__hero { inline-size: 150px; block-size: 150px; border-radius: 50%; object-fit: cover; border: 1px solid var(--qa-gold); box-shadow: 0 0 0 8px rgb(230 201 127 / .08), 0 0 60px rgb(230 201 127 / .25); }
+
+/* Champs */
+.c127qa__label { font: 600 14px/1.3 var(--qa-sans); color: var(--qa-ink); margin-bottom: -8px; }
+.c127qa__input, .c127qa select {
+  inline-size: 100%;
+  min-block-size: 50px;
+  padding: 12px 14px;
+  border: 1px solid rgb(201 192 230 / .35);
+  border-radius: 14px;
+  background: rgb(10 9 20 / .7);
+  color: var(--qa-ink);
+  font: 500 17px/1.3 var(--qa-sans);
+  color-scheme: dark;
+}
+.c127qa__input:focus, .c127qa select:focus { outline: none; border-color: var(--qa-gold); box-shadow: 0 0 0 3px rgb(230 201 127 / .18); }
+.c127qa__date { display: grid; grid-template-columns: .8fr 1.4fr 1fr; gap: 10px; }
+.c127qa__date label { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--qa-muted); }
+.c127qa__err { min-block-size: 1.2em; color: #f2a58e; font-size: 14px; }
+
+/* Signes qui défilent sous la date */
+.c127qa__signs { display: grid; grid-template-columns: 1fr 1.3fr 1fr; align-items: end; min-block-size: 76px; text-align: center; }
+.c127qa__sign { display: flex; flex-direction: column; align-items: center; gap: 2px; font: 600 14px/1.2 var(--qa-serif); color: var(--qa-muted); transition: all .3s; }
+.c127qa__sign b { font: 400 30px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", "DejaVu Sans", serif; color: var(--qa-gold-deep); opacity: .6; }
+.c127qa__sign.is-main { font-size: 18px; color: var(--qa-ink); }
+.c127qa__sign.is-main b { font-size: 44px; opacity: 1; color: var(--qa-gold); text-shadow: 0 0 16px rgb(242 222 168 / .5); }
+
+/* Choix */
+.c127qa__opts { display: grid; gap: 10px; }
+.c127qa__opts--chips { display: flex; flex-wrap: wrap; justify-content: center; }
+.c127qa__opt {
+  padding: 15px 18px;
+  border: 1px solid var(--qa-line-soft);
+  border-radius: 16px;
+  background: rgb(23 20 42 / .85);
+  color: var(--qa-ink);
+  font: 500 16px/1.3 var(--qa-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.c127qa__opts--chips .c127qa__opt { padding: 10px 16px; border-radius: 999px; font-size: 15px; }
+.c127qa__opt:hover { border-color: var(--qa-line); }
+.c127qa__opt.is-on { border-color: var(--qa-gold); background: rgb(230 201 127 / .12); color: var(--qa-gold-soft); }
+
+/* Boutons */
+.c127qa__next {
+  display: flex; align-items: center; justify-content: center;
+  inline-size: 100%; min-block-size: 56px; margin-top: 6px;
+  border: 0; border-radius: 999px;
+  background: linear-gradient(135deg, var(--qa-gold-soft), var(--qa-gold-deep));
+  color: #1a1424;
+  font: 700 16px/1 var(--qa-sans); letter-spacing: .04em;
+  cursor: pointer; text-decoration: none;
+  box-shadow: 0 10px 28px rgb(216 182 107 / .25);
+}
+.c127qa__next:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+.c127qa__link { color: #1a1424 !important; }
+.c127qa__skip { align-self: center; border: 0; background: none; color: var(--qa-muted); font: 500 14px/1.4 var(--qa-sans); text-decoration: underline; cursor: pointer; }
+.c127qa__ghost { display: flex; align-items: center; justify-content: center; min-block-size: 50px; border: 1px solid var(--qa-gold); border-radius: 999px; color: var(--qa-gold) !important; font: 700 14px/1.2 var(--qa-sans); text-decoration: none; text-align: center; padding: 0 16px; }
+.c127qa :is(button, a):focus-visible { outline: 2px solid var(--qa-gold-soft); outline-offset: 3px; }
+
+/* Calcul : les Sept Sœurs en orbite */
+.c127qa__orbit { position: relative; inline-size: 220px; block-size: 220px; margin: 10px auto; animation: c127qa-spin 6s linear infinite; }
+.c127qa__orbit img { position: absolute; left: 50%; top: 50%; inline-size: 52px; block-size: 52px; margin: -26px; border-radius: 50%; border: 1px solid var(--qa-line); object-fit: cover;
+  transform: rotate(calc(var(--i) * 51.43deg)) translateY(-84px) rotate(calc(var(--i) * -51.43deg)); }
+@keyframes c127qa-spin { to { rotate: 360deg; } }
+
+/* La carte du Cercle */
+.c127qa__card { display: flex; flex-direction: column; gap: 14px; animation: c127qa-in .5s ease both; }
+.c127qa__sub { text-align: center; color: var(--qa-muted); font-size: 15px; margin-top: -6px; }
+.c127qa__portrait { position: relative; inline-size: 190px; aspect-ratio: 1; margin: 8px auto; }
+.c127qa__halo { position: absolute; inset: -22%; border-radius: 50%; background: radial-gradient(circle, rgb(200 120 200 / .45), rgb(230 120 110 / .25) 45%, transparent 70%); filter: blur(6px); }
+.c127qa__portrait img { position: relative; inline-size: 100%; block-size: 100%; border-radius: 50%; object-fit: cover; border: 1px solid var(--qa-gold); }
+.c127qa__astres { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; padding: 14px 6px; border-radius: 18px; background: rgb(23 20 42 / .7); border: 1px solid var(--qa-line-soft); }
+.c127qa__astre { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.c127qa__glyph { font: 400 32px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", "DejaVu Sans", serif; color: #ec8a6e; }
+.c127qa__astre strong { font: 600 17px/1.2 var(--qa-serif); color: var(--qa-ink); }
+.c127qa__astre small { font-size: 12.5px; color: var(--qa-muted); }
+.c127qa__door { display: grid; grid-template-columns: 92px 1fr; gap: 14px; align-items: center; padding: 14px; border: 1px solid var(--qa-line); border-radius: 18px; background: linear-gradient(180deg, #1e1a36, #15122a); }
+.c127qa__num { display: grid; place-items: center; inline-size: 92px; aspect-ratio: 2 / 3; border-radius: 12px; border: 1px solid var(--qa-gold); background: radial-gradient(circle at 50% 30%, rgb(230 201 127 / .18), transparent 70%), #120f24; font: 500 40px/1 var(--qa-serif); color: var(--qa-gold); text-shadow: 0 0 18px rgb(242 222 168 / .45); }
+.c127qa__door small { display: block; font: 700 11px/1.4 var(--qa-sans); letter-spacing: .14em; text-transform: uppercase; color: var(--qa-gold); }
+.c127qa__door strong { display: block; font: 600 22px/1.2 var(--qa-serif); color: var(--qa-ink); margin: 2px 0 4px; }
+.c127qa__door p { font-size: 14px; color: var(--qa-muted); }
+.c127qa__read p { margin: 0 0 10px; font-size: 16px; line-height: 1.65; color: rgb(244 239 226 / .9); }
+.c127qa__note { text-align: center; font: italic 400 16px/1.4 var(--qa-serif); color: var(--qa-muted); }
+.c127qa__cta { display: flex; flex-direction: column; gap: 10px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .c127qa__screen, .c127qa__card { animation: none; }
+  .c127qa__orbit { animation: none; }
+  .c127qa__bar span { transition: none; }
+}
+@media (max-width: 420px) {
+  .c127qa { margin-inline: -6px; padding: 18px 14px 24px; border-radius: 22px; }
+  .c127qa__date { grid-template-columns: .8fr 1.5fr 1.1fr; gap: 6px; }
+}
+
+/* Le thème du site colore les paragraphes de la page : la bulle garde son encre sombre, lisible sur le crème. */
+.c127qa .c127qa__bubble { color: #1c1830 !important; opacity: 1 !important; }
+.c127qa p:not(.c127qa__bubble):not(.c127qa__small):not(.c127qa__note):not(.c127qa__sub):not(.c127qa__err) { color: inherit; }
