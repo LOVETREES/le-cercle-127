@@ -145,3 +145,14 @@ body.c127g-on.c127g-ready .page-hero,.c127g-old,body.c127g-on #c127-map:not(.is-
 #c127g-loginform input[type=submit]{width:100%;cursor:pointer;border:0;border-radius:999px;padding:14px 22px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#1a1424;background:linear-gradient(135deg,#f2dea8,#d8b66b)}
 .c127g-entry__alert{margin:0 0 14px;padding:10px 14px;border-radius:10px;border:1px solid rgba(235,154,104,.6);background:rgba(235,154,104,.1);color:#f4efe2}
 .c127g-entry__alt{margin:12px 0 0;font-size:.9rem;opacity:.8}
+
+/* 1.0.3 : les Sœurs apparaissent en transparence sur la carte des portes */
+.c127g-map{overflow:visible}
+.c127g-face{transition:opacity .4s}
+.c127g-node.is-fermee .c127g-face{opacity:.25}
+.c127g-node.is-ouverte .c127g-face{opacity:.72}
+.c127g-node.is-encours .c127g-face{opacity:1}
+.c127g-node circle{fill:#120f24}
+.c127g-node text{font-size:12px}
+.c127g-node.is-ouverte text,.c127g-node.is-encours text{fill:#f3dca0}
+.c127g-node.is-fermee text{fill:#7d7c95}

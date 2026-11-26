@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Le Cercle 127 — Grimoire
  * Description: Le tableau de bord du Grimoire : rêves, symboles et émotions qui reviennent, carte des portes (les 7 Sœurs), rêves récents, suivi émotionnel. Construit avec les vraies données de la personne connectée ; le reste de la page (dictée, labyrinthe…) est conservé.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Le Cercle 127
  */
 if (!defined('ABSPATH')) { exit; }
@@ -21,6 +21,7 @@ add_action('wp_enqueue_scripts', function () {
         'dreams' => esc_url_raw(rest_url('cercle127/v1/dreams')),
         'memories' => esc_url_raw(rest_url('c127-f127/v1/memories')),
         'nonce' => wp_create_nonce('wp_rest'),
+        'img' => esc_url_raw(plugin_dir_url(__FILE__) . 'soeurs/'),
         'name' => $u && $u->display_name ? $u->display_name : '',
         'links' => [
             'oni' => home_url('/lecture-de-reve/'),

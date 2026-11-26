@@ -118,6 +118,8 @@
 
     // Carte des portes
     var cx = 160, cy = 150, r = 112, map = '<svg class="c127g-map" viewBox="0 0 320 300" role="img" aria-label="Carte des portes : ' + opened + ' sur 7 ouvertes">';
+    // Chaque Sœur apparaît en transparence, plus nette à mesure que sa porte s'ouvre (comme dans l'application).
+    map += '<defs>' + D.map(function (d, i) { var a = -Math.PI / 2 + i * 2 * Math.PI / 7; return '<clipPath id="c127g-face-' + i + '"><circle cx="' + (cx + r * Math.cos(a)).toFixed(1) + '" cy="' + (cy + r * Math.sin(a)).toFixed(1) + '" r="20"/></clipPath>'; }).join('') + '</defs>';
     map += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" class="c127g-ring"/><circle cx="' + cx + '" cy="' + cy + '" r="' + (r - 34) + '" class="c127g-ring c127g-ring--in"/>';
     var pts = D.map(function (d, i) { var a = -Math.PI / 2 + i * 2 * Math.PI / 7; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
     for (var i = 0; i < 7; i++) for (var j = i + 2; j < 7; j += 3) map += '<line x1="' + pts[i][0].toFixed(1) + '" y1="' + pts[i][1].toFixed(1) + '" x2="' + pts[j % 7][0].toFixed(1) + '" y2="' + pts[j % 7][1].toFixed(1) + '" class="c127g-star"/>';
@@ -125,7 +127,9 @@
     D.forEach(function (d, i) {
       map += '<a href="' + esc(d.url) + '" class="c127g-node is-' + d.state + '" aria-label="Porte ' + d.num + ', ' + esc(d.name) + ' : ' + { ouverte: 'ouverte', encours: 'en cours', fermee: 'fermée' }[d.state] + '">' +
         '<title>' + esc(d.name) + (d.last ? ' · dernière fois le ' + fmt(d.last) : ' · pas encore rencontrée') + '</title>' +
-        '<circle cx="' + pts[i][0].toFixed(1) + '" cy="' + pts[i][1].toFixed(1) + '" r="22"/><text x="' + pts[i][0].toFixed(1) + '" y="' + (pts[i][1] + 5).toFixed(1) + '" text-anchor="middle">' + d.num + '</text></a>';
+        '<circle cx="' + pts[i][0].toFixed(1) + '" cy="' + pts[i][1].toFixed(1) + '" r="22"/>' +
+        (C.img ? '<image class="c127g-face" href="' + esc(C.img + d.key + '.webp') + '" x="' + (pts[i][0] - 20).toFixed(1) + '" y="' + (pts[i][1] - 20).toFixed(1) + '" width="40" height="40" preserveAspectRatio="xMidYMid slice" clip-path="url(#c127g-face-' + i + ')"/>' : '') +
+        '<text x="' + pts[i][0].toFixed(1) + '" y="' + (pts[i][1] + (C.img ? 38 : 5)).toFixed(1) + '" text-anchor="middle">' + (C.img ? esc(d.name) : d.num) + '</text></a>';
     });
     map += '</svg>';
     h += '<section class="c127g-card c127g-doors" aria-labelledby="c127g-doors-h"><h2 id="c127g-doors-h" class="c127g-h c127g-h--c">Carte des portes</h2>' + map +
