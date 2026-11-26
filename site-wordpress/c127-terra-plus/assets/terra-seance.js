@@ -414,6 +414,7 @@
         }
       } else if (d.stage === 'done') {
         D = d; T = d.feats ? traits(d.feats) : null;
+        if (T) terraFetch(T, d.feats);
         var polys = d.feats && d.feats.polys;
         var finishScan = function () {
           wrap.classList.remove('is-scanning');
@@ -494,28 +495,40 @@
     function go(n) { var nav = root.querySelector('[data-step-nav="' + n + '"]'); if (nav) nav.click(); }
     var rsc = null, AI = null;
     /* Terra réécrit la lecture à partir des mesures ; si elle ne répond pas, la lecture locale reste. */
-    function personalize(box) {
+    // Terra commence à écrire dès la fin du scan, pendant que la personne découvre ses traits.
+    var pending = {};
+    function readingKey(F) { return 'c127_seance_' + hash(seedOf(F)); }
+    function cachedReading(F) { try { return JSON.parse(sessionStorage.getItem(readingKey(F)) || 'null'); } catch (e) { return null; } }
+    function terraFetch(t, F) {
       // Une page encore en cache n'a que l'adresse de la lecture détaillée : on en déduit celle du relais.
       var cfg = window.C127TerraDetailed || {};
       var url = cfg.seance || (cfg.rest ? String(cfg.rest).replace(/c127-palm\/v1\/?$/, 'c127-terra/v1/seance') : '');
+      if (!url || !window.fetch) return Promise.resolve(null);
+      var key = readingKey(F), cached = cachedReading(F);
+      if (cached) return Promise.resolve(cached);
+      if (pending[key]) return pending[key];
+      var body = facts(t, F); body.lang = (document.documentElement.lang || 'fr').slice(0, 2);
+      pending[key] = fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (d && d.reading) { try { sessionStorage.setItem(key, JSON.stringify(d.reading)); } catch (e) {} return d.reading; }
+          delete pending[key]; return null;
+        })
+        .catch(function () { delete pending[key]; return null; });
+      return pending[key];
+    }
+    function personalize(box) {
       AI = null;
-      if (!url || !window.fetch) return;
-      var key = 'c127_seance_' + hash(SEED);
-      var cached = null;
-      try { cached = JSON.parse(sessionStorage.getItem(key) || 'null'); } catch (e) {}
+      var cached = cachedReading(D.feats);
       if (cached) { apply(cached, false); return; }
       var note = el('p', 'c127s-writing', '<span aria-hidden="true"></span>Terra écrit ta lecture à partir de tes mesures…');
       note.setAttribute('role', 'status');
       box.insertBefore(note, box.firstChild);
       box.classList.add('is-writing');
-      var body = facts(T, D.feats); body.lang = (document.documentElement.lang || 'fr').slice(0, 2);
-      fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (d) {
-          if (d && d.reading) { try { sessionStorage.setItem(key, JSON.stringify(d.reading)); } catch (e) {} apply(d.reading, true); }
-        })
-        .catch(function () {})
-        .then(function () { note.remove(); box.classList.remove('is-writing'); });
+      terraFetch(T, D.feats).then(function (r) {
+        note.remove(); box.classList.remove('is-writing');
+        if (r) apply(r, true);
+      });
       function apply(r, fade) {
         if (!box.isConnected) return;
         AI = r;
