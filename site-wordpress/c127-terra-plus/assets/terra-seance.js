@@ -265,6 +265,37 @@
     return '<details class="c127s-measures" open><summary>Mesures relevées sur ta photo</summary><dl>' +
       rows.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '<small>' + r[2] + '</small></dd>'; }).join('') + '</dl></details>';
   }
+  /* Ce que Terra reçoit pour écrire la lecture : les mesures mises en mots, jamais la photo. */
+  function pct(x) { return Math.round(x * 100) + ' %'; }
+  function facts(t, F) {
+    var H = F.lines.heart, T = F.lines.head, V = F.lines.life, f = [], n = [];
+    var DEPTH = { fine: 'fine', moyenne: 'nettement visible', profonde: 'bien creusée' };
+    f.push('Paume ' + { carree: 'plutôt carrée', rect: 'rectangulaire', longue: 'allongée' }[t.shape] + ' (' + num(F.ratio, 2) + ' fois plus longue que large)');
+    f.push('Doigts ' + { courts: 'plus courts que la paume', prop: 'proportionnés à la paume', longs: 'longs' }[t.fingers] + ' (le majeur mesure ' + pct(F.fingers) + ' de la paume)');
+    f.push('Pouce ' + t.thumb + ', ' + { serre: 'proche de la main', ouvert: 'ouvert', tres: 'très ouvert' }[t.thumbOpen] + ' (' + Math.round(F.thumbOpen) + '° avec l’index)');
+    f.push({ index: 'Index plus long que l’annulaire', annulaire: 'Annulaire plus long que l’index', egal: 'Index et annulaire presque égaux' }[t.indexRing]);
+    f.push('Auriculaire ' + t.pinky);
+    if (H && t.heart) f.push('Ligne de cœur : traverse ' + pct(H.length) + ' de la largeur de la paume, finit ' + L_END[t.heart.end] + ', tracé ' +
+      { droite: 'presque droit', souple: 'légèrement arqué', courbe: 'qui remonte en courbe vers les doigts' }[t.heart.form] + ', ' + DEPTH[t.heart.depth] + (t.heart.broken ? ', avec une coupure visible' : ''));
+    if (T && t.head) f.push('Ligne de tête : ' + { droite: 'presque horizontale', inclinee: 'descend en pente douce', descendante: 'plonge vers le mont de la Lune' }[t.head.slope] +
+      ' (' + Math.round(T.slope) + '°), longueur ' + t.head.len + (t.joint ? ', départ ' + { liees: 'collé à la ligne de vie', proches: 'tout près de la ligne de vie', separees: 'séparé de la ligne de vie' }[t.joint] : '') +
+      ', ' + DEPTH[t.head.depth] + (t.head.broken ? ', avec une coupure visible' : ''));
+    if (V && t.life) f.push('Ligne de vie : ' + L_ARC[t.life.arc] + ', ' + L_LIFELEN[t.life.len] + ', ' + DEPTH[t.life.depth] + (t.life.broken ? ', avec une coupure visible' : ''));
+    if (near(F.ratio, 1.42, 0.05)) n.push('Paume à la limite entre carrée et allongée');
+    if (near(F.ratio, 1.6, 0.05)) n.push('Paume à la limite entre rectangulaire et très allongée');
+    if (near(F.fingers, 0.9, 0.03)) n.push('Doigts à la limite entre courts et longs');
+    if (near(F.thumbOpen, 20, 3) || near(F.thumbOpen, 36, 3)) n.push('Ouverture du pouce entre deux formes');
+    if (H && t.heart) {
+      if (near(H.endK, 0.08, 0.03)) n.push('Fin de la ligne de cœur entre le majeur et l’espace entre majeur et index');
+      if (near(H.endK, 0.22, 0.04)) n.push('Fin de la ligne de cœur presque sous l’index');
+      if (near(H.length, 1.0, 0.05)) n.push('Ligne de cœur presque longue');
+      if (near(H.length, 0.8, 0.05)) n.push('Ligne de cœur entre courte et moyenne');
+      if (near(H.curve, 0.055, 0.008) || near(H.curve, 0.075, 0.008)) n.push('Tracé du cœur entre deux courbures');
+    }
+    if (T && t.head && (near(T.slope, 30, 3) || near(T.slope, 40, 3))) n.push('Pente de la ligne de tête à la limite entre deux formes');
+    if (V && t.life && (near(V.inner, 0.02, 0.015) || near(V.inner, 0.1, 0.02))) n.push('Arc de la ligne de vie entre deux ouvertures');
+    return { element: t.element, faits: f, nuances: n };
+  }
   function reading(t, F, hasScene) {
     var E = ELEMENT[t.element], H = F.lines.heart, T = F.lines.head, V = F.lines.life, h = '';
     var end = t.heart ? t.heart.end : 'entre';
@@ -299,7 +330,7 @@
       '<p class="c127s-q"><span>Question pour ton Grimoire</span>' + question(end) + '</p>' +
       '<div class="c127s-talk"><button type="button" class="c127s-cta" data-c127s="talk-terra">En parler avec Terra</button>' +
       '<button type="button" class="c127s-link" data-c127s="talk-naia">Ou avec Naïa, si ton cœur a été touché</button></div></section>';
-    h += '<p class="c127s-note">Lecture symbolique inspirée de la chiromancie traditionnelle, à partir des proportions et des lignes mesurées sur ta photo, directement sur ton appareil. C’est un miroir pour réfléchir, jamais une prédiction ni un avis médical.</p>';
+    h += '<p class="c127s-note">Lecture symbolique inspirée de la chiromancie traditionnelle, à partir des proportions et des lignes mesurées sur ta photo, sur ton appareil. Terra rédige ta lecture à partir de ces mesures : ta photo n’est jamais envoyée. C’est un miroir pour réfléchir, jamais une prédiction ni un avis médical.</p>';
     return h + '</div></div>';
   }
 
@@ -461,7 +492,53 @@
     });
 
     function go(n) { var nav = root.querySelector('[data-step-nav="' + n + '"]'); if (nav) nav.click(); }
-    var rsc = null;
+    var rsc = null, AI = null;
+    /* Terra réécrit la lecture à partir des mesures ; si elle ne répond pas, la lecture locale reste. */
+    function personalize(box) {
+      // Une page encore en cache n'a que l'adresse de la lecture détaillée : on en déduit celle du relais.
+      var cfg = window.C127TerraDetailed || {};
+      var url = cfg.seance || (cfg.rest ? String(cfg.rest).replace(/c127-palm\/v1\/?$/, 'c127-terra/v1/seance') : '');
+      AI = null;
+      if (!url || !window.fetch) return;
+      var key = 'c127_seance_' + hash(SEED);
+      var cached = null;
+      try { cached = JSON.parse(sessionStorage.getItem(key) || 'null'); } catch (e) {}
+      if (cached) { apply(cached, false); return; }
+      var note = el('p', 'c127s-writing', '<span aria-hidden="true"></span>Terra écrit ta lecture à partir de tes mesures…');
+      note.setAttribute('role', 'status');
+      box.insertBefore(note, box.firstChild);
+      box.classList.add('is-writing');
+      var body = facts(T, D.feats); body.lang = (document.documentElement.lang || 'fr').slice(0, 2);
+      fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (d && d.reading) { try { sessionStorage.setItem(key, JSON.stringify(d.reading)); } catch (e) {} apply(d.reading, true); }
+        })
+        .catch(function () {})
+        .then(function () { note.remove(); box.classList.remove('is-writing'); });
+      function apply(r, fade) {
+        if (!box.isConnected) return;
+        AI = r;
+        var put = function (n, txt) { if (n && txt) n.textContent = txt; };
+        put(box.querySelector('.c127s-title'), r.title);
+        put(box.querySelector('.c127s-elem div > p:not(.c127s-k)'), r.overview);
+        ['heart', 'head', 'life', 'fingers'].forEach(function (k) {
+          var sct = box.querySelector('.c127s-sec[data-k="' + k + '"]');
+          if (!sct || !r[k]) return;
+          var ps = sct.querySelectorAll(':scope > p');
+          if (!ps.length) return;
+          ps[0].textContent = r[k];
+          for (var i = 1; i < ps.length; i++) ps[i].remove();
+        });
+        var t4 = box.querySelector('.c127s-sum__t');
+        if (t4 && t4.nextElementSibling && t4.nextElementSibling.tagName === 'P') put(t4.nextElementSibling, r.synthesis);
+        var q = box.querySelector('.c127s-q');
+        if (q && r.question) { var lab = q.querySelector('span'); q.textContent = ''; if (lab) q.appendChild(lab); q.appendChild(document.createTextNode(r.question)); }
+        var mq = finalP.querySelector('.c127s-mantra');
+        if (mq && r.mantra) { var ml = mq.querySelector('span'); mq.textContent = ''; if (ml) mq.appendChild(ml); mq.appendChild(document.createTextNode('« ' + r.mantra + ' »')); }
+        if (fade) { box.classList.remove('is-ai'); void box.offsetWidth; box.classList.add('is-ai'); }
+      }
+    }
     function finish() {
       if (!T || !D || !D.feats) { go(3); return; }
       fill(root, T);
@@ -482,11 +559,13 @@
       }
       try { sessionStorage.setItem('c127_palm_reading', JSON.stringify({ at: Date.now(), t: T })); } catch (e) {}
       remember(T);
+      personalize(box);
       // Le mantra du jour se teinte de l'élément de la main (le moteur vient de remplir le sien).
       setTimeout(function () {
         var q = finalP.querySelector('[data-mantra]'); if (!q || !q.parentNode) return;
         var old = q.parentNode.querySelector('.c127s-mantra'); if (old) old.remove();
-        var m = el('p', 'c127s-mantra', '<span>Pour ta ' + ELEMENT[T.element].name + '</span>« ' + MANTRA[T.element] + ' »');
+        var m = el('p', 'c127s-mantra', '<span>Pour ta ' + ELEMENT[T.element].name + '</span>');
+        m.appendChild(document.createTextNode('« ' + (AI && AI.mantra ? AI.mantra : MANTRA[T.element]) + ' »'));
         q.parentNode.insertBefore(m, q.nextSibling);
       }, 80);
       setTimeout(function () { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120);
@@ -509,8 +588,8 @@
       var E = ELEMENT[T.element], end = T.heart ? T.heart.end : 'entre';
       var seen = 'une ' + E.name + ', ' + (T.heart ? HEART_KEY[T.heart.end] : 'un cœur à écouter') + (T.head ? ', ' + HEAD_KEY[T.head.slope] : '');
       return who === 'naia'
-        ? 'Terra vient de lire ma main : ' + seen + '. Sa question m’a touché·e : « ' + question(end) + ' » Ce que je ressens en la lisant : '
-        : 'Tu viens de lire ma main : ' + seen + '. Ta question : « ' + question(end) + ' » Voici ce que j’en pense : ';
+        ? 'Terra vient de lire ma main : ' + seen + '. Sa question m’a touché·e : « ' + ((AI && AI.question) || question(end)) + ' » Ce que je ressens en la lisant : '
+        : 'Tu viens de lire ma main : ' + seen + '. Ta question : « ' + ((AI && AI.question) || question(end)) + ' » Voici ce que j’en pense : ';
     }
     function talk(who) {
       if (!T) return;
